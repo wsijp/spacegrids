@@ -65,6 +65,7 @@ import numpy.ma as ma
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import types
+import inspect
 
 import glob
 
@@ -285,7 +286,7 @@ def guess_grid_type(crd, default = 'ts_grid'):
 def make_dual(crd,name = None,guess_append = True,append_last=True, zero_boundary = False):
 
 
-  if name == None:
+  if name is None:
     name = crd.name
 
   if guess_append:
@@ -316,7 +317,7 @@ def find_set_dual(cstack, force = None):
 
   """
 
-  if force == None:
+  if force is None:
     # Check if duals have been defined before. If one such coord is found, function is aborted (it is assumed it is not needed then).
     for c in cstack:
       if c.dual != c:
@@ -554,7 +555,7 @@ class exper:
 
      
       # Prepare the paths to all the netcdf files into a list     
-      if filename == None:
+      if filename is None:
             
           paths = []
           for root, dirs, files in os.walk(top = self.path):
@@ -580,7 +581,7 @@ class exper:
           break
         file.close()
 
-      if F == None:
+      if F is None:
         print 'Warning: var '+ varname + ' for ' + self.name + ' could not be read.'	 
 
       else:
@@ -737,7 +738,7 @@ class project:
       return [self.expers[k] for k in self.expers]
 
     else:
-      raise Exception("io: exper not loaded.")
+      raise Exception("io: exper %s not loaded." % val)
     
   def __call__(self, expnames='first', varnames='show'):
  
@@ -806,7 +807,7 @@ class project:
       
       shapes_list = []
       for expname in self.expers.keys():
-        if self.expers[expname].vars[thisvar] == None:
+        if self.expers[expname].vars[thisvar] is None:
           shape_str = ''
         else:
           shape_str =  str(self.expers[expname].vars[thisvar].shape)
@@ -1070,7 +1071,7 @@ class ax:
 
   def copy(self):
 
-    return ax(name = self.name)
+    return self.__class__(name = self.name)
 
   def __call__(self,other):
 
@@ -1200,8 +1201,9 @@ class ax:
           return other[other.eq_index(self)]
 
         else:
-          raise Exception('Axis not in coord grid.')
-         
+#          raise Exception('Axis not in coord grid.')
+          return None 
+        
       elif isinstance(other,ax_gr):
         if self in other:
           return other
@@ -1261,21 +1263,25 @@ class coord():
     Copy function for coord objects. If equiv = True, the copies will be equivalent.
     """
 
-    if name == None:
-      name = self.name
-    if value == None:
-      value = self.value
-    if axis == None:
-      axis = self.axis
-    if direction == None:
-      direction = self.direction
-    if units == None:
-      units = self.units
+    frame = inspect.currentframe()
+    args, _, _, values = inspect.getargvalues(frame)
 
-    if long_name == None:
-      long_name = self.long_name
+    del values['frame']
+    del values['equiv']   
+   
+    del values['self']    
 
-    result = coord(name = name, value = value, axis = axis,direction = direction, units = units,long_name = long_name)
+    
+    for arg in values:
+      if (arg in self.__dict__):
+
+          if values[arg] is None:
+            values[arg] = self.__dict__[arg]
+
+      else:
+        print 'Warning: arg %s is not an object attribute.' %arg
+
+    result = self.__class__(**values)
     if equiv:
       result|self
 
@@ -1498,7 +1504,13 @@ class coord():
       print '+ only implemented for self-dual coord objects (e.g. time), returning None.'
       return None  
 
+  def finer(self,factor = 5.):
 
+    result = []
+
+    for i in range(0,len(self)-1):
+      result += list(np.arange(self[i],self[i+1],(self[i+1] - self[i])/factor))
+    return self.copy(name = self.name + '_fine',value = np.array(result))  
 
   def bigslice(self, F = None, index = 0):
 
@@ -1560,7 +1572,9 @@ class coord():
     else:
       raise  Exception('coord sum method: coord must be in grid of argument field. Make sure coord object is identical to coord objects in field grid.')   
 
-
+  def roll(self,shift = 0):
+    
+    return self.copy(name = self.name + '_rolled',value = np.roll(self.value,shift = shift))
 
   def flip(self,F):
     """
@@ -1724,26 +1738,40 @@ class xcoord(coord):
 
     """
 
-    if name == None:
-      name = self.name
-    if value == None:
-      value = self.value
-    if axis == None:
-      axis = self.axis
-    if direction == None:
-      direction = self.direction
-    if units == None:
-      units = self.units
+    frame = inspect.currentframe()
+    args, _, _, values = inspect.getargvalues(frame)
 
-    if long_name == None:
-      long_name = self.long_name
- 
-    result = xcoord(name = name, value = value, axis = axis,direction = direction, units = units,long_name = long_name)
+    del values['frame']
+    del values['equiv']   
+   
+    del values['self']     
+    
+    for arg in values:
+      if (arg in self.__dict__):
+
+          if values[arg] is None:
+            values[arg] = self.__dict__[arg]
+
+      else:
+        print 'Warning: arg %s is not an object attribute.' %arg
+   
+  
+    result = self.__class__(**values)
 
     if equiv:
       result|self
 
     return result
+
+  def roll(self,shift = 0):
+    value = np.roll(self.value,shift = shift)
+    if shift > 0:
+      value[:shift] -= 360.
+    elif shift < 0:
+      value[shift:] += 360.
+      value -= 360.
+   
+    return self.copy(name = self.name + '_rolled',value = value)
 
 
   def coord_shift(self,F,shift):
@@ -1892,21 +1920,26 @@ class ycoord(coord):
     Copy function for coord objects. If equiv = True, the copies will be equivalent.
     """
 
-    if name == None:
-      name = self.name
-    if value == None:
-      value = self.value
-    if axis == None:
-      axis = self.axis
-    if direction == None:
-      direction = self.direction
-    if units == None:
-      units = self.units
+    frame = inspect.currentframe()
+    args, _, _, values = inspect.getargvalues(frame)
 
-    if long_name == None:
-      long_name = self.long_name
+    del values['frame']
+    del values['equiv']   
+   
+    del values['self']    
 
-    result = ycoord(name = name, value = value, axis = axis,direction = direction, units = units,long_name = long_name)
+    
+    for arg in values:
+      if (arg in self.__dict__):
+
+          if values[arg] is None:
+            values[arg] = self.__dict__[arg]
+
+      else:
+        print 'Warning: arg %s is not an object attribute.' %arg
+   
+ 
+    result = self.__class__(**values)
 
     if equiv:
       result|self
@@ -1933,7 +1966,6 @@ class Operator():
 
   def __call__(self,F):
     return None # subclasses will override this
-
 
   def __pow__(self,n):
 
@@ -2285,7 +2317,7 @@ def which_att(obj,att_list,fail_val = None):
 def get_att(obj, att_list,fail_val = None):
 
   this_att = which_att(obj, att_list)
-  if this_att == None:
+  if this_att is None:
     return fail_val
   else:
     return getattr(obj, this_att)
@@ -2800,9 +2832,9 @@ def roll(F,shift=1,coord=None,axis=None,mask=False):
 
 # avoid deepcopy for fields
 # Fr is the rolled field.
-  Fr = field(name=F.name,value = F.value,grid = F.gr, direction = F.direction)
-  Fr.value = np.roll(Fr.value,shift=shift,axis=axis)
 
+  Fr = F.copy(value = np.roll(F.value,shift=shift,axis=axis), grid = coord.roll(shift = shift)*F.gr )
+  
   if mask:
     sl = slice(*(None,))
     
@@ -3059,6 +3091,15 @@ class gr(tuple):
         rp += i.name +','
  
     return rp+')'
+
+  def __eq__(self,other):
+
+    if len(self) == len(other):
+
+      return reduce(lambda x,y: x and y, [ np.array_equal(e[:], other[i][:]) for i,e in enumerate(self)  ] )
+
+    else:
+      return False
 
   def __call__(self,other):
     """
@@ -3764,22 +3805,30 @@ class field:
 
   def copy(self, name = None, value = None, grid = None, units = None, direction = None):
 
-    if name == None:
-      name = self.name
+    frame = inspect.currentframe()
+    args, _, _, values = inspect.getargvalues(frame)
 
-    if value == None:
-      value = self.value
+    # aliases used when arguments do not all match class attribute names
+    aliases = {'grid':'gr'}
 
-    if grid == None:
-      grid = self.gr
+    del values['frame']
+    del values['self']    
 
-    if units == None:
-      units = self.units
+    
+    for arg in values:
+      if (arg in self.__dict__):
+         
+          if values[arg] is None:
+            values[arg] = self.__dict__[arg]
+      elif (arg in aliases):
+          if values[arg] is None:
+            values[arg] = self.__dict__[aliases[arg]]
 
-    if direction == None:
-      direction = self.direction
-
-    return field(name = name, value = value, grid = grid, units = units, direction = direction)
+      else:
+        print 'Warning: arg %s is not an object attribute.' %arg
+   
+    # In case class are derived from the field class (as opposed to return field(**values) here):
+    return self.__class__(**values)
 
 
 
@@ -3899,7 +3948,10 @@ class field:
         if isinstance(i,coord):
           crds.append(i)
         elif isinstance(i,ax):
-          crds.append(i*self.gr) 
+          if i*self.gr is None:
+            raise Exception('Slice axis %s not in field %s grid %s.' % (i,self,self.gr))
+          else:
+            crds.append(i*self.gr) 
         elif isinstance(i,int)  | isinstance(i,slice):
           slices.append(i)
 
@@ -3915,6 +3967,9 @@ class field:
 
         if len(crds) == 1:
           crd = crds[0]
+          if not isinstance(crd,coord):
+            raise Exception('Slice axis not valid. Value crd is: %s '  % crd)
+
           slc = slices[0]
           new_value = self.slice(sl_coord = crd, slice_obj = slc)
 
@@ -3922,6 +3977,7 @@ class field:
 
           if isinstance(slc,int):
              # Simple slice case at a certain point along an axis.
+            
              return self.copy(value = new_value, grid = self.gr/crd)
 
           elif isinstance(slc,slice):
@@ -4449,6 +4505,15 @@ def print_table(D, cols = 4, numspace = 2):
     print '%-15s %-15s' % (k , D[k]),
 
 
+def finer_field(F):
+
+  """
+  This is a more UVic specific function to prepare a field containing the outline of the continents for horizontal plots.
+  """
+
+  fine_gr = reduce(lambda x,y: x*y, [crd.finer() for crd in F.gr])
+  
+  return F(fine_gr)
 
 
 def treat_kmt(kmt):
@@ -4481,7 +4546,7 @@ def plot(fld0 = None,fld1=None, minus_z=True,xlbl='',ylbl='', **kwargs):
    Function that calls plot, but takes fields as arguments (instead of numpy arrays)
    """
  
-   if fld1 == None:
+   if fld1 is None:
      crd = fld0.gr[0]
      if minus_z: 
        if hasattr(crd,'axis'):
