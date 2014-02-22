@@ -3101,9 +3101,9 @@ class gr(tuple):
     else:
       return False
 
-  def __call__(self,other):
+  def __call__(self,other, method = 'linear'):
     """
-    Input: other grid. 
+    Input: other gr object (grid). 
 
     The call method of a gr object takes another gr object and yields a function F. This function F takes an array A and re-arranges the order of   the indices to match the input gr object. If the length of the input object exceeds that of the calling object, F(A) also expands the array along the additional axes. Note that the coords of the calling gr object need to be a subset of the argument gr object.
     
@@ -3141,7 +3141,7 @@ class gr(tuple):
         pm = self.eq_perm(other)
         # if there is a permutation of the coords up to equivalence, pm is that permutation and after permuting array A, the result needs to be interpolated from the permuted self (namely self.rearrange(pm)) to other.
         if pm:
-          return lambda A: (self.shuffle(pm)).smart_interp(np.transpose(A,pm),other)
+          return lambda A: (self.shuffle(pm)).smart_interp(np.transpose(A,pm),other, method = method)
         else:
           print "grids not equivalent"
           return
@@ -3172,7 +3172,7 @@ class gr(tuple):
         pm = self_expanded.eq_perm(other, verbose = False)
         if pm:
           # line up the equivalent coord elements in the same order for interpolation.
-          return lambda A: (self_expanded.shuffle(pm)).smart_interp(np.transpose(self.expand(A,self_expanded),pm),other)
+          return lambda A: (self_expanded.shuffle(pm)).smart_interp(np.transpose(self.expand(A,self_expanded),pm),other, method = method)
         else:
           print "grids not equivalent"
           return
@@ -3200,7 +3200,7 @@ class gr(tuple):
       else:
         pm = self.eq_perm(target_grid, verbose = False) 
         if pm:
-          return lambda A: other.reduce((self.shuffle(pm)).smart_interp(np.transpose(A,pm),target_grid),target_grid)
+          return lambda A: other.reduce((self.shuffle(pm)).smart_interp(np.transpose(A,pm),target_grid, method = method),target_grid)
 
         else:
           print 'Nope'
@@ -3331,7 +3331,7 @@ class gr(tuple):
     return self.inflated
 
 
-  def smart_interp(self,A,other):
+  def smart_interp(self,A,other, method = 'linear'):
 
     """
     Inputs: an array A of the shape corresponding to self.
@@ -3390,7 +3390,7 @@ class gr(tuple):
 # B has now been interpolated.
       B = np.array(B)
 
-# some diagnostic prints
+# some commented out diagnostic prints
 #      print I
 #      print self/I
 
@@ -3406,11 +3406,11 @@ class gr(tuple):
 
       return B
     else:
-      return self.interp(A,other)
+      return self.interp(A,other, method = method)
 
 # methods belong to gr class
 
-  def interp(self,A,other):
+  def interp(self,A,other, method = 'linear'):
 
 
 # it is assumed that self^other and that the shape of array A corresponds to the lenghts of the coord elements of self (and therefore other).
@@ -3428,7 +3428,7 @@ class gr(tuple):
         L = -L
         R = -R
        
-      IA = griddata(L,A,R)
+      IA = griddata(L,A,R, method = method)
       
     
       return IA
@@ -3438,7 +3438,7 @@ class gr(tuple):
       L = np.array([ e.ravel() for e in self.inflate() ]).transpose()
       R = np.array([ e.ravel() for e in other.inflate() ]).transpose()  
 
-      IA = griddata(L,A.ravel(),R)
+      IA = griddata(L,A.ravel(),R, method = method)
       IA=IA.reshape(other.shape())
     
       return IA
@@ -4024,12 +4024,12 @@ class field:
 
 
 
-  def __call__(self,grid):
+  def __call__(self,grid, method = 'linear'):
 
 # this method is very important. 
 # If field T is naturally defined on grid yt*xt, then T(zt*yt*xt) yields a field with value a 3D array b such that b[k,:,:] = T(yt*xt) for all possible k.
 
-    value = (self.gr(grid))(self.value)
+    value = (self.gr(grid, method = method))(self.value)
 
     if isinstance(value,list):
 # in this case the grid argument is a subspace of self.gr so that the grid of the elements is self.gr/grid due to the way self.gr(grid) has been constructed (see call method for grid objects).
@@ -4505,15 +4505,15 @@ def print_table(D, cols = 4, numspace = 2):
     print '%-15s %-15s' % (k , D[k]),
 
 
-def finer_field(F):
+def finer_field(F,factor =5.):
 
   """
   This is a more UVic specific function to prepare a field containing the outline of the continents for horizontal plots.
   """
 
-  fine_gr = reduce(lambda x,y: x*y, [crd.finer() for crd in F.gr])
+  fine_gr = reduce(lambda x,y: x*y, [crd.finer(factor = factor) for crd in F.gr])
   
-  return F(fine_gr)
+  return F(fine_gr,method ='nearest')
 
 
 def treat_kmt(kmt):
@@ -4527,7 +4527,7 @@ def treat_kmt(kmt):
   gryi = np.array([ [y/5 for x in range(5*sh[1])] for y in range(5*sh[0]) ]).ravel()
 
 
-  kmti = griddata(np.array([grx,gry]).transpose(),kmt.ravel(),np.array([grxi,gryi]).transpose(),'nearest')
+  kmti = griddata(np.array([grx,gry]).transpose(),kmt.ravel(),np.array([grxi,gryi]).transpose(),method = 'nearest')
 
 
   kmti = kmti.reshape((5*sh[0],5*sh[1]))
