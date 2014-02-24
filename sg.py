@@ -1534,13 +1534,15 @@ class coord():
       return F
 
 # belongs to class coord
-  def coord_shift(self,F,shift):
+  def coord_shift(self,F,shift, keepgrid = False):
 
     """
-    This method shifts the coordinates by a number of indices, namely parameter shift.
+    This method shifts the coordinates by a number of indices, namely parameter shift. The shifted coord in the grid of the field argument is replaced with a (different) shifted coord: disable this behaviour with argument keepgrid = True.
+
+   calls roll function. 
     """
 
-    return roll(F,shift = shift,coord = self,mask=True)
+    return roll(F,shift = shift,coord = self,mask=True, keepgrid = keepgrid)
 
 # belongs to class coord 
   def trans(self,F):
@@ -1548,7 +1550,8 @@ class coord():
     Gives the change in field F upon a coord shift of 1 index in the direction of the self coord
     """
 
-    return F-self.coord_shift(F,shift=1)
+    # select keepgrid = True to avoid substraction errors relating to different grids
+    return F-self.coord_shift(F,shift=1,keepgrid = True)
 
   def sum(self,F, land_nan = True):
     """
@@ -1773,13 +1776,13 @@ class xcoord(coord):
    
     return self.copy(name = self.name + '_rolled',value = value)
 
-
-  def coord_shift(self,F,shift):
+# belongs to xcoord 
+  def coord_shift(self,F,shift, keepgrid = False):
     """
     Overides coord coord_shift method. Here, mask is False, so that the array is rotated.
     """
 
-    return roll(F,shift = shift,coord = self)
+    return roll(F,shift = shift,coord = self, keepgrid = keepgrid)
 
   def der(self, F,y_coord,method = None):
 
@@ -1798,7 +1801,7 @@ class xcoord(coord):
 
     else:
 
-      raise Exception("Derivative error: gield argument not defined on coord.")
+      raise Exception("Derivative error: field argument not defined on coord.")
 
   def angle_trans(self,y_coord,fact = R):
  
@@ -2810,10 +2813,12 @@ def read_masks(dir_path, msk_shape=0,grids = False, msk_val =2, parent = 'orphan
 
 # ---- some general functions ----
 
-def roll(F,shift=1,coord=None,axis=None,mask=False):
+def roll(F,shift=1,coord=None,axis=None,mask=False,keepgrid = False):
 
   """
-  Function that rolls a field similar to np.roll on numpy arrays (sg roll actually calls np.roll). Axis can be picked via coord name. If mask is True, the elements that rolled from the other side of the array are set to nan (appropriate for non re-entrant domains).
+  Function that rolls a field similar to np.roll on numpy arrays (sg roll actually calls np.roll). Axis can be picked via coord name. If mask is True, the elements that rolled from the other side of the array are set to nan (appropriate for non re-entrant domains). The rolled coord element of the grid belonging to field F is replaced by a new coord object reflecting the roll operation. To disable this coord replacement, use argument keepgrid = True
+
+  
 
   NOTE: axis here means np array index.
 
@@ -2833,9 +2838,20 @@ def roll(F,shift=1,coord=None,axis=None,mask=False):
 # avoid deepcopy for fields
 # Fr is the rolled field.
 
-  Fr = F.copy(value = np.roll(F.value,shift=shift,axis=axis), grid = coord.roll(shift = shift)*F.gr )
+  if keepgrid is True:
+    # keep the original grid of field F
+    newgr = F.gr 
+  elif keepgrid is False:
+    # replace the grid with one with rolled coord
+    newgr = coord.roll(shift = shift)*F.gr 
+  else:
+    raise Exception('Argument error in roll of field %s. Provide True or False for keepgrid argument. ') % F
+
+
+  Fr = F.copy(value = np.roll(F.value,shift=shift,axis=axis), grid = newgr )
   
   if mask:
+    # handle the areas in the field that need to be set to nan
     sl = slice(*(None,))
     
     if shift > 0:
