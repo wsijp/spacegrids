@@ -1,6 +1,6 @@
 SPACEGRIDS README. 
 
-The Spacegrids, “”Numpy on grids”, is designed to ensure consistency between data and grid information via interacting objects of fields, grids, coordinates and axes. It provides very simple expressions for complex operations. 
+The Spacegrids module, “”Numpy on grids”, is designed to ensure consistency between data and grid information via interacting objects of fields, grids, coordinates and axes. It provides very simple expressions for complex operations. 
 
 Works with: UVic (all versions), CSIRO Mk3L, FAMOUS, CCM3.6 (Atmosphere), Levitus Data
 
