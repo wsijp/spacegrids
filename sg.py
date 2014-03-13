@@ -10,14 +10,19 @@ code by W. P. Sijp
 
 The main classes are:
 
- coord	  - grid points along a coordinate axis (discretisation).
- ax	  - axis: represents general coord direction.
- gr	  - grid: derived from tuple class, containing coord objects.	
- ax_gr	  - grid of axes: as gr, but containing ax elements.
- field	  - includes numpy array of data, has grid in gr attribute.
- vfield   - vector field. tuple-derived container of field elements.
- exper	  - experiment. Represents an experiment directory.
- project  - project. Represents a project directory. 
+Fields and their grids:
+
+ coord	  - grid points along a coordinate axis (discretisation of 1D space)
+ ax	  - axis: represents general coord direction: a meta coord. E.g. X,Y.
+ gr	  - coord grid: tuple containing coord objects, representing a latice.
+ ax_gr	  - tuple of axes: as gr, but containing ax elements. E.g. X,Y.
+ field	  - yields numpy array of data (e.g. temperature), has grid in gr attribute
+ vfield   - vector field. tuple of field elements
+
+Data management:
+
+ exper	  - experiment. Represents an experiment directory
+ project  - project. Represents a project directory
  
 In addition, an Operator class and derived classes are defined to create objects that act on field and vfield objects. Objects have certain multiplication rules that allow a succinct notation of common procedures (e.g. taking zonal mean by F/X).
 
