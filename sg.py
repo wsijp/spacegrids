@@ -2,7 +2,12 @@
 """
 
 spacegrids module version 1. 
-This module contains classes to work with and organise climate model (and observational) data. The goal is to provide convenient coordinate, grid and data (field) classes that link together, and have short and intuitive data manipulation expressions (e.g. zonal mean or grid interpolation). In addition, a small framework for project data management is provided. No optimisation is attempted.
+This module contains classes to work with and organise climate model 
+(and observational) data. The goal is to provide convenient coordinate,
+ grid and data (field) classes that link together, and have short 
+and intuitive data manipulation expressions (e.g. zonal mean or grid
+ interpolation). In addition, a small framework for project data management
+ is provided. No optimisation is attempted.
 
 =============================================================
 
@@ -24,33 +29,60 @@ Data management:
  exper	  - experiment. Represents an experiment directory
  project  - project. Represents a project directory
  
-In addition, an Operator class and derived classes are defined to create objects that act on field and vfield objects. Objects have certain multiplication rules that allow a succinct notation of common procedures (e.g. taking zonal mean by F/X).
+In addition, an Operator class and derived classes are defined to create 
+objects that act on field and vfield objects. Objects have certain 
+multiplication rules that allow a succinct notation of common procedures (e.g.
+ taking zonal mean by F/X).
 
-Project and exper objects correspond to directories on disk, and allow data loaded from disk to be organized in memory. Each project directory is contained in a root directory PROJECTS, and contains a number of experiment directories and a text file called projname (to flag it as a project directory and name it) containing only the name of that project. Each experiment directory contains a number of netcdf files.
+Project and exper objects correspond to directories on disk, and allow data
+ loaded from disk to be organized in memory. Each project directory is 
+contained in a root directory PROJECTS, and contains a number of experiment
+ directories and a text file called projname (to flag it as a project directory 
+and name it) containing only the name of that project. Each experiment 
+directory contains a number of netcdf files.
 
-Works with any reasonably formatted Netcdf data files (so most model output). Has been tested to work with UVic (all versions), CSIRO Mk3L, FAMOUS, CCM3.6 (Atmosphere), Levitus Data. 
+Works with any reasonably formatted Netcdf data files (so most model output). 
+Has been tested to work with UVic (all versions), CSIRO Mk3L, FAMOUS, CCM3.6 
+(Atmosphere), Levitus Data. 
 
-Some problems detected with post-conversion Netcdf LOVECLIM ocean output: likely related to the imported Netcdf module Scientific.IO.NetCDF.
+Some problems detected with post-conversion Netcdf LOVECLIM ocean output: 
+likely related to the imported Netcdf module Scientific.IO.NetCDF.
 
 =============================================================
 
 
-Disclaimer: this code is a work in progress and may contain mistakes and could yield inaccurate answers. 
+Disclaimer: this code is a work in progress and may contain mistakes and could
+ yield inaccurate answers. 
 
 Quick Overview:
 
-Assuming the data is organised inside a directory PROJECTS inside $HOME on disk (change this via rootdir arg to sg.info), start on a python command line or inside a python script by obtaining an inventory D of all the projects. Then start a project P corresponding to a project name defined in the text file "projname" that you previously created inside the project directory (e.g. via echo test > projname in bash), say you called it "test":
+Assuming the data is organised inside a directory PROJECTS inside $HOME on disk
+ (change this via rootdir arg to sg.info), start on a python command line or
+ inside a python script by obtaining an inventory D of all the projects. Then
+ start a project P corresponding to a project name defined in the text file
+ "projname" that you previously created inside the project directory (e.g. via
+ echo test > projname in bash), say you called it "test":
 
 D = sg.info()			# obtain dictionary of names vs paths
 P = sg.project(D['test']) 	# create project using path. Collects coords etc.
 
-Say the project contains an experiment named 'flx_BL'. Then P['flx_BL'] in the python namespace provides access to this exper object. To load data from disk into the project attributes (located in memory), use e.g.:
+Say the project contains an experiment named 'flx_BL'. Then P['flx_BL'] in the python
+ namespace provides access to this exper object. To load data from disk into the
+ project attributes (located in memory), use e.g.:
 
 P.load(['sat','temperature','v'])	# v is meridional ocean velocity
 
-The data for flx_BL is now accessible via e.g. F = P['flx_BL']['sat']. F is a field object, and it has a grid attribute: F.gr = (yt,xt,) where yt and xt are coord objects (other names could be 'longitude', 'latitude' etc). They contain numpy arrays of the grid coordinates along a particular axis (X,Y,Z,T), accessed via xt[:] etc. F[:] yields a numpy array containing the data.   
+The data for flx_BL is now accessible via e.g. F = P['flx_BL']['sat']. F is a field
+ object, and it has a grid attribute: F.gr = (yt,xt,) where yt and xt are coord 
+objects (other names could be 'longitude', 'latitude' etc). They contain numpy 
+arrays of the grid coordinates along a particular axis (X,Y,Z,T), accessed via 
+xt[:] etc. F[:] yields a numpy array containing the data.   
 
-F.gr could also be constructed via yt*xt, this is a shorthand notation and a way to build grids.   coord objects have an axis attribute, which is an ax object. For xt and xu, it is X. Y for yt. ax objects have no values, but retain the multiplication rules of coord objects. coord and ax objects from experiment flx_BL can be pulled into the namespace by their names via:
+F.gr could also be constructed via yt*xt, this is a shorthand notation and a way to
+ build grids.   coord objects have an axis attribute, which is an ax object. For xt
+ and xu, it is X. Y for yt. ax objects have no values, but retain the multiplication
+ rules of coord objects. coord and ax objects from experiment flx_BL can be pulled
+ into the namespace by their names via:
 
 for c in P['flx_BL'].cstack:
     exec c.name +' = c'
@@ -60,7 +92,9 @@ for l in P['flx_BL'].axes:
 
 where all the coord objects for flx_BL are in P['flx_BL'].cstack, and ax objects in P['flx_BL'].axes.
 
-Integrals of F can be obtained via X*F, Y*F etc, resulting in field objects with grid (yt,) resp. (xt,). Primitive functions are obtained via X|F etc, mean via F/X etc. See the Manual for further information.
+Integrals of F can be obtained via X*F, Y*F etc, resulting in field objects with
+ grid (yt,) resp. (xt,). Primitive functions are obtained via X|F etc, mean via
+ F/X etc. See the Manual for further information.
 
 
  
@@ -230,10 +264,14 @@ def merge(A1,A2):
 def add_alias(L):
   """
   Takes list L of objects with name attribute.
-  Some of these names might be the same. To yield unique identifiers, a unique alias attribute can be assigned to the objects, to be used in practice instead of the names (as the names need to correspond to the netcdf names). E.g. ('latitude','latitude','latitude','longitude','depth') yields aliases: ('latitude','latitude2','latitude3','longitude','depth')
+  Some of these names might be the same. To yield unique identifiers, a unique
+ alias attribute can be assigned to the objects, to be used in practice instead
+ of the names (as the names need to correspond to the netcdf names). E.g. ('latitude','latitude','latitude','longitude','depth') yields aliases: ('latitude','latitude2','latitude3','longitude','depth')
 
-  This is useful when coord names are used interactively in the namespace of e.g. ipython, and allows the user to tell the coord objects that have the same name apart.
-  coord and gr __repr__ methods will display alias attribute instead of name if the alias attribute is available.
+  This is useful when coord names are used interactively in the namespace of
+ e.g. ipython, and allows the user to tell the coord objects that have the 
+same name apart.  coord and gr __repr__ methods will display alias attribute 
+instead of name if the alias attribute is available.
 
 
   """
