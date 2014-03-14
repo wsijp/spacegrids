@@ -109,12 +109,6 @@ import types
 import inspect
 
 import glob
-
-try:
-  import poly
-  no_poly = 0
-except:
-  no_poly = 1
   
 try:
   import Scientific.IO.NetCDF
