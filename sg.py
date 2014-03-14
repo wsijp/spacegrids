@@ -28,7 +28,9 @@ In addition, an Operator class and derived classes are defined to create objects
 
 Project and exper objects correspond to directories on disk, and allow data loaded from disk to be organized in memory. Each project directory is contained in a root directory PROJECTS, and contains a number of experiment directories and a text file called projname (to flag it as a project directory and name it) containing only the name of that project. Each experiment directory contains a number of netcdf files.
 
-Works with: UVic (all versions), CSIRO Mk3L, FAMOUS, CCM3.6 (Atmosphere), Levitus Data
+Works with any reasonably formatted Netcdf data files (so most model output). Has been tested to work with UVic (all versions), CSIRO Mk3L, FAMOUS, CCM3.6 (Atmosphere), Levitus Data. 
+
+Some problems detected with post-conversion Netcdf LOVECLIM ocean output: likely related to the imported Netcdf module Scientific.IO.NetCDF.
 
 =============================================================
 
