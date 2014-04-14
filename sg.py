@@ -109,17 +109,22 @@ import types
 import inspect
 
 import glob
-  
-try:
-  import Scientific.IO.NetCDF
-  from Scientific.IO import NetCDF
-  from Scientific.IO.NetCDF import *
-  no_cdf =0
-except:
-  no_cdf = 1
-  
+ 
+use_scientificio = False
+
+if use_scientificio is True:  
+  try:
+    import Scientific.IO.NetCDF
+    print 'Using Scientific.IO.NetCDF'
+  except:
+    print 'no Scientific io. Reverting to scipy'
+    from scipy.io import netcdf  
+    use_scientificio = False
+else:
+  from scipy.io import netcdf         
+
 import inspect 
-  
+
 from scipy.interpolate import griddata
 
 import fnmatch
@@ -128,8 +133,6 @@ import copy
 
 import itertools
 
-if no_cdf == 1:
-  print "NetCDF library not found."
 
 # masked arrays are done as follows:
 #  S=[1.,2.,3.,np.nan,5.]
@@ -613,7 +616,14 @@ class exper:
       for filepath in paths:
        
 
-        file = NetCDFFile(filepath,'r')
+        if use_scientificio is True:
+          file = Scientific.IO.NetCDF.NetCDFFile(filepath,'r')
+  
+        else:
+        # Scipy way:
+          file = netcdf.netcdf_file(filepath,'r')
+
+
         if varname in file.variables:
 
           F = cdfread(filepath,varname,self.cstack,self.axes)
@@ -2436,16 +2446,28 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True):
   Input filepath is complete path pointing to file.
 
   """
-  file = NetCDFFile(filepath,'r')
+
+  if use_scientificio is True:
+    file = Scientific.IO.NetCDF.NetCDFFile(filepath,'r')
   
+  else:
+  # Scipy way:
+    file = netcdf.netcdf_file(filepath,'r')
+ 
   if varname not in file.variables:
     if verbose:
       print 'Warning (moderate) from cdfread: var name not in file.'
     return None
 
-  body = file.variables[varname][:]
+  body = copy.deepcopy(file.variables[varname][:])
   dims = list(file.variables[varname].dimensions)
-  mis_val = get_att(file.variables[varname], fval_names,fail_val = [np.nan])[0] 
+
+  fvn = get_att(file.variables[varname], fval_names,fail_val = [np.nan])
+  if isinstance(fvn,list):  
+    mis_val = fvn[0] 
+  else:
+    mis_val = fvn
+
 #  mis_val = file.variables[varname].missing_value[0]
   if hasattr(file.variables[varname],'units'):
     units = file.variables[varname].units
@@ -2473,8 +2495,9 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True):
   try: 
     body[body == mis_val] = np.nan
   except:
-    pass
-
+    
+    print 'Warning: missing value not set to NaN.'
+ 
   grid = []
 
   for dim in dims:
@@ -2559,7 +2582,12 @@ def cdfsniff_helper(filepath, verbose = False):
 # axis to the possible axes encountered in netcdf: X,Y,Z
   global cdf_axes
 
-  file = NetCDFFile(filepath,'r')
+  if use_scientificio is True:
+    file = Scientific.IO.NetCDF.NetCDFFile(filepath,'r')
+  
+  else:
+  # Scipy way:
+    file = netcdf.netcdf_file(filepath,'r')
 
   coord_stack = []
   dimensions = file.dimensions
