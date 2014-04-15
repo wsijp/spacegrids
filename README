@@ -1,6 +1,6 @@
 SPACEGRIDS README. 
 
-The Python 2.7 Spacegrids module, “”Numpy on grids”, provides useful classes for analyzing spatial data defined on grids. It is designed to ensure consistency between data and grid information via interacting objects of fields, grids, coordinates and axes. It provides very simple expressions for complex operations, including volume and distance related concepts such as integration and differentiation. 
+The Python 2.7 Spacegrids module, "Numpy on grids", provides useful classes for analyzing spatial data defined on grids. It is designed to ensure consistency between data and grid information via interacting objects of fields, grids, coordinates and axes. It provides very simple expressions for complex operations, including volume and distance related concepts such as integration and differentiation. 
 
 Works with most models and datasets, including: UVic (all versions), CSIRO Mk3L, FAMOUS, CCM3.6 (Atmosphere), Levitus Data
 
