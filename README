@@ -24,7 +24,7 @@ Before using the sg module, Netcdf data must be organised inside directories you
 The following python modules are required:
 
 numpy
-matplotlib
+matplotlib (requires python-tk)
 scipy
 
 It is possible to use Scientific.IO (for Netcdf) instead of scipy for Netcdf IO by setting a flag.
