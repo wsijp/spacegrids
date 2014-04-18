@@ -8,18 +8,19 @@ On Ubuntu/ Debian, install dependencies via package manager if pip install fails
 
 apt-get install python-{tk,numpy,matplotlib,scipy}
 
-The following import statement provides all functionality: 
-
-from spacegrids import sg
-
 =============================================================
 
 Documentation: https://github.com/willo12/spacegrids/wiki
 
+The following import statement provides all functionality: 
+
+from spacegrids import sg
+
+Once loaded, sg allows an overview of the available data via sg.info(). A project object is created via P = sg.project(D['some_project']). This then allows fields to be loaded automatically for all experiment subdirectories. Data grids are constructed based on the Netcdf metadata. 
+
 DATA ORGANISATION ON DISK
 
-Before using the sg module, Netcdf data must be organised inside directories you need to create in the following way. Create a directory named PROJECTS inside your home directory ($HOME) or on a storage disk (see below). This will contain all the data for all the projects. Then create a subdirectory for each of your projects. Inside each project, create a small text file named projname containing only a name, say "glacial", to identify your project. In this case, type: echo glacial > projname within the project dir. All subdirectories inside the project directory will now be regarded as potential experiment directories and will be searched for netcdf files when a sg project object P is created (see below). If a netcdf file is found in any of these subdirectories, an exper (experiment) object of the same name as the directory is created and added to the dictionary of experiments belonging to the project object P. Experiment directories can have multiple netcdf files, and can be located inside subdirectories of project directories. 
-
+Before using projects, Netcdf data must be organised in a projects directory tree. Create a directory named PROJECTS inside your home directory ($HOME) or on a storage disk (see below). This will contain all the data for all the projects. Then create a subdirectory for each of your projects. Inside each project, create a small text file named projname containing only a name, say "glacial", to identify your project. In this case, type: echo glacial > projname within the project dir. This will allow the sg Python code to regard all subdirectories inside the project directory as experiment directories and will be searched for netcdf files when a sg project object P is created (see below) on the Python command line or inside a script. If a netcdf file is found in any of these (experiment) subdirectories, an exper (experiment) object of the same name as the directory is created and added to the dictionary of experiments belonging to the project object P. 
 
 The following python modules are required:
 
