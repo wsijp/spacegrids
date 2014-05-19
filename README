@@ -1,8 +1,8 @@
 SPACEGRIDS README. 
 
-The Python 2.7 Spacegrids module, "Numpy on grids", provides useful classes for analyzing spatial data defined on grids. It is designed to ensure consistency between data and grid information via interacting objects of fields, grids, coordinates and axes. It provides very simple expressions for complex operations, including volume and distance related concepts such as integration and differentiation. 
+The Python 2.7 Spacegrids module, "Numpy on grids", provides useful classes for analyzing spatial data defined on grids (e.g. covering the Earth's surface). It interprets Netcdf metadata, and is designed to ensure consistency between data and grid information via interacting objects of fields, grids, coordinates and axes. It provides intuitive short expressions for complex operations, including volume and distance related concepts such as integration and differentiation. 
 
-Works with most models and datasets, including: UVic (all versions), CSIRO Mk3L, FAMOUS, CCM3.6 (Atmosphere), Levitus Data
+Interprets metadata for most climate model output and datasets in Netcdf format, and is confirmed to work with UVic (all versions), CSIRO Mk3L, FAMOUS, CCM3.6 (Atmosphere), Levitus Data. If you have problems reading data and/ or interpreting metadata (or find a bug), the author would be happy to take a look (see also Github for email etc).
 
 Installs by typing "pip install spacegrids" on command line. On Mac, pip can be installed via "sudo easy_install pip". On Ubuntu/ Debian, install dependencies via package manager if pip install fails:
 

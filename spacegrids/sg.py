@@ -107,6 +107,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import types
 import inspect
+import math
 
 import glob
  
@@ -545,7 +546,7 @@ class exper:
       try:
         fields = [field(varnames, parent = self)]
       except:
-        print "No fields found."
+        print "No fields found for %s. Try P.load(\'%s\')"%(self.name, varnames)
         return 
     
     if len(fields) == 1:
@@ -734,7 +735,7 @@ class project:
  
   def get(self, expnames, varnames):
     """
-    fetches fields from a project.
+    Project method to fetch fields from a project.
     """
     
     fields = []
@@ -760,7 +761,7 @@ class project:
 
 	    
     if not(fields):
-      print "No fields found."
+      print "No fields found. Try P.load(%s)"%varnames
     else:
       if len(fields) == 1:
 # if only single field found, return that field and not a list of fields.
@@ -1538,6 +1539,7 @@ class coord():
   def __add__(self,other):
 
     """
+    coord method.
     Refine coord by combining grid points from both. Only implemented for self-dual coord objects.
     """
     if ((self.dual == self) and (other.dual == other)):
@@ -1554,6 +1556,9 @@ class coord():
       return None  
 
   def finer(self,factor = 5.):
+    """
+    Method of coord. Refine the coordinate point interval with a given factor.
+    """
 
     result = []
 
@@ -1562,6 +1567,9 @@ class coord():
     return self.copy(name = self.name + '_fine',value = np.array(result))  
 
   def bigslice(self, F = None, index = 0):
+    """
+    Method of coord class.    
+    """
 
     if not(F):
       print 'Warning coord part: Provide field.'
@@ -1586,6 +1594,7 @@ class coord():
   def coord_shift(self,F,shift, keepgrid = False):
 
     """
+    Method of coord class.
     This method shifts the coordinates by a number of indices, namely parameter shift. The shifted coord in the grid of the field argument is replaced with a (different) shifted coord: disable this behaviour with argument keepgrid = True.
 
    calls roll function. 
@@ -1596,6 +1605,7 @@ class coord():
 # belongs to class coord 
   def trans(self,F):
     """
+    Method of coord class.
     Gives the change in field F upon a coord shift of 1 index in the direction of the self coord
     """
 
@@ -1658,6 +1668,7 @@ class coord():
   def cumsum(self,F, upward = False,land_nan = True):
     
     """
+    Method of coord class.
     Compute cumulative sum (integral) of input field F along axis of F corresponding to this coord object. If argument upward is set to true, summing takes place with increasing array index. If it is set to False, summing takes place with decreasing array index starting at index -1. Values of nan are set to 0, and therefore not counted.
 
     """
@@ -1692,6 +1703,7 @@ class coord():
 
   def vsum(self,F):
     """
+    Method of coord class.
     Sums field along self coord, weighted with grid cell width (using self.d(), called by self.vol(F.gr)). Note: due to possible dependence of one coord on the other, only use mean method of grid. There is no mean method for coord objects.
     """
 
@@ -1699,6 +1711,7 @@ class coord():
 
   def vcumsum(self,F,upward =True):
     """
+    Method of coord class.
     Calculates the cumulative sum weighted by width of grid cells along self direction.
     """
     return self.cumsum(F*(self.vol(F.gr)) , upward = upward)   
@@ -1707,6 +1720,7 @@ class coord():
   def der(self, F,method = None):
 
     """
+    Method of coord class.
     Derivative method on field F. If coord non-cyclical, the first derivative element is nan and the second is the derivative at the first element of the original coord. 
     """
 
@@ -2125,6 +2139,7 @@ class Set_Direction(Operator):
     return 
 
   def __call__(self,F):
+    
      return F.copy(direction = self.ax)
 
 
@@ -3756,7 +3771,10 @@ Takes field argument and returns a field with grid made up of remaining coord ob
 
 
   def der(self,crd,F):
+    """
+    Method of grid object.
 
+    """
     coord_types = {'x_coord':xcoord,'y_coord':ycoord,'z_coord':coord}
  
     if crd in self:
@@ -4742,39 +4760,89 @@ def quiver(vfld, showland=True, xlabel = True,ylabel = True, minus_z=True,xl=Non
     else:
       print 'Warning! Define quiver input on 2D grid.'
 
+def round_order(value, order = None):
 
-def contourf(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True,ax=None,greyshade = '0.65',kmt = None, **kwargs):
+  if order is None:
+    order = math.log10(abs(value))//1.
+  
+  return (10**order)*round(value*10**-order)
+
+
+
+def auto_cont(m,M,num_cont):
+
+
+  if M < m:
+    raise Exception("Choose M>m")
+
+  raw_step = abs(M - m)/float(num_cont)
+
+  m_order = math.log10(abs(m))//1.
+  M_order = math.log10(abs(M))//1.  
+  step_order = math.log10(abs(raw_step))//1.
+
+
+  step = round_order(raw_step)
+  m = round_order(m,step_order) - step
+  M = round_order(M, step_order) + step
+
+
+  return np.arange(m,M,step)
+
+
+def contourf(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True,ax=None,greyshade = '0.65',kmt = None, fill_background = True, xticks = 6, yticks = 6, **kwargs):
 
   """
   Function that calls Matplotlib contourf and passes on arguments, but takes a field as argument (instead of a numpy)
   
   
   Input: fld 	-supergrid field to be plotted
+
+  xticks/ yticks: number of labeled points on X and Y axis. Disabled if set to None. In this case plt.contour defaults are chosen. 
   
   """
 
   # obtain prepared arrays and names from field object. mbody is a masked array containing the field data. mbody will be used in plotting.
+  # M, m are the max and min of the data.
   body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=fld, num_cont=num_cont, xlabel=xlabel ,ylabel=ylabel, minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
 
   cmap = plt.cm.jet
   cmap.set_bad('w',1.)
 
+  # Use of X, Y confusing here, as they refer to coord objects, whereas X,Y,... usually refer to ax objects. Change in later version
+
+  X_scaled = xscale*X
+  Y_scaled = yscale*Y
 
   if (num_cont > 0) and not('levels' in kwargs):
-    levels = np.arange(m, M, (M-m)/num_cont)
-    cset = plt.contourf(xscale*X,yscale*Y,mbody, levels = levels, **kwargs) 
+    levels = auto_cont(m,M,num_cont)
+    
+    cset = plt.contourf(X_scaled,Y_scaled,mbody, levels = levels, **kwargs) 
 
   else:
-    cset = plt.contourf(xscale*X,yscale*Y,mbody,  **kwargs)  
+    cset = plt.contourf(X_scaled,Y_scaled,mbody,  **kwargs)  
   
   if xlabel:
     plt.xlabel(xlbl)
   if ylabel:
     plt.ylabel(ylbl) 
 
+  if xticks:
+    conts = [e for e in auto_cont(X_scaled[0],X_scaled[-1],xticks) if e > cset.ax.get_xlim()[0] and e < cset.ax.get_xlim()[1]   ]
+   
+    plt.xticks(conts)
+
+  if yticks:
+  
+    conts = [e for e in auto_cont(Y_scaled[0],Y_scaled[-1],yticks) if e > cset.ax.get_ylim()[0] and e < cset.ax.get_ylim()[1]   ]
+   
+    plt.yticks(conts)
+
   if not(ax):
     ax = plt.gca()
 
+#  plt.clim(m,M)
+  
   xmin, xmax = ax.get_xlim()
   ymin, ymax = ax.get_ylim()
   xy = (xmin,ymin)
@@ -4782,15 +4850,18 @@ def contourf(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=Non
   pheight = ymax - ymin
 
 # create the patch and place it in the back of countourf (zorder!)
-  p = mpl.patches.Rectangle(xy, pwidth, pheight, fill=1,color=greyshade, zorder=-10)
-  ax.add_patch(p)
+  if fill_background:
+    p = mpl.patches.Rectangle(xy, pwidth, pheight, fill=1,color=greyshade, zorder=-10)
+    ax.add_patch(p)
 
   if type(kmt) != types.NoneType:
     add_kmt(kmt)
   
   return cset
 
-def contour(fld, num_cont =15, showland = True, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True, **kwargs):
+
+
+def contour(fld, num_cont =15, showland = True, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True, xticks = 6, yticks = 6, **kwargs):
 
   """
   Function that calls contour, but takes a field as argument (instead of a numpy)
@@ -4802,6 +4873,8 @@ def contour(fld, num_cont =15, showland = True, xlabel = True,ylabel = True, min
 
   body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=fld, num_cont=num_cont, xlabel=xlabel ,ylabel=ylabel, minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
 
+  X_scaled = xscale*X
+  Y_scaled = yscale*Y
 
   if showland:
     msk = copy.deepcopy(body)
@@ -4821,17 +4894,27 @@ def contour(fld, num_cont =15, showland = True, xlabel = True,ylabel = True, min
   cmap.set_bad('w',1.)
 
   if (num_cont > 0) and not('levels' in kwargs):
-    levels = np.arange(m, M, (M-m)/num_cont)
-    cset = plt.contour(xscale*X,yscale*Y,mbody, levels = levels, **kwargs) 
+    levels = auto_cont(m,M,num_cont)
+    cset = plt.contour(X_scaled,Y_scaled,mbody, levels = levels, **kwargs) 
 
   else:
-    cset = plt.contour(xscale*X,yscale*Y,mbody,  **kwargs)  
+    cset = plt.contour(X_scaled,Y_scaled,mbody,  **kwargs)  
   
   if xlabel:
     plt.xlabel(xlbl)
   if ylabel:
     plt.ylabel(ylbl) 
 
+  if xticks:
+    conts = [e for e in auto_cont(X_scaled[0],X_scaled[-1],xticks) if e > cset.ax.get_xlim()[0] and e < cset.ax.get_xlim()[1]   ]
+   
+    plt.xticks(conts)
+
+  if yticks:
+  
+    conts = [e for e in auto_cont(Y_scaled[0],Y_scaled[-1],yticks) if e > cset.ax.get_ylim()[0] and e < cset.ax.get_ylim()[1]   ]
+   
+    plt.yticks(conts)
 
   
   return cset
