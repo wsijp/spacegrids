@@ -4771,9 +4771,9 @@ def round_order(value, order = None):
 
 def auto_cont(m,M,num_cont):
 
-
-  if M < m:
-    raise Exception("Choose M>m")
+  if M < m < 0:
+    rng = auto_cont(m = -m, M = - M, num_cont = num_cont)
+    return -rng
 
   raw_step = abs(M - m)/float(num_cont)
 
@@ -4817,6 +4817,7 @@ def contourf(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=Non
   if (num_cont > 0) and not('levels' in kwargs):
 #    print m, M
 #    levels = [e for e in auto_cont(m,M,num_cont)  if e >= m and e <= M   ]
+
     levels =  auto_cont(m,M,num_cont)
     
     cset = plt.contourf(X_scaled,Y_scaled,mbody, levels = levels, **kwargs) 

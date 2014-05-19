@@ -10,11 +10,11 @@ def read(fname):
 #        long_description = file.read()
 
 setup(name='spacegrids',
-      version='1.1.0',
+      version='1.1.2',
       author='Willem Sijp',
       author_email='w.sijp@unsw.edu.au',
       description='numpy array with grids and associated operations',
-      keywords=('climate data','grid data','data on grids','spatial grids', 'Netcdf data analysis', 'climate analysis scripts',"interpreting meta data Netcdf"),
+      keywords=('climate data','grid data','data on grids','spatial grids', 'Netcdf data analysis', 'climate analysis scripts',"interpreting meta data Netcdf","geophysics tools"),
       packages = find_packages(exclude="tests"),
 #      package_data = {
 #	  "spacegrids": ['README.rst']
