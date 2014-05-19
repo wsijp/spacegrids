@@ -4768,6 +4768,14 @@ def round_order(value, order = None):
   return (10**order)*round(value*10**-order)
 
 
+def order_mag(val):
+  
+  if val == 0.:
+
+    return 0.
+  else:
+    return math.log10(abs(val))//1.
+
 
 def auto_cont(m,M,num_cont):
 
@@ -4777,9 +4785,12 @@ def auto_cont(m,M,num_cont):
 
   raw_step = abs(M - m)/float(num_cont)
 
-  m_order = math.log10(abs(m))//1.
-  M_order = math.log10(abs(M))//1.  
-  step_order = math.log10(abs(raw_step))//1.
+  print m
+  print M
+
+  m_order = order_mag(m)
+  M_order = order_mag(M)
+  step_order = order_mag(raw_step)
 
 
   step = round_order(raw_step)
