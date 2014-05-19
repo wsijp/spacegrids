@@ -4577,10 +4577,10 @@ def prep_axes(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=No
   M = np.nanmax(body)
   m = np.nanmin(body)
 
-  step = (M-m)/num_cont
+#  step = (M-m)/num_cont
   
-  M += 2*step
-  m -= step
+#  M += 2*step
+#  m -= step
 
   return body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale
 
@@ -4783,7 +4783,7 @@ def auto_cont(m,M,num_cont):
 
 
   step = round_order(raw_step)
-  m = round_order(m,step_order) - step
+  m = round_order(m,step_order) 
   M = round_order(M, step_order) + step
 
 
@@ -4815,7 +4815,9 @@ def contourf(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=Non
   Y_scaled = yscale*Y
 
   if (num_cont > 0) and not('levels' in kwargs):
-    levels = auto_cont(m,M,num_cont)
+#    print m, M
+#    levels = [e for e in auto_cont(m,M,num_cont)  if e >= m and e <= M   ]
+    levels =  auto_cont(m,M,num_cont)
     
     cset = plt.contourf(X_scaled,Y_scaled,mbody, levels = levels, **kwargs) 
 
