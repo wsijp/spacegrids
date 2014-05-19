@@ -4779,14 +4779,14 @@ def order_mag(val):
 
 def auto_cont(m,M,num_cont):
 
-  if M < m < 0:
+  if M < m:
     rng = auto_cont(m = -m, M = - M, num_cont = num_cont)
     return -rng
 
   raw_step = abs(M - m)/float(num_cont)
 
-  print m
-  print M
+#  print m
+#  print M
 
   m_order = order_mag(m)
   M_order = order_mag(M)
