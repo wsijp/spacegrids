@@ -2488,6 +2488,12 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True):
     units = file.variables[varname].units
   else:
     units = '?'
+
+  if hasattr(file.variables[varname],'long_name'):
+    long_name = file.variables[varname].long_name
+  else:
+    long_name = varname
+
  
 # attempts at interpreting data by obtaining the string name of the direction. these names are a convention: 'X','Y','Z'. This direction guess is for fields that could be components of a vector fields.
 
@@ -2524,14 +2530,14 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True):
      
         grid.append(crd)
 
-        
+          
 
   file.close()
 #  print '-----'
 #  print gr(tuple(grid)).shape()
 #  print body.shape
  
-  return field(varname,body,grid=gr(tuple(grid)),units = units, direction = direction)
+  return field(varname,body,grid=gr(tuple(grid)),units = units, direction = direction, long_name = long_name)
 
 
 def cdfsniff(exp_path, datanames = cdf_data_names, verbose = False):
@@ -3851,7 +3857,7 @@ class field:
   def __repr__(self):
     return self.name
 
-  def __init__(self,name,value,grid,units = '?',direction = None, strict_v = strict_vector):
+  def __init__(self,name,value,grid,units = '?',direction = None, strict_v = strict_vector,long_name='?'):
     """
     Initialise a field. 
     Inputs: 
@@ -3862,6 +3868,7 @@ class field:
     units:	data units (if known)
     direction:	scalar or, if vector field component, axis direction (e.g. X)
     strict_v:	if True (default), addition of directional fields leads to vector fields.
+    long_name:	Description of field, corresponds to long_name Netcdf metadata.
 
     These inputs become attributes of the created field object.
 
@@ -3882,6 +3889,7 @@ class field:
           self.units = units 
           self.direction = direction 
           self.strict_v = strict_v
+          self.long_name = long_name
 
         else:
          
@@ -3904,7 +3912,7 @@ class field:
     else:
       return False
 
-  def copy(self, name = None, value = None, grid = None, units = None, direction = None):
+  def copy(self, name = None, value = None, grid = None, units = None, direction = None, long_name = None):
 
     frame = inspect.currentframe()
     args, _, _, values = inspect.getargvalues(frame)
@@ -4354,14 +4362,17 @@ class field:
      
       return self.value[I]
 
-  def draw(self,**kwargs):
+  def draw(self, colorbar = True,**kwargs):
 
     if len(self.gr) == 1:
-      plot(self,**kwargs)
+      h= plot(self,**kwargs)
+      cb = None
 
     elif len(self.gr) == 2:
    
-      contourf(self,**kwargs)
+      h = contourf(self,**kwargs)
+      cb = plt.colorbar()
+      cb.set_label(self.units)
 
     elif len(self.gr) == 3:
       for e in self.gr:
@@ -4371,7 +4382,12 @@ class field:
       if e.axis.name != 'Z':
         e = self.gr[0]
 
-      contourf(e(self))
+      h = contourf(e(self))
+      cb = plt.colorbar()
+      cb.set_label(self.units)
+
+    
+    return h, cb
 
 # ------------------ end field class definition ----------------
 
@@ -4794,11 +4810,18 @@ def auto_cont(m,M,num_cont):
 
 
   step = round_order(raw_step)
-  m = round_order(m,step_order) 
-  M = round_order(M, step_order) + step
+  m_new = round_order(m,step_order) 
+  M_new = round_order(M, step_order) + step
 
+#  print conts[0], m, M, step
 
-  return np.arange(m,M,step)
+  if m < m_new:
+    m_new = m_new - step
+
+  if M > M_new:
+    M_new = M_new + step
+
+  return np.arange(m_new,M_new,step)
 
 
 def contourf(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True,ax=None,greyshade = '0.65',kmt = None, fill_background = True, xticks = 6, yticks = 6, **kwargs):
@@ -4826,11 +4849,13 @@ def contourf(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=Non
   Y_scaled = yscale*Y
 
   if (num_cont > 0) and not('levels' in kwargs):
-#    print m, M
+    print m, M
 #    levels = [e for e in auto_cont(m,M,num_cont)  if e >= m and e <= M   ]
 
     levels =  auto_cont(m,M,num_cont)
     
+    print levels
+
     cset = plt.contourf(X_scaled,Y_scaled,mbody, levels = levels, **kwargs) 
 
   else:
