@@ -9,6 +9,8 @@ and intuitive data manipulation expressions (e.g. zonal mean or grid
  interpolation). In addition, a small framework for project data management
  is provided. No optimisation is attempted.
 
+Licence: BSD
+
 =============================================================
 
 code by W. P. Sijp
@@ -2442,16 +2444,7 @@ def guess_direction(cdf_var,  name_atts = ['long_name','standard_name'], x_dir_n
           if try_dir:
             return try_dir
        
-    
-#        if reduce(lambda x,y: x| y ,[e in desc for e in x_dir_names]):  
-#          return 'X'
-#        elif reduce(lambda x,y: x| y ,[e in desc for e in y_dir_names]): 
-#          return 'Y'
-#        elif reduce(lambda x,y: x| y ,[e in desc for e in z_dir_names]): 
-#          return 'Z'
-#        elif reduce(lambda x,y: x| y ,[e in desc for e in t_dir_names]):           
-#          return 'T'
-
+ 
   return 'scalar'
 
 
@@ -3312,6 +3305,12 @@ class gr(tuple):
       
     return
 
+  def function(self,func):
+
+    vfunc = np.vectorize(func)
+    value = vfunc(*self.inflate())
+ 
+    return field(name = func.func_name, value = value, grid = self)
 
   def __and__(self,other):
     """
@@ -3409,30 +3408,39 @@ class gr(tuple):
 
     return L
 
-  def inflate(self, type = 'array'):
-    """
 
+
+
+  def inflate(self, type = 'array', force = False):
+    """
+ 
     Input:
-    type = 'field' in arguments will return a list of fields.
+    type = output type. 
+		-'array' in arguments will return a list of arrays.
+		-'field' in arguments will return a list of fields.
 
     Output: 
-    Generally a list of arrays
+    A list of arrays or fields of the dimension of the grid being called.
+    Each element in the list corresponds to a coord object in the called grid, where the array equals the content of the coord along the array index corresponding to that coord, and is constant otherwise.
 
-    Method of grid object returning coord elements of grid defined on that grid.  Default output is a list of np arrays, each corresponding to a coord object in the grid. 
 
     For example, a grid defined by (yt,xt) (equal to yt*xt) yields [YT,XT] where YT = yt(yt*xt) and XT = XT(yt*xt). We refer to XT as the inflated version of xt. Here, the coord object has been called on the grid object: this yields an array defined on the argument grid and constant in all coord axes other than the calling coord. The array equals the value of the calling coord object along that axis.
 
+
+    Cached for performance. Refresh with force = True.
+
     """
 
-    if  not(hasattr(self,'inflated')) or (not self.inflated):
-      if type == 'array':
+    if  not(hasattr(self,'inflated')) or (not self.inflated) or (force == True):
+      # compute values and store as arrays.
+        
         # This yields a list of arrays, corresponding to the inflated coord objects.
         self.inflated = [e(self).value for e in self]
         
-      elif type =='field':
-        self.inflated = [field(name = 'inflated_grid', value = e(self).value, grid = self) for e in self]
-
-    return self.inflated
+    if type == 'array':
+      return self.inflated
+    elif type =='field':
+      return [field(name = 'inflated_'+self[i].name,value = e, grid = self ) for i, e in enumerate(self.inflated ) ]
 
 
   def smart_interp(self,A,other, method = 'linear'):
@@ -4050,22 +4058,29 @@ class field:
     if isinstance(I,tuple):
       # In this case, the argument is expected to be multiple slice objects only or slice objects interspersed with coord objects.
  
-      crds = []
-      slices = []
+      crds = []		# holds coord objects along which to slice
+      slices = []	# holds slice objects
       
       for i in I:
         if isinstance(i,coord):
+          if i not in self.gr:
+            raise Exception('Slice coord argument %s not in field %s grid %s.'%(i,self,self.gr))
+
           crds.append(i)
         elif isinstance(i,ax):
+       
           if i*self.gr is None:
-            raise Exception('Slice axis %s not in field %s grid %s.' % (i,self,self.gr))
+            raise Exception('Slice axis argument %s not in field %s grid %s.' % (i,self,self.gr))
           else:
             crds.append(i*self.gr) 
         elif isinstance(i,int)  | isinstance(i,slice):
           slices.append(i)
+        else:
+          raise Exception('Non-integer slice axis argument %s for field %s not recognised as ax or coord object. The ax/ coord object might be stale. ' % (i, self) )
 
-  
+
       if len(crds) == 0:
+        # No coord objects recorded
         if len(slices) == 0:
           print 'Warning (severe): no slices!'
         return self.value[I]
@@ -4622,15 +4637,17 @@ def print_table(D, cols = 4, numspace = 2):
     print '%-15s %-15s' % (k , D[k]),
 
 
+def finer_grid(grid, factor = 5.):
+
+  return reduce(lambda x,y: x*y, [crd.finer(factor = factor) for crd in grid])
+
 def finer_field(F,factor =5.):
 
   """
   This is a more UVic specific function to prepare a field containing the outline of the continents for horizontal plots.
   """
-
-  fine_gr = reduce(lambda x,y: x*y, [crd.finer(factor = factor) for crd in F.gr])
   
-  return F(fine_gr,method ='nearest')
+  return F(finer_grid(grid = F.gr,factor = factor),method ='nearest')
 
 
 def treat_kmt(kmt):
@@ -4793,7 +4810,7 @@ def order_mag(val):
     return math.log10(abs(val))//1.
 
 
-def auto_cont(m,M,num_cont):
+def auto_cont(m,M, num_cont, max_try = 5):
 
   if M < m:
     rng = auto_cont(m = -m, M = - M, num_cont = num_cont)
@@ -4815,108 +4832,134 @@ def auto_cont(m,M,num_cont):
 
 #  print conts[0], m, M, step
 
-  if m < m_new:
+  tries = 0
+  while (m-step < m_new) and (tries < max_try):
     m_new = m_new - step
+    tries += 1
 
-  if M > M_new:
+  tries = 0
+  while (M+step > M_new) and (tries < max_try):
     M_new = M_new + step
+    tries += 1
+
 
   return np.arange(m_new,M_new,step)
 
 
-def contourf(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True,ax=None,greyshade = '0.65',kmt = None, fill_background = True, xticks = 6, yticks = 6, **kwargs):
+def scale_prep_deco(func):
 
-  """
-  Function that calls Matplotlib contourf and passes on arguments, but takes a field as argument (instead of a numpy)
-  
-  
-  Input: fld 	-supergrid field to be plotted
+  def plot_wrapper(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True, num_xticks = 6, num_yticks = 6, greyshade = '0.65', showland = False,*args, **kwargs):
 
-  xticks/ yticks: number of labeled points on X and Y axis. Disabled if set to None. In this case plt.contour defaults are chosen. 
+#  def plot_wrapper(*args, **kwargs):
+
+    """
+   
+  Arguments specific to only one function:
   
-  """
+  contourf
+  greyshade = '0.65'
+
+  contour
+  showland = False
+
+
+    """
 
   # obtain prepared arrays and names from field object. mbody is a masked array containing the field data. mbody will be used in plotting.
   # M, m are the max and min of the data.
-  body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=fld, num_cont=num_cont, xlabel=xlabel ,ylabel=ylabel, minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
+
+
+#    body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes({k:kwargs[k] for k in ['fld', 'num_cont', 'xlabel' ,'ylabel', 'minus_z', 'xl','yl','xscale','yscale','ax_units']})
+
+    body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=fld, num_cont=num_cont, xlabel=xlabel ,ylabel=ylabel, minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
+
+  # Use of X, Y confusing here, as they refer to coord objects, whereas X,Y,... usually refer to ax objects. Change in later version
+
+#    print num_cont 
+    if (num_cont > 0) and not('levels' in kwargs):
+      levels =  auto_cont(m,M,num_cont)
+
+    else:
+      levels = kwargs['levels']
+      del kwargs['levels']
+
+    X_scaled = xscale*X
+    Y_scaled = yscale*Y
+
+    cset = func(X_scaled,Y_scaled,mbody, levels = levels, num_cont =num_cont, xlabel = xlabel,ylabel = ylabel, minus_z=minus_z,xl=xl,yl=yl,xscale = xscale ,yscale = yscale ,ax_units=ax_units, num_xticks = num_xticks, num_yticks = num_yticks, greyshade = greyshade, showland = showland,**kwargs)
+    
+    if xlabel:
+      plt.xlabel(xlbl)
+    if ylabel:
+      plt.ylabel(ylbl) 
+
+    if num_xticks:
+      conts = [e for e in auto_cont(X_scaled[0],X_scaled[-1],num_xticks) if e > cset.ax.get_xlim()[0] and e < cset.ax.get_xlim()[1]   ]
+   
+      plt.xticks(conts)
+  
+    if num_yticks:
+   
+      conts = [e for e in auto_cont(Y_scaled[0],Y_scaled[-1],num_yticks) if e > cset.ax.get_ylim()[0] and e < cset.ax.get_ylim()[1]   ]
+   
+      plt.yticks(conts)
+
+    return cset
+
+  return plot_wrapper
+
+
+
+@scale_prep_deco
+def contourf(X_scaled,Y_scaled,mbody, levels = None, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True, num_xticks = 6, num_yticks = 6, greyshade = '0.65', showland = False,*args, **kwargs):
+
+  """
+  Before decoration: takes axes and numpy array argument.
+  After decoration: a function that calls Matplotlib contourf and passes on arguments, but takes a field as argument (instead of a numpy array)
+  
+  Input: fld 	-supergrid field to be plotted
+
+  num_xticks/ num_yticks: number of labeled points on X and Y axis. Disabled if set to None. In this case plt.contour defaults are chosen. 
+
+
+
+  """
+
 
   cmap = plt.cm.jet
   cmap.set_bad('w',1.)
 
-  # Use of X, Y confusing here, as they refer to coord objects, whereas X,Y,... usually refer to ax objects. Change in later version
-
-  X_scaled = xscale*X
-  Y_scaled = yscale*Y
-
-  if (num_cont > 0) and not('levels' in kwargs):
-    print m, M
-#    levels = [e for e in auto_cont(m,M,num_cont)  if e >= m and e <= M   ]
-
-    levels =  auto_cont(m,M,num_cont)
-    
-    print levels
-
-    cset = plt.contourf(X_scaled,Y_scaled,mbody, levels = levels, **kwargs) 
-
-  else:
-    cset = plt.contourf(X_scaled,Y_scaled,mbody,  **kwargs)  
-  
-  if xlabel:
-    plt.xlabel(xlbl)
-  if ylabel:
-    plt.ylabel(ylbl) 
-
-  if xticks:
-    conts = [e for e in auto_cont(X_scaled[0],X_scaled[-1],xticks) if e > cset.ax.get_xlim()[0] and e < cset.ax.get_xlim()[1]   ]
-   
-    plt.xticks(conts)
-
-  if yticks:
-  
-    conts = [e for e in auto_cont(Y_scaled[0],Y_scaled[-1],yticks) if e > cset.ax.get_ylim()[0] and e < cset.ax.get_ylim()[1]   ]
-   
-    plt.yticks(conts)
-
-  if not(ax):
-    ax = plt.gca()
-
-#  plt.clim(m,M)
-  
-  xmin, xmax = ax.get_xlim()
-  ymin, ymax = ax.get_ylim()
-  xy = (xmin,ymin)
-  pwidth = xmax - xmin
-  pheight = ymax - ymin
+  cset = plt.contourf(X_scaled,Y_scaled,mbody, levels = levels, **kwargs) 
 
 # create the patch and place it in the back of countourf (zorder!)
-  if fill_background:
+  if greyshade != '':
+    ax = plt.gca()
+  
+    xmin, xmax = ax.get_xlim()
+    ymin, ymax = ax.get_ylim()
+    xy = (xmin,ymin)
+    pwidth = xmax - xmin
+    pheight = ymax - ymin
+
     p = mpl.patches.Rectangle(xy, pwidth, pheight, fill=1,color=greyshade, zorder=-10)
     ax.add_patch(p)
-
-  if type(kmt) != types.NoneType:
-    add_kmt(kmt)
   
   return cset
 
 
-
-def contour(fld, num_cont =15, showland = True, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True, xticks = 6, yticks = 6, **kwargs):
+@scale_prep_deco
+def contour(X_scaled,Y_scaled,mbody, levels = None, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True, num_xticks = 6, num_yticks = 6, greyshade = '0.65', showland = False,*args, **kwargs):
 
   """
   Function that calls contour, but takes a field as argument (instead of a numpy)
   
   
-  fld 	-supergrid field to be plotted
+  fld 	-spacegrid field to be plotted
   
   """
 
-  body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=fld, num_cont=num_cont, xlabel=xlabel ,ylabel=ylabel, minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
-
-  X_scaled = xscale*X
-  Y_scaled = yscale*Y
-
   if showland:
-    msk = copy.deepcopy(body)
+    msk = copy.deepcopy(mbody)
     msk[np.isnan(msk) == False] = 1.
     msk[np.isnan(msk) == True] = 0.
     
@@ -4925,39 +4968,21 @@ def contour(fld, num_cont =15, showland = True, xlabel = True,ylabel = True, min
     cdict = {'red':BW_pair,'green':BW_pair,'blue':BW_pair}
 
     my_cmap = mpl.colors.LinearSegmentedColormap('my_colormap',cdict)
-    plt.pcolormesh(xscale*X,yscale*Y,msk,cmap = my_cmap)
-
-
+    plt.pcolormesh(X_scaled,Y_scaled,msk,cmap = my_cmap)
  
   cmap = plt.cm.jet
   cmap.set_bad('w',1.)
 
-  if (num_cont > 0) and not('levels' in kwargs):
-    levels = auto_cont(m,M,num_cont)
-    cset = plt.contour(X_scaled,Y_scaled,mbody, levels = levels, **kwargs) 
+  cset = plt.contour(X_scaled,Y_scaled,mbody, levels = levels, **kwargs) 
 
-  else:
-    cset = plt.contour(X_scaled,Y_scaled,mbody,  **kwargs)  
-  
-  if xlabel:
-    plt.xlabel(xlbl)
-  if ylabel:
-    plt.ylabel(ylbl) 
-
-  if xticks:
-    conts = [e for e in auto_cont(X_scaled[0],X_scaled[-1],xticks) if e > cset.ax.get_xlim()[0] and e < cset.ax.get_xlim()[1]   ]
-   
-    plt.xticks(conts)
-
-  if yticks:
-  
-    conts = [e for e in auto_cont(Y_scaled[0],Y_scaled[-1],yticks) if e > cset.ax.get_ylim()[0] and e < cset.ax.get_ylim()[1]   ]
-   
-    plt.yticks(conts)
-
-  
+ 
   return cset
 
+
+
+
+# ---------
+# imshow doesn't add much value:
 
 def imshow(fld, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True, **kwargs):
 
