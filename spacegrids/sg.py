@@ -1457,6 +1457,9 @@ class coord():
 
     """
 
+#    print self
+#    print other
+
     if not(other) or (other is self):
       if not(self.fld):
         self.fld = field(name = self.name, value = self.value, grid = self**2, units = self.units)
@@ -1626,7 +1629,12 @@ class coord():
 
     for i in range(0,len(self)-1):
       result += list(np.arange(self[i],self[i+1],(self[i+1] - self[i])/factor))
-    return self.copy(name = self.name + '_fine',value = np.array(result))  
+
+
+    finer_coord = self.copy(name = self.name + '_fine',value = np.array(result))  
+    finer_coord|self
+    return finer_coord
+
 
   def bigslice(self, F = None, index = 0):
     """
