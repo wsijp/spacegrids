@@ -235,6 +235,24 @@ def find_equal_axes(lstack,rstack):
 
 #  return rstack
 
+def concatenate(fields, ax=None, name_suffix='_cat'):
+  """
+  concatenate((a1,a2,...),ax=None)
+
+  Joins a sequence of fields together.
+
+  Parameters
+  ----------
+  a1, a2,.... : sequence of field objects
+        The field value ndarrays must have the same shape, except in the dimension
+        corresponding to `ax` (the one with unequal coord point values, by default).
+    axis : ax object, optional
+        The axis along which the arrays will be joined.  Default is the first one with unequal coord point values.
+  
+
+  """
+
+  return reduce(lambda x,y:x.cat(y,ax=ax, name_suffix = name_suffix), fields)
 
 
 def merge(A1,A2):
@@ -260,6 +278,17 @@ def merge(A1,A2):
 
   return np.array(newlist)
 
+def squeeze(F):
+
+  dims = list(F.gr)
+  body = F.value
+  
+  for i,dim in enumerate(dims):
+    if body.shape[i] == 1:
+      dims.remove(dims[i])
+   
+  body = np.squeeze(body)
+  return F.copy(value=body,grid = gr(dims))
 
 def add_alias(L):
   """
@@ -590,6 +619,14 @@ class exper:
 
       
   def load(self,varnames, filename = None):
+    """
+    Load a variable or list of variables contained in varnames. Takes either a single string or a list of strings.
+
+    If no filename argument is given, all Netcdf files in the experiment directory will be examined.
+    If multiple files contain the same variable, this method will attempt to concatenate them (e.g. in the case where there are different time slices).
+
+    """  
+
 # --> this load is a method of class exper
 
     if not(isinstance(varnames, list)):
@@ -615,7 +652,9 @@ class exper:
 
 #	Try to find netcdf var in any of the found files, and then read into field object.
 
-      F = None
+
+
+      F = []
       for filepath in paths:
        
 
@@ -628,21 +667,21 @@ class exper:
 
 
         if varname in file.variables:
-
-          F = cdfread(filepath,varname,self.cstack,self.axes)
-          break
+        
+          F.append(cdfread(filepath,varname,self.cstack,self.axes,squeeze=False))
+#          break
         file.close()
 
-      if F is None:
+      if F is []:
         print 'Warning: var '+ varname + ' for ' + self.name + ' could not be read.'	 
 
       else:
-        print 'OK. Fetched field '+ varname + ' for ' + self.name	 
+        print 'OK. Fetched field %s for %s. %s files found.'%(varname, self.name,len(paths))
     
 
 # add to collection: 	
-       
-      self.vars[varname] = F
+
+      self.vars[varname] = squeeze( concatenate(F,name_suffix='') )
  
  
 
@@ -1302,12 +1341,27 @@ class coord():
   def __getitem__(self,i):
     return self.value[i]
 
+  def array_equal(self,other):
+    """ test whether coord objects contain identical coord values
+    """
+
+    if not isinstance(other,coord):
+      raise Exception('Error: provide coord argument (%s provided).'%other)
+
+    return np.array_equal(self.value,other.value) 
+
+
   def __and__(self,other):
-    # test whether coord objects are practically the same
-    if (self.name == other.name) and np.array_equal(self.value,other.value) and (self.direction == other.direction):
-      return True
-    else:
-      return False
+    # test whether coord objects contain identical coord values, name and direction. 
+
+    return (self.name == other.name) and (self.direction == other.direction) and self.array_equal(other) 
+
+
+    
+  def sort(self,*args,**kwargs):
+    self.value.sort(*args,**kwargs)
+
+
 
   def copy(self,name = None,value = None, axis = None,direction = None,units = None, long_name = None, equiv = True):
 
@@ -1334,8 +1388,9 @@ class coord():
         print 'Warning: arg %s is not an object attribute.' %arg
 
     result = self.__class__(**values)
+
     if equiv:
-      result|self
+      result.equivs = self.equivs
 
     return result
 
@@ -1456,13 +1511,13 @@ class coord():
       return vfield([self|e  for e in other] )
 
     else:
-      raise Exception('coord error in %s|%s with coord %s: provide coord or field for right multiplicant (now %s).' % (self,other,self,other)  )
+      raise Exception('coord error in %s|%s with coord %s: provide coord or field for right multiplicant (%s), or check staleness.' % (self,other,self,other)  )
 
 # Belongs to coord class  
 
   def __xor__(self,other):
     """
-    If argument is a coord, this method tests for equivalence. e.g. xt ~ xu
+    If argument is a coord, this method tests for equivalence. e.g. xt equiv to xu
     If argument is a gr, this method yields the coord element from the gr object that is equivalent to self.
     If argument is a field, this method takes the derivative along self coord axis.
     """
@@ -1827,7 +1882,8 @@ class xcoord(coord):
     result = self.__class__(**values)
 
     if equiv:
-      result|self
+      result.equivs = self.equivs
+
 
     return result
 
@@ -2010,7 +2066,8 @@ class ycoord(coord):
     result = self.__class__(**values)
 
     if equiv:
-      result|self
+      result.equivs = self.equivs
+
 
     return result
 
@@ -2448,7 +2505,7 @@ def guess_direction(cdf_var,  name_atts = ['long_name','standard_name'], x_dir_n
   return 'scalar'
 
 
-def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True):
+def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squeeze=True):
   """
   Reads data corresponding to variable name varname from netcdf file. Returns field object. coord_stack is used to provide field with grid object built from corresponding coord objects according to information in netcdf.
   Input filepath is complete path pointing to file.
@@ -2497,14 +2554,16 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True):
 
   direction = Dict[direction]
 
+
+  if squeeze:
   # if there are dimensions of length 1, remove them.
-  if 1 in body.shape:
+    if 1 in body.shape:
    
-    for i,dim in enumerate(dims):
-      if body.shape[i] == 1:
-        dims.remove(dims[i])
+      for i,dim in enumerate(dims):
+        if body.shape[i] == 1:
+          dims.remove(dims[i])
    
-  body = np.squeeze(body)
+    body = np.squeeze(body)
 
   try: 
     body[body == mis_val] = np.nan
@@ -2626,13 +2685,13 @@ def cdfsniff_helper(filepath, verbose = False):
 
 
     if hasattr(file.variables[dim_name],'units'):
-      units = file.variables[dim_name].units 
+      units = copy.deepcopy(file.variables[dim_name].units)
     else:
       units = '?'
       print 'cdfsniff warning (mild): no units assigned to ' + dim_name
 
     if hasattr(file.variables[dim_name],'long_name'):
-      long_name = file.variables[dim_name].long_name 
+      long_name = copy.deepcopy(file.variables[dim_name].long_name )
     else:
       long_name = '?'
       if verbose:
@@ -2655,14 +2714,14 @@ def cdfsniff_helper(filepath, verbose = False):
         if file.variables[dim_name].axis in cdf_axes:
 
           # convert the netcdf name of the dual to an actual cdf variable
-          dual_var = file.variables[dual_var_name]
+          dual_var = copy.deepcopy(file.variables[dual_var_name] )
        
           # using call method of coord object in cdf_axes global
 
-          this_coord = cdf_axes[direction](dim_name, file.variables[dim_name][:], axis = file.variables[dim_name].axis,direction = direction, units = units, long_name = long_name)  
+          this_coord = cdf_axes[direction](dim_name, copy.deepcopy( file.variables[dim_name][:] ), axis = copy.deepcopy(file.variables[dim_name].axis ),direction = direction, units = units, long_name = long_name)  
 
           #this_coord = cdf_axes[file.variables[dim_name].axis](dim_name, file.variables[dim_name][:], axis = file.variables[dim_name].axis, units = units)  
-          dual_coord = cdf_axes[direction](dual_var_name,prep_dual_array(dual_var[:]),dual = this_coord, axis = file.variables[dim_name].axis, direction = direction, units = units, long_name = long_name)
+          dual_coord = cdf_axes[direction](dual_var_name,prep_dual_array(dual_var[:]),dual = this_coord, axis = copy.deepcopy(file.variables[dim_name].axis ), direction = direction, units = units, long_name = long_name)
 
           this_coord.dual = dual_coord
 
@@ -2675,7 +2734,7 @@ def cdfsniff_helper(filepath, verbose = False):
       else:
         # this is the case of self-dual objects such as time, so only 1 object needs to be made
         if file.variables[dim_name].axis in cdf_axes:
-          coord_stack.append(cdf_axes[direction](dim_name,file.variables[dim_name][:], axis = file.variables[dim_name].axis,direction = direction, units = units, long_name = long_name  ))
+          coord_stack.append(cdf_axes[direction](dim_name,copy.deepcopy(file.variables[dim_name][:] ), axis = copy.deepcopy(file.variables[dim_name].axis ),direction = direction, units = units, long_name = long_name  ))
 
     else:
     # In this case, no axis attribute has been detected.
@@ -2685,14 +2744,14 @@ def cdfsniff_helper(filepath, verbose = False):
       if hasattr(file.variables[dim_name] , 'edges' ):
         # if edges are defined, we create coord and its dual in pairs
         if direction in cdf_axes:
-          dual_var = file.variables[file.variables[dim_name].edges]
+          dual_var = copy.deepcopy(file.variables[file.variables[dim_name].edges] )
 
           # using call method of coord object in cdf_axes global
 
-          this_coord = cdf_axes[direction](dim_name, file.variables[dim_name][:], axis = file.direction,direction = direction, units = units, long_name = long_name)  
+          this_coord = cdf_axes[direction](dim_name, copy.deepcopy(file.variables[dim_name] [:] ), axis = file.direction,direction = direction, units = units, long_name = long_name)  
 
           #this_coord = cdf_axes[file.variables[dim_name].axis](dim_name, file.variables[dim_name][:], axis = file.variables[dim_name].axis, units = units)  
-          dual_coord = cdf_axes[direction](file.variables[dim_name].edges,prep_dual_array(dual_var[:]),dual = this_coord, axis = direction, direction = direction, units = units, long_name = long_name)
+          dual_coord = cdf_axes[direction]( copy.deepcopy( file.variables[dim_name].edges ),prep_dual_array(dual_var[:]),dual = this_coord, axis = direction, direction = direction, units = units, long_name = long_name)
 
 
           this_coord.dual = dual_coord
@@ -2705,7 +2764,7 @@ def cdfsniff_helper(filepath, verbose = False):
       else:
         # this is the case of self-dual objects such as time, so only 1 object needs to be made
         if direction in cdf_axes:
-          coord_stack.append(cdf_axes[direction](dim_name,file.variables[dim_name][:], axis = direction,direction = direction, units = units ,long_name =long_name))
+          coord_stack.append(cdf_axes[direction](dim_name, copy.deepcopy(file.variables[dim_name][:] ), axis = direction,direction = direction, units = units ,long_name =long_name))
 
         else:
           print 'Warning!! guessed direction not in cdf_axes, strange!'
@@ -3306,11 +3365,30 @@ class gr(tuple):
     return
 
   def function(self,func):
-
+    """
+    Returns a field containing the values of function argument func on the grid points defined in this grid. The field name is the name of the function.
+    """
     vfunc = np.vectorize(func)
     value = vfunc(*self.inflate())
  
     return field(name = func.func_name, value = value, grid = self)
+
+  def array_equal(self,other):
+    """
+    grid component-wise test whether the coord objects contain the same grid point location values. Input another grid.
+    """
+
+    if not self.axis() == other.axis():
+      raise Exception('Error: provide grids defined along same axes.')
+
+    return [e.array_equal(other[i]) for i,e in enumerate(self)   ]
+        
+
+  def axis(self):
+    """
+    Returns an ax_gr object containing the axis properties of the coord elements of this grid.
+    """
+    return reduce(lambda x,y:x*y,[e.axis for e in self])
 
   def __and__(self,other):
     """
@@ -3948,6 +4026,70 @@ class field:
     return self.__class__(**values)
 
 
+  def cat(self,other,ax = None, name_suffix = '_cat'):
+    """
+    Concatenate with another field along axis ax. If ax is None, concatenation takes place along the first axis with non-equal values.
+    Grids must be orient along same axes and in same axis order.
+
+    """
+
+    # if no ax object is given, an ax is chosen where the grid coord elements are not array equal.
+
+#    if len(self.gr) != len(other.gr):
+#      raise Exception('Error: provide grids of equal dimension.')
+
+    self_axis = self.gr.axis()
+
+#    if not reduce(lambda x,y:x and y, [e^other[i] for i,e in enumerate(other)]):
+    if self_axis != other.gr.axis():
+      raise Exception('Error: provide grids along equal axes.')
+
+
+    if ax is None:
+      
+      i_ax = (self.gr.array_equal(other.gr)).index(False)
+      ax = self_axis[i_ax]
+
+    cat_coord_self = ax*self.gr
+    
+    if (self.gr/ax).shape() != (other.gr/ax).shape():
+
+      raise Exception('Field concat error %s and %s. Provide pieces of right dimensions.'%(self.name,other.name) )
+
+      # obtain the index of the axis in the grid along which to concatenate.
+      # why do we need eq_index here instead of index?
+    ax_index = self.gr.eq_index(ax)
+
+      # combine the two halves of what is to be the new coord in a dictionary first
+    Dleft = {e:self[ax,i] for i, e in enumerate((ax*self.gr)[:] ) }
+    Dright = {e:other[ax,i] for i, e in  enumerate((ax*other.gr)[:] ) }
+
+    Dcomb = dict(Dleft.items() + Dright.items() )
+
+      # each unravelled piece needs to have the right shape for np concatenation.
+    piece_shape = list(self.shape)
+    piece_shape[ax_index] = 1
+
+      # use combined keys to construct ordered values of new concatenated coord object.
+    cat_coord_value = np.array(Dcomb.keys())
+    cat_coord_value.sort()
+
+      # create the new concatenated coord object using the combined ordered sequence of values.
+    new_coord = cat_coord_self.copy(name = cat_coord_self.name +name_suffix,   value = cat_coord_value)
+    new_coord|cat_coord_self
+      # construct combined field values. Reshape is needed for np.concatenate function.
+    values = [Dcomb[k][:].reshape(piece_shape) for k in cat_coord_value]
+   
+    new_value = np.concatenate(values,axis=ax_index)
+
+      # construct the grid of the combined object by replacing the old partial coord with the new combined coord in the self grid. Recall that replacement is done with left multiplication.
+    new_grid = new_coord*self.gr
+       
+#      new_value = new_value.reshape(new_grid.shape())
+
+    return self.copy(value = new_value,grid = new_grid )
+
+
 
   def roll(shift, crd):
 
@@ -4109,6 +4251,8 @@ class field:
             new_crd_value = crd[slc]         
             new_crd = crd.copy(name = crd.name + '_sliced', value = new_crd_value)
 
+            new_crd|crd
+
             if crd.dual == crd:
               new_crd.dual = new_crd
             else:
@@ -4119,7 +4263,7 @@ class field:
                 slc_dual = slc
 
               new_crd_dual = crd.dual.copy(name = crd.dual.name + '_sliced', value = crd.dual[slc_dual])
-
+              new_crd_dual|crd.dual
               new_crd.dual = new_crd_dual
               new_crd_dual.dual = new_crd
 
@@ -4882,6 +5026,7 @@ def scale_prep_deco(func):
     else:
       levels = kwargs['levels']
       del kwargs['levels']
+
 
     X_scaled = xscale*X
     Y_scaled = yscale*Y
