@@ -252,7 +252,9 @@ def concatenate(fields, ax=None, name_suffix='_cat'):
 
   """
 
-  return reduce(lambda x,y:x.cat(y,ax=ax, name_suffix = name_suffix), fields)
+  if fields != []:
+    
+    return reduce(lambda x,y:x.cat(y,ax=ax, name_suffix = name_suffix), fields)
 
 
 def merge(A1,A2):
@@ -672,17 +674,20 @@ class exper:
 #          break
         file.close()
 
-      if F is []:
+     
+      if F == []:
         print 'Warning: var '+ varname + ' for ' + self.name + ' could not be read.'	 
-
+        self.vars[varname] = None
       else:
-        print 'OK. Fetched field %s for %s. %s files found.'%(varname, self.name,len(paths))
-    
+        num_files = len(paths)
+        # determine whether to use plural of word 'file' in stdout message.
+        if num_files > 1:
+          plural = 's'
+        else:
+          plural = ''
+        print 'OK. Fetched field %s for %s. %s file%s found.'%(varname, self.name,num_files,plural)
+        self.vars[varname] = squeeze( concatenate(F,name_suffix='') )
 
-# add to collection: 	
-
-      self.vars[varname] = squeeze( concatenate(F,name_suffix='') )
- 
  
 
 # ---------------- Class definition for projects -----------
