@@ -110,6 +110,7 @@ import matplotlib.pyplot as plt
 import types
 import inspect
 import math
+import datetime
 
 import glob
  
@@ -524,6 +525,46 @@ def subdict(D,pick_vals):
 
   return sD	
 
+
+
+def nugget(path = None, name = None,fields = [] , history = 'Created from Spacegrids '  ):
+
+    """
+    Write method of exper class.
+
+    Creates Netcdf file and writes all loaded field to it, along with their coord objects.
+
+    """
+
+    if name is None:
+      name = 'nugget'
+
+    if not name.split('.')[-1] in ['nc','cdf']:
+      name = name +'.nc'
+    if not path is None:
+      name = os.path.join( path , name ) 
+   
+    
+
+    print 'Writing field to file %s'%name
+    file_handle = netcdf.netcdf_file(name , 'w')
+
+    for fld in fields:
+
+      file_handle = fld.cdf_insert(file_handle)
+
+    file_handle.history = history + '%s'%str(datetime.datetime.now())
+ 
+#    var_cdf.units = self.units
+
+    file_handle.close()
+
+
+
+
+
+
+
 # ---------------- Class definition for experiments -----------
 
 class exper:
@@ -617,6 +658,41 @@ class exper:
     print 'Netcdf variables available (loaded marked **):'
     print_box(mark_sublist(self.var_names,self.vars.keys()))
       
+
+
+  def write(self, path = None, name = None , history = 'Created from Spacegrids '  ):
+
+    """
+    Write method of exper class.
+
+    Creates Netcdf file and writes all loaded field to it, along with their coord objects.
+
+    """
+
+    if name is None:
+      name = self.name
+
+    if not name.split('.')[-1] in ['nc','cdf']:
+      name = name +'.nc'
+    if not path is None:
+      name = os.path.join( path , name ) 
+   
+    
+
+    print 'Writing field to file %s'%name
+    file_handle = netcdf.netcdf_file(name , 'w')
+
+    for fld in self.vars.values():
+
+      file_handle = fld.cdf_insert(file_handle)
+
+    file_handle.history = history + '%s'%str(datetime.datetime.now())
+ 
+#    var_cdf.units = self.units
+
+    file_handle.close()
+
+  
 
 
       
@@ -1368,7 +1444,7 @@ class coord():
 
 
 
-  def copy(self,name = None,value = None, axis = None,direction = None,units = None, long_name = None, equiv = True):
+  def copy(self,name = None,value = None, axis = None,direction = None,units = None, long_name = None, metadata=None, equiv = True):
 
     """
     Copy function for coord objects. If equiv = True, the copies will be equivalent.
@@ -1399,7 +1475,7 @@ class coord():
 
     return result
 
-  def __init__(self,name='scalar',value = [0], dual = None,axis = '?',direction ='scalar', units = None,long_name ='?'):  
+  def __init__(self,name='scalar',value = [0], dual = None,axis = '?',direction ='scalar', units = None,long_name ='?', metadata = {}):  
 
     """
     Initialisation of coord object. This is the basic building block of grid objects.
@@ -1434,7 +1510,7 @@ class coord():
  
     self.fld = None
     self.len = len(value)
-
+    self.metadata = metadata
   
 
   def __len__(self):
@@ -1619,6 +1695,70 @@ class coord():
 
       print '+ only implemented for self-dual coord objects (e.g. time), returning None.'
       return None  
+
+
+  def start_zero(self):
+    """
+    Returns a copy of this coord where the coordinate values start at 0.
+    """
+    return self.copy(name = self.name + '_zero'  , value = self.value - self.value[0])
+ 
+  def cdf_insert(self,file_handle):
+    """
+    Netcdf insert method of coord class
+    Inserts coord as variable into Netcdf file.
+
+    Input: file_handle file handle of opened Netcdf file.
+
+    """
+
+    file_handle.createDimension(self.name,len(self))
+
+    var_cdf = file_handle.createVariable(self.name, self[:].dtype, (self.name,)   )
+    var_cdf[:] = self[:]
+    
+    for k in self.metadata:
+      setattr(var_cdf,k, self.metadata[k]) 
+
+
+    if 'FillValue' in self.metadata:
+      miss_val = self.metadata['FillValue']
+    elif 'missing_value' in self.metadata:
+      miss_val = self.metadata['missing_value']
+
+    var_cdf[  np.isnan( var_cdf[:]  ) == True   ] = miss_val
+
+    return file_handle
+
+
+  def write(self, path = None, name = None , history = 'Created from Spacegrids '  ):
+    """
+    Write method of coord class.
+    Writes coord data to Netcdf file.
+
+    """
+    if name is None:
+      name = self.name
+
+    if not name.split('.')[-1] in ['nc','cdf']:
+      name = name +'.nc'
+    if not path is None:
+      name = os.path.join( path , name ) 
+   
+    
+
+    print 'Writing field to file %s'%name
+    file_handle = netcdf.netcdf_file(name , 'w')
+
+    file_handle = self.cdf_insert(file_handle)
+
+    file_handle.history = history + '%s'%str(datetime.datetime.now())
+ 
+#    var_cdf.units = self.units
+
+    file_handle.close()
+
+
 
   def finer(self,factor = 5.):
     """
@@ -2537,30 +2677,35 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
       print 'Warning (moderate) from cdfread: var name not in file.'
     return None
 
-  body = copy.deepcopy(file.variables[varname][:])
-  dims = list(file.variables[varname].dimensions)
+  var_cdf_ob = file.variables[varname]
 
-  fvn = get_att(file.variables[varname], fval_names,fail_val = [np.nan])
+  # in future we are going to use this metadata instead of below attributes. For now, it is used when fields are saved.
+  metadata = {k:var_cdf_ob.__dict__[k] for k in var_cdf_ob.__dict__.keys() if k not in ['data','dimensions','_shape','_size']  }
+  
+  body = copy.deepcopy(var_cdf_ob[:])
+  dims = list(var_cdf_ob.dimensions)
+
+  fvn = get_att(var_cdf_ob, fval_names,fail_val = [np.nan])
   if isinstance(fvn,list):  
     mis_val = fvn[0] 
   else:
     mis_val = fvn
 
-#  mis_val = file.variables[varname].missing_value[0]
-  if hasattr(file.variables[varname],'units'):
-    units = file.variables[varname].units
+#  mis_val = var_cdf_ob.missing_value[0]
+  if hasattr(var_cdf_ob,'units'):
+    units = var_cdf_ob.units
   else:
     units = '?'
 
-  if hasattr(file.variables[varname],'long_name'):
-    long_name = file.variables[varname].long_name
+  if hasattr(var_cdf_ob,'long_name'):
+    long_name = var_cdf_ob.long_name
   else:
     long_name = varname
 
  
 # attempts at interpreting data by obtaining the string name of the direction. these names are a convention: 'X','Y','Z'. This direction guess is for fields that could be components of a vector fields.
 
-  direction = guess_direction(file.variables[varname])
+  direction = guess_direction(var_cdf_ob)
 
   Dict = {e.direction:e for e in ax_stack}
   Dict['scalar'] = ID()
@@ -2594,15 +2739,13 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
       if (dim == crd.name) and np.array_equal(dim_val , crd[:]):
      
         grid.append(crd)
-
-          
-
+            
   file.close()
 #  print '-----'
 #  print gr(tuple(grid)).shape()
 #  print body.shape
  
-  return field(varname,body,grid=gr(tuple(grid)),units = units, direction = direction, long_name = long_name)
+  return field(varname,body,grid=gr(tuple(grid)),units = units, direction = direction, long_name = long_name, metadata = metadata)
 
 
 def cdfsniff(exp_path, datanames = cdf_data_names, verbose = False):
@@ -2684,6 +2827,10 @@ def cdfsniff_helper(filepath, verbose = False):
 
     # guess which direction the coord is pointing in, based on netcdf descriptions. The netcdf .axis attribute is included!
     # leave directional_names wild card: no filter on general name (e.g. velocity).
+
+    # maybe rely more on this dictionary in future:
+    metadata = {k:file.variables[dim_name].__dict__[k] for k in file.variables[dim_name].__dict__.keys() if k not in ['data','dimensions','_shape','_size']  }
+
     
     
     direction = guess_direction(file.variables[dim_name],  name_atts = ['axis','long_name','standard_name'] , x_dir_names = coord_dir_names['x_dir_names'], y_dir_names = coord_dir_names['y_dir_names'], z_dir_names = coord_dir_names['z_dir_names'],t_dir_names = coord_dir_names['t_dir_names'],directional_names = '*')
@@ -2731,10 +2878,10 @@ def cdfsniff_helper(filepath, verbose = False):
        
           # using call method of coord object in cdf_axes global
 
-          this_coord = cdf_axes[direction](dim_name, copy.deepcopy( file.variables[dim_name][:] ), axis = copy.deepcopy(file.variables[dim_name].axis ),direction = direction, units = units, long_name = long_name)  
+          this_coord = cdf_axes[direction](dim_name, copy.deepcopy( file.variables[dim_name][:] ), axis = copy.deepcopy(file.variables[dim_name].axis ),direction = direction, units = units, long_name = long_name , metadata = metadata)  
 
           #this_coord = cdf_axes[file.variables[dim_name].axis](dim_name, file.variables[dim_name][:], axis = file.variables[dim_name].axis, units = units)  
-          dual_coord = cdf_axes[direction](dual_var_name,prep_dual_array(dual_var[:]),dual = this_coord, axis = copy.deepcopy(file.variables[dim_name].axis ), direction = direction, units = units, long_name = long_name)
+          dual_coord = cdf_axes[direction](dual_var_name,prep_dual_array(dual_var[:]),dual = this_coord, axis = copy.deepcopy(file.variables[dim_name].axis ), direction = direction, units = units, long_name = long_name, metadata = metadata)
 
           this_coord.dual = dual_coord
 
@@ -2747,7 +2894,7 @@ def cdfsniff_helper(filepath, verbose = False):
       else:
         # this is the case of self-dual objects such as time, so only 1 object needs to be made
         if file.variables[dim_name].axis in cdf_axes:
-          coord_stack.append(cdf_axes[direction](dim_name,copy.deepcopy(file.variables[dim_name][:] ), axis = copy.deepcopy(file.variables[dim_name].axis ),direction = direction, units = units, long_name = long_name  ))
+          coord_stack.append(cdf_axes[direction](dim_name,copy.deepcopy(file.variables[dim_name][:] ), axis = copy.deepcopy(file.variables[dim_name].axis ),direction = direction, units = units, long_name = long_name , metadata = metadata ))
 
     else:
     # In this case, no axis attribute has been detected.
@@ -2761,10 +2908,10 @@ def cdfsniff_helper(filepath, verbose = False):
 
           # using call method of coord object in cdf_axes global
 
-          this_coord = cdf_axes[direction](dim_name, copy.deepcopy(file.variables[dim_name] [:] ), axis = file.direction,direction = direction, units = units, long_name = long_name)  
+          this_coord = cdf_axes[direction](dim_name, copy.deepcopy(file.variables[dim_name] [:] ), axis = file.direction,direction = direction, units = units, long_name = long_name, metadata = metadata)  
 
           #this_coord = cdf_axes[file.variables[dim_name].axis](dim_name, file.variables[dim_name][:], axis = file.variables[dim_name].axis, units = units)  
-          dual_coord = cdf_axes[direction]( copy.deepcopy( file.variables[dim_name].edges ),prep_dual_array(dual_var[:]),dual = this_coord, axis = direction, direction = direction, units = units, long_name = long_name)
+          dual_coord = cdf_axes[direction]( copy.deepcopy( file.variables[dim_name].edges ),prep_dual_array(dual_var[:]),dual = this_coord, axis = direction, direction = direction, units = units, long_name = long_name, metadata = metadata)
 
 
           this_coord.dual = dual_coord
@@ -2777,7 +2924,7 @@ def cdfsniff_helper(filepath, verbose = False):
       else:
         # this is the case of self-dual objects such as time, so only 1 object needs to be made
         if direction in cdf_axes:
-          coord_stack.append(cdf_axes[direction](dim_name, copy.deepcopy(file.variables[dim_name][:] ), axis = direction,direction = direction, units = units ,long_name =long_name))
+          coord_stack.append(cdf_axes[direction](dim_name, copy.deepcopy(file.variables[dim_name][:] ), axis = direction,direction = direction, units = units ,long_name =long_name, metadata = metadata))
 
         else:
           print 'Warning!! guessed direction not in cdf_axes, strange!'
@@ -3956,7 +4103,7 @@ class field:
   def __repr__(self):
     return self.name
 
-  def __init__(self,name,value,grid,units = '?',direction = None, strict_v = strict_vector,long_name='?'):
+  def __init__(self,name,value,grid,units = '?',direction = None, strict_v = strict_vector,long_name='?',metadata={}):
     """
     Initialise a field. 
     Inputs: 
@@ -3989,6 +4136,7 @@ class field:
           self.direction = direction 
           self.strict_v = strict_v
           self.long_name = long_name
+          self.metadata = metadata
 
         else:
          
@@ -4011,7 +4159,7 @@ class field:
     else:
       return False
 
-  def copy(self, name = None, value = None, grid = None, units = None, direction = None, long_name = None):
+  def copy(self, name = None, value = None, grid = None, units = None, direction = None, long_name = None, metadata=None):
 
     frame = inspect.currentframe()
     args, _, _, values = inspect.getargvalues(frame)
@@ -4038,6 +4186,67 @@ class field:
     # In case class are derived from the field class (as opposed to return field(**values) here):
     return self.__class__(**values)
 
+
+  def cdf_insert(self,file_handle):
+    """
+    Netcdf insert method of field class.
+
+    Writes field to already opened file referred to with file_handle argument, along with its coord objects.
+
+    """
+
+    for crd in self.gr:
+      if not crd.name in file_handle.variables:
+        crd.cdf_insert(file_handle)
+
+
+    var_cdf = file_handle.createVariable(self.name, self[:].dtype, [crd.name for crd in self.gr]   )
+    var_cdf[:] = self[:]
+
+
+    for k in self.metadata:
+      setattr(var_cdf,k, self.metadata[k]) 
+
+    
+    if 'FillValue' in self.metadata:
+      miss_val = self.metadata['FillValue']
+    elif 'missing_value' in self.metadata:
+      miss_val = self.metadata['missing_value']
+
+    var_cdf[  np.isnan( var_cdf[:]  ) == True   ] = miss_val
+
+    return file_handle
+
+
+  def write(self, path = None, name = None , history = 'Created from Spacegrids '  ):
+
+    """
+    Write method of field class.
+
+    Creates Netcdf file and writes field to it, along with its coord objects.
+
+    """
+
+    if name is None:
+      name = self.name
+
+    if not name.split('.')[-1] in ['nc','cdf']:
+      name = name +'.nc'
+    if not path is None:
+      name = os.path.join( path , name ) 
+   
+    
+
+    print 'Writing field to file %s'%name
+    file_handle = netcdf.netcdf_file(name , 'w')
+
+    file_handle = self.cdf_insert(file_handle)
+
+    file_handle.history = history + '%s'%str(datetime.datetime.now())
+ 
+#    var_cdf.units = self.units
+
+    file_handle.close()
 
   def cat(self,other,ax = None, name_suffix = '_cat'):
     """
@@ -4453,7 +4662,7 @@ class field:
 
 
     else:
-      raise Exception('field error in %s/%s with field %s. Provide field,gr or coord objects or int or double for denominator.' % (self,other,self) )
+      raise Exception('field error in %s/%s with field %s. Provide field,gr or coord objects or int or double for denominator. (Or check staleness of objects.)' % (self,other,self) )
      
 
 # --> method belongs to field.
@@ -4708,7 +4917,7 @@ class vfield(tuple):
       print "Refused. Only plotting 2D fields."
       
 
-def prep_axes(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True):
+def prep_axes(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True , grid = None):
 
   """
   Prepare axes names etc for plotting.
@@ -4717,37 +4926,41 @@ def prep_axes(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=No
   xlbl=''
   ylbl = '' 
  
-  X, Y, x_name, y_name = fld.gr[1], fld.gr[0],fld.gr[1].name, fld.gr[0].name
+  if grid is None:
+    grid = fld.gr
+
+
+  X, Y, x_name, y_name = grid[1], grid[0],grid[1].name, grid[0].name
 
 
   if minus_z:
 
-    if hasattr(fld.gr[0],'axis'):
-      if fld.gr[0].axis.name == 'Z':
+    if hasattr(grid[0],'axis'):
+      if grid[0].axis.name == 'Z':
         yscale *= -1
-      elif fld.gr[1].axis.name == 'Z':
+      elif grid[1].axis.name == 'Z':
         xscale *= -1
 
 # determine full label display names (e.g. 'Longitude')
-  if hasattr(fld.gr[0],'axis'):
+  if hasattr(grid[0],'axis'):
   
-    ylbl = fld.gr[0].axis.display_name
+    ylbl = grid[0].axis.display_name
   else:
-    ylbl = fld.gr[0].name
+    ylbl = grid[0].name
  
-  if hasattr(fld.gr[1],'axis'):
+  if hasattr(grid[1],'axis'):
   
-    xlbl = fld.gr[1].axis.display_name
+    xlbl = grid[1].axis.display_name
    
   else:
-    xlbl = fld.gr[1].name
+    xlbl = grid[1].name
 
   if ax_units:
-    if hasattr(fld.gr[0],'units'):
-      ylbl += ' (' +fld.gr[0].units +')'
+    if hasattr(grid[0],'units'):
+      ylbl += ' (' +grid[0].units +')'
 
-    if hasattr(fld.gr[1],'units'):
-      xlbl += ' (' +fld.gr[1].units +')'
+    if hasattr(grid[1],'units'):
+      xlbl += ' (' +grid[1].units +')'
 
 
   if not(xl):
@@ -4832,14 +5045,36 @@ def add_kmt(kmt):
 
   plt.contour(np.linspace(0,360,sh[1]),np.linspace(-90,90,sh[0]) , kmti,levels = [0.5],interpolation='nearest',colors='k',linewidths=1.5);
 
-def plot(fld0 = None,fld1=None, minus_z=True,xlbl='',ylbl='', **kwargs):
+def plot(fld0 = None,fld1=None, minus_z=True,xlbl='',ylbl='', grid = None,start_zero=False, **kwargs):
    """
-   Function that calls plot, but takes fields as arguments (instead of numpy arrays)
+   Function that calls Matplotlib plot, but takes fields as arguments (instead of numpy arrays)
+
+   Inputs:
+   ---------------
+
+   fld0 	field to be plotted if fld1 is None, otherwise x-coord with fld1 as y-coord
+   minus_z 	z-axis points downard if true
+   xlbl, ylbl 	override field labels if not ''
+   grid 	replaces field grid if not None
+   start_zero	if True, x-axis starts at 0  
+
    """
  
    if fld1 is None:
-     crd = fld0.gr[0]
+     # In this case, no x-axis is given, using field x-axis or explicitly specified grid
+
+
+     if grid is None:
+       crd = fld0.gr[0]
+     else:
+       crd = grid[0]
+
+     if start_zero is True:
+       # Start x-axis at 0
+       crd = crd.start_zero()
+
      if minus_z: 
+       # z-axis points downard
        if hasattr(crd,'axis'):
          if crd.axis.name == 'Z':
            xax = fld0
@@ -5005,7 +5240,7 @@ def auto_cont(m,M, num_cont, max_try = 5):
 
 def scale_prep_deco(func):
 
-  def plot_wrapper(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True, num_xticks = 6, num_yticks = 6, greyshade = '0.65', showland = False,*args, **kwargs):
+  def plot_wrapper(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True, num_xticks = 6, num_yticks = 6, greyshade = '0.65', showland = False,grid = None,*args, **kwargs):
 
 #  def plot_wrapper(*args, **kwargs):
 
@@ -5028,7 +5263,7 @@ def scale_prep_deco(func):
 
 #    body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes({k:kwargs[k] for k in ['fld', 'num_cont', 'xlabel' ,'ylabel', 'minus_z', 'xl','yl','xscale','yscale','ax_units']})
 
-    body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=fld, num_cont=num_cont, xlabel=xlabel ,ylabel=ylabel, minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
+    body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=fld, num_cont=num_cont, xlabel=xlabel ,ylabel=ylabel, minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units, grid = grid)
 
   # Use of X, Y confusing here, as they refer to coord objects, whereas X,Y,... usually refer to ax objects. Change in later version
 
@@ -5044,7 +5279,7 @@ def scale_prep_deco(func):
     X_scaled = xscale*X
     Y_scaled = yscale*Y
 
-    cset = func(X_scaled,Y_scaled,mbody, levels = levels, num_cont =num_cont, xlabel = xlabel,ylabel = ylabel, minus_z=minus_z,xl=xl,yl=yl,xscale = xscale ,yscale = yscale ,ax_units=ax_units, num_xticks = num_xticks, num_yticks = num_yticks, greyshade = greyshade, showland = showland,**kwargs)
+    cset = func(X_scaled,Y_scaled,mbody, levels = levels, num_cont =num_cont, xlabel = xlabel,ylabel = ylabel, minus_z=minus_z,xl=xl,yl=yl,xscale = xscale ,yscale = yscale ,ax_units=ax_units, num_xticks = num_xticks, num_yticks = num_yticks, greyshade = greyshade, showland = showland, grid = grid,**kwargs)
     
     if xlabel:
       plt.xlabel(xlbl)
@@ -5069,7 +5304,7 @@ def scale_prep_deco(func):
 
 
 @scale_prep_deco
-def contourf(X_scaled,Y_scaled,mbody, levels = None, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True, num_xticks = 6, num_yticks = 6, greyshade = '0.65', showland = False,*args, **kwargs):
+def contourf(X_scaled,Y_scaled,mbody, levels = None, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True, num_xticks = 6, num_yticks = 6, greyshade = '0.65', showland = False,grid = None,*args, **kwargs):
 
   """
   Before decoration: takes axes and numpy array argument.
@@ -5106,7 +5341,7 @@ def contourf(X_scaled,Y_scaled,mbody, levels = None, num_cont =15, xlabel = True
 
 
 @scale_prep_deco
-def contour(X_scaled,Y_scaled,mbody, levels = None, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True, num_xticks = 6, num_yticks = 6, greyshade = '0.65', showland = False,*args, **kwargs):
+def contour(X_scaled,Y_scaled,mbody, levels = None, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True, num_xticks = 6, num_yticks = 6, greyshade = '0.65', showland = False,grid = None,*args, **kwargs):
 
   """
   Function that calls contour, but takes a field as argument (instead of a numpy)
