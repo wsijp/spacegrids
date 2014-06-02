@@ -238,6 +238,18 @@ def find_equal_axes(lstack,rstack):
 
 #  return rstack
 
+def split_list(L, size = 10):
+
+  l = len(L)
+  full_blocks = l/size
+
+  new_L = [ L[i*size:(i+1)*size]   for i in range(full_blocks) ]
+  
+  if full_blocks * size != l: 
+    new_L.append(L[size*full_blocks:])  
+
+  return new_L
+
 def concatenate(fields, ax=None, name_suffix='_cat'):
   """
   concatenate((a1,a2,...),ax=None)
@@ -828,14 +840,8 @@ class exper:
 
  
 
+  def available(self):
 
-
-  def ls(self):
-    """
-    Variable list method of exper class.
-    Examine which fields (Netcdf variables) are available of experiment object.
-
-    """  
   
     if os.path.isfile(self.path):
         # this exper object was created from a project in by_file mode: experiments correspond to files.
@@ -852,11 +858,8 @@ class exper:
            
 # Try to find netcdf var in any of the found files, and then read into field object.
 
-
-    F = []
     for filepath in paths:
        
-
       if use_scientificio is True:
         f = Scientific.IO.NetCDF.NetCDFFile(filepath,'r')
   
@@ -867,11 +870,20 @@ class exper:
       variables = f.variables.keys()
 
       f.close()
+      return variables
 
-      RP = report()
-      RP.echo(variables,delim = '\t ',maxlen=100)
 
-      return RP
+  def ls(self, width = 20):
+    """
+    Variable list method of exper class.
+    Examine which fields (Netcdf variables) are available of experiment object.
+
+    """  
+ 
+    RP = report()
+    RP.echo(self.available(),delim = '\t ',maxlen=300, width = width)
+
+    return RP
 
 
 # ---------------- Class definition for projects -----------
@@ -895,7 +907,7 @@ class project:
     self.name = name
     self.mode = mode
 
-          
+
     if descr is None:
       self.descr = name
     else:
@@ -970,6 +982,9 @@ class project:
       self.load(varnames)
 
   def ls(self):
+    """
+    Method of project class to display experiments in columns.
+    """
     RP = report()
 
     RP.echo(self.expers.keys(),delim='\t')   
@@ -5091,28 +5106,32 @@ class report():
   def __repr__(self):
     return self.value
 
+  def block(self,L,delim = '\ ', width = 12, cols = 4 ):
 
-  def echoln(self,what = '', delim = ' ', maxlen = 10):
+    Ls = split_list(L , size = cols)
 
-    self.echo(what = what , delim = delim, maxlen = maxlen)
+    for LL in Ls:
+      self.echo(what = delim.join([ ("%-{}s".format(str(width)))%l for l in  LL ] ) )
+      self.echoln()
+
+  def echoln(self,what = '', delim = ' ', maxlen = 10, width = 12):
+
+    self.echo(what = what , delim = delim, maxlen = maxlen, width = width)
     self.echo('\n') 
 
 
-  def echo(self,what='' , delim = ' ', maxlen = 10):
+  def echo(self,what='' , delim = ' ', maxlen = 10, width = 12):
 
     if isinstance(what,str):
       self.value = self.value + what
     elif isinstance(what,list) or isinstance(what,tuple):
       if len(what) > maxlen:
 
-      
-        self.value = self.value + reduce(lambda x,y:x + delim + y, what[:maxlen/2])
-       
-        self.value = self.value + ' ... '
-        self.value = self.value + reduce(lambda x,y:x + delim + y, what[-maxlen/2:])
-      else:
-        self.value = self.value + reduce(lambda x,y:x + delim + y, what)
+        self.block(L = what[:maxlen/2] + ['...',] +  what[-maxlen/2:] , delim = delim, width = width)
 
+      else:
+        self.block(L = what, delim = delim, width = width)
+     
   def table(self,D,cols = 4, numspace =2):
 
     for i, k in enumerate(D.keys()):
