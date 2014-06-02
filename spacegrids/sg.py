@@ -154,6 +154,8 @@ if os.getenv("LOC") == "standard":
 else:
   home_path = os.environ['HOME']
 
+# Name of text file designating project directories and containing project name
+projnickfile = "projname"
 
 # flag for field multiplication. Multiplication of directional fields leads to vector fields if true.
 strict_vector = True
@@ -175,7 +177,7 @@ tgrid_names = {'UVic2.8_t':('yt','xt'),'UVic2.9_t':('latitude','longitude')}
 grid_type_names = {'ts_grid':['t grid','TS grid'],'uv_grid':['u grid','UV grid']}
 
 # globs by which netcdf files are recognised.
-cdf_data_names = ['*.nc','*.cdf']
+cdf_file_extensions = ['*.nc','*.cdf']
 
 
 # keywords by which coordinate spatial/ time direction (e.g. x-direction) can be identified/ guessed from description (long_name attribute) in netcdf file.
@@ -292,6 +294,7 @@ def squeeze(F):
    
   body = np.squeeze(body)
   return F.copy(value=body,grid = gr(dims))
+
 
 def add_alias(L):
   """
@@ -483,34 +486,57 @@ def sublist(L,pick_vals):
   return sL	
 
 
-def isexpdir(path, datanames = cdf_data_names):
+  
+
+def isexpdir(path, mode = 'by_dir', file_extensions = cdf_file_extensions):
 
   """
  
   Tests whether the subdirectories in the path contain data files recognised as known data files and returns the list of those subdirectories (relative path to path argument) that contain these known files. To be used by adexp functionality and such.
-datanames is the list of known filenames in the form of glob expressions, e.g. ['*.nc','*.cdf'] (the default). 
+file_extensions is the list of known filenames in the form of glob expressions, e.g. ['*.nc','*.cdf'] (the default). 
+
+  The behaviour of this function depends on the mode argument. If mode is set to by_file, a list of files is returned instead of a list of directories.
+
   
   """
 
+  modes_allowed = ('by_dir','by_file')
+
+  if not mode in modes_allowed:
+    raise Exception('Error: invalid mode %s. Provide option in %s'%(mode, str(modes_allowed)  ) )
+
+
+  if mode == 'by_dir':
  
-  L = os.listdir(path)
-  Lc = copy.deepcopy(L)
+    L = os.listdir(path)
+    Lc = copy.deepcopy(L)
     
-  for l in L:
-    try:
+  # go through list L of subdirectories of path (e.g. /home/me/PROJECTS/test_project/) to see which ones are experiment directories (i.e. contain .nc and .cdf files).
+    for l in L:
+      try:
       # look for files ending in .nc or .cdf
       
-      exp_path = os.path.join(path , l)
-      globfpaths = [os.path.join(exp_path , e) for e in datanames]
+        exp_path = os.path.join(path , l)
+      # Try globbing <path>.nc and <path>.cdf. E.g. /home/me/PROJECTS/test_project/DPC/*.nc for a globfpath
+        globfpaths = [os.path.join(exp_path , e) for e in file_extensions]
  
-      if not(reduce(lambda x,y: x + y, [glob.glob(e) for e in globfpaths])):	
-        
-          Lc.remove(l)
-    except:
-      # bad directory anyway
-      Lc.remove(l)
+      # Test whether any files of the extensions (e.g .nc) in file_extensions occur in this directory:
+        if not(reduce(lambda x,y: x + y, [glob.glob(e) for e in globfpaths])):	
+            # if no files with these extensions are found, delete the directory from the list:
+            Lc.remove(l)
+      except:
+        # bad directory anyway
+        Lc.remove(l)
 
-  return Lc
+    # Return list of directories inside path that contain .nc etc files:
+    return Lc
+
+  elif mode == 'by_file':
+    globfpaths = [os.path.join(path , e) for e in file_extensions]
+    raw_files = reduce(lambda x,y: x + y, [glob.glob(e) for e in globfpaths])
+    files = [e for e in raw_files if os.path.isfile(e)]
+
+    return [ os.path.split(e)[-1] for e in   files ]
 
 def subdict(D,pick_vals):
   if not isinstance(pick_vals,types.ListType):
@@ -560,7 +586,15 @@ def nugget(path = None, name = None,fields = [] , history = 'Created from Spaceg
     file_handle.close()
 
 
-
+def mark_sublist(Lbig,Lsub, indicator ='*', mult = 2):
+  cLbig = []
+  for l in Lbig:
+    if l in Lsub:
+      l =   l +indicator*mult
+  
+    cLbig.append(l)
+  
+  return cLbig    
 
 
 
@@ -572,7 +606,19 @@ class exper:
   plot_2use = {'S':'plot'}
   
   def __repr__(self):
-    return self.name
+
+    loaded_fields = self.vars.keys()
+    l = len(loaded_fields)
+
+
+    REP = report('Experiment ')
+    REP.echoln(self.name)
+    if loaded_fields:
+      REP.echoln(loaded_fields)
+    REP.echo('Number of fields loaded: %i '%len(loaded_fields))
+
+    return REP.value
+    
 
   def __init__(self,path=home_path, name = 'test',cstack = [], descr = 0, parent = 'orphan'):
 # --> belongs to class exper
@@ -630,14 +676,22 @@ class exper:
     return fields    	
 
   def list_vars(self):
+    RP = report()
     if len(self.vars) == 0:
-      print 'No variables.'
+      RP.echo('No variables.')
     else:
-      print 'name \t descr'
-      print '-'*20
+
+      RP.echoln('name  \t descr') 
+     
+      RP.echoln('-'*20)
       for k in self.vars.keys():
-        print k,' \t ', self.vars[k].descr
-      
+        RP.echo(k,' \t ')
+        if hasattr(self.vars[k],'descr'):
+          RP.echoln(self.vars[k].descr)
+        else:
+          RP.echoln()
+
+    return RP      
   
   def delvar(self, varnames, msg = ''):
 # this delvar is a method of class exper
@@ -653,10 +707,10 @@ class exper:
         if msg:
           print 'var ' + varname +' not in list. ' + msg,
 
-  def cdf(self):
+#  def cdf(self):
 # --> method of class exper        
-    print 'Netcdf variables available (loaded marked **):'
-    print_box(mark_sublist(self.var_names,self.vars.keys()))
+#    print 'Netcdf variables available (loaded marked **):'
+#    print_box(mark_sublist(self.var_names,self.vars.keys()))
       
 
 
@@ -678,32 +732,38 @@ class exper:
       name = os.path.join( path , name ) 
    
     
+    if len(self.vars) > 0:
+      print 'Writing experiment %s to file %s'%(self.name, name)
+      file_handle = netcdf.netcdf_file(name , 'w')
 
-    print 'Writing field to file %s'%name
-    file_handle = netcdf.netcdf_file(name , 'w')
+      for fld in self.vars.values():
 
-    for fld in self.vars.values():
+        file_handle = fld.cdf_insert(file_handle)
 
-      file_handle = fld.cdf_insert(file_handle)
-
-    file_handle.history = history + '%s'%str(datetime.datetime.now())
+      file_handle.history = history + '%s'%str(datetime.datetime.now())
  
 #    var_cdf.units = self.units
 
-    file_handle.close()
+      file_handle.close()
 
+    else:
+      print 'No fields to write for experiment %s'%self.name
   
 
 
       
   def load(self,varnames, filename = None):
     """
+    Field load method of exper class.
+
     Load a variable or list of variables contained in varnames. Takes either a single string or a list of strings.
 
     If no filename argument is given, all Netcdf files in the experiment directory will be examined.
     If multiple files contain the same variable, this method will attempt to concatenate them (e.g. in the case where there are different time slices).
 
     """  
+
+    # filename legacy argument!!!
 
 # --> this load is a method of class exper
 
@@ -715,8 +775,12 @@ class exper:
 
      
       # Prepare the paths to all the netcdf files into a list     
-      if filename is None:
-            
+      if os.path.isfile(self.path):
+        # this exper object was created from a project in by_file mode: experiments correspond to files.
+        paths = [self.path]
+
+      else:            
+          # corresponds to by_dir mode projects: experiments correspond to directories containing Netcdf files.
           paths = []
           for root, dirs, files in os.walk(top = self.path):
             for fname in files:
@@ -727,9 +791,7 @@ class exper:
       # test if var already in list.
       self.delvar(varname, msg = "")  	
             
-
 #	Try to find netcdf var in any of the found files, and then read into field object.
-
 
 
       F = []
@@ -753,7 +815,7 @@ class exper:
      
       if F == []:
         print 'Warning: var '+ varname + ' for ' + self.name + ' could not be read.'	 
-        self.vars[varname] = None
+#        self.vars[varname] = None
       else:
         num_files = len(paths)
         # determine whether to use plural of word 'file' in stdout message.
@@ -766,6 +828,52 @@ class exper:
 
  
 
+
+
+  def ls(self):
+    """
+    Variable list method of exper class.
+    Examine which fields (Netcdf variables) are available of experiment object.
+
+    """  
+  
+    if os.path.isfile(self.path):
+        # this exper object was created from a project in by_file mode: experiments correspond to files.
+      paths = [self.path]
+
+    else:            
+          # corresponds to by_dir mode projects: experiments correspond to directories containing Netcdf files.
+        paths = []
+        for root, dirs, files in os.walk(top = self.path):
+          for fname in files:
+            if fname.split('.')[-1] in ['nc','cdf']:
+              paths.append(os.path.join(root,fname))
+
+           
+# Try to find netcdf var in any of the found files, and then read into field object.
+
+
+    F = []
+    for filepath in paths:
+       
+
+      if use_scientificio is True:
+        f = Scientific.IO.NetCDF.NetCDFFile(filepath,'r')
+  
+      else:
+        # Scipy way:
+        f = netcdf.netcdf_file(filepath,'r')
+
+      variables = f.variables.keys()
+
+      f.close()
+
+      RP = report()
+      RP.echo(variables,delim = '\t ',maxlen=100)
+
+      return RP
+
+
 # ---------------- Class definition for projects -----------
 
 class project:
@@ -774,15 +882,21 @@ class project:
     return self.show()
     
 
-  def __init__(self,path=home_path, expnames = ['*'], varnames = [],msk_grid = 'UVic2.8_t', name = 'my_project', descr = 0, verbose = False):
+  def __init__(self,path=home_path, expnames = ['*'], varnames = [],mode = 'by_dir',msk_grid = 'UVic2.8_t', name = None, descr = None, verbose = False):
 
     global ax_disp_names
 
-
     self.path = path 
+
+    if name is None:
+      f = open(os.path.join(self.path, projnickfile  )  )
+      name = read_projnick(f)
+      f.close()
     self.name = name
+    self.mode = mode
+
           
-    if not(descr):
+    if descr is None:
       self.descr = name
     else:
       self.descr = descr  
@@ -793,9 +907,10 @@ class project:
 
     # sniff out the netcdf situation:
     
-       # find a list of the directories in the project path that qualify as experiment data dirs. 
-    DL = isexpdir(self.path) 
-    # match the argument expnames against DL via wildcard expansion etc.
+       # find a list of the directories in the project path that qualify as experiment data dirs, i.e. contain .nc or .cdf files: 
+    DL = isexpdir(self.path,mode = mode) 
+    # Filter experiment names list against expnames filter argument:
+
     expnames = sublist(DL,expnames)     
 
 
@@ -806,7 +921,7 @@ class project:
     
     if expnames:
       self.adexp(expnames)
-      # after the experiments have been loaded, their coord elements are all different.
+      # after the experiments have been loaded, their coord elements are all different objects. So check if some of them should be the same object:
       for le in self.expers:
         for re in self.expers:
         # if axes between experiments are different objects but have identical attribute values, make the objects identical. If they only have the same axis attribute value, make them equivalent. 
@@ -853,8 +968,14 @@ class project:
 
     if varnames:
       self.load(varnames)
-   
+
+  def ls(self):
+    RP = report()
+
+    RP.echo(self.expers.keys(),delim='\t')   
  
+    return RP
+
   def get(self, expnames, varnames):
     """
     Project method to fetch fields from a project.
@@ -959,17 +1080,15 @@ class project:
     """
     Display summary of experiments and fields loaded in project.
     """
-    print '\n---------'
-    print 'Experiments: ',
-    for e in self.expers:
-      print e + ',',
-    print '\n '  
 
-    # take inventory in vars of all loaded variables using the first exper.
+    RP = report('---- %s ----\n'%self.name)
+    RP.echo('Experiments: ')
+    RP.echoln(self.expers.keys())
+
     if not(self.expers.keys()):
 
-      print 'No experiments in project.'
-      return self.name
+      RP.echo('No experiments in project.')
+      return RP
 
     exp_name1 = self.expers.keys()[0]
     vars = self.expers[exp_name1].vars.keys()
@@ -979,7 +1098,7 @@ class project:
       
       shapes_list = []
       for expname in self.expers.keys():
-        if self.expers[expname].vars[thisvar] is None:
+        if thisvar not in self.expers[expname].vars or self.expers[expname].vars[thisvar] is None:
           shape_str = ''
         else:
           shape_str =  str(self.expers[expname].vars[thisvar].shape)
@@ -991,12 +1110,12 @@ class project:
     
     vars = dict(zip(vars, dims  ))
     
-    print 'Loaded variables (and sizes):'
-    print '-'*20
-    print_table(vars)
-    print '\n'
+    RP.echoln('Loaded fields (and sizes):')
+    RP.echoln('-'*20)
+    RP.table(vars)
+    RP.echoln()
 
-    return self.name
+    return RP.value
     
   def incdf(self, varname, expname = ''):
     """
@@ -1027,20 +1146,20 @@ class project:
     else:
       return False
     
-  def cdf(self, expname =''): 
+#  def cdf(self, expname =''): 
  
  # --> belongs to project
  
-    exps = self.expers 
-    if expname == '':
-      if len(exps.keys()) > 0:
-        exp = exps[exps.keys()[0]]
-      else:
-        print "Load exps first."
-    else:
-      exp = exps[expname]
+#    exps = self.expers 
+#    if expname == '':
+#      if len(exps.keys()) > 0:
+#        exp = exps[exps.keys()[0]]
+#      else:
+#        print "Load exps first."
+#    else:
+#      exp = exps[expname]
     
-    exp.cdf()
+#    exp.cdf()
 
   def delvar(self,varname):
     if self.expers: 
@@ -1068,19 +1187,17 @@ class project:
 
 # --> belongs to class "project"
 
-  def adexp(self, expnames=['*'], descr = 0):
+  def adexp(self, expnames=['*'], descr = 'An experiment.'):
     """
     Adds an experiment class to this project. Also looks for a sub-directory "masks" for masks. If it can't find that, it will use the mask inherited from the project.
     """
-   
-    descr = 'test'   
 
     # Convert argument expnames to list if it is not yet a list, e.g. 'flx_BL' to ['flx_BL']
     if not(isinstance(expnames,types.ListType)):
       expnames = [ expnames ]
     
     # find a list of the directories in the project path that qualify as experiment data dirs. 
-    DL = isexpdir(self.path)
+    DL = isexpdir(self.path , mode = self.mode)
     
     # match the argument expnames against DL via wildcard expansion etc.
     expnames = sublist(DL,expnames)     
@@ -1123,15 +1240,9 @@ class project:
 # list functionality only exists at the level of the "project" class.
     if not(isinstance(varnames, list)):
       varnames = [ varnames]
-# descr has not been implemented yet
-     
    
     for varname in varnames:
-      if not(descr):
-        self.descr = varname
-      else:
-        self.descr = descr
-
+ 
 # Test if experiments have been registered with the project:    
       if not(self.expers):
         print "No experiments." 
@@ -1168,8 +1279,39 @@ class project:
 
     return    
 
- 
-          
+  def write(self, path = None, name = None, force = False , history = 'Created from Spacegrids '  ): 
+    """
+    Write entire loaded project to disk. 
+    """     
+
+
+    if path is None:
+      path = os.path.join(home_path,"PROJECTS")
+
+      if name is None:
+        name = self.name
+     
+      path = os.path.join(path,name)
+
+  
+
+    if not(force):
+      if os.path.samefile(path , self.path ):
+        print 'Refusing to write project %s to own path at risk of overwriting data. Use different path or set force = True'%name
+        return
+
+    if not os.path.exists(path):
+      os.mkdir(path)
+      print 'Creating dir %s'%path
+
+    # write project name text file:    
+    f = open(os.path.join( path, projnickfile ),'w')
+    f.write(name)
+    f.close()
+
+    for e in self.expers.values():
+      e.write(path = path)
+      
 
   def getbody(self, varname, expnames = '*', loadflag = 1, verbose =0):
 
@@ -2748,23 +2890,42 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
   return field(varname,body,grid=gr(tuple(grid)),units = units, direction = direction, long_name = long_name, metadata = metadata)
 
 
-def cdfsniff(exp_path, datanames = cdf_data_names, verbose = False):
+def cdfsniff(path_parent, file_extensions = cdf_file_extensions, verbose = False):
+  """
+  This sg function looks inside the provided path_parent (path to directory containing the Netcdf files) for Netcdf files and extracts coord objects from the dim data using sg.cdfsniff_helper.
 
-  fnames = os.listdir(exp_path)
- 
+  path_parent is an experiment directory in 'by_dir' mode.
+
+
+  Returns all coord objects that contain different data, to be used in the coord stack cstack.
+  """
+
+  if os.path.isfile(path_parent):
+    # In this case, a file path is provided. This occurs when projects are run in by_file mode, where experiment object correspond to (Netcdf) files instead of directories containing Netcdf files.
+    return rem_equivs(cdfsniff_helper( path_parent , verbose = verbose ))
+
+  # This is the case corresponding to the by_dir mode of projects:
+
+  # all files within path_parent
+  fnames = os.listdir(path_parent)
+
+  # cstack will contain all coord objects constructed from dims in Netcdf 
   cstack = []
 
-  globfpaths = [os.path.join(exp_path , e) for e in datanames]
+  # prepare glob patterns to look for Netcdf files
+  globfpaths = [os.path.join(path_parent , e) for e in file_extensions]
 
   cdf_filepaths = reduce(lambda x,y: x + y, [glob.glob(e) for e in globfpaths  ]  )
 
-
+  # construct combined cstack out of individual Netcdf files via cdfsniff_helper: 
   for cdf_filepath in cdf_filepaths:
 
     cstack = cstack + cdfsniff_helper( cdf_filepath , verbose = verbose )
-    
 
+  # remove equivalent coord objects (containing the same data) and return    
   return rem_equivs(cstack)
+
+
 
 
 def prep_dual_array(raw_array):
@@ -2950,7 +3111,7 @@ def cdfsniff_helper(filepath, verbose = False):
 
 # ----------------- IO functions -----------------------
 
-def locate(top = '/home/',fname = "projname"):
+def locate(top = '/home/',fname = projnickfile):
   """
   Locates all files with filename fname. Helper function to info function.
   
@@ -2971,7 +3132,7 @@ def locate(top = '/home/',fname = "projname"):
   return paths
 
 
-def info(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = "projname", verbose = True):
+def info(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = projnickfile, verbose = True):
   """
   Simple function to take inventory of all project directories so that no specific paths need to be used, and projects can be referred to by their nicknames defined in a file called projname in each directory containing the experiment directories.
  
@@ -3011,7 +3172,7 @@ def info(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = "projnam
     fp = os.path.join(path,fname)
     f = open(fp,'r')
 # read the first line and make sure the return char \n is deleted.    
-    projnick = f.readline().rstrip()
+    projnick = read_projnick(f)
     f.close()
 # ad to dictionary    
     D[projnick] = os.path.join(path,'')
@@ -3021,11 +3182,12 @@ def info(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = "projnam
     for d in D:
       print d
   
-  
-
   return D
     
+def read_projnick(f):
   
+  return f.readline().rstrip()
+
 def msk_read(filepath='masks/msk', crop = 1):
 
   """
@@ -4770,6 +4932,7 @@ class field:
     
     return h, cb
 
+
 # ------------------ end field class definition ----------------
 
 
@@ -4915,6 +5078,56 @@ class vfield(tuple):
     else:
 
       print "Refused. Only plotting 2D fields."
+
+
+
+
+class report():
+
+  def __init__(self,value = ''):
+
+    self.value = value
+
+  def __repr__(self):
+    return self.value
+
+
+  def echoln(self,what = '', delim = ' ', maxlen = 10):
+
+    self.echo(what = what , delim = delim, maxlen = maxlen)
+    self.echo('\n') 
+
+
+  def echo(self,what='' , delim = ' ', maxlen = 10):
+
+    if isinstance(what,str):
+      self.value = self.value + what
+    elif isinstance(what,list) or isinstance(what,tuple):
+      if len(what) > maxlen:
+
+      
+        self.value = self.value + reduce(lambda x,y:x + delim + y, what[:maxlen/2])
+       
+        self.value = self.value + ' ... '
+        self.value = self.value + reduce(lambda x,y:x + delim + y, what[-maxlen/2:])
+      else:
+        self.value = self.value + reduce(lambda x,y:x + delim + y, what)
+
+  def table(self,D,cols = 4, numspace =2):
+
+    for i, k in enumerate(D.keys()):
+      if (2*i%cols == 0):
+        self.echoln()
+
+      self.echo('%-15s %-15s' % (k , D[k]))
+
+    
+
+  def __add__(self,other):
+    return report(value = self.value + other.value)
+
+ 
+
       
 
 def prep_axes(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True , grid = None):
@@ -5005,6 +5218,7 @@ def print_table(D, cols = 4, numspace = 2):
     if (2*i%cols == 0):
       print '\n', 
     print '%-15s %-15s' % (k , D[k]),
+
 
 
 def finer_grid(grid, factor = 5.):
