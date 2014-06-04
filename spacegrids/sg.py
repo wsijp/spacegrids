@@ -296,17 +296,33 @@ def merge(A1,A2):
   return np.array(newlist)
 
 def squeeze(F):
+  """
+  Equivalent to Numpy squeeze method. Remove dimensions and associated coords in grid of length 1. 
+  """
 
   dims = list(F.gr)
   body = F.value
   
+  squeezed_dims = []
   for i,dim in enumerate(dims):
     if body.shape[i] == 1:
+      squeezed_dims.append(dims[i])
       dims.remove(dims[i])
+      
    
   body = np.squeeze(body)
-  return F.copy(value=body,grid = gr(dims))
+  return F.copy(value=body,grid = gr(dims) , squeezed_dims =  gr(squeezed_dims) )
 
+def unsqueeze(F):
+  """
+  Opposite of squeeze. Uses the grid stored in squeezed_dims field attribute to restore the unit-length dimensions (coords) of the field. 
+
+  """
+
+  gr_unsqueezed = F.squeezed_dims*F.gr
+
+  return F.copy( value = F.value.reshape(gr_unsqueezed.shape() ) , grid = gr_unsqueezed, squeezed_dims =  gr( () )  )
+ 
 
 def add_alias(L):
   """
@@ -376,7 +392,9 @@ def guess_grid_type(crd, default = 'ts_grid'):
   return default
 
 def make_dual(crd,name = None,guess_append = True,append_last=True, zero_boundary = False):
-
+  """
+  Create a dual coord by appending one entry, of which the width is guessed based on the adjacent cell width.
+  """
 
   if name is None:
     name = crd.name
@@ -413,6 +431,7 @@ def find_set_dual(cstack, force = None):
     # Check if duals have been defined before. If one such coord is found, function is aborted (it is assumed it is not needed then).
     for c in cstack:
       if c.dual != c:
+     
         return cstack
 
   # create grid, and therefore tuple, of all axis objects associated with coord objects in list cstack.
@@ -500,55 +519,72 @@ def sublist(L,pick_vals):
 
   
 
-def isexpdir(path, mode = 'by_dir', file_extensions = cdf_file_extensions):
+def isexpdir(path, file_extensions = cdf_file_extensions):
 
   """
  
   Tests whether the subdirectories in the path contain data files recognised as known data files and returns the list of those subdirectories (relative path to path argument) that contain these known files. To be used by adexp functionality and such.
 file_extensions is the list of known filenames in the form of glob expressions, e.g. ['*.nc','*.cdf'] (the default). 
 
-  The behaviour of this function depends on the mode argument. If mode is set to by_file, a list of files is returned instead of a list of directories.
-
   
   """
 
-  modes_allowed = ('by_dir','by_file')
+    # examine all subdirectories of path. Create copy for manipulation.
 
-  if not mode in modes_allowed:
-    raise Exception('Error: invalid mode %s. Provide option in %s'%(mode, str(modes_allowed)  ) )
-
-
-  if mode == 'by_dir':
- 
+  if os.path.isdir(path):
     L = os.listdir(path)
     Lc = copy.deepcopy(L)
+  elif os.path.isfile(path):
+    return [path,]
+  else:
+    print 'Houston, we have a problem.'
     
   # go through list L of subdirectories of path (e.g. /home/me/PROJECTS/test_project/) to see which ones are experiment directories (i.e. contain .nc and .cdf files).
-    for l in L:
-      try:
+  for l in L:
+    try:
       # look for files ending in .nc or .cdf
       
-        exp_path = os.path.join(path , l)
+      exp_path = os.path.join(path , l)
       # Try globbing <path>.nc and <path>.cdf. E.g. /home/me/PROJECTS/test_project/DPC/*.nc for a globfpath
-        globfpaths = [os.path.join(exp_path , e) for e in file_extensions]
+      globfpaths = [os.path.join(exp_path , e) for e in file_extensions]
  
       # Test whether any files of the extensions (e.g .nc) in file_extensions occur in this directory:
-        if not(reduce(lambda x,y: x + y, [glob.glob(e) for e in globfpaths])):	
-            # if no files with these extensions are found, delete the directory from the list:
-            Lc.remove(l)
-      except:
-        # bad directory anyway
+      if not(reduce(lambda x,y: x + y, [glob.glob(e) for e in globfpaths])):	
+         # if no files with these extensions are found, delete the directory from the list:
         Lc.remove(l)
+    except:
+     # bad directory anyway
+      Lc.remove(l)
 
-    # Return list of directories inside path that contain .nc etc files:
-    return Lc
+  globfpaths = [os.path.join(path , e) for e in file_extensions]
+  raw_files = reduce(lambda x,y: x + y, [glob.glob(e) for e in globfpaths])
+  files = [e for e in raw_files if os.path.isfile(e)]
 
-  elif mode == 'by_file':
-    globfpaths = [os.path.join(path , e) for e in file_extensions]
-    raw_files = reduce(lambda x,y: x + y, [glob.glob(e) for e in globfpaths])
-    files = [e for e in raw_files if os.path.isfile(e)]
+  # Returning list of directory and file names (not full paths) believed to correspond to experiments.
+  return Lc + [ os.path.split(e)[-1] for e in   files ]
 
-    return [ os.path.split(e)[-1] for e in   files ]
+def netcdf_file(filepath,mode = 'r'):
+
+
+  if use_scientificio is True:
+    try:
+      file = Scientific.IO.NetCDF.NetCDFFile(filename = filepath, mode = mode)
+    except IOError:
+     raise IOError('Cannot open %s'%filepath)
+      
+    else:
+      return file  
+
+
+  else:
+    # Scipy way:
+
+    try:
+      file = netcdf.netcdf_file(filename = filepath, mode = mode)
+    except IOError:
+      raise IOError('Cannot open %s'%filepath)
+    else:
+      return file
 
 def subdict(D,pick_vals):
   if not isinstance(pick_vals,types.ListType):
@@ -585,17 +621,24 @@ def nugget(path = None, name = None,fields = [] , history = 'Created from Spaceg
     
 
     print 'Writing field to file %s'%name
-    file_handle = netcdf.netcdf_file(name , 'w')
 
-    for fld in fields:
+    try:
+      file_handle = netcdf.netcdf_file(name , 'w')
 
-      file_handle = fld.cdf_insert(file_handle)
+    except IOError:
+      print 'Cannot open %s'%name
 
-    file_handle.history = history + '%s'%str(datetime.datetime.now())
+    else:
+
+      for fld in fields:
+
+        file_handle = fld.cdf_insert(file_handle)
+
+      file_handle.history = history + '%s'%str(datetime.datetime.now())
  
 #    var_cdf.units = self.units
 
-    file_handle.close()
+      file_handle.close()
 
 
 def mark_sublist(Lbig,Lsub, indicator ='*', mult = 2):
@@ -623,11 +666,18 @@ class exper:
     l = len(loaded_fields)
 
 
-    REP = report('Experiment ')
+    REP = report()
     REP.echoln(self.name)
+    REP.line()
     if loaded_fields:
-      REP.echoln(loaded_fields)
-    REP.echo('Number of fields loaded: %i '%len(loaded_fields))
+      REP.echoln(loaded_fields, width = 30, cols = 3)
+
+    if len(loaded_fields) != 1:
+      plural = 's'
+    else:
+      plural = ''
+
+    REP.echo('exper using %1.2f Mb. %i field%s loaded.  '%(self.nbytes/1024./1024.  ,len(loaded_fields)  , plural ) )
 
     return REP.value
     
@@ -647,7 +697,9 @@ class exper:
           
 # The variables associated with this experiment. It is a dictionary of name vs struct    
     self.vars = {}
-#    print 'exper initialised: ' + self.descr
+
+    self.nbytes = reduce( lambda x,y: x + y, [e.nbytes for e in cstack]  )
+    
 
   def __call__(self, varnames ='*'):
 
@@ -704,7 +756,12 @@ class exper:
           RP.echoln()
 
     return RP      
+
+
+  def __delitem__(self,i):
   
+    del self.vars[i]
+
   def delvar(self, varnames, msg = ''):
 # this delvar is a method of class exper
   
@@ -719,6 +776,9 @@ class exper:
         if msg:
           print 'var ' + varname +' not in list. ' + msg,
 
+
+    self.update_nbytes()
+
 #  def cdf(self):
 # --> method of class exper        
 #    print 'Netcdf variables available (loaded marked **):'
@@ -726,7 +786,7 @@ class exper:
       
 
 
-  def write(self, path = None, name = None , history = 'Created from Spacegrids '  ):
+  def write(self, path = None, name = None , history = 'Created from Spacegrids ' , insert_dual = True ):
 
     """
     Write method of exper class.
@@ -746,17 +806,23 @@ class exper:
     
     if len(self.vars) > 0:
       print 'Writing experiment %s to file %s'%(self.name, name)
-      file_handle = netcdf.netcdf_file(name , 'w')
 
-      for fld in self.vars.values():
+      try:
+        file_handle = netcdf.netcdf_file(name , 'w')
 
-        file_handle = fld.cdf_insert(file_handle)
+      except IOError:
+        print 'Warning! Cannot open', name
+      else:
 
-      file_handle.history = history + '%s'%str(datetime.datetime.now())
+        for fld in self.vars.values():
+
+          file_handle = fld.cdf_insert(file_handle, insert_dual = insert_dual)
+
+        file_handle.history = history + '%s'%str(datetime.datetime.now())
  
 #    var_cdf.units = self.units
 
-      file_handle.close()
+        file_handle.close()
 
     else:
       print 'No fields to write for experiment %s'%self.name
@@ -764,14 +830,18 @@ class exper:
 
 
       
-  def load(self,varnames, filename = None):
+  def load(self,varnames, filename = None, squeeze_field = True):
     """
     Field load method of exper class.
 
     Load a variable or list of variables contained in varnames. Takes either a single string or a list of strings.
 
     If no filename argument is given, all Netcdf files in the experiment directory will be examined.
-    If multiple files contain the same variable, this method will attempt to concatenate them (e.g. in the case where there are different time slices).
+    If multiple files inside a directory contain the same variable, this method will attempt to concatenate them (e.g. in the case where there are different time slices).
+
+ 
+    if self.path is to a file (likely to be an experiment file), the variable will be loaded from that file.
+    if self.path is to a directory (likely to be an experiment dir), the variable will be loaded from Netcdf files inside that directory.
 
     """  
 
@@ -788,11 +858,11 @@ class exper:
      
       # Prepare the paths to all the netcdf files into a list     
       if os.path.isfile(self.path):
-        # this exper object was created from a project in by_file mode: experiments correspond to files.
+        # this exper object was created from a project containing an experiment file
         paths = [self.path]
 
       else:            
-          # corresponds to by_dir mode projects: experiments correspond to directories containing Netcdf files.
+          # experiment corresponds to directory containing Netcdf files. Construct list of full paths to those files
           paths = []
           for root, dirs, files in os.walk(top = self.path):
             for fname in files:
@@ -808,21 +878,18 @@ class exper:
 
       F = []
       for filepath in paths:
-       
 
-        if use_scientificio is True:
-          file = Scientific.IO.NetCDF.NetCDFFile(filepath,'r')
-  
+        try:       
+          file = netcdf_file(filepath,'r')
+        except IOError:
+          raise IOError('Cannot open %s'%filepath)
         else:
-        # Scipy way:
-          file = netcdf.netcdf_file(filepath,'r')
 
-
-        if varname in file.variables:
+          if varname in file.variables:
         
-          F.append(cdfread(filepath,varname,self.cstack,self.axes,squeeze=False))
+            F.append(cdfread(filepath,varname,self.cstack,self.axes))
 #          break
-        file.close()
+          file.close()
 
      
       if F == []:
@@ -836,19 +903,38 @@ class exper:
         else:
           plural = ''
         print 'OK. Fetched field %s for %s. %s file%s found.'%(varname, self.name,num_files,plural)
-        self.vars[varname] = squeeze( concatenate(F,name_suffix='') )
 
- 
+        # insert field into experiment
+        if squeeze_field:
+          self.insert(fld = squeeze( concatenate(F,name_suffix='') ), name = varname ) 
+        else:
+          self.insert(fld = concatenate(F,name_suffix=''), name = varname ) 
+
+    self.update_nbytes() 
+
+
+  def insert(self,fld, name = None):
+    """
+    Insert field in field list of this exper object under key varname. If varname is None, the field name will be used.
+    """
+    if name is None: 
+      name = fld.name
+    else:
+      fld = fld.copy(name = name)
+
+    self.vars[name] = fld
 
   def available(self):
-
+    """
+    Method of exper class that returns a list of all available Netcdf variable names (strings).
+    """
   
     if os.path.isfile(self.path):
-        # this exper object was created from a project in by_file mode: experiments correspond to files.
+        # this exper object corresponds to a file (not directory).
       paths = [self.path]
 
     else:            
-          # corresponds to by_dir mode projects: experiments correspond to directories containing Netcdf files.
+        # this exper object corresponds to a directory (not file).
         paths = []
         for root, dirs, files in os.walk(top = self.path):
           for fname in files:
@@ -858,19 +944,19 @@ class exper:
            
 # Try to find netcdf var in any of the found files, and then read into field object.
 
+    variables = []
     for filepath in paths:
-       
-      if use_scientificio is True:
-        f = Scientific.IO.NetCDF.NetCDFFile(filepath,'r')
-  
+      try:
+        f = netcdf_file(filepath,'r')
+      except IOError:
+        print 'Cannot open',filepath
       else:
-        # Scipy way:
-        f = netcdf.netcdf_file(filepath,'r')
+        for var_in_cdf in f.variables.keys():
+          if not var_in_cdf in variables:
+            variables.append(var_in_cdf)
 
-      variables = f.variables.keys()
-
-      f.close()
-      return variables
+        f.close()
+    return variables
 
 
   def ls(self, width = 20):
@@ -885,6 +971,15 @@ class exper:
 
     return RP
 
+  def update_nbytes(self):
+     coord_bytes = reduce( lambda x,y: x + y, [e.nbytes for e in self.cstack]  )
+     if len(self.vars) > 0:
+       field_bytes = reduce( lambda x,y: x + y, [e.nbytes for e in self.vars.values()]  )    
+     else:
+       field_bytes = 0
+     self.nbytes  = coord_bytes + field_bytes
+
+
 
 # ---------------- Class definition for projects -----------
 
@@ -894,33 +989,31 @@ class project:
     return self.show()
     
 
-  def __init__(self,path=home_path, expnames = ['*'], varnames = [],mode = 'by_dir',msk_grid = 'UVic2.8_t', name = None, descr = None, verbose = False):
+  def __init__(self,path=home_path, expnames = ['*'], varnames = [],msk_grid = 'UVic2.8_t', name = None, descr = None, verbose = False):
 
     global ax_disp_names
 
     self.path = path 
-
-    if name is None:
-      f = open(os.path.join(self.path, projnickfile  )  )
-      name = read_projnick(f)
-      f.close()
-    self.name = name
-    self.mode = mode
-
-
-    if descr is None:
-      self.descr = name
-    else:
-      self.descr = descr  
-          
-# The variables associated with this experiment. It is a dictionary of name vs struct    
+# The variables associated with this experiment. It is a dictionary of name vs struct   
     self.expers = {}
-    print 'project initialised: ' + self.descr
+
+    if os.path.isfile(path):
+      self.name = 'joep'
+    else:
+
+      if name is None:
+
+        with open(os.path.join(self.path, projnickfile  )  ) as f:
+          name = read_projnick(f)      
+          self.name = name
+
+          
+    
 
     # sniff out the netcdf situation:
     
        # find a list of the directories in the project path that qualify as experiment data dirs, i.e. contain .nc or .cdf files: 
-    DL = isexpdir(self.path,mode = mode) 
+    DL = isexpdir(self.path) 
     # Filter experiment names list against expnames filter argument:
 
     expnames = sublist(DL,expnames)     
@@ -929,6 +1022,11 @@ class project:
     if verbose:
       print 'Adding: ',
       print expnames
+
+    if descr is None:
+      self.descr = name
+    else:
+      self.descr = descr  
 
     
     if expnames:
@@ -980,6 +1078,12 @@ class project:
 
     if varnames:
       self.load(varnames)
+
+    if len(self.expers.values() ) > 0:
+      self.nbytes = reduce( lambda x,y: x + y, [e.nbytes for e in self.expers.values()]  )
+    else:
+      self.nbytes = 0.
+
 
   def ls(self):
     """
@@ -1097,13 +1201,13 @@ class project:
     """
 
     RP = report('---- %s ----\n'%self.name)
-    RP.echo('Experiments: ')
-    RP.echoln(self.expers.keys())
+#    RP.echo('Experiments: ')
+    RP.echoln(self.expers.keys(),delim=', ')
 
     if not(self.expers.keys()):
 
       RP.echo('No experiments in project.')
-      return RP
+      return RP.value
 
     exp_name1 = self.expers.keys()[0]
     vars = self.expers[exp_name1].vars.keys()
@@ -1123,12 +1227,15 @@ class project:
 
       dims.append(reduce(lambda x,y: x+','+y, shapes_list))
     
-    vars = dict(zip(vars, dims  ))
+#    vars = dict(zip(vars, dims  ))
     
-    RP.echoln('Loaded fields (and sizes):')
-    RP.echoln('-'*20)
-    RP.table(vars)
+    lvars = [e[0] + ' ' + e[1] for e in zip(vars, dims  )]
+
+#    RP.echoln('Loaded fields (and sizes):')
+#    RP.line()
+    RP.echo(lvars,width =30, cols=3)
     RP.echoln()
+    RP.echo('Project using %1.2f Mb.'%(self.nbytes/1024./1024.) )
 
     return RP.value
     
@@ -1160,26 +1267,15 @@ class project:
       return True
     else:
       return False
-    
-#  def cdf(self, expname =''): 
- 
+
  # --> belongs to project
  
-#    exps = self.expers 
-#    if expname == '':
-#      if len(exps.keys()) > 0:
-#        exp = exps[exps.keys()[0]]
-#      else:
-#        print "Load exps first."
-#    else:
-#      exp = exps[expname]
-    
-#    exp.cdf()
-
   def delvar(self,varname):
     if self.expers: 
       for expname in self.expers.keys():
         self.expers[expname].delvar(varname) 
+
+        self.update_nbytes()
 
     else:
       print 'No experiments.'
@@ -1198,6 +1294,7 @@ class project:
         if msg:
           print 'No experiment by that name. ' + msg
 
+    self.update_nbytes()
 
 
 # --> belongs to class "project"
@@ -1212,7 +1309,7 @@ class project:
       expnames = [ expnames ]
     
     # find a list of the directories in the project path that qualify as experiment data dirs. 
-    DL = isexpdir(self.path , mode = self.mode)
+    DL = isexpdir(self.path)
     
     # match the argument expnames against DL via wildcard expansion etc.
     expnames = sublist(DL,expnames)     
@@ -1230,6 +1327,7 @@ class project:
 
       self.expers[expname] = exper(path = self.path,name = expname, cstack = cstack, descr = descr, parent = self)
 
+    self.update_nbytes()
     return 
 
   def load(self, varnames,filename=None, descr = 0,chk_loaded = False):
@@ -1276,25 +1374,14 @@ class project:
 # Now the actual netcdf calling part.
 
 	    # in case netcdf information has been pre-added:
-#        try:
    	for k in self.expers.keys():
             
-#          match_names = sublist(self.expers[k].var_names,varname)
-           
-
-#	  if match_names !=[]:
 	  self.expers[k].load(varname,filename = filename)  
-#          else:
-#	    print "No matches."
-# serious error: there were no field names in the file corresponding to the field name we're attempting to load.
-#            errno = 2
-#        except:
-#   	  for k in self.expers.keys():
-#            self.expers[k].load(varnames,filename = filename)  
 
+    self.update_nbytes()
     return    
 
-  def write(self, path = None, name = None, force = False , history = 'Created from Spacegrids '  ): 
+  def write(self, path = None, name = None, force = False , history = 'Created from Spacegrids ', insert_dual = True  ): 
     """
     Write entire loaded project to disk. 
     """     
@@ -1308,24 +1395,21 @@ class project:
      
       path = os.path.join(path,name)
 
-  
+    if not os.path.exists(path):
+      os.mkdir(path)
+      print 'Creating dir %s'%path  
 
     if not(force):
       if os.path.samefile(path , self.path ):
         print 'Refusing to write project %s to own path at risk of overwriting data. Use different path or set force = True'%name
         return
 
-    if not os.path.exists(path):
-      os.mkdir(path)
-      print 'Creating dir %s'%path
-
-    # write project name text file:    
-    f = open(os.path.join( path, projnickfile ),'w')
-    f.write(name)
-    f.close()
+    # write project name text file:
+    with open(os.path.join( path, projnickfile ),'w') as f:    
+      f.write(name)
 
     for e in self.expers.values():
-      e.write(path = path)
+      e.write(path = path, insert_dual = insert_dual)
       
 
   def getbody(self, varname, expnames = '*', loadflag = 1, verbose =0):
@@ -1373,6 +1457,12 @@ class project:
         else:
 	  print varname +' not in experiment ' + expname
 
+  def update_nbytes(self):
+    if len(self.expers.values() ) > 0:
+      self.nbytes = reduce( lambda x,y: x + y, [e.nbytes for e in self.expers.values()]  )
+
+    else:
+      self.nbytes = 0
 
 # ---------------------------------------
 # -------- ax class definition ----------
@@ -1668,7 +1758,7 @@ class coord():
     self.fld = None
     self.len = len(value)
     self.metadata = metadata
-  
+    self.nbytes = self.value.nbytes
 
   def __len__(self):
     return self.len
@@ -1901,19 +1991,22 @@ class coord():
       name = name +'.nc'
     if not path is None:
       name = os.path.join( path , name ) 
-   
-    
 
     print 'Writing field to file %s'%name
-    file_handle = netcdf.netcdf_file(name , 'w')
 
-    file_handle = self.cdf_insert(file_handle)
+    try:
+      file_handle = netcdf.netcdf_file(name , 'w')
+    except IOError:
+      print 'Cannot write ', name
+    else:
 
-    file_handle.history = history + '%s'%str(datetime.datetime.now())
+      file_handle = self.cdf_insert(file_handle)
+
+      file_handle.history = history + '%s'%str(datetime.datetime.now())
  
 #    var_cdf.units = self.units
 
-    file_handle.close()
+      file_handle.close()
 
 
 
@@ -2815,19 +2908,14 @@ def guess_direction(cdf_var,  name_atts = ['long_name','standard_name'], x_dir_n
   return 'scalar'
 
 
-def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squeeze=True):
+def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squeeze_field=False):
   """
   Reads data corresponding to variable name varname from netcdf file. Returns field object. coord_stack is used to provide field with grid object built from corresponding coord objects according to information in netcdf.
   Input filepath is complete path pointing to file.
 
   """
 
-  if use_scientificio is True:
-    file = Scientific.IO.NetCDF.NetCDFFile(filepath,'r')
-  
-  else:
-  # Scipy way:
-    file = netcdf.netcdf_file(filepath,'r')
+  file = netcdf.netcdf_file(filepath,'r')
  
   if varname not in file.variables:
     if verbose:
@@ -2870,7 +2958,7 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
   direction = Dict[direction]
 
 
-  if squeeze:
+  if squeeze_field:
   # if there are dimensions of length 1, remove them.
     if 1 in body.shape:
    
@@ -2909,17 +2997,12 @@ def cdfsniff(path_parent, file_extensions = cdf_file_extensions, verbose = False
   """
   This sg function looks inside the provided path_parent (path to directory containing the Netcdf files) for Netcdf files and extracts coord objects from the dim data using sg.cdfsniff_helper.
 
-  path_parent is an experiment directory in 'by_dir' mode.
-
-
   Returns all coord objects that contain different data, to be used in the coord stack cstack.
   """
 
   if os.path.isfile(path_parent):
-    # In this case, a file path is provided. This occurs when projects are run in by_file mode, where experiment object correspond to (Netcdf) files instead of directories containing Netcdf files.
+    # In this case, a file path is provided. This occurs when experiment object correspond to (Netcdf) files instead of directories containing Netcdf files.
     return rem_equivs(cdfsniff_helper( path_parent , verbose = verbose ))
-
-  # This is the case corresponding to the by_dir mode of projects:
 
   # all files within path_parent
   fnames = os.listdir(path_parent)
@@ -2987,12 +3070,7 @@ def cdfsniff_helper(filepath, verbose = False):
 # axis to the possible axes encountered in netcdf: X,Y,Z
   global cdf_axes
 
-  if use_scientificio is True:
-    file = Scientific.IO.NetCDF.NetCDFFile(filepath,'r')
-  
-  else:
-  # Scipy way:
-    file = netcdf.netcdf_file(filepath,'r')
+  file = netcdf_file(filepath,'r')
 
   coord_stack = []
   dimensions = file.dimensions
@@ -3176,8 +3254,7 @@ def info(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = projnick
 
   top = os.path.join(rootdir, projdirname)
 
-  print "Projects rooted in " + top
- 
+  
 #  first find all the file paths using locate function defined above
   paths = locate(top = top,fname = fname)
 
@@ -3185,17 +3262,21 @@ def info(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = projnick
   D = {}
   for path in paths:
     fp = os.path.join(path,fname)
-    f = open(fp,'r')
+    with open(fp,'r') as f:
 # read the first line and make sure the return char \n is deleted.    
-    projnick = read_projnick(f)
-    f.close()
+      projnick = read_projnick(f)
+  
 # ad to dictionary    
-    D[projnick] = os.path.join(path,'')
+      D[projnick] = os.path.join(path,'')
   
   if verbose:
-    print '-------'
-    for d in D:
-      print d
+
+    RP = report()
+    RP.echoln("Projects rooted in " + top)
+    RP.line()
+    RP.echo(D.keys(),maxlen=100)
+
+    print RP
   
   return D
     
@@ -3214,9 +3295,8 @@ This is the lowest level mask read function in sg.
 
   str_data = []
   
-  fobj = open(filepath,'r')
-  str_data = fobj.readlines()
-  fobj.close()
+  with open(filepath,'r') as fobj:
+    str_data = fobj.readlines()
   
   data = [] 
   for eachline in str_data:
@@ -3726,6 +3806,10 @@ class gr(tuple):
     Returns an ax_gr object containing the axis properties of the coord elements of this grid.
     """
     return reduce(lambda x,y:x*y,[e.axis for e in self])
+
+
+  def nbytes(self):
+    return reduce(lambda x,y:x.nbytes+y.nbytes, self)
 
   def __and__(self,other):
     """
@@ -4256,6 +4340,8 @@ Takes field argument and returns a field with grid made up of remaining coord ob
 ID = get_id()
 
 # -------------- field class --------------------------
+
+
   
 class field:
   """
@@ -4280,7 +4366,7 @@ class field:
   def __repr__(self):
     return self.name
 
-  def __init__(self,name,value,grid,units = '?',direction = None, strict_v = strict_vector,long_name='?',metadata={}):
+  def __init__(self,name,value,grid,units = '?',direction = None, strict_v = strict_vector,long_name='?',metadata={} , squeezed_dims =gr( ()  )):
     """
     Initialise a field. 
     Inputs: 
@@ -4314,6 +4400,9 @@ class field:
           self.strict_v = strict_v
           self.long_name = long_name
           self.metadata = metadata
+          self.nbytes = value.nbytes
+
+          self.squeezed_dims = squeezed_dims
 
         else:
          
@@ -4326,7 +4415,6 @@ class field:
       raise Exception('Error in field creation %s: argument value must be an ndarray!' % name )
       return
 
-
   def __and__(self,other):
     """
     Tests whether fields contain equal values. At the moment, if the value contains nan, this function will return false.
@@ -4336,7 +4424,7 @@ class field:
     else:
       return False
 
-  def copy(self, name = None, value = None, grid = None, units = None, direction = None, long_name = None, metadata=None):
+  def copy(self, name = None, value = None, grid = None, units = None, direction = None, long_name = None, metadata=None, squeezed_dims = None):
 
     frame = inspect.currentframe()
     args, _, _, values = inspect.getargvalues(frame)
@@ -4364,7 +4452,7 @@ class field:
     return self.__class__(**values)
 
 
-  def cdf_insert(self,file_handle):
+  def cdf_insert(self,file_handle, insert_dual = True, force_squeeze = False):
     """
     Netcdf insert method of field class.
 
@@ -4372,9 +4460,15 @@ class field:
 
     """
 
+    if not force_squeeze and len(self.squeezed_dims) > 0:
+      return unsqueeze(self).cdf_insert(file_handle = file_handle, insert_dual = insert_dual)    
+
     for crd in self.gr:
       if not crd.name in file_handle.variables:
         crd.cdf_insert(file_handle)
+    
+        if insert_dual and (crd.dual != crd) and (not crd.dual.name in file_handle.variables):
+          crd.dual.cdf_insert(file_handle)         
 
 
     var_cdf = file_handle.createVariable(self.name, self[:].dtype, [crd.name for crd in self.gr]   )
@@ -4384,7 +4478,7 @@ class field:
     for k in self.metadata:
       setattr(var_cdf,k, self.metadata[k]) 
 
-    
+    miss_val = 9.96921e+36
     if 'FillValue' in self.metadata:
       miss_val = self.metadata['FillValue']
     elif 'missing_value' in self.metadata:
@@ -4395,12 +4489,21 @@ class field:
     return file_handle
 
 
-  def write(self, path = None, name = None , history = 'Created from Spacegrids '  ):
+  def write(self, path = None, name = None , history = 'Created from Spacegrids ' , insert_dual = True, force_squeeze = False ):
 
     """
     Write method of field class.
 
     Creates Netcdf file and writes field to it, along with its coord objects.
+
+    Fields are unsqueezed before saving, along coord objects of single length to be saved as well (override with force_squeeze = True).
+
+    If path and name are not specified, the file will be located in the working directory.
+    If only name is specified, the file will be in the wd under that name
+    If path is specified, the wd is replaced by the path in the above 2 scenarios.
+
+    insert_dual determines whether the edges of a the coord objects are saved as well (the default).
+    
 
     """
 
@@ -4415,15 +4518,19 @@ class field:
     
 
     print 'Writing field to file %s'%name
-    file_handle = netcdf.netcdf_file(name , 'w')
+    try:
+      file_handle = netcdf.netcdf_file(name , 'w')
+    except IOError:
+      print 'Cannot write ', name
+    else:
 
-    file_handle = self.cdf_insert(file_handle)
+      file_handle = self.cdf_insert(file_handle, insert_dual = insert_dual , force_squeeze = force_squeeze)
 
-    file_handle.history = history + '%s'%str(datetime.datetime.now())
+      file_handle.history = history + '%s'%str(datetime.datetime.now())
  
 #    var_cdf.units = self.units
 
-    file_handle.close()
+      file_handle.close()
 
   def cat(self,other,ax = None, name_suffix = '_cat'):
     """
@@ -4708,7 +4815,6 @@ class field:
     else:
 # the element is probably a numpy array. If not, field init will throw an error.
       return self.copy(value = value, grid =grid)
-
 
   def __mul__(self,other):
     """
@@ -5106,6 +5212,14 @@ class report():
   def __repr__(self):
     return self.value
 
+
+  def line(self,char = '-',times = 10):
+    if not self.value[-1] == '\n':
+      self.echoln()
+
+    self.echoln(char*times)
+
+
   def block(self,L,delim = '\ ', width = 12, cols = 4 ):
 
     Ls = split_list(L , size = cols)
@@ -5114,23 +5228,23 @@ class report():
       self.echo(what = delim.join([ ("%-{}s".format(str(width)))%l for l in  LL ] ) )
       self.echoln()
 
-  def echoln(self,what = '', delim = ' ', maxlen = 10, width = 12):
+  def echoln(self,what = '', delim = ' ', maxlen = 10, width = 12, cols = 4):
 
-    self.echo(what = what , delim = delim, maxlen = maxlen, width = width)
+    self.echo(what = what , delim = delim, maxlen = maxlen, width = width,cols = cols)
     self.echo('\n') 
 
 
-  def echo(self,what='' , delim = ' ', maxlen = 10, width = 12):
+  def echo(self,what='' , delim = ' ', maxlen = 10, width = 12, cols = 4):
 
     if isinstance(what,str):
       self.value = self.value + what
     elif isinstance(what,list) or isinstance(what,tuple):
       if len(what) > maxlen:
 
-        self.block(L = what[:maxlen/2] + ['...',] +  what[-maxlen/2:] , delim = delim, width = width)
+        self.block(L = what[:maxlen/2] + ['...',] +  what[-maxlen/2:] , delim = delim, width = width, cols = cols)
 
       else:
-        self.block(L = what, delim = delim, width = width)
+        self.block(L = what, delim = delim, width = width, cols = cols)
      
   def table(self,D,cols = 4, numspace =2):
 
