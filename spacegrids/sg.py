@@ -969,7 +969,7 @@ class exper:
     RP = report()
     RP.echo(self.available(),delim = '\t ',maxlen=300, width = width)
 
-    return RP
+    print RP.value
 
   def update_nbytes(self):
      coord_bytes = reduce( lambda x,y: x + y, [e.nbytes for e in self.cstack]  )
@@ -1967,7 +1967,7 @@ class coord():
     for k in self.metadata:
       setattr(var_cdf,k, self.metadata[k]) 
 
-
+    miss_val = 9.96921e+36
     if 'FillValue' in self.metadata:
       miss_val = self.metadata['FillValue']
     elif 'missing_value' in self.metadata:
@@ -3128,7 +3128,12 @@ def cdfsniff_helper(filepath, verbose = False):
         if file.variables[dim_name].axis in cdf_axes:
 
           # convert the netcdf name of the dual to an actual cdf variable
-          dual_var = copy.deepcopy(file.variables[dual_var_name] )
+          if dual_var_name in file.variables:
+            dual_var = copy.deepcopy(file.variables[dual_var_name] )
+          else:
+
+# THIS IS A TEMPORARY FUDGE IN CASE A FILE HINTS AT COORD EDGES BUT DOESN'T STORE THEM
+             dual_var = copy.deepcopy(file.variables[dim_name] )           
        
           # using call method of coord object in cdf_axes global
 
@@ -3274,7 +3279,7 @@ def info(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = projnick
     RP = report()
     RP.echoln("Projects rooted in " + top)
     RP.line()
-    RP.echo(D.keys(),maxlen=100)
+    RP.echo(D.keys(), width = 17,maxlen=100)
 
     print RP
   
