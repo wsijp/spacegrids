@@ -101,7 +101,7 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
 
 # This is the SG module:
-import sg
+import spacegrids as sg
 
 # run sg.info() to obtain a dictionary of project names vs project paths. The names are read from text file called "projname" in each (sub)directory of ~/PROJECTS/. The presence of this small text file is used to indicate a project directory. 
 
