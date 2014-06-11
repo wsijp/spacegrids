@@ -1,6 +1,8 @@
 #encoding:utf-8
 
-""" unit tests
+""" unit tests.
+Data required for these tests is the example project my_project mentioned in the tutorial.
+
 """
 
 import unittest
