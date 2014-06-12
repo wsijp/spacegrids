@@ -399,13 +399,69 @@ class TestGrid(unittest.TestCase):
     self.assertEqual(depth(latitude*longitude) ,  None )
 
 
-  def test_gr_method_reduce(self):
+  def test_gr_method_reduce_dim1vs3_len_list(self):
     """
     Test reduce method of gr class
     """
 
     for c in self.fixture['DPO'].cstack:
       exec c.name + ' = c'   
+
+    gr1 = depth**2
+    gr2 = depth*latitude*longitude
+
+    A = np.ones(gr2.shape() )
+
+    # should have the length of len(depth)
+    self.assertEqual(len(gr1.reduce(A,gr2)) ,  19 )
+    
+  def test_gr_method_reduce_dim1vs3_shape_element(self):
+    """
+    Test reduce method of gr class
+    """
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+
+    gr1 = depth**2
+    gr2 = depth*latitude*longitude
+
+    A = np.ones(gr2.shape() )
+
+    # should have the shape of latitude*longitude
+    self.assertEqual( gr1.reduce(A,gr2)[0].shape  ,  (100,100) )
+
+  def test_gr_method_reduce_dim2vs3_len_list(self):
+    """
+    Test reduce method of gr class
+    """
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+
+    gr1 = depth*latitude
+    gr2 = depth*latitude*longitude
+
+    A = np.ones(gr2.shape() )
+
+    # should have the length of len(depth)*len(longitude) 
+    self.assertEqual(len(gr1.reduce(A,gr2)) ,  1900 )
+    
+  def test_gr_method_reduce_dim2vs3_shape_element(self):
+    """
+    Test reduce method of gr class
+    """
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+
+    gr1 = depth*latitude
+    gr2 = depth*latitude*longitude
+
+    A = np.ones(gr2.shape() )
+
+    # should have the shape of longitude**2
+    self.assertEqual( gr1.reduce(A,gr2)[0].shape  ,  (100,) )
 
 
 

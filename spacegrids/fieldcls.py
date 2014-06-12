@@ -1325,19 +1325,21 @@ class gr(tuple):
     else:
 #**** CASE 3 ************************
 
-      # This is the case where len(other) < len(self) => reduce method. This yields a slicing along the axes provided in the argument, and a permutation among those axes if they appear in different order in self and other.
+      # This is the case where len(other) < len(self) => reduce method. This yields a function that slices along the gr provided in the argument, and a permutation among those axes if they appear in different order in self and other.
 
 # To illustrate this functionality:
 
-#If V is defined on zt*yt*xt
-# and we do R=array((zt*yt*xt)(yt*xt)(V));R = R.reshape((yt*xt*zt).shape())
+#If V is an ndarray consistent with zt*yt*xt
+# and we do R = np.array((zt*yt*xt)(yt*xt)(V));R = R.reshape((yt*xt*zt).shape())
 # Then We get V back, but transposed onto yt*xt*zt. This is because the index grid I = yt*xt is put first by (zt*yt*xt)(yt*xt)
 
+
+      # create target_grid of same dimension as self, and with other coord elements first
       target_grid = other*(self/other)
       
       pm = self.perm(target_grid, verbose = False)      
      
-      # Using reduce method. Note that reduce has the arguments the other way around.
+      # Using reduce method. Note that reduce has the arguments the other way around. reduce is called as method of other!
       if pm:
         # case 3a
         return lambda A: other.reduce(np.transpose(A,pm),target_grid)
@@ -1408,21 +1410,37 @@ class gr(tuple):
 # ------------------------------------------
 # Lower level methods:
 
-  def reduce(self,A,other):        
+  def reduce(self,A,other, force = False):        
     """
     yields a list of slices along the coords defined in self. e.g.
-    zt(zt*yt*xt) = [A[0,:,:],A[1,:,:],...]
+    zt(zt*yt*xt) = [A[0,:,:],A[1,:,:],...] where A.shape is (zt*yt*xt).shape()
 
-    Expects self coords to be subset of other, and appearing in same order in both. 
-
+    Expects self coords to be subset of other, and appearing in same order in both.
+    other must appear in the left side of self (i.e. self is self*(other/self)  ).
+    For instance, zt*yt(zt*yt*xt) is valid,  yt*xt(zt*yt*xt) and zt(yt*xt) are not.
+    No checks are done on consistency between A or other or self and other.
     The opposite of expand.
 
-    Note that argument is longer than self. This is opposite to __call__method, where a longer self leads to a reduction.
+    Inputs: 
+    A		ndarray of shape other.shape()
+    other	another larger gr (grid) object containing self
+
+    Outputs:
+    A list of nparrays being slices of input A along the self gr.
+
+    Note that argument is longer than self. This is opposite to __call__ method, where a longer self leads to a reduction.
     """
 
     # This method works with recursion. If len(self)>1, a list is built using this method on the smaller elements and indexing by the first dimension.
     # if B = self.reduce(A,other) and A is an array, then array(B) has the same shape and values as A.
     # calling say (zt*yt).reduce(A,zt*yt*xt) yields a list of lists. Each of those lists then contains a 1D array.
+
+
+# the following code is made difficult due to recursion:
+#    if (force == False) and ( other != self*(other/self) ):
+#      raise ValueError('Error calling gr %s on gr %s. other must equal self*(other/self). Result likely meaningless (use force = True to override).'%(str(self),str(other) ) )
+
+    # A consistency check for the sizes of A and other is non-trivial due to recursion
 
     if len(self) == 1:
       result = [] 
