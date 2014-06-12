@@ -263,7 +263,7 @@ class TestGrid(unittest.TestCase):
     for c in self.fixture['DPO'].cstack:
       exec c.name + ' = c'   
 
-   # This time, we are going to a new grid that requires interpolation (on longitude).
+   # This time, we are going to a new grid that is incompatible, leading to a None result.
  
     gr1 = depth*longitude
     gr2 = latitude*depth
@@ -271,7 +271,7 @@ class TestGrid(unittest.TestCase):
     self.assertEqual(gr1(gr2), None )
 
 
-  def test_expand_method_size(self):
+  def test_gr_method_expand_size(self):
     """
     Test expand method of fieldcls.py
 
@@ -295,7 +295,7 @@ class TestGrid(unittest.TestCase):
 
     self.assertEqual(W.shape, (19,100,100)  )
 
-  def test_expand_method_broadcast(self):
+  def test_gr_method_expand_broadcast(self):
     """
     Test expand method of fieldcls.py
     """
@@ -386,6 +386,29 @@ class TestGrid(unittest.TestCase):
 
     self.assertEqual(B.shape ,  (19, 100, 50) )
     
+  def test_call_small_gr_on_big_gr_not_equiv(self):
+
+    """
+    corresponds to case 2c of gr class call method in fieldcls.py
+    """
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+
+
+    self.assertEqual(depth(latitude*longitude) ,  None )
+
+
+  def test_gr_method_reduce(self):
+    """
+    Test reduce method of gr class
+    """
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+
+
+
 
 # --------- run the classes ------------
 

@@ -1316,13 +1316,15 @@ class gr(tuple):
           # line up the equivalent coord elements in the same order for interpolation.
           return lambda A: (self_expanded.shuffle(pm)).smart_interp(np.transpose(self.expand(A,self_expanded),pm),other, method = method)
         else:
+          # case 2c
           print "grids not equivalent"
           return
 
       return 
 
-# CASE 3 ************************
     else:
+#**** CASE 3 ************************
+
       # This is the case where len(other) < len(self) => reduce method. This yields a slicing along the axes provided in the argument, and a permutation among those axes if they appear in different order in self and other.
 
 # To illustrate this functionality:
@@ -1337,14 +1339,16 @@ class gr(tuple):
      
       # Using reduce method. Note that reduce has the arguments the other way around.
       if pm:
-      
+        # case 3a
         return lambda A: other.reduce(np.transpose(A,pm),target_grid)
       else:
         pm = self.eq_perm(target_grid, verbose = False) 
         if pm:
+          # case 3b
           return lambda A: other.reduce((self.shuffle(pm)).smart_interp(np.transpose(A,pm),target_grid, method = method),target_grid)
 
         else:
+          # case 3c
           print 'Nope'
           return
       
@@ -1406,7 +1410,7 @@ class gr(tuple):
 
   def reduce(self,A,other):        
     """
-    yields a list of slices along the axes defined in self. e.g.
+    yields a list of slices along the coords defined in self. e.g.
     zt(zt*yt*xt) = [A[0,:,:],A[1,:,:],...]
 
     Expects self coords to be subset of other, and appearing in same order in both. 
