@@ -154,12 +154,55 @@ class TestCoordField(unittest.TestCase):
     self.assertEqual( len( (sg.unsqueeze(self.fixture['DPO']['O_temp']) ).squeezed_dims ) , 0   )
 
 
+class TestFieldBasic(unittest.TestCase):
+
+  def setUp(self):
+    print 'Setting up %s'%type(self).__name__
+    D = sg.info(verbose = False)
+    P = sg.project(D['my_project']);
+    P.load(['O_temp','A_sat'])
+    self.fixture = P
+
+  def tearDown(self):
+    print 'Tearing down %s'%type(self).__name__
+    del self.fixture
+
+  def test_slice(self):
+
+    SAT = self.fixture['DPO']['A_sat']
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'       
+
+    SAT_sliced = SAT[Y,:50]
+
+    self.assertEqual( SAT_sliced.shape ,  (50,100)  )
+
+  def test_cat(self):
+
+    SAT = self.fixture['DPO']['A_sat']
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'       
+
+    SAT1 = SAT[Y,:40]
+    SAT2 = SAT[Y,40:55]
+    SAT3 = SAT[Y,55:]
+
+    SAT_combined = sg.concatenate((SAT1,SAT2,SAT3))
+
+    self.assertEqual( SAT_combined.shape ,  (100,100)  )
+
+
+
+
 class TestGrid(unittest.TestCase):
 
   def setUp(self):
     print 'Setting up %s'%type(self).__name__
     D = sg.info(verbose = False)
-    P = sg.project(D['my_project']);P.load('O_temp')
+    P = sg.project(D['my_project']);
+    P.load(['O_temp','A_sat'])
     self.fixture = P
 
   def tearDown(self):
@@ -180,33 +223,169 @@ class TestGrid(unittest.TestCase):
 
   def test_grid_permute_function_equal_len_and_coords(self):
 
-
-# CHECK WHAT THE SHAPE OF A SHOULD BE!
+# Corresponds to CASE 1a in equal length grid case in fieldcls.py source code.
     for c in self.fixture['DPO'].cstack:
       exec c.name + ' = c'   
 
     gr1 = depth*longitude
     gr2 = longitude*depth
 
+    # define a np array consistent with gr1
     A = np.ones( gr1.shape()  )
 
-    self.assertEqual((gr2(gr1)(A)).shape, (100, 19))
+    # gr1(gr2) should yield a function transposing ndarrays consistent with gr1 to ndarrays consistent with gr2
 
-  def test_grid_permute_function_equal_len_diff_coords(self):
+    self.assertEqual((gr1(gr2)(A)).shape, gr2.shape() )
+
+  def test_grid_permute_function_equal_len_equiv_coords_only(self):
+
+# Corresponds to CASE 1b in equal length grid case in fieldcls.py source code.
 
     for c in self.fixture['DPO'].cstack:
       exec c.name + ' = c'   
 
+   # This time, we are going to a new grid that requires interpolation (on longitude).
+ 
     gr1 = depth*longitude
     gr2 = longitude_V*depth
 
-    A = np.ones( gr2.shape()  )
+    # define a np array consistent with gr1
+    A = np.ones( gr1.shape()  )
 
-    self.assertEqual((gr2(gr1)(A)).shape, (100, 19))
+    # gr1(gr2) should yield a function transposing ndarrays consistent with gr1 to ndarrays consistent with gr2, and interpolated onto it.
+
+    self.assertEqual((gr1(gr2)(A)).shape, gr2.shape() )
+
+  def test_grid_permute_function_equal_len_equiv_coords_only(self):
+
+# Corresponds to CASE 1c in equal length grid case in fieldcls.py source code.
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+
+   # This time, we are going to a new grid that requires interpolation (on longitude).
+ 
+    gr1 = depth*longitude
+    gr2 = latitude*depth
+
+    self.assertEqual(gr1(gr2), None )
 
 
+  def test_expand_method_size(self):
+    """
+    Test expand method of fieldcls.py
 
 
+    SAT = P['DPO']['A_sat']
+    SAT.shape is (100,100)
+    W=SAT.gr.expand(SAT[:],depth**2)
+    W.shape is (19,100,100)
+    W contains 19 identical copies (slices) of SAT[:] 
+
+    """
+
+    SAT = self.fixture['DPO']['A_sat']
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+    
+    W=SAT.gr.expand(SAT[:],depth**2)
+
+#    W has been expanded, and the other grid (depth**2) should be appended on the left side.         
+
+    self.assertEqual(W.shape, (19,100,100)  )
+
+  def test_expand_method_broadcast(self):
+    """
+    Test expand method of fieldcls.py
+    """
+
+    SAT = self.fixture['DPO']['A_sat']
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+    
+    W=SAT.gr.expand(SAT[:],depth**2)
+
+#    W contains 19 identical copies (slices) of SAT[:]          
+
+    K=W[:,50,50]
+    self.assertEqual((K == K[0]).all() , True  )
+
+  def test_call_small_gr_on_big_gr(self):
+
+    SAT = self.fixture['DPO']['A_sat']
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'   
+
+    # need to do slice test earlier.
+    SAT2 = SAT[Y,:50]
+
+    gr1 = SAT2.gr
+    gr2 = depth*SAT2.gr
+
+    A = SAT2[:]
+    B = gr1(gr2)(A)
+
+    self.assertEqual(B.shape ,  (19, 50, 100) )
+
+  def test_call_small_gr_on_big_gr_permute(self):
+
+    """
+    corresponds to case 2a of gr class call method in fieldcls.py
+    """
+
+    SAT = self.fixture['DPO']['A_sat']
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'   
+
+    # need to do slice test earlier.
+    SAT2 = SAT[Y,:50]
+
+    gr1 = SAT2.gr
+    # note that this does something different for a single coord left multiplicant:
+    gr2 = (depth*longitude)*SAT2.gr   
+
+    A = SAT2[:]
+    B = gr1(gr2)(A)
+
+    self.assertEqual(B.shape ,  (19, 100, 50) )
+
+  def test_call_small_gr_on_big_gr_permute_interp(self):
+
+    """
+    corresponds to case 2b of gr class call method in fieldcls.py
+    """
+
+
+    SAT = self.fixture['DPO']['A_sat']
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'   
+
+    # need to do slice test earlier.
+    SAT2 = SAT[Y,:50]
+
+    gr1 = SAT2.gr
+    # note that this does something different for a single coord left multiplicant:
+    gr2 = (depth*longitude_V)*SAT2.gr   
+
+    A = SAT2[:]
+    B = gr1(gr2)(A)
+
+    self.assertEqual(B.shape ,  (19, 100, 50) )
+    
 
 # --------- run the classes ------------
 

@@ -1248,52 +1248,71 @@ class gr(tuple):
 
 # might expand other to other*self in future code.
     
-
-# CASE 1 ************************
     if len(self) == len(other):    
+# *** CASE 1 ************************
+
       # in this case both grids span the same space
 
       # check if a permutation of coord objects exists, i.e. whether the elements of either can be rearranged to yield the other: 
       pm = self.perm(other,verbose = False)
+
       if pm:
+        # CASE 1a ***
+
         # if so, a function is returned that attempts to transpose any np array according to the permutation required to go from self to other.
+        # If A is a np array defined consistent with self ( A.shape is self.shape() ), then self(other)(A) is a np array consistent with other
         return lambda A: np.transpose(A,pm)
       else:
         # if no such direct permutation exists, check for a weaker conditions:
         pm = self.eq_perm(other)
-        # if there is a permutation of the coords up to equivalence, pm is that permutation and after permuting array A, the result needs to be interpolated from the permuted self (namely self.rearrange(pm)) to other.
+        # if there is a permutation of the coords up to equivalence (case 1b below), pm is that permutation and after permuting array A, the result needs to be interpolated from the permuted self (namely self.rearrange(pm)) to other.
         # Here, "up to equivalence" means "equivalent coord objects being considered identical in considering whether a permutation exists".
+        #If A is a np array defined consistent with self, then self(other)(A) is a np array consistent with other, is interpolated onto the other.
+
         if pm:
+          # CASE 1b ***
           return lambda A: (self.shuffle(pm)).smart_interp(np.transpose(A,pm),other, method = method)
         else:
+          # CASE 1c ***
+          # No luck.
           print "grid %s not equivalent to %s."%(self,other)
           return
 
-# CASE 2 ************************
     elif len(self) < len(other):  
+
+# *** CASE 2 ************************
+
+      # A grid is called on a higher dimensional grid.
 
       # inflate self grid by left multiplying with non-self elements
       # don't do deepcopy, it copies the individual coord elements too!
       # instead, use the identity coord:
 
-      # re-arrange coord terms in accordance with expand method
+      # re-arrange coord terms in accordance with expand method (the non-self elements of the other gr are appended on the LEFT, and in the order of other).
       # e.g. R=(yt*xt)(xt*yt*zw) yields a function yielding an array defined on the grid zw*yt*xt
       # the order of the coord elements in self_expanded is arranged so as to perform the expansion more easily (namely, adding axes at the beginning).
 
-      # 
-
+      # if A is an ndarray consistent with self, then self.expand(A,other) is an ndarray consistent with the gr self_expanded created here:
       self_expanded = (other/self)*self
-    
 
-      # the expanded left argument is not always in the same order as other
+      # we now have a grid of equal length to other.
+
+      # the expanded left argument is not always in the same order as other (or even fully comprising of identical elements)
       pm = self_expanded.perm(other, verbose = False)
      
       if pm:
+        # case 2a
+        
+        # In this case other contains only coord elements from self_expanded.
+        # return function that takes ndarray A consistent with self and returns A expanded to other (yielding array of same dimension as other) and then transposed to be consistent with other.
+        # this should yield the same result as using other as argument for expand
         return lambda A: np.transpose(self.expand(A,self_expanded),pm)
 
       else:
         pm = self_expanded.eq_perm(other, verbose = False)
         if pm:
+          # case 2b
+
           # line up the equivalent coord elements in the same order for interpolation.
           return lambda A: (self_expanded.shuffle(pm)).smart_interp(np.transpose(self.expand(A,self_expanded),pm),other, method = method)
         else:
@@ -1442,16 +1461,49 @@ class gr(tuple):
 
   def expand(self,A,other):
     """
-    Adds dimensions specified in argument coords other at the beginning of array A
+
+    A gr method called on a ndarray and an other gr
+    Adds dimensions specified in other, a gr object, at the beginning of array A
+
+    input: ndarray of shape consistent with self.
+	   gr other
+    output: an ndarray of shape (other/self)*self containing identical copies of A along other/self
+
+    Example: 
+
+    SAT = P['DPO']['A_sat']
+    SAT.shape is (100,100)
+    W=SAT.gr.expand(SAT[:],depth**2)
+    W.shape is (19,100,100)
+    W contains 19 identical copies (slices) of SAT[:] 
+
+    Note that the other grid is appended on the left side.
+
+    Example 2:
+
+    (zt*yt*xt).shape() is (46, 110, 200)
+
+    A = np.ones((xt**2).shape())
+
+    K=(xt**2).expand(A,zt*yu*xt  )
+    K.shape is (46, 110, 200)
+
+    K=(xt**2).expand(A,zt*xt*yt  )
+    K.shape is (46, 110, 200)
+
+    Warning: method requires gr argument, do not use coord argument. Instead, for a single coord (e.g.) xt, use xt**2.
+
     """
 
-
+    # only use those coord elements that are in the other gr but not the self gr.
     new_coords = list(other/self)
     new_coords.reverse()
 
     for coord in new_coords:
+      # initialize L for each coord with the A from argument, or just built below
       L = np.array([A],)
       for k in range(len(coord)-1):
+        # grow the dimensions with identical copies of A
         L = np.append(L,[A,],0)
       A = L 
 
@@ -1735,7 +1787,12 @@ class gr(tuple):
 
   def shuffle(self,permutation):
     """
-    Rearranges the order of the elements of this grid gr object. E.g.
+    gr method that rearranges the order of the elements of this grid gr object via permutation arrgument. E.g.
+
+    g1 = latitude*depth
+    g1.shuffle( (1,0) ) is (depth, latitude)
+
+    See also perm method of gr.
     
     """
     return gr((self[i] for i in permutation))
@@ -1746,12 +1803,20 @@ class gr(tuple):
   def perm(self, other,verbose = False):     
     """
     yields permutation of axes going from grid self to grid other.
+    E.g. for grids gr1 and gr2, g2 = g1.shuffle( g1.perm(g2) )
+
+    Returns None if no permutation exists.
+
+    See also shuffle.
+
     """  
     return find_perm(self,other,verbose = verbose)
 
   def eq_perm(self, other, verbose = True):      
     """
-    yields permutation of axes going from grid self to grid other, where equivalent axes are treated as identical.
+    yields permutation of axes going from grid self to grid other, where equivalent axes are treated as identical. 
+
+    See also perm.
     """  
 
     if len(self) == len(other):
