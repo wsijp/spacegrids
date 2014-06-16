@@ -413,7 +413,7 @@ class TestGrid(unittest.TestCase):
     A = np.ones(gr2.shape() )
 
     # should have the length of len(depth)
-    self.assertEqual(len(gr1.reduce(A,gr2)) ,  19 )
+    self.assertEqual(len(gr1.to_slices(A,gr2)) ,  19 )
     
   def test_gr_method_reduce_dim1vs3_shape_element(self):
     """
@@ -429,7 +429,7 @@ class TestGrid(unittest.TestCase):
     A = np.ones(gr2.shape() )
 
     # should have the shape of latitude*longitude
-    self.assertEqual( gr1.reduce(A,gr2)[0].shape  ,  (100,100) )
+    self.assertEqual( gr1.to_slices(A,gr2)[0].shape  ,  (100,100) )
 
   def test_gr_method_reduce_dim2vs3_len_list(self):
     """
@@ -445,11 +445,11 @@ class TestGrid(unittest.TestCase):
     A = np.ones(gr2.shape() )
 
     # should have the length of len(depth)*len(longitude) 
-    self.assertEqual(len(gr1.reduce(A,gr2)) ,  1900 )
+    self.assertEqual(len(gr1.to_slices(A,gr2)) ,  1900 )
     
-  def test_gr_method_reduce_dim2vs3_shape_element(self):
+  def test_gr_method_to_slices_dim2vs3_shape_element(self):
     """
-    Test reduce method of gr class
+    Test to_slices method of gr class
     """
 
     for c in self.fixture['DPO'].cstack:
@@ -461,8 +461,98 @@ class TestGrid(unittest.TestCase):
     A = np.ones(gr2.shape() )
 
     # should have the shape of longitude**2
-    self.assertEqual( gr1.reduce(A,gr2)[0].shape  ,  (100,) )
+    self.assertEqual( gr1.to_slices(A,gr2)[0].shape  ,  (100,) )
 
+  def test_gr_method_vsum(self):
+
+    """
+    Test vsum method of gr class
+    """
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+
+    gr1 = depth*latitude
+
+    # should have the shape of longitude**2
+    self.assertAlmostEqual( gr1.vsum(gr1.ones() )  , 121672626836.47124 )
+
+
+  def test_gr_method_find_args_coord(self):
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+
+    ctypes = {'x_coord':sg.xcoord,'y_coord':sg.ycoord,'z_coord':sg.coord}
+  
+    self.assertEqual((latitude*longitude).find_args_coord(coord_types = ctypes) , 
+    [[], [latitude]] )
+
+    
+  def test_gr_method_der_type(self):
+
+    """
+    Test der method of gr class to see whether it returns a field
+    """
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+
+    gr1 = longitude*latitude
+
+    # should have the shape of longitude**2
+    self.assertEqual( isinstance( gr1.der(longitude,gr1.ones() ) , sg.field )  , True )
+
+  def test_gr_method_der_X(self):
+
+    """
+    Test der method of gr class to see whether it returns a field
+    """
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+
+    gr1 = longitude*latitude
+
+    W = gr1.der(longitude,gr1.ones() )
+
+    W.value[np.isnan(W.value)]=1
+
+    # should have the shape of longitude**2
+    self.assertEqual( W.value.sum()   , 0.0 )
+
+  def test_gr_method_der_Y(self):
+
+    """
+    Test der method of gr class to see whether it returns a field
+    """
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+
+    gr1 = depth*latitude
+
+    W = gr1.der(latitude,gr1.ones() )
+
+    W.value[np.isnan(W.value)]=1
+
+    # should have the shape of longitude**2
+    self.assertEqual( W.value.sum()   , 19.0 )
+
+  def test_gr_method_vol(self):
+
+    """
+    Test der method of gr class to see whether it returns a field
+    """
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+
+    gr1 = depth*latitude
+
+    W = gr1.vol()
+    # should have the shape of longitude**2
+    self.assertAlmostEqual( W.value.sum()   , 121672626836.47124 )
 
 
 

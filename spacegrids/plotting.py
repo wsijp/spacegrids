@@ -81,18 +81,38 @@ def prep_axes(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=No
     ylbl = grid[0].name
  
   if hasattr(grid[1],'axis'):
-  
-    xlbl = grid[1].axis.display_name
-   
+    if hasattr(grid[1].axis, 'display_name'):
+      if isinstance(grid[1].axis.display_name,str):
+        xlbl = grid[1].axis.display_name
+      else:
+        warnings.warn('Label not added: not a string.')  
+        xlbl = ''
+    else:
+      warnings.warn('Label not added: not available.')     
+      xlbl = ''
   else:
     xlbl = grid[1].name
 
   if ax_units:
     if hasattr(grid[0],'units'):
-      ylbl += ' (' +grid[0].units +')'
+      if isinstance(grid[0].units,str):
+        ylbl += ' (' +grid[0].units +')'
+      else:
+        warnings.warn('Label not added: not a string.')
+        ylbl = ''
+    else:
+      warnings.warn('Label not added: not available.')
+      ylbl = ''
 
     if hasattr(grid[1],'units'):
-      xlbl += ' (' +grid[1].units +')'
+      if isinstance(grid[1].units,str):
+        xlbl += ' (' +grid[1].units +')'
+      else:
+        warnings.warn('Label not added: not a string.')
+        xlbl = ''
+    else:
+      warnings.warn('Label not added: not available.')
+      xlbl = ''
 
 
   if not(xl):
@@ -364,12 +384,20 @@ def plot(fld0 = None,fld1=None, minus_z=True,xlbl='',ylbl='', grid = None,start_
    if not(xlbl == 'No'):
      if xlbl == '':
        if hasattr(xax,'axis'):
-         
-         xlbl = xax.axis.display_name
+         if hasattr(xax.axis, 'display_name'):
+           if isinstance(xax.axis.display_name, str):
+             xlbl = xax.axis.display_name
+           else:
+             xlbl = ''
+             warnings.warn('Label not added: not a string.')
+
        elif isinstance(xax,field):
          xlbl = xax.name
        if hasattr(xax,'units'):
-         xlbl += ' ('+ xax.units + ')'
+         if isinstance(xax.units,str):
+           xlbl += ' ('+ xax.units + ')'
+         else:
+           warnings.warn('Label units not added: not a string.')
 
 
    if not(ylbl == 'No'):
@@ -378,10 +406,15 @@ def plot(fld0 = None,fld1=None, minus_z=True,xlbl='',ylbl='', grid = None,start_
         
          ylbl = yax.axis.display_name
        elif isinstance(yax,field):
-         ylbl = yax.name
+         if isinstance(yax.name,str):
+           ylbl = yax.name
+         else:
+           warnings.warn('Label not added. Not a string.')
        if hasattr(yax,'units'):
-         ylbl += ' ('+ yax.units + ')'
-
+         if isinstance(yax.units,str):
+           ylbl += ' ('+ yax.units + ')'
+         else:
+           warnings.warn('Label units not added. Not a string.')
 
    else:
      ylbl = ''

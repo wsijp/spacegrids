@@ -12,6 +12,7 @@ from fieldcls import *
 from expercls import *
 
 
+
 # ---------------- Class definition for projects -----------
 
 class project:
@@ -502,6 +503,86 @@ class project:
     else:
       self.nbytes = 0
 
+
+
+  def cat(self, fld_name, new_ax_name = 'exper', new_coord_name = 'gamma', new_coord = None):
+
+    """
+    Concatenate the field fld_name for all experiments where that field is loaded.
+  
+    If new_coord coord object argument is given, other arguments are overridden and that argument is used as the new coord along which the different experiments are lined up.
+
+    if no new_coord argument is given, a new coord will be constructed.
+ 
+    """
+
+    e_loaded = [e for e in self.expers.keys() if fld_name in self.expers[e].vars]
+    if e_loaded ==[]:
+      warnings.warn('Field %s not loaded. Returning None.'%fld_name) 
+      return     
+
+    # If new_coord has been provided, use that:
+    if new_coord is not None:
+      fields = [self.expers[e].vars[fld_name] for e in e_loaded]
+    
+      if len(fields) != len(new_coord):
+        raise Exception('Provide equal amount of loaded field instances to length new_coord')
+      return concatenate(fields,  new_coord = new_coord)
+      
+
+    # if new_coord has not been provided, construct one.
+    e_loaded.sort()
+
+    fields = [self.expers[e].vars[fld_name] for e in e_loaded]
+
+    new_axis = ax(new_ax_name)   
+    new_coord_value = np.arange(len(fields))
+    new_coord = coord(name = new_coord_name , value = new_coord_value, axis = new_axis, direction = new_axis, strings = e_loaded )
+  
+    return concatenate(fields,  new_coord = new_coord)
+
+
+  def param2gr(self, param_name, func, sort = True, new_ax_name = None):
+    """
+    Use a param from the experiments to construct a coord, and so construct a new concatenated field defined on a new grid with this.
+
+    func is a function that must yield a field and take an exper object as argument.
+    it should return None for elements that are not desired.
+
+    """
+
+
+#    new_coord_name = 'gamma'
+    if new_ax_name is None:
+      new_ax_name = param_name
+
+    new_coord_name = new_ax_name + '_crd'
+
+    pairs = [(E.params[param_name], func(E) ) for E in self.expers.values() if param_name in E.params]
+
+    pairs = [e for e in pairs if e[1] is not None   ] 
+
+    if sort:
+      pairs.sort()
+
+    new_ax = ax(new_ax_name)
+    new_coord = coord(name = new_coord_name, value = np.array( [e[0] for e in pairs] ), axis = new_ax, direction = new_ax)
+
+    return concatenate(fields = [e[1] for e in pairs], new_coord = new_coord)
+
+  def insert(self, func, param_name= None):
+    """
+    Apply function func to each exper object in self and insert the result, either a field or a float/ int (param) into that exper.
+
+    func is a function taking an exper object as argument and returning either None, a field or a float/ int. In the case of None, the value is not inserted.
+
+    """
+    for E in self.expers.values():
+      param_or_field = func(E) 
+      if param_or_field:
+        E.insert(param_or_field, name = param_name)
+
+
 # ---------------- End class definition for projects -----------
 
 
@@ -572,7 +653,21 @@ def read_projnick(f):
   return f.readline().rstrip()
 
 
+# -----------------------------
+# functions to be used for creating new coords
 
+def avg_temp(P, varname = 'O_temp'):
+
+  for c in P.expers.values()[0].axes:
+    exec c.name + ' = c'
+
+  for k in P.expers.keys():
+    if varname in P.expers[k].vars:
+      mTEMP = P.expers[k].vars[varname]/(X*Y*Z)
+
+      P.expers[k].insert(mTEMP, name = 'avg_temp')
+
+#  return P    
 
 
 

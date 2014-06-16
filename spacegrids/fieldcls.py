@@ -77,7 +77,7 @@ class coord():
 
 
 
-  def copy(self,name = None,value = None, axis = None,direction = None,units = None, long_name = None, metadata=None, equiv = True):
+  def copy(self,name = None,value = None, axis = None,direction = None,units = None, long_name = None, metadata=None, strings = None, equiv = True):
 
     """
     Copy function for coord objects. If equiv = True, the copies will be equivalent.
@@ -108,7 +108,7 @@ class coord():
 
     return result
 
-  def __init__(self,name='scalar',value = [0], dual = None,axis = '?',direction ='scalar', units = None,long_name ='?', metadata = {}):  
+  def __init__(self,name='scalar',value = np.array([0]), dual = None,axis = '?',direction ='scalar', units = None,long_name ='?', metadata = {} , strings = None):  
 
     """
     Initialisation of coord object. This is the basic building block of grid objects.
@@ -145,6 +145,15 @@ class coord():
     self.len = len(value)
     self.metadata = metadata
     self.nbytes = self.value.nbytes
+
+    if (not axis is None) and isinstance(axis, ax)  :
+      (self.equivs).append(axis)
+
+    if strings is not None:
+      if len(value) != len(strings):
+        raise ValueError('Provide strings argument of equal length to value argument if providing strings argument.')
+    self.strings = strings
+
 
   def __len__(self):
     return self.len
@@ -271,11 +280,11 @@ class coord():
 
 # --> belongs to coord class
   def __mul__(self,other):
-    if self.name == 'scalar':
+    if self.direction == 'scalar':
       return gr((other,))
     else:
       if isinstance(other,coord):   
-        if other.name == 'scalar': 
+        if other.direction == 'scalar': 
           return gr((self,))
         else:
           if other^self:
@@ -662,7 +671,7 @@ To be overriden by coord_edge derived objects to yield a function from fields to
 class xcoord(coord):
 
 
-  def copy(self,name = None,value = None, axis = None,direction = None,units = None, long_name = None, equiv = True):
+  def copy(self,name = None,value = None, axis = None,direction = None,units = None, long_name = None, strings = None, equiv = True):
     """
     Copy function for coord objects. If equiv = True, the copies will be equivalent.
     Copies with identical key attributes that are not equivalent will yield a severe warning about this when equivalance is tested with the ^ operator.
@@ -846,7 +855,7 @@ class xcoord(coord):
 
 class ycoord(coord):
 
-  def copy(self,name = None,value = None, axis = None,direction = None,units = None, long_name = None, equiv = True):
+  def copy(self,name = None,value = None, axis = None,direction = None,units = None, long_name = None, strings = None, equiv = True):
 
     """
     Copy function for coord objects. If equiv = True, the copies will be equivalent.
@@ -1342,18 +1351,18 @@ class gr(tuple):
       # Using reduce method. Note that reduce has the arguments the other way around. reduce is called as method of other!
       if pm:
         # case 3a
-        return lambda A: other.reduce(np.transpose(A,pm),target_grid)
+        return lambda A: other.to_slices(np.transpose(A,pm),target_grid)
       else:
         pm = self.eq_perm(target_grid, verbose = False) 
         if pm:
           # case 3b
-          return lambda A: other.reduce((self.shuffle(pm)).smart_interp(np.transpose(A,pm),target_grid, method = method),target_grid)
+          return lambda A: other.to_slices((self.shuffle(pm)).smart_interp(np.transpose(A,pm),target_grid, method = method),target_grid)
 
         else:
           # case 3c
           print 'Nope'
           return
-      
+     
     return
 
   def function(self,func):
@@ -1383,6 +1392,11 @@ class gr(tuple):
     return reduce(lambda x,y:x*y,[e.axis for e in self])
 
 
+  def reverse(self):
+
+    return gr([ self[len(self) -i -1 ] for i in range(len(self))  ])
+
+
   def nbytes(self):
     return reduce(lambda x,y:x.nbytes+y.nbytes, self)
 
@@ -1410,7 +1424,7 @@ class gr(tuple):
 # ------------------------------------------
 # Lower level methods:
 
-  def reduce(self,A,other, force = False):        
+  def to_slices(self,A,other):        
     """
     yields a list of slices along the coords defined in self. e.g.
     zt(zt*yt*xt) = [A[0,:,:],A[1,:,:],...] where A.shape is (zt*yt*xt).shape()
@@ -1418,8 +1432,11 @@ class gr(tuple):
     Expects self coords to be subset of other, and appearing in same order in both.
     other must appear in the left side of self (i.e. self is self*(other/self)  ).
     For instance, zt*yt(zt*yt*xt) is valid,  yt*xt(zt*yt*xt) and zt(yt*xt) are not.
+    The indexing in the output list (as list of lists) is of opposite order to the coord elements in self.
+
     No checks are done on consistency between A or other or self and other.
-    The opposite of expand.
+
+    The opposite of expand. Used by call method of fields on gr objects of lower dimension that the field.
 
     Inputs: 
     A		ndarray of shape other.shape()
@@ -1432,17 +1449,19 @@ class gr(tuple):
     """
 
     # This method works with recursion. If len(self)>1, a list is built using this method on the smaller elements and indexing by the first dimension.
-    # if B = self.reduce(A,other) and A is an array, then array(B) has the same shape and values as A.
-    # calling say (zt*yt).reduce(A,zt*yt*xt) yields a list of lists. Each of those lists then contains a 1D array.
+    # if B = self.to_slices(A,other) and A is an array, then array(B) has the same shape and values as A.
+    # calling say (zt*yt).to_slices(A,zt*yt*xt) yields a list of lists. Each of those lists then contains a 1D array.
 
 
-# the following code is made difficult due to recursion:
+
+# the following code is made slightly difficult due to recursion:
 #    if (force == False) and ( other != self*(other/self) ):
-#      raise ValueError('Error calling gr %s on gr %s. other must equal self*(other/self). Result likely meaningless (use force = True to override).'%(str(self),str(other) ) )
+#      warnings.warn('Calling gr %s on gr %s. other must equal self*(other/self).'%(str(self),str(other) ) )
 
-    # A consistency check for the sizes of A and other is non-trivial due to recursion
-
+ 
     if len(self) == 1:
+      # single coord gr called on gr. Endpoint of recursion.
+    
       result = [] 
       coord = self[0]
       if isinstance(A,list):
@@ -1458,24 +1477,22 @@ class gr(tuple):
 
       return result
     else:
- 
-#      A = A.tolist
+      # multiple coord gr called on gr. Recursion until single coord gr called on gr.
+
       result = []
       subself = gr(list(self))
 
       while len(subself) > 1:
         coord = subself[0]
-#        if result:
-#          result = [result, ]
 
         subself = subself/(coord**2)
         if isinstance(A,list):
           for i in range(len(coord)):
-            result += (subself.reduce(A[i],other))
+            result += (subself.to_slices(A[i],other))
 
         else:
           for i in range(len(coord)):
-            result += (subself.reduce(A[i,:],other))
+            result += (subself.to_slices(A[i,:],other))
 
     return result
         
@@ -1877,6 +1894,11 @@ class gr(tuple):
         gr_dual *= e.dual
       return gr_dual
 
+  def ones(self):
+
+    return field(name = 'ones', value = np.ones(self.shape() ) ,grid = self )
+
+
   def vsum(self, F):
     """
     Method of gr object. Sum weighted with coord grid cell widths (integration) over self grid. 
@@ -1922,7 +1944,12 @@ Takes field argument and returns a field with grid made up of remaining coord ob
 
   def der(self,crd,F):
     """
-    Method of grid object.
+    Method of grid object. Often the wider context of the grid needs to be known to take the derivative along a coord, hence a gr method.
+
+    Input:
+    crd		coord object along which to differentiate (e.g. latitude)
+    F		field object to differentiate (e.g. temperature)
+
 
     """
     coord_types = {'x_coord':xcoord,'y_coord':ycoord,'z_coord':coord}
@@ -2184,7 +2211,7 @@ class field:
 
   def cat(self,other,ax = None, name_suffix = '_cat'):
     """
-    Concatenate with another field along axis ax. If ax is None, concatenation takes place along the first axis with non-equal values.
+    Concatenate with another field along axis ax. If ax is None, concatenation takes place along the first encountered common axis with non-equal values.
     Grids must be orient along same axes and in same axis order.
 
     """
@@ -2194,26 +2221,35 @@ class field:
 #    if len(self.gr) != len(other.gr):
 #      raise Exception('Error: provide grids of equal dimension.')
 
+    if isinstance(ax,coord):
+      ax = ax.axis
+
     self_axis = self.gr.axis()
 
 #    if not reduce(lambda x,y:x and y, [e^other[i] for i,e in enumerate(other)]):
     if self_axis != other.gr.axis():
-      raise Exception('Error: provide grids along equal axes.')
+      raise Exception('Error: provide fields defined on the same grid directions.')
 
 
     if ax is None:
       
       i_ax = (self.gr.array_equal(other.gr)).index(False)
       ax = self_axis[i_ax]
-
+    
     cat_coord_self = ax*self.gr
     
+    if cat_coord_self is None:
+      # in this case concat is done along an axis not in the self grid
+ 
+      raise Exception('Axis not in grid.')
+
+
     if (self.gr/ax).shape() != (other.gr/ax).shape():
 
-      raise Exception('Field concat error %s and %s. Provide pieces of right dimensions.'%(self.name,other.name) )
+      raise Exception('Field concat error %s and %s. Provide pieces of right dimensions. (now %s and %s)'%(self.name,other.name, str((self.gr/ax).shape())  , str( (other.gr/ax).shape())   ) )
 
       # obtain the index of the axis in the grid along which to concatenate.
-      # why do we need eq_index here instead of index?
+      # why do we need eq_index here instead of index? because it can be an ax object.
     ax_index = self.gr.eq_index(ax)
 
       # combine the two halves of what is to be the new coord in a dictionary first
@@ -2322,10 +2358,10 @@ class field:
         if (self.gr == other.gr):
           return field(name = self.name, value = L-R,grid = self.gr, units = self.units, direction = self.direction)
         else:
-          raise Exception('field grid error in %s-%s with field %s: grids must be equal. Try F - G(F.gr).' % (self,other,self) )
+          raise Exception('field grid error in %s-%s with field %s: grids must be equal. Try F - G(F.gr) or F(G.gr) - G.' % (self,other,self) )
           
       else:  
-        raise Exception('field shape error in %s-%s with field %s: shapes must match. Try F - G(F.gr).' % (self,other,self)  )
+        raise Exception('field shape error in %s-%s with field %s: shapes must match. Try F - G(F.gr) or F(G.gr) - G.' % (self,other,self)  )
       
 
     elif isinstance(other,int):
@@ -2458,8 +2494,8 @@ class field:
     if isinstance(value,list):
 # in this case the grid argument is a subspace of self.gr so that the grid of the elements is self.gr/grid due to the way self.gr(grid) has been constructed (see call method for grid objects).
       result = []
-      for e in value:
-        result.append(field(name = '',value = e, grid =self.gr/grid))
+      for i,e in enumerate(value):
+        result.append(field(name = 'slice_'+str(grid.reverse() )+'_'+str(i) ,value = e, grid =self.gr/grid))
       return result
      
     else:
@@ -2628,16 +2664,16 @@ class field:
 
 
 
-  def ones(self):
+  def ones(self, nan_val = np.nan):
 
     """
-    Returns field containing domain of this field: values are 1 if field is defined, nan otherwise.
+    Returns field containing domain of this field: values are 1 in grid locations where field is defined, nan otherwise.
     """
 
-    value = ones(self.gr)[:]
-    value[np.isnan(self[:])] = np.nan
+    new_fld = self.gr.ones()
+    new_fld.value[np.isnan(self[:])] = nan_val
 
-    return field(name='',value = value,grid = self.gr)
+    return new_fld
 
 # --> method belongs to field.
   def dV(self):
@@ -2865,7 +2901,7 @@ class vfield(tuple):
 
 
 
-def concatenate(fields, ax=None, name_suffix='_cat'):
+def concatenate(fields, ax=None, name_suffix='_cat', new_coord_name = 'gamma', new_coord= None ):
   """
   concatenate((a1,a2,...),ax=None)
 
@@ -2878,42 +2914,77 @@ def concatenate(fields, ax=None, name_suffix='_cat'):
         corresponding to `ax` (the one with unequal coord point values, by default).
     axis : ax object, optional
         The axis along which the arrays will be joined.  Default is the first one with unequal coord point values.
+
+  a new coord is created if none of the grid elements point in the direction of the ax argument. Then, new_coord_name is used. 
+  The above behaviour is overridden if the new_coord argument is given. This is a coord object that will be used to construct one field from the fields list argument. The list elements become slices (at single coord values) and the new_coord values are the corresponding coordinates.
   
 
   """
 
-  if fields != []:
-    
-    return reduce(lambda x,y:x.cat(y,ax=ax, name_suffix = name_suffix), fields)
+  
+  if fields == []:
+    raise ValueError('Provide list of fields.')
 
-def squeeze(F):
+  if new_coord is not None:
+    if len(fields) != len(new_coord):
+      raise ValueError('Provide fields and new_coord arguments of equal length if providing new_coord argument.')
+
+    return fields[0].copy( name = fields[0].name +name_suffix, value = np.array( [ F[:] for F in fields ] ) , grid = new_coord*fields[0].gr )
+
+
+
+  if ax and (ax*fields[0].gr is None):
+    # the axis is not in the grid of the first field
+    expanded_fields = []
+    
+    for i, F in enumerate(fields):
+      new_coord = coord(name = new_coord_name,value = np.array([i]), direction = ax , axis = ax  )
+      expanded_fields.append( F(new_coord*F.gr) )
+    fields = expanded_fields    
+    name_suffix = ''
+
+  return reduce(lambda x,y:x.cat(y,ax=ax, name_suffix = name_suffix), fields)
+
+def squeeze(F, hard = False):
   """
-  Equivalent to Numpy squeeze method. Remove dimensions and associated coords in grid of length 1. 
+  Equivalent to Numpy squeeze method. Remove dimensions and associated coords in grid of length 1. Reversible operation as squeezed dimensions are recorded. Setting argument hard to True yields an irreversible squeeze where the squeezed dims are not recorded (and cannot be unsqueezed later). 
   """
 
   dims = list(F.gr)
   body = F.value
   
   squeezed_dims = []
-  for i,dim in enumerate(dims):
-    if body.shape[i] == 1:
-      squeezed_dims.append(dims[i])
-      dims.remove(dims[i])
+
+  if hard:
+    # irreversible squeeze
+    # In this case, the squeezed dims are not recorded for later inflation
+    for i,dim in enumerate(dims):
+      if body.shape[i] == 1:
+        dims.remove(dims[i])
+
+  else:
+    # reversible squeeze
+    # In this case, the squeezed dims are ecorded for later inflation
+    for i,dim in enumerate(dims):
+      if body.shape[i] == 1:
+        squeezed_dims.append(dims[i])
+        dims.remove(dims[i])
       
    
   body = np.squeeze(body)
   return F.copy(value=body,grid = gr(dims) , squeezed_dims =  gr(squeezed_dims) )
 
-def unsqueeze(F):
+def unsqueeze(F ):
   """
   Opposite of squeeze. Uses the grid stored in squeezed_dims field attribute to restore the unit-length dimensions (coords) of the field. 
-
+  
   """
 
   gr_unsqueezed = F.squeezed_dims*F.gr
 
   return F.copy( value = F.value.reshape(gr_unsqueezed.shape() ) , grid = gr_unsqueezed, squeezed_dims =  gr( () )  )
 
+ 
 
 
 

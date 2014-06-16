@@ -58,7 +58,7 @@ class exper:
     return REP.value
     
 
-  def __init__(self,path=home_path, name = 'test',cstack = [], descr = 0, parent = 'orphan'):
+  def __init__(self,path=home_path, name = 'test',cstack = [], params = {}, descr = 0, parent = 'orphan'):
 # --> belongs to class exper
 
     self.path = os.path.join(path,name) 
@@ -70,6 +70,11 @@ class exper:
       self.descr = name
     else:
       self.descr = descr  
+
+    # this is needed because otherwise all exper objects have the same params object!
+    self.params = copy.deepcopy(params)
+    # check for other places where this effect might occur.
+
           
 # The variables associated with this experiment. It is a dictionary of name vs struct    
     self.vars = {}
@@ -285,23 +290,32 @@ class exper:
 
         # insert field into experiment
         if squeeze_field:
-          self.insert(fld = squeeze( concatenate(F,name_suffix='') ), name = varname ) 
+          self.insert(what = squeeze( concatenate(F,name_suffix='') ), name = varname ) 
         else:
-          self.insert(fld = concatenate(F,name_suffix=''), name = varname ) 
+          self.insert(what = concatenate(F,name_suffix=''), name = varname ) 
 
     self.update_nbytes() 
 
 
-  def insert(self,fld, name = None):
+  def insert(self,what, name = None):
     """
     Insert field in field list of this exper object under key varname. If varname is None, the field name will be used.
     """
-    if name is None: 
-      name = fld.name
-    else:
-      fld = fld.copy(name = name)
 
-    self.vars[name] = fld
+    if not isinstance(what,field):
+      # it is assumed field is a parameter
+      if name is None:
+        raise Exception('Provide name if trying to insert what as parameter.')
+
+      self.params[name] = what
+      return
+
+    if name is None: 
+      name = what.name
+    else:
+      what = what.copy(name = name)
+
+    self.vars[name] = what
 
   def available(self):
     """
@@ -359,6 +373,7 @@ class exper:
      else:
        field_bytes = 0
      self.nbytes  = coord_bytes + field_bytes
+
 
 
 # ----- end exper class ------------
