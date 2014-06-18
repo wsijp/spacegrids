@@ -497,6 +497,9 @@ class project:
 	  print varname +' not in experiment ' + expname
 
   def update_nbytes(self):
+    """
+    Update estimate of number of Mb used by project.
+    """
     if len(self.expers.values() ) > 0:
       self.nbytes = reduce( lambda x,y: x + y, [e.nbytes for e in self.expers.values()]  )
 
@@ -505,7 +508,7 @@ class project:
 
 
 
-  def cat(self, fld_name, new_ax_name = 'exper', new_coord_name = 'gamma', new_coord = None):
+  def cat(self, fld_name, new_ax_name = 'exper', new_coord_name = None, new_coord = None):
 
     """
     Concatenate the field fld_name for all experiments where that field is loaded.
@@ -527,10 +530,16 @@ class project:
     
       if len(fields) != len(new_coord):
         raise Exception('Provide equal amount of loaded field instances to length new_coord')
+
+      # EXIT POINT
       return concatenate(fields,  new_coord = new_coord)
       
 
     # if new_coord has not been provided, construct one.
+
+    if new_coord_name is None:
+      new_coord_name = new_ax_name + '_crd'
+
     e_loaded.sort()
 
     fields = [self.expers[e].vars[fld_name] for e in e_loaded]
@@ -538,27 +547,33 @@ class project:
     new_axis = ax(new_ax_name)   
     new_coord_value = np.arange(len(fields))
     new_coord = coord(name = new_coord_name , value = new_coord_value, axis = new_axis, direction = new_axis, strings = e_loaded )
-  
+
+    # EXIT POINT  
     return concatenate(fields,  new_coord = new_coord)
 
 
-  def param2gr(self, param_name, func, sort = True, new_ax_name = None):
+  def param2gr(self, param_name, func, name_filter = None, sort = True, new_ax_name = None):
     """
-    Use a param from the experiments to construct a coord, and so construct a new concatenated field defined on a new grid with this.
+    Use a param from the experiments to construct a coord, and so construct a new concatenated field defined on a new grid with this new coord.
 
     func is a function that must yield a field and take an exper object as argument.
-    it should return None for elements that are not desired.
+    it should return None for elements that are not desired. This method is somewhat different from its near-opposite method insert, where the function argument is allowed to yield fields or single values (float/ int).
 
     """
 
+    if name_filter is None:
+      expers = self.expers.values()
+    else:
+      exp_keys = simple_glob([k for k in self.expers.keys() ], name_filter )
+      expers = [self.expers[k] for k in exp_keys]
 
-#    new_coord_name = 'gamma'
+
     if new_ax_name is None:
       new_ax_name = param_name
 
     new_coord_name = new_ax_name + '_crd'
 
-    pairs = [(E.params[param_name], func(E) ) for E in self.expers.values() if param_name in E.params]
+    pairs = [(E.params[param_name], func(E) ) for E in expers if param_name in E.params]
 
     pairs = [e for e in pairs if e[1] is not None   ] 
 
@@ -572,24 +587,43 @@ class project:
 
   def insert(self, func, param_name= None):
     """
-    Apply function func to each exper object in self and insert the result, either a field or a float/ int (param) into that exper.
+    Apply function func to each exper object in self and insert the result. The result must be a tuple (name, value) or a list of such tuples (as taken by the exper insert method). Conform the exper insert method, name must be a string, and value a field or ordinary float/ int kind of datatype.
 
-    func is a function taking an exper object as argument and returning either None, a field or a float/ int. In the case of None, the value is not inserted.
-
+   
     """
     for E in self.expers.values():
-      param_or_field = func(E) 
-      if param_or_field:
-        E.insert(param_or_field, name = param_name)
+      
+      E.insert( func(E)  )
 
+  
 
 # ---------------- End class definition for projects -----------
 
 
+def read_control_func(filename):
+  """
+  function that yields a useful function that can be used in the project insert method: it reads a control file in the MOM 2 control file format (as used by UVic) and outputs it in the list of (name, value) tuples format required by the exper insert method.
+
+  The argument filename is the file name of the control file to be read, usually control.in.
+
+  For example: P.insert(sg.read_control_func('control.in')) goes through all experiment directories and looks for, and parses, the file control.in, and then inserts the result as exper parameters.
+
+  The user could construct similar functions for their own use: the function must take an experiment as argument, and return None or a list of (name, value) pairs.
 
 
+  """
 
+  def get_controls(E):
 
+    path = os.path.join(E.path, filename)
+    try:
+      La, L = parse_control_file(path)
+    except:
+      La = None
+    return La
+  
+
+  return get_controls
 
 def info(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = projnickfile, verbose = True):
   """

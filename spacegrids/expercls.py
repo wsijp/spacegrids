@@ -290,32 +290,55 @@ class exper:
 
         # insert field into experiment
         if squeeze_field:
-          self.insert(what = squeeze( concatenate(F,name_suffix='') ), name = varname ) 
+          self.insert(what = (varname, squeeze( concatenate(F,name_suffix='') ) ) ) 
         else:
-          self.insert(what = concatenate(F,name_suffix=''), name = varname ) 
+          self.insert(what = (varname, concatenate(F,name_suffix='') ) ) 
 
     self.update_nbytes() 
 
 
-  def insert(self,what, name = None):
+  def insert(self,what):
     """
-    Insert field in field list of this exper object under key varname. If varname is None, the field name will be used.
+    Insert field in field list of this exper object under key varname.  If argument what is a number, it will be inserted as a parameter.
+
+    Input: what a 2 tuple (pair) of name and value: (name, value). Value can be a field or a single value. Name must be a string, but can be None in the case of a field, where the field name will then be used. For example what = ('temp',TEMP), where TEMP is a field. If value is a single value (e.g. int or float), a name must be provided.
+
+    Argument what can also be a list of (name,value) pairs, in which case the entire collection of pairs will be inserted.   
+
     """
 
-    if not isinstance(what,field):
-      # it is assumed field is a parameter
-      if name is None:
-        raise Exception('Provide name if trying to insert what as parameter.')
-
-      self.params[name] = what
+    if what is None:
       return
 
-    if name is None: 
-      name = what.name
-    else:
-      what = what.copy(name = name)
+    if isinstance(what, list):
+      for pair in what:
+        self.insert(pair)
 
-    self.vars[name] = what
+    else:
+
+      name = what[0]
+      value = what[1]
+
+      if isinstance(value,field):  
+
+        if name is None: 
+          name = value.name
+        else:
+          value = value.copy(name = name)
+        # insert field 
+        self.vars[name] = value
+
+      else:
+      # it is assumed field is a parameter
+        if name is None:
+          raise Exception('Provide name if trying to insert what as parameter.')
+
+        self.params[name] = value
+        
+
+
+    
+
 
   def available(self):
     """
@@ -366,6 +389,7 @@ class exper:
 
     print RP.value
 
+
   def update_nbytes(self):
      coord_bytes = reduce( lambda x,y: x + y, [e.nbytes for e in self.cstack]  )
      if len(self.vars) > 0:
@@ -374,7 +398,8 @@ class exper:
        field_bytes = 0
      self.nbytes  = coord_bytes + field_bytes
 
-
+     
+    
 
 # ----- end exper class ------------
 

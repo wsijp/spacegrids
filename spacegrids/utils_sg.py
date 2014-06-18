@@ -388,18 +388,6 @@ def rem_equivs(L):
 
 
 
-
-
-# ------------- general time series related functions ----------------
-
-
-
-
-
-
-
-
-
 def read(fname):
 
   data = None
@@ -409,8 +397,111 @@ def read(fname):
     data = f.read();
 
   return data
-    
 
+
+def interp_line(line):
+
+  if line.replace(' ','') == '':
+    return
+
+  block_name = line.split(' ')[0]
+  line = line.replace(block_name,'', 1)
+  line = line.replace(' ','')
+  L = line.split(',')
+  pairs = []
+  for ass in L:
+ 
+    sides = ass.split('=')
+    if len(sides) == 1:
+      # there is = sign in string sides. It must be concatenated with the previous one
+      if len(pairs) > 0 and len(pairs[-1]) == 2:
+
+        if isinstance(pairs[-1][1], float):
+          pairs[-1][1] = [ pairs[-1][1], float(sides[0]) ]
+        elif isinstance(pairs[-1][1], list):
+          if isinstance( pairs[-1][1][-1], float  ):
+            pairs[-1][1].append( float(sides[0]) )
+          elif isinstance( pairs[-1][1][-1], str  ):
+            pairs[-1][1].append( sides[0] )     
+
+          else:
+            raise Exception('Unknown datatype')
+        else:
+            raise Exception('Error')
+
+    else:
+
+      try:
+        value = float(sides[1])
+      except:
+        value = sides[1]
+
+      pairs.append( [ sides[0] ,  value ]  )
+
+  pairs = [ (e[0] , e[1] ) for e in pairs  ]
+
+  return (block_name,pairs)
+
+def parse_control_file(fname,rem_chars = ['\n','/']):
+
+  """
+  Read and parse a UVic/ MOM2 - style control file. Returns list(s) of (name, value) pairs found in the control file.
+
+  Input: fname full path to configuration file	
+  Output: La, L
+  La	list of (name, value) pairs of all parameters found in the control file, excluding names of parameter groups (generally preceded with & in file). If the same parameter name occurs more than once in the file, it is overwritten in the list (unique names are expected).
+  L	more detailed list. List of (parameter group name, list of (name, value) ) pairs, where the lists of (name, value) pairs belong to each parameter group name.
+
+
+  """
+
+  data = read(fname) 
+
+  if data:
+  
+    for ec in rem_chars:
+      data = data.replace(ec,'')
+   
+    lines = data.split('&')
+
+    L = []
+    for line in lines:
+      pair = interp_line(line)
+      if pair:
+        L.append(pair)
+
+    L_all = reduce(lambda x,y: x+y, [l[1] for l in L] )  
+
+    return L_all, L
+
+
+def simple_glob(L, name_filter):
+
+    """
+    Applies very simple shell wildcard * expansion-type matching of argument name_filter on a list of strings, argument L, without using re module.
+    * can only appear at beginning or end of name_filter (e.g. '*foo*').
+
+
+    E.g. name_filter = '*oo' and L=['foo','bar'] yields ['foo']
+
+  
+
+    """
+
+    if name_filter is None:
+      return L
+    else:
+      if name_filter[0] == '*' and name_filter[-1] != '*':
+        L = [ l for l in L if l.endswith(name_filter[1:])  ] 
+      elif name_filter[0] != '*' and name_filter[-1] == '*':
+        L = [ l for l in L if l.startswith(name_filter[:-1])  ] 
+      elif name_filter[0] == '*' and name_filter[-1] == '*':
+        L = [ l for l in L if name_filter[1:-1] in l  ] 
+      else:
+        L = [ l for l in L if name_filter == l  ] 
+    return L
+
+# ------------- general time series related functions ----------------
 
 
 def str_html_row(row, cell_tag='td'):
