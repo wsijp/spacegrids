@@ -78,6 +78,8 @@ class project:
       # So, replace axis string attribute with object attribute and obtain corresponding accumulated list of axis objects. We do this using the make_axis function:
        
       L = make_axes([ c for e in self.expers for c in self.expers[e].cstack ])
+
+      # NOTE THAT ALL EXP OBJECTS HACES AXES POINTING TO THE SAME LIST IN MEM!!
       for e in self.expers:
         self.expers[e].axes = L      
 
@@ -546,7 +548,7 @@ class project:
 
     new_axis = ax(new_ax_name)   
     new_coord_value = np.arange(len(fields))
-    new_coord = coord(name = new_coord_name , value = new_coord_value, axis = new_axis, direction = new_axis, strings = e_loaded )
+    new_coord = coord(name = new_coord_name , value = new_coord_value, axis = new_axis, direction = new_axis.name, strings = e_loaded )
 
     # EXIT POINT  
     return concatenate(fields,  new_coord = new_coord)
@@ -589,13 +591,14 @@ class project:
           new_ax = E.axes[i]
           break
 
-      print i             
+
+      # ax has to be added to ONLY 1 EXP. This is because axes attributes of all experiments point to the same list of axis objects!!!
       if i is None:
-        for E in self.expers.values():
-          E.axes.append(new_ax)  
+        if not new_ax in self.expers.values()[0].axes:
+          self.expers.values()[0].axes.append(new_ax)  
 
 
-    new_coord = coord(name = new_coord_name, value = np.array( [e[0] for e in pairs] ), axis = new_ax, direction = new_ax)
+    new_coord = coord(name = new_coord_name, value = np.array( [e[0] for e in pairs] ), axis = new_ax, direction = new_ax.name)
 
 
     if add2cstack:
@@ -604,10 +607,11 @@ class project:
         if i is not None:
           new_coord = E.cstack[i]
           break
-     
+            
       if i is None:
         for E in self.expers.values():
-          E.cstack.append(new_coord)  
+          if not new_coord in E.cstack:
+            E.cstack.append(new_coord)  
 
 
     return concatenate(fields = [e[1] for e in pairs], new_coord = new_coord)

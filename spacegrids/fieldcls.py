@@ -67,7 +67,7 @@ class coord():
   def same(self,other):
     # not checking for units
 
-    return self.array_equal(other) and (self.name == other.name) and (self.axis.same(other.axis) ) and (self.direction.same(other.direction ) )
+    return self.array_equal(other) and (self.name == other.name) and (self.axis.same(other.axis) ) and (self.direction == other.direction  )
 
   def samein(self,L):
 
@@ -1258,6 +1258,18 @@ class gr(tuple):
     else:
       return False
 
+  def same(self, other):
+    """    
+    coord-wise comparison of elements using coord same method. 
+    """
+    if len(self) == len(other):
+
+      return reduce(lambda x,y: x and y, [ e.same( other[i] ) for i,e in enumerate(self)  ] )
+
+    else:
+      return False
+
+
   def __call__(self,other, method = 'linear'):
     """
     Input: other gr object (grid). 
@@ -2044,9 +2056,9 @@ Takes field argument and returns a field with grid made up of remaining coord ob
   
 class field:
   """
-  Field class to represent scalar function defined on a grid.
+  Field class to represent a scalar valued function, also dataset, defined on a grid.
 
-  The call method allows fields to act as function on grid objects.
+  The call method allows fields to act as function defined on grid objects.
   For a 2D scalar corresponding to field T, say defined on grid yt*xt, T(dy*dx) yields a 2D array of the scalar values.
 
   If field T is naturally defined on grid yt*xt, then T(zt*yt*xt) yields a 3D array b such that b[k,:,:] = T(yt*xt) for all possible k.
@@ -2057,6 +2069,8 @@ class field:
   If g is a coord object, g^F yields the derivative of F along g (via g.der method). g|F yields the grid cell width-weight cumulative sum of F over g (primitive, via g.vcumsum).
 
   two fields F1, F2 are considered equal, F1&F2 yields True, when their name, value (an numpy array) and gr (grid) attribute are equal, unless they contain nan values.
+
+  NOTE: multiplication works a bit different from addition at the moment. Addition will go ahead even when coords in the grids are differently named (or have other non-value attributes differ) as long as the value (the coord points) are the same: then the (left and right) coords are considered equal. Multiplication treats them as different coords in this case.
 
   """
 
@@ -2352,6 +2366,8 @@ class field:
       R = other.value
       if L.shape == R.shape:
         if (self.gr == other.gr):
+          if not self.gr.same(other.gr):
+            warnings.warn('grids contain same data points but different other attributes (e.g. name). Proceeding.')
 
           if self.strict_v:
             if self.direction == other.direction:
@@ -2387,7 +2403,24 @@ class field:
       R = other.value
       if L.shape == R.shape:
         if (self.gr == other.gr):
-          return field(name = self.name, value = L-R,grid = self.gr, units = self.units, direction = self.direction)
+
+          if not self.gr.same(other.gr):
+            warnings.warn('grids contain same data points but different other attributes (e.g. name). Proceeding.')
+
+          if self.strict_v:
+            if self.direction == other.direction:
+
+# should these field creation statements be replaced with self.copy?
+
+              return field(name=self.name, value = L - R,grid = self.gr, units = self.units, direction = self.direction)
+            else: 
+              return self*other
+
+          else:
+
+            return field(name=self.name, value = L - R,grid = self.gr, units = self.units, direction = self.direction)
+
+
         else:
           raise Exception('field grid error in %s-%s with field %s: grids must be equal. Try F - G(F.gr) or F(G.gr) - G.' % (self,other,self) )
           
