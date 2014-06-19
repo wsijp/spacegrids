@@ -552,7 +552,7 @@ class project:
     return concatenate(fields,  new_coord = new_coord)
 
 
-  def param2gr(self, param_name, func, name_filter = None, sort = True, new_ax_name = None):
+  def param2gr(self, param_name, func, name_filter = None, sort = True, new_ax_name = None, add2cstack = True):
     """
     Use a param from the experiments to construct a coord, and so construct a new concatenated field defined on a new grid with this new coord.
 
@@ -581,7 +581,34 @@ class project:
       pairs.sort()
 
     new_ax = ax(new_ax_name)
+
+    if add2cstack:
+      for E in self.expers.values():
+        i = new_ax.sameindex(E.axes)
+        if i is not None:
+          new_ax = E.axes[i]
+          break
+
+      print i             
+      if i is None:
+        for E in self.expers.values():
+          E.axes.append(new_ax)  
+
+
     new_coord = coord(name = new_coord_name, value = np.array( [e[0] for e in pairs] ), axis = new_ax, direction = new_ax)
+
+
+    if add2cstack:
+      for E in self.expers.values():
+        i = new_coord.sameindex(E.cstack)
+        if i is not None:
+          new_coord = E.cstack[i]
+          break
+     
+      if i is None:
+        for E in self.expers.values():
+          E.cstack.append(new_coord)  
+
 
     return concatenate(fields = [e[1] for e in pairs], new_coord = new_coord)
 

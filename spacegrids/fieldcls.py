@@ -64,6 +64,22 @@ class coord():
 
     return np.array_equal(self.value,other.value) 
 
+  def same(self,other):
+    # not checking for units
+
+    return self.array_equal(other) and (self.name == other.name) and (self.axis.same(other.axis) ) and (self.direction.same(other.direction ) )
+
+  def samein(self,L):
+
+    return reduce(lambda x,y:x or y, [self.same(l) for l in L] )
+
+  def sameindex(self,L):
+    for i,l in enumerate(L):
+      if self.same(l):
+        return i
+     
+    return None    
+
 
   def __and__(self,other):
     # test whether coord objects contain identical coord values, name and direction. 
@@ -922,6 +938,21 @@ class ax:
 
   def __getitem__(self,i):
     return 
+
+  def same(self,other):
+    return (self.name == other.name) and (self.direction == other.direction)
+
+  def samein(self,L):
+
+    return reduce(lambda x,y:x or y, [self.same(l) for l in L] )
+
+  def sameindex(self,L):
+    for i,l in enumerate(L):
+      if self.same(l):
+        return i
+     
+    return None    
+
 
   def __and__(self,other):
     if (self.name == other.name):
