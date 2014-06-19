@@ -501,6 +501,22 @@ def simple_glob(L, name_filter):
         L = [ l for l in L if name_filter == l  ] 
     return L
 
+
+def end_of_filepath(path):
+  """
+  utility that finds the last element of a path without using os module.
+  e.g. /foo/bar yields bar, as does /foo/bar/
+
+  """
+# only works on unix-like systems. 
+  L_tmp = path.split('/')
+  L_tmp = [l for l in L_tmp if l !='']
+  return L_tmp[-1]
+
+
+
+
+
 # ------------- general time series related functions ----------------
 
 

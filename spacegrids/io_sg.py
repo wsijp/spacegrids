@@ -151,11 +151,19 @@ def locate(top = '/home/',fname = projnickfile):
   
   
   """
+
+ 
   paths = []
-  for root, dirs, files in os.walk(top=top):
-    if fname in files:
-      paths.append(root)
+  if fname is not None:
+
+    for root, dirs, files in os.walk(top=top):
+      if fname in files:
+        paths.append(root)
   
+  else:
+    paths = [ os.path.join(top,subdir) for subdir in os.listdir(top)   ]
+
+
   return paths
 
 

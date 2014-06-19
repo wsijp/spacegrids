@@ -21,7 +21,7 @@ class project:
     return self.show()
     
 
-  def __init__(self,path=home_path, expnames = ['*'], varnames = [],msk_grid = 'UVic2.8_t', name = None, descr = None, verbose = False):
+  def __init__(self,path=home_path, expnames = ['*'], varnames = [],msk_grid = 'UVic2.8_t', name = None, nonick = False, descr = None, verbose = False):
 
     global ax_disp_names
 
@@ -35,10 +35,26 @@ class project:
 
       if name is None:
 
-        with open(os.path.join(self.path, projnickfile  )  ) as f:
-          name = read_projnick(f)      
-          self.name = name
+        # if nonick is selected, a project nickname file (usually projname) is not required.
+        if nonick:
+          try:
+            with open(os.path.join(self.path, projnickfile  )  ) as f:
+              name = read_projnick(f)      
+          except:
+            # only works on unix-like systems. 
+            name = end_of_filepath(path)
 
+            if path[-1] != '/':
+              path = path + '/'
+
+        else:
+
+          with open(os.path.join(self.path, projnickfile  )  ) as f:
+            name = read_projnick(f)      
+
+
+        self.name = name
+ 
           
     
 
@@ -656,7 +672,7 @@ def read_control_func(filename):
 
   return get_controls
 
-def info(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = projnickfile, verbose = True):
+def info(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = projnickfile, nonick = False, verbose = True):
   """
   Simple function to take inventory of all project directories so that no specific paths need to be used, and projects can be referred to by their nicknames defined in a file called projname in each directory containing the experiment directories.
  
@@ -687,18 +703,44 @@ def info(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = projnick
 
   
 #  first find all the file paths using locate function defined above
-  paths = locate(top = top,fname = fname)
+  if nonick:
+    paths = locate(top = top,fname = None)
+
+  else:
+    paths = locate(top = top,fname = fname)
 
 # initialise dictionary  
   D = {}
-  for path in paths:
-    fp = os.path.join(path,fname)
-    with open(fp,'r') as f:
+
+
+  if nonick:
+
+    for path in paths:
+      # fname contains the project nickname file (usually projname)       
+      fp = os.path.join(path,fname)
+      try:
+        with open(fp,'r') as f:
 # read the first line and make sure the return char \n is deleted.    
-      projnick = read_projnick(f)
-  
+          projnick = read_projnick(f)
+
+      except:
+          projnick = end_of_filepath(path)
 # ad to dictionary    
       D[projnick] = os.path.join(path,'')
+
+  else:
+
+    for path in paths:
+      # fname contains the project nickname file (usually projname)
+      fp = os.path.join(path,fname)
+      with open(fp,'r') as f:
+# read the first line and make sure the return char \n is deleted.    
+        projnick = read_projnick(f)
+  
+# ad to dictionary    
+        D[projnick] = os.path.join(path,'')
+
+
   
   if verbose:
 

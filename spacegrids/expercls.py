@@ -420,13 +420,14 @@ file_extensions is the list of known filenames in the form of glob expressions, 
 
     # examine all subdirectories of path. Create copy for manipulation.
 
+ 
   if os.path.isdir(path):
     L = os.listdir(path)
     Lc = copy.deepcopy(L)
   elif os.path.isfile(path):
     return [path,]
   else:
-    print 'Houston, we have a problem.'
+    raise Exception('No such file or directory %s.'%path)
     
   # go through list L of subdirectories of path (e.g. /home/me/PROJECTS/test_project/) to see which ones are experiment directories (i.e. contain .nc and .cdf files).
   for l in L:

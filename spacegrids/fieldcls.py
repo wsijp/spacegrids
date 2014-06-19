@@ -67,7 +67,12 @@ class coord():
   def same(self,other):
     # not checking for units
 
-    return self.array_equal(other) and (self.name == other.name) and (self.axis.same(other.axis) ) and (self.direction == other.direction  )
+    # THIS IS WEIRD WHY I HAVE TO CHECK THIS:
+    # FIND OUT MORE:
+    if isinstance(self.axis,str):
+      return self.array_equal(other) and (self.name == other.name) and (self.axis == other.axis ) and (self.direction == other.direction  )
+    else:
+      return self.array_equal(other) and (self.name == other.name) and (self.axis.same(other.axis) ) and (self.direction == other.direction  )
 
   def samein(self,L):
 

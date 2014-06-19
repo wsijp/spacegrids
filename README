@@ -21,7 +21,29 @@ Once loaded, sg allows an overview of the available data via sg.info(). A projec
 
 DATA ORGANISATION ON DISK
 
-Before using projects, Netcdf data must be organised in a projects directory tree. Create a directory named PROJECTS inside your home directory ($HOME) or on a storage disk (see below). This will contain all the data for all the projects. Then create a subdirectory for each of your projects. Inside each project, say directory test_project, create a small text file named projname containing only a name, say "glacial", to identify your project. In this case, type: echo glacial > projname within the test_project dir. This will allow the sg Python code to regard all Netcdf files placed directly inside test_project as belonging to individual experiments. Alternatively, subdirectories inside the test_project directory are associated with output from a single experiment each, where all Netcdf files contained within are interpreted as belonging to that same experiment.   
+Before using projects, Netcdf data must be organised in a projects directory tree. Create a directory named PROJECTS inside your home directory (by default), to contain all the data for all the projects. Then create a subdirectory for each of your projects, say one is called test_project. When using sg.info() and sg.project with the nonick = True argument (see documentation), this is all that is needed to allow the sg module to recognise these subdirectories as representing projects. 
+This will allow the sg Python code to regard all Netcdf files placed directly inside test_project as belonging to individual experiments. Alternatively, instead of a single file, a subdirectory may represent an experiment. So directories inside the test_project directory are associated with output from a single experiment each, where all Netcdf files contained within are interpreted as belonging to that same experiment.   
+
+To get started in ipython:
+
+import spacegrids as sg		#some init statements
+
+D = sg.info(nonick = True)  # obtain a dictionary of projects
+P = sg.project(D['my_project'])  # init a project object for my_project on disk
+P.load(['temperature','u'])  # load 2 variables into the project.
+
+for c in P['some_experiment'].axes:
+  exec c.name + ' = c'	# obtain the axes under their names T, X, Y, Z in namespace
+
+# some examples:
+
+TEMP = P['some_experiment']['temperature']
+U = P['some_experiment']['u']
+TEMP_sliced = TEMP[Y,:50]  # slicing
+TEMP_sliced/(X*Y)	# vertical profile of temp south of grid point 50
+TEMP(U.gr)	# temperature regridded (interpolated) on u-grid.
+
+=============================================================
 
 The following python modules are required:
 
