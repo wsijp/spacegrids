@@ -10,7 +10,8 @@ apt-get install python-{tk,numpy,matplotlib,scipy}
 
 =============================================================
 
-Documentation: https://github.com/willo12/spacegrids/wiki
+Documentation on more advanced use: http://nbviewer.ipython.org/github/willo12/spacegrids/blob/master/advanced.ipynb
+Older documentation: https://github.com/willo12/spacegrids/wiki
 
 The following import statement provides all functionality: 
 
