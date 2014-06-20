@@ -1,5 +1,7 @@
 SPACEGRIDS README. 
 
+Tutorial: http://nbviewer.ipython.org/github/willo12/spacegrids/blob/master/Spacegrids.ipynb
+
 The Python 2.7 Spacegrids module, "Numpy on grids", provides useful classes for analyzing spatial data defined on grids (e.g. covering the Earth's surface). It interprets Netcdf metadata, and is designed to ensure consistency between data and grid information via interacting objects of fields, grids, coordinates and axes. It provides intuitive short expressions for complex operations, including volume and distance related concepts such as integration and differentiation. 
 
 Interprets metadata for most climate model output and datasets in Netcdf format, and is confirmed to work with UVic (all versions), CSIRO Mk3L, FAMOUS, CCM3.6 (Atmosphere), Levitus Data. If you have problems reading data and/ or interpreting metadata (or find a bug), the author would be happy to take a look (see also Github for email etc).
@@ -8,9 +10,8 @@ Installs by typing "pip install spacegrids" on command line. On Mac, pip can be 
 
 apt-get install python-{tk,numpy,matplotlib,scipy}
 
-=============================================================
 
-Getting started tutorial: http://nbviewer.ipython.org/github/willo12/spacegrids/blob/master/Spacegrids.ipynb
+=============================================================
 
 More advanced tutorial: http://nbviewer.ipython.org/github/willo12/spacegrids/blob/master/advanced.ipynb
 
@@ -61,6 +62,7 @@ scipy
 
 To obtain pip on Ubuntu/ Debian: (sudo) apt-get install python-pip.
 
+Tutorial: http://nbviewer.ipython.org/github/willo12/spacegrids/blob/master/Spacegrids.ipynb
 Older documentation: https://github.com/willo12/spacegrids/wiki
 
 
