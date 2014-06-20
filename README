@@ -10,21 +10,20 @@ apt-get install python-{tk,numpy,matplotlib,scipy}
 
 =============================================================
 
-Documentation on more advanced use: http://nbviewer.ipython.org/github/willo12/spacegrids/blob/master/advanced.ipynb
-Older documentation: https://github.com/willo12/spacegrids/wiki
+Getting started tutorial: http://nbviewer.ipython.org/github/willo12/spacegrids/blob/master/Spacegrids.ipynb
 
-The following import statement provides all functionality: 
+More advanced tutorial: http://nbviewer.ipython.org/github/willo12/spacegrids/blob/master/advanced.ipynb
 
-import spacegrids as sg
+The following statement provides all functionality: 
 
-Once loaded, sg allows an overview of the available data via sg.info(). A project object is created via P = sg.project(D['some_project']). This then allows fields to be loaded automatically for all experiment subdirectories. Data grids are constructed based on the Netcdf metadata. 
+Import with "import spacegrids as sg". Once loaded, sg allows an overview of the available data via sg.info(). A project object is created via P = sg.project(D['some_project']). This then allows fields to be loaded automatically for all experiment subdirectories. Data grids are constructed based on the Netcdf metadata. 
 
 DATA ORGANISATION ON DISK
 
 Before using projects, Netcdf data must be organised in a projects directory tree. Create a directory named PROJECTS inside your home directory (by default), to contain all the data for all the projects. Then create a subdirectory for each of your projects, say one is called test_project. When using sg.info() and sg.project with the nonick = True argument (see documentation), this is all that is needed to allow the sg module to recognise these subdirectories as representing projects. 
 This will allow the sg Python code to regard all Netcdf files placed directly inside test_project as belonging to individual experiments. Alternatively, instead of a single file, a subdirectory may represent an experiment. So directories inside the test_project directory are associated with output from a single experiment each, where all Netcdf files contained within are interpreted as belonging to that same experiment.   
 
-To get started in ipython:
+To get started in ipython (bring up with sg.overview() ):
 
 import spacegrids as sg		
 
@@ -62,5 +61,6 @@ scipy
 
 To obtain pip on Ubuntu/ Debian: (sudo) apt-get install python-pip.
 
+Older documentation: https://github.com/willo12/spacegrids/wiki
 
 
