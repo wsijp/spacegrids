@@ -72,8 +72,6 @@ class report():
     return report(value = self.value + other.value)
 
  
-
-
 def print_box(L, cols = 5, numspace = 2):
   """
   Used for formatted output to stdout

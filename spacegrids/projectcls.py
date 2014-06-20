@@ -672,6 +672,58 @@ def read_control_func(filename):
 
   return get_controls
 
+def overview():
+  RP = report()
+  RP.echoln("Quick start instructions.")
+  RP.line()
+  RP.echoln()
+  RP.echoln("# To get started: ")
+  RP.echoln("D = sg.info(nonick = True)	# look for projects in ~/PROJECTS/")
+  RP.echoln("P = sg.project(D['my_project'] , nonick = True)	# init project")
+  RP.echoln("P.load(['temperature','u'])     # load some variables into mem")
+  RP.echoln("for c in P['some_experiment'].axes:   ")
+  RP.echoln("  exec c.name + ' = c'	# bring axes names into namespace")
+  RP.echoln("for c in P['some_experiment'].cstack:   ")
+  RP.echoln("  exec c.name + ' = c'	# bring coord names into namespace")
+  RP.echoln()
+  RP.echoln("# *** Some examples ***   ")
+  RP.echoln("TEMP = P['some_experiment']['temperature']   ")
+  RP.echoln("U = P['some_experiment']['u']   ")
+  RP.echoln("TEMP_sliced = TEMP[Y,:50]     ")
+  RP.echoln("m_TEMP = TEMP_sliced/(X*Y)   ")
+  RP.echoln("TEMP_regridded = TEMP(U.gr)	   ")
+  RP.echoln("   ")
+
+  print RP.value
+
+def ls(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = projnickfile, nonick = False):
+  """
+  Simple function to display all project directories so that no specific paths need to be used, and projects can be referred to by their nicknames defined in a file called projname in each directory containing the experiment directories.
+ 
+  Inputs: 
+  top		(default '~/PROJECTS/') the start dir
+  fname		(default projname) the filename to look for and read the content of
+  
+  displays all project (nick)names
+    
+  If nonick is False: finds all dir paths with file called fname in them, reads that file for each dir to find the nickname of that project. Otherwise just lists the subdirectories of projects dir (~/PROJECTS)
+
+  
+  """
+
+  D = info_dict(rootdir = rootdir, projdirname = projdirname,fname = fname, nonick = nonick)
+ 
+  RP = report()
+  RP.echoln("Projects rooted in %s"%projdirname)
+  RP.line()
+  project_names = D.keys()
+  project_names.sort()
+  RP.echo(project_names,width = 17,maxlen=100)
+
+  print RP
+  
+
+
 def info(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = projnickfile, nonick = False, verbose = True):
   """
   Simple function to take inventory of all project directories so that no specific paths need to be used, and projects can be referred to by their nicknames defined in a file called projname in each directory containing the experiment directories.
@@ -683,11 +735,45 @@ def info(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = projnick
   Outputs:
   D, dictionary of project nicknames vs paths		
     
-  finds all dir paths with file called fname in them, reads that file for each dir to find the nickname of that project and builds a dictionary of nicknames vs paths
+  If nonick is False:  finds all dir paths with file called fname in them, reads that file for each dir to find the nickname of that project and builds a dictionary of nicknames vs paths. Otherwise, just takes inventory of all sub directories of projects (~/PROJECTS)
   
   Example of use when projects are in default location ~/PROJECTS/ (spacegrids loaded as sg):
   
   D=sg.info()
+  
+  Say this gives keys 'test' and 'TKE'. To open the project with nickname test:
+
+  P = sg.project(D['test'])
+  
+  and start working with P. No specific path had to be identified, only a sufficiently specific top.
+
+  
+  """
+
+  D = info_dict(rootdir = rootdir, projdirname = projdirname,fname = fname, nonick = nonick)
+  
+  if verbose:
+
+    ls(rootdir = rootdir, projdirname = projdirname,fname = fname, nonick = nonick)
+  
+  return D
+
+def info_dict(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = projnickfile, nonick = False):
+  """
+  Simple function to take inventory of all project directories so that no specific paths need to be used, and projects can be referred to by their nicknames defined in a file called projname in each directory containing the experiment directories.
+ 
+  Inputs: 
+  top		(default '~/PROJECTS/') the start dir
+  fname		(default projname) the filename to look for and read the content of
+  
+  Outputs:
+  D, dictionary of project nicknames vs paths		
+    
+  If nonick is False:  finds all dir paths with file called fname in them, reads that file for each dir to find the nickname of that project and builds a dictionary of nicknames vs paths. Otherwise, just takes inventory of all sub directories of projects (~/PROJECTS)
+  
+  Example of use when projects are in default location ~/PROJECTS/ (spacegrids loaded as sg):
+  
+  D=sg.info_dict()
   
   Say this gives keys 'test' and 'TKE'. To open the project with nickname test:
 
@@ -740,20 +826,10 @@ def info(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = projnick
 # ad to dictionary    
         D[projnick] = os.path.join(path,'')
 
-
-  
-  if verbose:
-
-    RP = report()
-    RP.echoln("Projects rooted in " + top)
-    RP.line()
-    project_names = D.keys()
-    project_names.sort()
-    RP.echo(project_names,width = 17,maxlen=100)
-
-    print RP
   
   return D
+
+
     
 def read_projnick(f):
   

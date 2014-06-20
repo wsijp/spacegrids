@@ -30,7 +30,7 @@ import spacegrids as sg
 
 D = sg.info(nonick = True)  
 
-P = sg.project(D['my_project'])  
+P = sg.project(D['my_project'] , nonick = True)  
 
 P.load(['temperature','u'])  
 
