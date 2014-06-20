@@ -366,8 +366,11 @@ def id_index(L,e):
     if (l&e):
       return i
 
-  raise ValueError('%s is not in list' % e)
+# not raising error as normal in would. 
+#  raise ValueError('%s is not in list' % e)
 
+# return None instead
+  return
 
 def id_in(L,e):
 

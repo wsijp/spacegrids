@@ -10,7 +10,7 @@ def read(fname):
 # long_description = file.read()
 
 setup(name='spacegrids',
-      version='1.4.7',
+      version='1.4.8',
       author='Willem Sijp',
       author_email='w.sijp@unsw.edu.au',
       description='numpy array with grids and associated operations',

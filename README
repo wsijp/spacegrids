@@ -26,22 +26,31 @@ This will allow the sg Python code to regard all Netcdf files placed directly in
 
 To get started in ipython:
 
-import spacegrids as sg		#some init statements
+import spacegrids as sg		
 
-D = sg.info(nonick = True)  # obtain a dictionary of projects
-P = sg.project(D['my_project'])  # init a project object for my_project on disk
-P.load(['temperature','u'])  # load 2 variables into the project.
+D = sg.info(nonick = True)  
+
+P = sg.project(D['my_project'])  
+
+P.load(['temperature','u'])  
+
+# obtain the axes under their names T, X, Y, Z in namespace:
 
 for c in P['some_experiment'].axes:
-  exec c.name + ' = c'	# obtain the axes under their names T, X, Y, Z in namespace
+  exec c.name + ' = c'	
 
 # some examples:
 
 TEMP = P['some_experiment']['temperature']
+
 U = P['some_experiment']['u']
-TEMP_sliced = TEMP[Y,:50]  # slicing
-TEMP_sliced/(X*Y)	# vertical profile of temp south of grid point 50
-TEMP(U.gr)	# temperature regridded (interpolated) on u-grid.
+
+TEMP_sliced = TEMP[Y,:50]  
+
+m_TEMP = TEMP_sliced/(X*Y)	
+
+TEMP_regridded = TEMP(U.gr)	
+
 
 =============================================================
 

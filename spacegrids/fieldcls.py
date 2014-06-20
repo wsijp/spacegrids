@@ -40,7 +40,7 @@ warnings.formatwarning = warning_on_one_line
 
 class coord():
   """
-  coordinate class, represents single coordinate elements such as x axis. 
+  coordinate class, represents single coordinate elements such as points along the x axis. 
   coord objects are defined by a name, value (generally a numpy array) and units.
   coord objects c1 and c2 are considered equal, c1&c2 yields True, when the name, value (numpy array) and units attributes are equal.
   """
@@ -65,12 +65,25 @@ class coord():
     return np.array_equal(self.value,other.value) 
 
   def same(self,other):
+    """
+    coord method to check whether this coord has identical attributes (except units) to argument other coord.
+    """
+
     # not checking for units
 
-    # THIS IS WEIRD WHY I HAVE TO CHECK THIS:
-    # FIND OUT MORE:
     if isinstance(self.axis,str):
+
+      warnings.warn(' %s coord (self) has string axis attribute %s'%(self.name,self.axis))
+
       return self.array_equal(other) and (self.name == other.name) and (self.axis == other.axis ) and (self.direction == other.direction  )
+
+    elif isinstance(other.axis,str):
+
+      warnings.warn(' %s coord (other) has string axis attribute %s'%(other.name,other.axis))
+
+      return self.array_equal(other) and (self.name == other.name) and (self.axis == other.axis ) and (self.direction == other.direction  )
+
+
     else:
       return self.array_equal(other) and (self.name == other.name) and (self.axis.same(other.axis) ) and (self.direction == other.direction  )
 
@@ -3292,7 +3305,7 @@ def find_equal_axes(lstack,rstack):
 
 def cdfsniff(path_parent, file_extensions = cdf_file_extensions, verbose = False):
   """
-  This sg function looks inside the provided path_parent (path to directory containing the Netcdf files) for Netcdf files and extracts coord objects from the dim data using sg.cdfsniff_helper.
+  This sg function looks inside the path_parent path (path to directory containing the Netcdf files, provided as argument) for Netcdf files and extracts coord objects from the dim data using sg.cdfsniff_helper.
 
   Returns all coord objects that contain different data, to be used in the coord stack cstack.
   """
@@ -3696,11 +3709,13 @@ def make_axes(cstack):
   outputs: returns a list of axis objects based on the coords argument
   Replaces axis attribute of coord object if it is a string with corresponding axis objects. The ax objects are created here.
 
+  Returns list of ax objects!!
+
   NOTE THAT THIS FUNCTION DOES 2 THINGS: IT RETURNS A LIST OF AXES AND MODIFIES THE CSTACK ARGUMENT. 
 
   """
   # no coord objects will be removed from the cstack list.
-  # L will contain the newly created ax objects.
+  # L will contain the newly created ax objects!! So L is NOT cstack!!
   L = []
   for c in cstack:
     if hasattr(c,'axis'):
@@ -3723,6 +3738,16 @@ def make_axes(cstack):
         # ax object equivalent (parallel) to coord object.
         c.axis | c     
   # return the list of ax objects. 
+
+  # there might be dual coords associated with coords that still have an axis attribute that hasn't been converted from str yet. Replace them with elements from the cstack:
+  for j, crd in enumerate(cstack):
+    if hasattr(crd,'dual'):
+      if not crd.dual is crd:
+        i = id_index(cstack, crd.dual)
+        if i is not None:
+          
+          cstack[j].dual = cstack[i]
+
   return L        
 
 
