@@ -10,6 +10,7 @@ Installs by typing "pip install spacegrids" on command line. On Mac, pip can be 
 
 apt-get install python-{tk,numpy,matplotlib,scipy}
 
+Now using NetCDF4 by default.
 
 =============================================================
 

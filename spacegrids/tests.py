@@ -7,7 +7,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-sg = imp.load_source('spacegrids', '/path/PACKAGES/spacegrids/__init__.py')
+#sg = imp.load_source('spacegrids', '/path/PACKAGES/spacegrids/__init__.py')
+
+import spacegrids as sg
 
 # <headingcell level=3>
 
