@@ -2,7 +2,11 @@ import warnings
 import numpy as np
 import os
 
-use_scientificio = False
+# choose from netcdf4, scientificio, scipyio
+cdf_lib = 'netcdf4'
+#cdf_lib = 'scipyio'
+
+#use_scientificio = False
 
 # Set the path here. This path will be used to find your experiments.
 

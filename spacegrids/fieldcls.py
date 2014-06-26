@@ -16,16 +16,16 @@ import warnings
 from config import *
 
 # use_scientificio is set in config
-if use_scientificio is True:  
-  try:
-    import Scientific.IO.NetCDF
-    print 'Using Scientific.IO.NetCDF'
-  except:
-    print 'no Scientific io. Reverting to scipy'
-    from scipy.io import netcdf  
-    use_scientificio = False
-else:
-  from scipy.io import netcdf         
+#if use_scientificio is True:  
+#  try:
+#    import Scientific.IO.NetCDF
+#    print 'Using Scientific.IO.NetCDF'
+#  except:
+#    print 'no Scientific io. Reverting to scipy'
+#    from scipy.io import netcdf  
+#    use_scientificio = False
+#else:
+#  from scipy.io import netcdf         
 
 import os
 import copy
@@ -71,15 +71,15 @@ class coord():
 
     # not checking for units
 
-    if isinstance(self.axis,str):
+    if isinstance(self.axis,str) or isinstance(self.axis,unicode):
 
-      warnings.warn(' %s coord (self) has string axis attribute %s'%(self.name,self.axis))
+      warnings.warn(' %s coord (self) has string/ unicode axis attribute %s'%(self.name,self.axis))
 
       return self.array_equal(other) and (self.name == other.name) and (self.axis == other.axis ) and (self.direction == other.direction  )
 
-    elif isinstance(other.axis,str):
+    elif isinstance(other.axis,str) or isinstance(other.axis,unicode):
 
-      warnings.warn(' %s coord (other) has string axis attribute %s'%(other.name,other.axis))
+      warnings.warn(' %s coord (other) has string/ unicode axis attribute %s'%(other.name,other.axis))
 
       return self.array_equal(other) and (self.name == other.name) and (self.axis == other.axis ) and (self.direction == other.direction  )
 
@@ -390,7 +390,8 @@ class coord():
 
     file_handle.createDimension(self.name,len(self))
 
-    var_cdf = file_handle.createVariable(self.name, self[:].dtype, (self.name,)   )
+
+    var_cdf = file_handle.createVariable(self.name, self[:].dtype.char, (self.name,)   )
     
     for k in self.metadata:
       setattr(var_cdf,k, self.metadata[k]) 
@@ -1938,7 +1939,7 @@ class gr(tuple):
     sh = [];
 
     for c in self:
-      if not isinstance(c[:],str):
+      if (not isinstance(c[:],str)) and (not isinstance(c[:],unicode)):
         sh.append(len(c))
       else:
         sh.append(-1)
@@ -2137,7 +2138,7 @@ class field:
 
         else:
          
-          raise Exception('Error in field creation %s: value array argument must have same shape as grid argument! ' % name )
+          raise Exception('Error in field creation %s: value array argument must have same shape as grid argument! gr shape %s while field shape %s ' %(name,str(shape),str(value.shape) ) )
           return
       else:
         raise Exception('Error in field creation %s: argument grid %s must be a gr object!' % (name, grid))
@@ -2202,7 +2203,7 @@ class field:
           crd.dual.cdf_insert(file_handle)         
 
 
-    var_cdf = file_handle.createVariable(self.name, self[:].dtype, [crd.name for crd in self.gr]   )
+    var_cdf = file_handle.createVariable(self.name, self[:].dtype.char, tuple( [crd.name for crd in self.gr] )   )
     var_cdf[:] = self[:]
 
 
@@ -3445,11 +3446,12 @@ def cdfsniff_helper(filepath, verbose = False):
 
           # convert the netcdf name of the dual to an actual cdf variable
           if dual_var_name in file.variables:
-            dual_var = copy.deepcopy(file.variables[dual_var_name] )
+          
+            dual_var = copy.deepcopy(file.variables[dual_var_name][:] )
           else:
 
 # THIS IS A TEMPORARY FUDGE IN CASE A FILE HINTS AT COORD EDGES BUT DOESN'T STORE THEM:
-             dual_var = copy.deepcopy(file.variables[dim_name] )           
+             dual_var = copy.deepcopy(file.variables[dim_name][:] )           
        
        
           # using call method of coord object in cdf_axes global
@@ -3457,7 +3459,7 @@ def cdfsniff_helper(filepath, verbose = False):
           this_coord = cdf_axes[direction](dim_name, copy.deepcopy( file.variables[dim_name][:] ), axis = copy.deepcopy(file.variables[dim_name].axis ),direction = direction, units = units, long_name = long_name , metadata = metadata)  
 
           #this_coord = cdf_axes[file.variables[dim_name].axis](dim_name, file.variables[dim_name][:], axis = file.variables[dim_name].axis, units = units)  
-          dual_coord = cdf_axes[direction](dual_var_name,prep_dual_array(dual_var[:]),dual = this_coord, axis = copy.deepcopy(file.variables[dim_name].axis ), direction = direction, units = units, long_name = long_name, metadata = metadata)
+          dual_coord = cdf_axes[direction](dual_var_name,prep_dual_array(dual_var),dual = this_coord, axis = copy.deepcopy(file.variables[dim_name].axis ), direction = direction, units = units, long_name = long_name, metadata = metadata)
 
           this_coord.dual = dual_coord
 
@@ -3480,14 +3482,14 @@ def cdfsniff_helper(filepath, verbose = False):
       if hasattr(file.variables[dim_name] , 'edges' ):
         # if edges are defined, we create coord and its dual in pairs
         if direction in cdf_axes:
-          dual_var = copy.deepcopy(file.variables[file.variables[dim_name].edges] )
+          dual_var = copy.deepcopy(file.variables[file.variables[dim_name].edges][:] )
 
           # using call method of coord object in cdf_axes global
 
           this_coord = cdf_axes[direction](dim_name, copy.deepcopy(file.variables[dim_name] [:] ), axis = file.direction,direction = direction, units = units, long_name = long_name, metadata = metadata)  
 
           #this_coord = cdf_axes[file.variables[dim_name].axis](dim_name, file.variables[dim_name][:], axis = file.variables[dim_name].axis, units = units)  
-          dual_coord = cdf_axes[direction]( copy.deepcopy( file.variables[dim_name].edges ),prep_dual_array(dual_var[:]),dual = this_coord, axis = direction, direction = direction, units = units, long_name = long_name, metadata = metadata)
+          dual_coord = cdf_axes[direction]( copy.deepcopy( file.variables[dim_name].edges ),prep_dual_array(dual_var),dual = this_coord, axis = direction, direction = direction, units = units, long_name = long_name, metadata = metadata)
 
 
           this_coord.dual = dual_coord
@@ -3595,7 +3597,7 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
 
   """
 
-  file = netcdf.netcdf_file(filepath,'r')
+  file = netcdf_file(filepath,'r')
  
   if varname not in file.variables:
     if verbose:
@@ -3753,7 +3755,7 @@ def make_axes(cstack):
   for c in cstack:
     if hasattr(c,'axis'):
       # string ax attribute will be replaced with corresponding ax object attribute
-      if isinstance(c.axis,str):
+      if isinstance(c.axis,str) or isinstance(c.axis,unicode):
         # str attr found --> create corresponding ax object.
         new_ax = ax(c.axis,direction = c.direction)
         if id_in(L,new_ax):

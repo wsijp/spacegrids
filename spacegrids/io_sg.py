@@ -7,17 +7,30 @@ import numpy as np
 
 from config import *
 
-# use_scientificio is set in config
-use_scientificio = False
+import warnings
+warnings.formatwarning = warning_on_one_line
 
-if use_scientificio is True:  
+# use_scientificio is set in config
+#use_scientificio = False
+
+# fallback is always scipy.io: least dependencies
+
+if cdf_lib =='netcdf4':  
+  try:
+    from netCDF4 import Dataset
+    print 'Using netCDF4'
+  except:
+    warnings.warn('no Netcdf4. Reverting to scipy.')
+    from scipy.io import netcdf  
+
+elif cdf_lib == 'scientificio':  
   try:
     import Scientific.IO.NetCDF
     print 'Using Scientific.IO.NetCDF'
   except:
-    print 'no Scientific io. Reverting to scipy'
+    warnings.warn('no Scientific io. Reverting to scipy.')
     from scipy.io import netcdf  
-    use_scientificio = False
+   
 else:
   from scipy.io import netcdf         
 
@@ -25,14 +38,25 @@ import os
 
 from fieldcls import *
 
-warnings.formatwarning = warning_on_one_line
+
 
 def netcdf_file(filepath,mode = 'r'):
   """
   Wrapper for open Netcdf functions from ScientificIO or Scipy
   """
 
-  if use_scientificio is True:
+  if cdf_lib =='netcdf4':  
+
+    try:
+      file = Dataset(filepath,mode, format='NETCDF4')
+
+    except IOError:
+     raise IOError('Cannot open %s using NetCDF4'%filepath)
+      
+    else:
+      return file  
+
+  if cdf_lib == 'scientificio':
     try:
       file = Scientific.IO.NetCDF.NetCDFFile(filename = filepath, mode = mode)
     except IOError:

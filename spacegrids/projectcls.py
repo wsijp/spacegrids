@@ -5,6 +5,7 @@
 
 import types
 import os
+import re
 
 from config import *
 
@@ -18,7 +19,7 @@ from expercls import *
 class project:
 
   def __repr__(self):
-    return self.show()
+    return self.name
     
 
   def __init__(self,path=home_path, expnames = ['*'], varnames = [],msk_grid = 'UVic2.8_t', name = None, nonick = False, descr = None, verbose = False):
@@ -278,41 +279,13 @@ class project:
     if not(self.expers.keys()):
 
       RP.echo('No experiments in project.')
-      return RP.value
-
-#    exp_name1 = self.expers.keys()[0]
-#    vars = self.expers[exp_name1].vars.keys()
-    
-#    dims = []
-#    for thisvar in vars:
-      
-#      shapes_list = []
-#      for expname in self.expers.keys():
-#        if thisvar not in self.expers[expname].vars or self.expers[expname].vars[thisvar] is None:
-#          shape_str = ''
-#        else:
-#          shape_str =  str(self.expers[expname].vars[thisvar].shape)
-        
-#        if not(shape_str in shapes_list):
-#          shapes_list.append(shape_str)
-
-#      dims.append(reduce(lambda x,y: x+','+y, shapes_list))
-    
-#    vars = dict(zip(vars, dims  ))
-    
-#    lvars = [e[0] + ' ' + e[1] for e in zip(vars, dims  )]
-
-#    RP.echoln('Loaded fields (and sizes):')
-#    RP.line()
-#    if lvars:
-#      RP.echo(lvars,width =30, cols=3)
-#    else:
-#      print 'NO VARS'
+      print RP.value
+      return
 
     RP.echoln()
     RP.echo('Project using %1.2f Mb.'%(self.nbytes/1024./1024.) )
 
-    return RP.value
+    print RP.value
     
   def incdf(self, varname, expname = ''):
     """
@@ -638,23 +611,32 @@ class project:
    
     """
     for E in self.expers.values():
-      
-      E.insert( func(E)  )
+      if E is not None:  
+        E.insert( func(E)  )
 
-  
+
+  def pattern2gr(self,fld_name,pattern, parname = None, name_filter = None,nomatch_fill = None):
+
+# expect [(parname, value),]  or None
+
+    self.insert(parse_fname_func(pattern,parname=parname, nomatch_fill = nomatch_fill))
+
+    return self.param2gr(parname , lambda x:x[fld_name], name_filter = name_filter) 
 
 # ---------------- End class definition for projects -----------
 
 
+# -------- exper helper functions to be used with insert method ------------
+
 def read_control_func(filename):
   """
-  function that yields a useful function that can be used in the project insert method: it reads a control file in the MOM 2 control file format (as used by UVic) and outputs it in the list of (name, value) tuples format required by the exper insert method.
+  function that yields a useful function that can be used in the project insert method: it reads a control file in the MOM 2 control file format (as used by UVic) and outputs it in the list of (name, value) tuples format required by the exper insert method. Think of it as inserting a parameter to each exper, although it can be a field too.
 
   The argument filename is the file name of the control file to be read, usually control.in.
 
   For example: P.insert(sg.read_control_func('control.in')) goes through all experiment directories and looks for, and parses, the file control.in, and then inserts the result as exper parameters.
 
-  The user could construct similar functions for their own use: the function must take an experiment as argument, and return None or a list of (name, value) pairs.
+  The user could construct similar functions for their own use: the function must take an experiment as argument, and return None or a list of (name, value) pairs (2 tuples).
 
 
   """
@@ -670,6 +652,61 @@ def read_control_func(filename):
   
 
   return get_controls
+
+def parse_fname_func(pattern, parname = None,value_type = float, nomatch_fill = None):
+  prog = re.compile(pattern)  
+
+
+  if parname is None:
+    def get_fname(E):
+      M =prog.match(E.name);
+
+
+      if M is not None:
+        parname = M.groups()[0]
+        value = value_type(M.groups()[1])
+      else:
+        return 
+
+      return [(parname, value),]
+  
+
+    return get_fname
+
+  else:
+    def get_fname(E):
+      M =prog.match(E.name);
+
+
+      if M is not None:
+        value = value_type(M.groups()[0])
+      else:
+        return [(parname, nomatch_fill),]
+
+      return [(parname, value),]
+  
+
+    return get_fname
+
+
+
+# -----------------------------
+# functions to be used for creating new coords
+
+def avg_temp(P, varname = 'O_temp'):
+
+  for c in P.expers.values()[0].axes:
+    exec c.name + ' = c'
+
+  for k in P.expers.keys():
+    if varname in P.expers[k].vars:
+      mTEMP = P.expers[k].vars[varname]/(X*Y*Z)
+
+      P.expers[k].insert(mTEMP, name = 'avg_temp')
+
+#  return P    
+
+# ------- general functions -----------
 
 def overview():
   RP = report()
@@ -836,21 +873,7 @@ def read_projnick(f):
   return f.readline().rstrip()
 
 
-# -----------------------------
-# functions to be used for creating new coords
 
-def avg_temp(P, varname = 'O_temp'):
-
-  for c in P.expers.values()[0].axes:
-    exec c.name + ' = c'
-
-  for k in P.expers.keys():
-    if varname in P.expers[k].vars:
-      mTEMP = P.expers[k].vars[varname]/(X*Y*Z)
-
-      P.expers[k].insert(mTEMP, name = 'avg_temp')
-
-#  return P    
 
 
 

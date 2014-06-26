@@ -11,16 +11,16 @@ import warnings
 from config import *
 
 # use_scientificio is set in config
-if use_scientificio is True:  
-  try:
-    import Scientific.IO.NetCDF
-    print 'Using Scientific.IO.NetCDF'
-  except:
-    print 'no Scientific io. Reverting to scipy'
-    from scipy.io import netcdf  
-    use_scientificio = False
-else:
-  from scipy.io import netcdf         
+#if use_scientificio is True:  
+#  try:
+#    import Scientific.IO.NetCDF
+#    print 'Using Scientific.IO.NetCDF'
+#  except:
+#    print 'no Scientific io. Reverting to scipy'
+#    from scipy.io import netcdf  
+#    use_scientificio = False
+#else:
+#  from scipy.io import netcdf         
 
 import os
 import copy
@@ -37,6 +37,9 @@ class exper:
   plot_2use = {'S':'plot'}
   
   def __repr__(self):
+    return self.name
+
+  def show(self):
 
     loaded_fields = self.vars.keys()
     l = len(loaded_fields)
@@ -55,7 +58,7 @@ class exper:
 
     REP.echo('exper using %1.2f Mb. %i field%s loaded.  '%(self.nbytes/1024./1024.  ,len(loaded_fields)  , plural ) )
 
-    return REP.value
+    print REP.value
     
 
   def __init__(self,path=home_path, name = 'test',cstack = [], params = {}, descr = 0, parent = 'orphan'):
@@ -270,7 +273,7 @@ class exper:
 
         try:       
           file = netcdf_file(filepath,'r')
-          fnm = os.path.split(file.filename)[1]
+          fnm = os.path.split(filepath)[1]
         except IOError:
           raise IOError('Cannot open %s'%filepath)
         else:

@@ -48,7 +48,7 @@ class report():
 
   def echo(self,what='' , delim = ' ', maxlen = 10, width = 12, cols = 4):
 
-    if isinstance(what,str):
+    if isinstance(what,str) or isinstance(what,unicode):
       self.value = self.value + what
     elif isinstance(what,list) or isinstance(what,tuple):
       if len(what) > maxlen:
@@ -422,7 +422,7 @@ def interp_line(line):
         elif isinstance(pairs[-1][1], list):
           if isinstance( pairs[-1][1][-1], float  ):
             pairs[-1][1].append( float(sides[0]) )
-          elif isinstance( pairs[-1][1][-1], str  ):
+          elif isinstance( pairs[-1][1][-1], str  ) or isinstance( pairs[-1][1][-1], unicode  ):
             pairs[-1][1].append( sides[0] )     
 
           else:

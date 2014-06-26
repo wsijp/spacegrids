@@ -82,7 +82,7 @@ def prep_axes(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=No
  
   if hasattr(grid[1],'axis'):
     if hasattr(grid[1].axis, 'display_name'):
-      if isinstance(grid[1].axis.display_name,str):
+      if isinstance(grid[1].axis.display_name,str) or isinstance(grid[1].axis.display_name,unicode):
         xlbl = grid[1].axis.display_name
       else:
         warnings.warn('Label not added: not a string.')  
@@ -95,7 +95,7 @@ def prep_axes(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=No
 
   if ax_units:
     if hasattr(grid[0],'units'):
-      if isinstance(grid[0].units,str):
+      if isinstance(grid[0].units,str) or isinstance(grid[0].units,unicode):
         ylbl += ' (' +grid[0].units +')'
       else:
         warnings.warn('Label not added: not a string.')
@@ -105,7 +105,7 @@ def prep_axes(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=No
       ylbl = ''
 
     if hasattr(grid[1],'units'):
-      if isinstance(grid[1].units,str):
+      if isinstance(grid[1].units,str) or isinstance(grid[1].units,unicode):
         xlbl += ' (' +grid[1].units +')'
       else:
         warnings.warn('Label not added: not a string.')
@@ -385,7 +385,7 @@ def plot(fld0 = None,fld1=None, minus_z=True,xlbl='',ylbl='', grid = None,start_
      if xlbl == '':
        if hasattr(xax,'axis'):
          if hasattr(xax.axis, 'display_name'):
-           if isinstance(xax.axis.display_name, str):
+           if isinstance(xax.axis.display_name, str) or isinstance(xax.axis.display_name, unicode):
              xlbl = xax.axis.display_name
            else:
              xlbl = ''
@@ -394,7 +394,7 @@ def plot(fld0 = None,fld1=None, minus_z=True,xlbl='',ylbl='', grid = None,start_
        elif isinstance(xax,field):
          xlbl = xax.name
        if hasattr(xax,'units'):
-         if isinstance(xax.units,str):
+         if isinstance(xax.units,str) or isinstance(xax.units,unicode):
            xlbl += ' ('+ xax.units + ')'
          else:
            warnings.warn('Label units not added: not a string.')
@@ -406,12 +406,12 @@ def plot(fld0 = None,fld1=None, minus_z=True,xlbl='',ylbl='', grid = None,start_
         
          ylbl = yax.axis.display_name
        elif isinstance(yax,field):
-         if isinstance(yax.name,str):
+         if isinstance(yax.name,str) or isinstance(yax.name,unicode):
            ylbl = yax.name
          else:
            warnings.warn('Label not added. Not a string.')
        if hasattr(yax,'units'):
-         if isinstance(yax.units,str):
+         if isinstance(yax.units,str) or isinstance(yax.units,unicode):
            ylbl += ' ('+ yax.units + ')'
          else:
            warnings.warn('Label units not added. Not a string.')
