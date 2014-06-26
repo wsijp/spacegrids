@@ -185,7 +185,7 @@ class coord():
 
     if strings is not None:
       if len(value) != len(strings):
-        raise ValueError('Provide strings argument of equal length to value argument if providing strings argument.')
+        raise ValueError('Provide strings argument of equal length to value argument for coord %s if providing strings argument. %s vs %s'%(name, len(value) , len(strings)))
     self.strings = strings
 
 
@@ -2315,9 +2315,23 @@ class field:
       # why do we need eq_index here instead of index? because it can be an ax object.
     ax_index = self.gr.eq_index(ax)
 
-      # combine the two halves of what is to be the new coord in a dictionary first
-    Dleft = {e:self[ax,i] for i, e in enumerate((ax*self.gr)[:] ) }
-    Dright = {e:other[ax,i] for i, e in  enumerate((ax*other.gr)[:] ) }
+    # combine the two halves as dictionaries of slices of what is to be the new coord first
+ 
+    # pick the coord specified by the ax argument by multiplying the grids: 
+    left_coord = (ax*self.gr)
+    right_coord = (ax*other.gr)
+    # e here is a point in the relevant coord: 
+    Dleft = {e:self[ax,i] for i, e in enumerate( left_coord[:] ) }
+    Dright = {e:other[ax,i] for i, e in  enumerate( right_coord[:] ) }
+
+    # if one or both coords have no strings attribute set, don't give the new coord a string attribute either.
+    if (left_coord.strings is not None) and (right_coord.strings is not None):
+      stringsleft = {e:left_coord.strings[i] for i, e in enumerate( left_coord[:] ) }    
+      stringsright = {e:right_coord.strings[i] for i, e in enumerate( right_coord[:] ) }    
+      stringscomb = dict(stringsleft.items() + stringsright.items() )
+    else:
+
+      stringscomb = None
 
     Dcomb = dict(Dleft.items() + Dright.items() )
 
@@ -2330,7 +2344,16 @@ class field:
     cat_coord_value.sort()
 
       # create the new concatenated coord object using the combined ordered sequence of values.
-    new_coord = cat_coord_self.copy(name = cat_coord_self.name +name_suffix,   value = cat_coord_value)
+    if stringscomb is not None:
+      new_strings = [stringscomb[k] for k in cat_coord_value]
+
+      new_coord = cat_coord_self.copy(name = cat_coord_self.name +name_suffix,   value = cat_coord_value, strings = new_strings)
+
+    else:
+      new_coord = cat_coord_self.copy(name = cat_coord_self.name +name_suffix,   value = cat_coord_value, strings = None)
+
+
+
     new_coord|cat_coord_self
       # construct combined field values. Reshape is needed for np.concatenate function.
     values = [Dcomb[k][:].reshape(piece_shape) for k in cat_coord_value]
@@ -2983,7 +3006,7 @@ class vfield(tuple):
 
 
 
-def concatenate(fields, ax=None, name_suffix='_cat', new_coord_name = 'gamma', new_coord= None ):
+def concatenate(fields, ax=None, name_suffix='_cat', new_coord_name = 'gamma', new_coord= None, strings = None ):
   """
   concatenate((a1,a2,...),ax=None)
 
@@ -3011,20 +3034,30 @@ def concatenate(fields, ax=None, name_suffix='_cat', new_coord_name = 'gamma', n
     if len(fields) != len(new_coord):
       raise ValueError('Provide fields and new_coord arguments of equal length if providing new_coord argument.')
 
+    # EXIT POINT
     return fields[0].copy( name = fields[0].name +name_suffix, value = np.array( [ F[:] for F in fields ] ) , grid = new_coord*fields[0].gr )
 
 
 
   if ax and (ax*fields[0].gr is None):
+
+
     # the axis is not in the grid of the first field
     expanded_fields = []
-    
-    for i, F in enumerate(fields):
-      new_coord = coord(name = new_coord_name,value = np.array([i]), direction = ax , axis = ax  )
-      expanded_fields.append( F(new_coord*F.gr) )
+
+    if strings is not None:    
+      for i, F in enumerate(fields):
+        new_coord = coord(name = new_coord_name,value = np.array([i]), direction = ax.name , axis = ax , strings = [strings[i],] )
+        expanded_fields.append( F(new_coord*F.gr) )
+    else:
+      for i, F in enumerate(fields):
+        new_coord = coord(name = new_coord_name,value = np.array([i]), direction = ax.name , axis = ax  )
+        expanded_fields.append( F(new_coord*F.gr) )
+
     fields = expanded_fields    
     name_suffix = ''
 
+  # EXIT POINT
   return reduce(lambda x,y:x.cat(y,ax=ax, name_suffix = name_suffix), fields)
 
 def squeeze(F, hard = False):

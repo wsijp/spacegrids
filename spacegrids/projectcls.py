@@ -23,6 +23,24 @@ class project:
 
   def __init__(self,path=home_path, expnames = ['*'], varnames = [],msk_grid = 'UVic2.8_t', name = None, nonick = False, descr = None, verbose = False):
 
+    """
+    Initialize project object.
+
+    Inputs:
+
+    path	path to the project directory (e.g. /home/me/PROJECTS/test_project/). Default is sg.home_path
+    expnames	filter on experiment names to load
+    varnames    list of variables to be loaded (can also be done later after init)
+    nonick 	Switch whether to look for a projname text file inside the project directory to obtain project nickname. True/ False
+
+
+    Example use:
+    D = sg.info()	# obtain dictionary of nicknames vs full paths
+    P = sg.project(D['my_project'])
+    
+    
+    """
+
     global ax_disp_names
 
     self.path = path 
@@ -95,7 +113,7 @@ class project:
        
       L = make_axes([ c for e in self.expers for c in self.expers[e].cstack ])
 
-      # NOTE THAT ALL EXP OBJECTS HACES AXES POINTING TO THE SAME LIST IN MEM!!
+      # NOTE THAT ALL EXP OBJECTS HAVE AXES POINTING TO THE SAME LIST IN MEM!!
       for e in self.expers:
         self.expers[e].axes = L      
 
@@ -387,7 +405,7 @@ class project:
     self.update_nbytes()
     return 
 
-  def load(self, varnames,filename=None, descr = 0,chk_loaded = False):
+  def load(self, varnames,filename=None, descr = 0,chk_loaded = False, ax=None, name_suffix='_cat', new_coord_name = 'gamma', new_coord= None ):
 # -->This load belongs to the project class. It calls the load method of the exper class. 
 # slices argument value is just an example
     """
@@ -433,7 +451,7 @@ class project:
 	    # in case netcdf information has been pre-added:
    	for k in self.expers.keys():
             
-	  self.expers[k].load(varname,filename = filename)  
+	  self.expers[k].load(varname,filename = filename,ax=ax, name_suffix=name_suffix, new_coord_name = new_coord_name, new_coord= new_coord)  
 
     self.update_nbytes()
     return    
@@ -469,25 +487,6 @@ class project:
       e.write(path = path, insert_dual = insert_dual)
       
 
-  def getbody(self, varname, expnames = '*', loadflag = 1, verbose =0):
-
-# --> This getbody belongs to project class.
-# gets a list of numpy arrays of body belonging to varname for all experiments.
-# loadflag = 1 means: load the variable into the class if not present. 
-
-    expers = subdict(self.expers, expnames)
-
-    bodies = []
-    
-    if not(self.expers):
-      print "No experiments." 
-    else:    
-      for expname in expers.keys():
-        bodies.append(expers[expname].getbody(varname, loadflag))
-        if verbose:
-	  print 'Retrieved ' + varname + ' for ' + expname
-	
-    return bodies
 
   def loaded(self,varname):
   
@@ -729,11 +728,12 @@ def info(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = projnick
   Simple function to take inventory of all project directories so that no specific paths need to be used, and projects can be referred to by their nicknames defined in a file called projname in each directory containing the experiment directories.
  
   Inputs: 
-  top		(default '~/PROJECTS/') the start dir
-  fname		(default projname) the filename to look for and read the content of
+  rootdir 	dir in which to look for main PROJECTS dir
+  projdirname   dir in which to look for specific project directories. Default is 'PROJECTS'. So by default, projects are expected in '~/PROJECTS/').
+  fname		(default projname) the filename to look for and read the content of to determine nickname of specific project. Disabled with nonick = True
   
   Outputs:
-  D, dictionary of project nicknames vs paths		
+  D, dictionary of project nicknames vs full paths		
     
   If nonick is False:  finds all dir paths with file called fname in them, reads that file for each dir to find the nickname of that project and builds a dictionary of nicknames vs paths. Otherwise, just takes inventory of all sub directories of projects (~/PROJECTS)
   

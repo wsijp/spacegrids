@@ -212,15 +212,22 @@ class exper:
 
 
       
-  def load(self,varnames, filename = None, squeeze_field = True):
+  def load(self,varnames, filename = None, squeeze_field = True, ax=None, name_suffix='_cat', new_coord_name = 'gamma', new_coord= None ):
     """
     Field load method of exper class.
 
-    Load a variable or list of variables contained in varnames. Takes either a single string or a list of strings.
+    Load a variable or list of variables contained in varnames. Takes either a single string or a list of strings. If no filename argument is given, all Netcdf files in the experiment directory will be examined. If multiple files inside a directory contain the same variable, this method will attempt to concatenate them (e.g. in the case where there are different time slices).
 
-    If no filename argument is given, all Netcdf files in the experiment directory will be examined.
-    If multiple files inside a directory contain the same variable, this method will attempt to concatenate them (e.g. in the case where there are different time slices).
+    Inputs:
+    varnames		list of the variable names to load
+    filename		redundant legacy
+    squeeze_field	switch to squeeze field on loading (default True)	
 
+    The following arguments are passed on to the concatenate function:
+    ax			
+    name_suffix
+    new_coord_name
+    new_coord
  
     if self.path is to a file (likely to be an experiment file), the variable will be loaded from that file.
     if self.path is to a directory (likely to be an experiment dir), the variable will be loaded from Netcdf files inside that directory.
@@ -257,19 +264,21 @@ class exper:
             
 #	Try to find netcdf var in any of the found files, and then read into field object.
 
-
+      fnames = []
       F = []
       for filepath in paths:
 
         try:       
           file = netcdf_file(filepath,'r')
+          fnm = os.path.split(file.filename)[1]
         except IOError:
           raise IOError('Cannot open %s'%filepath)
         else:
 
           if varname in file.variables:
-        
+           
             F.append(cdfread(filepath,varname,self.cstack,self.axes))
+            fnames.append(fnm)
 #          break
           file.close()
 
@@ -288,11 +297,13 @@ class exper:
           plural = ''
         print 'OK. Fetched field %s for %s. %s file%s found.'%(varname, self.name,num_files,plural)
 
+        new_field = concatenate(F,ax=ax, name_suffix=name_suffix, new_coord_name = new_coord_name, strings = fnames, new_coord= new_coord   )
+
         # insert field into experiment
         if squeeze_field:
-          self.insert(what = (varname, squeeze( concatenate(F,name_suffix='') ) ) ) 
+          self.insert(what = (varname, squeeze( new_field ) ) ) 
         else:
-          self.insert(what = (varname, concatenate(F,name_suffix='') ) ) 
+          self.insert(what = (varname, new_field ) ) 
 
     self.update_nbytes() 
 
