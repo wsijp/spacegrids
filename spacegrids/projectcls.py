@@ -20,6 +20,9 @@ class project:
 
   def __repr__(self):
     return self.name
+ 
+  def __unicode__(self):
+    return self.name
     
 
   def __init__(self,path=home_path, expnames = ['*'], varnames = [],msk_grid = 'UVic2.8_t', name = None, nonick = False, descr = None, verbose = False):

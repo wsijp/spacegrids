@@ -2137,8 +2137,8 @@ class field:
           self.squeezed_dims = squeezed_dims
 
         else:
-         
-          raise Exception('Error in field creation %s: value array argument must have same shape as grid argument! gr shape %s while field shape %s ' %(name,str(shape),str(value.shape) ) )
+
+          raise Exception('Error in field creation %s using grid %s: value array argument must have same shape as grid argument! gr shape %s while field shape %s ' %(name,grid,str(shape),str(value.shape) ) )
           return
       else:
         raise Exception('Error in field creation %s: argument grid %s must be a gr object!' % (name, grid))
@@ -3401,15 +3401,17 @@ def cdfsniff_helper(filepath, verbose = False):
     # maybe rely more on this dictionary in future:
     metadata = {k:file.variables[dim_name].__dict__[k] for k in file.variables[dim_name].__dict__.keys() if k not in ['data','dimensions','_shape','_size']  }
 
-    
+    coord_name = dim_name
     
     direction = guess_direction(file.variables[dim_name],  name_atts = ['axis','long_name','standard_name'] , x_dir_names = coord_dir_names['x_dir_names'], y_dir_names = coord_dir_names['y_dir_names'], z_dir_names = coord_dir_names['z_dir_names'],t_dir_names = coord_dir_names['t_dir_names'],directional_names = '*')
 
     if direction == 'scalar':
       # double check that this coord has no direction by looking at dim_name itself.
       if dim_name in cdf_axes:
-        print 'OK. Inferring direction from dimension name itself: ' + dim_name
         direction = dim_name
+        coord_name = dim_name + '_crd'
+        print 'OK. Inferring direction from dimension name %s itself. Renaming coord to %s. '%(dim_name,coord_name)
+
       else:
         warnings.warn('No direction inferred for %s. Guessed direction is scalar.'%dim_name)
 
@@ -3426,8 +3428,8 @@ def cdfsniff_helper(filepath, verbose = False):
       long_name = '?'
       if verbose:
 
-        warnings.warn('No long_name for %s. Assigning %s'%(dim_name, dim_name) )
-      long_name = dim_name
+        warnings.warn('No long_name for %s. Assigning %s'%(dim_name, coord_name) )
+      long_name = coord_name
 
     # look only at the keys
     if hasattr(file.variables[dim_name] , 'axis' ):
@@ -3456,7 +3458,7 @@ def cdfsniff_helper(filepath, verbose = False):
        
           # using call method of coord object in cdf_axes global
 
-          this_coord = cdf_axes[direction](dim_name, copy.deepcopy( file.variables[dim_name][:] ), axis = copy.deepcopy(file.variables[dim_name].axis ),direction = direction, units = units, long_name = long_name , metadata = metadata)  
+          this_coord = cdf_axes[direction](coord_name, copy.deepcopy( file.variables[dim_name][:] ), axis = copy.deepcopy(file.variables[dim_name].axis ),direction = direction, units = units, long_name = long_name , metadata = metadata)  
 
           #this_coord = cdf_axes[file.variables[dim_name].axis](dim_name, file.variables[dim_name][:], axis = file.variables[dim_name].axis, units = units)  
           dual_coord = cdf_axes[direction](dual_var_name,prep_dual_array(dual_var),dual = this_coord, axis = copy.deepcopy(file.variables[dim_name].axis ), direction = direction, units = units, long_name = long_name, metadata = metadata)
@@ -3472,7 +3474,7 @@ def cdfsniff_helper(filepath, verbose = False):
       else:
         # this is the case of self-dual objects such as time, so only 1 object needs to be made
         if file.variables[dim_name].axis in cdf_axes:
-          coord_stack.append(cdf_axes[direction](dim_name,copy.deepcopy(file.variables[dim_name][:] ), axis = copy.deepcopy(file.variables[dim_name].axis ),direction = direction, units = units, long_name = long_name , metadata = metadata ))
+          coord_stack.append(cdf_axes[direction](coord_name,copy.deepcopy(file.variables[dim_name][:] ), axis = copy.deepcopy(file.variables[dim_name].axis ),direction = direction, units = units, long_name = long_name , metadata = metadata ))
 
     else:
     # In this case, no axis attribute has been detected.
@@ -3486,7 +3488,7 @@ def cdfsniff_helper(filepath, verbose = False):
 
           # using call method of coord object in cdf_axes global
 
-          this_coord = cdf_axes[direction](dim_name, copy.deepcopy(file.variables[dim_name] [:] ), axis = file.direction,direction = direction, units = units, long_name = long_name, metadata = metadata)  
+          this_coord = cdf_axes[direction](coord_name, copy.deepcopy(file.variables[dim_name] [:] ), axis = file.direction,direction = direction, units = units, long_name = long_name, metadata = metadata)  
 
           #this_coord = cdf_axes[file.variables[dim_name].axis](dim_name, file.variables[dim_name][:], axis = file.variables[dim_name].axis, units = units)  
           dual_coord = cdf_axes[direction]( copy.deepcopy( file.variables[dim_name].edges ),prep_dual_array(dual_var),dual = this_coord, axis = direction, direction = direction, units = units, long_name = long_name, metadata = metadata)
@@ -3502,7 +3504,7 @@ def cdfsniff_helper(filepath, verbose = False):
       else:
         # this is the case of self-dual objects such as time, so only 1 object needs to be made
         if direction in cdf_axes:
-          coord_stack.append(cdf_axes[direction](dim_name, copy.deepcopy(file.variables[dim_name][:] ), axis = direction,direction = direction, units = units ,long_name =long_name, metadata = metadata))
+          coord_stack.append(cdf_axes[direction](coord_name, copy.deepcopy(file.variables[dim_name][:] ), axis = direction,direction = direction, units = units ,long_name =long_name, metadata = metadata))
 
         else:
           warnings.warning('guessed direction not in cdf_axes, strange!')  
@@ -3608,15 +3610,21 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
 
   # in future we are going to use this metadata instead of below attributes. For now, it is used when fields are saved.
   metadata = {k:var_cdf_ob.__dict__[k] for k in var_cdf_ob.__dict__.keys() if k not in ['data','dimensions','_shape','_size']  }
-  
-  body = copy.deepcopy(var_cdf_ob[:])
-  dims = list(var_cdf_ob.dimensions)
 
-  fvn = get_att(var_cdf_ob, fval_names,fail_val = [np.nan])
-  if isinstance(fvn,list):  
-    mis_val = fvn[0] 
+  dims = list(var_cdf_ob.dimensions)  
+  body = copy.deepcopy(var_cdf_ob[:])
+  if isinstance(body,np.ma.masked_array):
+    # The Netcdf4 module yields masked arrays. Convert to ndarray to work well with sg.
+    # fill_value is a standard attribute of masked arrays (no checks):
+    mis_val = body.fill_value
+
+    body = np.array(body)
   else:
-    mis_val = fvn
+    fvn = get_att(var_cdf_ob, fval_names,fail_val = [np.nan])
+    if isinstance(fvn,list):  
+      mis_val = fvn[0] 
+    else:
+      mis_val = fvn
 
 #  mis_val = var_cdf_ob.missing_value[0]
   if hasattr(var_cdf_ob,'units'):
@@ -3663,7 +3671,7 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
    
     for crd in coord_stack:
    
-      if (dim == crd.name) and np.array_equal(dim_val , crd[:]):
+      if (dim == dimname(crd) ) and np.array_equal(dim_val , crd[:]):
      
         grid.append(crd)
             
@@ -3674,6 +3682,15 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
  
   return field(varname,body,grid=gr(tuple(grid)),units = units, direction = direction, long_name = long_name, metadata = metadata)
 
+
+def dimname(crd):
+  """
+  Strip off _crd suffix if it had been added because dim name equalled axis name
+  """
+  if ('_crd' in crd.name) and (crd.name.split('_crd')[0] == crd.axis.name):
+    return crd.axis.name
+  else:
+    return crd.name
 
 
 def delta(x):
