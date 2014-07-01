@@ -6,16 +6,19 @@ Data required for these tests is the example project my_project mentioned in the
 """
 
 import unittest
+import os
 import numpy as np
 import spacegrids as sg
 
+
+# test the info function
 
 class TestInfo(unittest.TestCase):
 
   def setUp(self):
     print 'Setting up %s'%type(self).__name__
 
-    self.fixture = sg.info(verbose = False)
+    self.fixture = sg.info_dict()
 
   def tearDown(self):
     print 'Tearing down %s'%type(self).__name__
@@ -25,18 +28,116 @@ class TestInfo(unittest.TestCase):
     
     self.assertEqual(type(self.fixture),dict)
 
-
   def test_type2(self):
     D = self.fixture
     if len(D) > 0:
       self.assertEqual(type(D.keys()[0]),str)
 
-  
+  def test_paths_in_D_exist(self):
+    D = self.fixture
+    for path in D.values():
+      self.assertEqual(os.path.exists(path), True)  
+
+class Test_project_helpers(unittest.TestCase):
+
+  def setUp(self):
+    print 'Setting up %s'%type(self).__name__
+    D = sg.info_dict()
+    self.fixture = D
+
+  def tearDown(self):
+    print 'Tearing down %s'%type(self).__name__
+    del self.fixture
+
+
+
+  def test_isexpdir_on_project_dir(self):
+
+    D = self.fixture
+    self.assertEqual(set(sg.isexpdir(os.path.join(D['my_project']))),  set(['DPO', 'DPC','Lev.nc'] ) ) 
+
+
+  def test_isexpdir_on_exper_dir(self):
+
+    D = self.fixture
+    self.assertEqual(sg.isexpdir(os.path.join(D['my_project'], 'DPO')),  ['time_mean.nc'] ) 
+
+
+class TestCoordsOnTheirOwn(unittest.TestCase):
+
+  def setUp(self):
+    print 'Setting up %s'%type(self).__name__
+         
+    coord1 = sg.coord(name = 'test1',direction ='X',value =np.array([1,2,3]))
+    coord2 = sg.coord(name = 'test2',direction ='Y',value =np.array([1,2,3,4]))
+    coord3 = sg.coord(name = 'test',direction ='X',value =np.array([1,2,3,4]))
+    # identical to previous set:
+    coord4 = sg.coord(name = 'test1',direction ='X',value =np.array([1,2,3]))
+    coord5 = sg.coord(name = 'test2',direction ='Y',value =np.array([1,2,3, 4]))
+    coord6 = sg.coord(name = 'test',direction ='X',value =np.array([1,2,3, 4]))
+
+
+    cstack1 = [coord1,coord2,coord3]
+    cstack2 = [coord4,coord5,coord6]
+
+    self.fixture = [cstack1, cstack2]
+
+  def tearDown(self):
+    print 'Tearing down %s'%type(self).__name__
+    del self.fixture
+
+
+  def test_equality_relation_AND(self):
+    cstack1 = self.fixture[0]
+    cstack2 = self.fixture[1]
+
+    # bring coord names into namespace
+
+    self.assertEqual(cstack1[0]&cstack2[0], True)
+
+  def test_inequality_relation_AND(self):
+    cstack1 = self.fixture[0]
+    cstack2 = self.fixture[1]
+
+    # bring coord names into namespace
+
+    self.assertEqual(cstack1[0]&cstack2[1], False)
+
+  def test_equality_relation_find_equal_axes(self):
+    cstack1 = self.fixture[0]
+    cstack2 = self.fixture[1]
+
+    # bring coord names into namespace
+    sg.find_equal_axes(cstack1,cstack2)
+
+    self.assertEqual(cstack1,cstack2)
+
+
+
+class TestUtils_sg(unittest.TestCase):
+
+
+# 3 tests for very simple function sublist in utils_sg.py
+  def test_sublist(self):
+
+    self.assertEqual(sg.sublist(['test','hi'] ,'hi' ) , ['hi'])
+     
+  def test_sublist_all(self):
+
+    self.assertEqual(sg.sublist(['test','hi'] ,'*' ) , ['test','hi'])
+
+  def test_sublist_none(self):
+
+    self.assertEqual(sg.sublist(['test','hi'] ,'ho' ) , [])
+
+
+# tests around coord and grid aspects of fields
+
 class TestCoordField(unittest.TestCase):
 
   def setUp(self):
     print 'Setting up %s'%type(self).__name__
-    D = sg.info(verbose = False)
+    D = sg.info_dict()
     P = sg.project(D['my_project']);P.load('O_temp')
     self.fixture = P
 
@@ -115,14 +216,14 @@ class TestCoordField(unittest.TestCase):
     self.assertEqual( (X*self.fixture['DPO']['O_temp']  ).shape, (19, 100) )
 
 
-  def test_div_ax(self):
+  def test_can_I_divide_field_by_ax_shape(self):
     
     for c in self.fixture['DPO'].axes:
       exec c.name + ' = c'
 
     self.assertEqual( (self.fixture['DPO']['O_temp'] / X ).shape, (19, 100) )
 
-  def test_2D_div_ax(self):
+  def test_can_I_divide_field_by_ax2D_shape(self):
     
     for c in self.fixture['DPO'].axes:
       exec c.name + ' = c'
@@ -135,7 +236,7 @@ class TestCoordField(unittest.TestCase):
     for c in self.fixture['DPO'].axes:
       exec c.name + ' = c'
 
-    self.assertAlmostEqual( self.fixture['DPO']['O_temp']/ (X*Y*Z) ,  3.9464440090035104 )
+    self.assertAlmostEqual( self.fixture['DPO']['O_temp']/ (X*Y*Z) ,  3.9464440090035104 , places =2)
 
 
 
@@ -158,7 +259,7 @@ class TestFieldBasic(unittest.TestCase):
 
   def setUp(self):
     print 'Setting up %s'%type(self).__name__
-    D = sg.info(verbose = False)
+    D = sg.info_dict()
     P = sg.project(D['my_project']);
     P.load(['O_temp','A_sat'])
     self.fixture = P
@@ -200,7 +301,7 @@ class TestGrid(unittest.TestCase):
 
   def setUp(self):
     print 'Setting up %s'%type(self).__name__
-    D = sg.info(verbose = False)
+    D = sg.info_dict()
     P = sg.project(D['my_project']);
     P.load(['O_temp','A_sat'])
     self.fixture = P
@@ -475,7 +576,7 @@ class TestGrid(unittest.TestCase):
     gr1 = depth*latitude
 
     # should have the shape of longitude**2
-    self.assertAlmostEqual( gr1.vsum(gr1.ones() )  , 121672626836.47124 )
+    self.assertAlmostEqual( gr1.vsum(gr1.ones() )  , 121672626836.47124 , places =2 )
 
 
   def test_gr_method_find_args_coord(self):
@@ -552,7 +653,7 @@ class TestGrid(unittest.TestCase):
 
     W = gr1.vol()
     # should have the shape of longitude**2
-    self.assertAlmostEqual( W.value.sum()   , 121672626836.47124 )
+    self.assertAlmostEqual( W.value.sum()   , 121672626836.47124 , places = 2 )
 
 
 

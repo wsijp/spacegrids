@@ -63,7 +63,7 @@ class project:
             with open(os.path.join(self.path, projnickfile  )  ) as f:
               name = read_projnick(f)      
           except:
-            # only works on unix-like systems. 
+            # following only works on unix/ linux systems:
             name = end_of_filepath(path)
 
             if path[-1] != '/':
@@ -74,12 +74,8 @@ class project:
           with open(os.path.join(self.path, projnickfile  )  ) as f:
             name = read_projnick(f)      
 
-
         self.name = name
  
-          
-    
-
     # sniff out the netcdf situation:
     
        # find a list of the directories in the project path that qualify as experiment data dirs, i.e. contain .nc or .cdf files: 
@@ -87,7 +83,6 @@ class project:
     # Filter experiment names list against expnames filter argument:
 
     expnames = sublist(DL,expnames)     
-
 
     if verbose:
       print 'Adding: ',
@@ -97,8 +92,7 @@ class project:
       self.descr = name
     else:
       self.descr = descr  
-
-    
+ 
     if expnames:
       self.adexp(expnames)
       # after the experiments have been loaded, their coord elements are all different objects. So check if some of them should be the same object:
@@ -223,48 +217,7 @@ class project:
 
     else:
       raise Exception("io: exper %s not loaded." % val)
-    
-  def __call__(self, expnames='first', varnames='show'):
- 
-  # --> method belongs to project
-  
-    if varnames == 'show':
-# summary functionality invoked with choosing argument varnames = 'show'
-      print "Project path " + self.path + '\n'
 
-      print "Experiments: "
-      print 20*"-"
-      print_box(self.expers.keys())
-      print '\n'
-      self.show()
-      return
-    elif varnames == 'cdf':
-      self.cdf()
-      return
-   
-    if expnames == 'first':
-      expnames = [self.expers.keys()[0]]
-
-           
-    if not isinstance(varnames, types.ListType):
-      varnames = [varnames]
-    
-    if not isinstance(expnames,types.ListType):
-      expnames = [expnames]
-
-    if varnames == [None]:
-      return_val = []
-      for ee in expnames:
-        if ee in self.expers.keys():
-          return_val.append(self.expers[ee]) 
-      if len(return_val) == 1:
-	return_val = return_val[0]
-      return return_val      
-    else:
-  
-      fields = self.get(expnames = expnames, varnames = varnames)
-	
-      return fields  
 
 # --> belongs to project      
   def show(self): 
@@ -381,7 +334,7 @@ class project:
     self.update_nbytes()
     return 
 
-  def load(self, varnames,filename=None, descr = 0,chk_loaded = False, ax=None, name_suffix='_cat', new_coord_name = 'gamma', new_coord= None ):
+  def load(self, varnames, descr = 0,chk_loaded = False, ax=None, name_suffix='_cat', new_coord_name = 'gamma', new_coord= None ):
 # -->This load belongs to the project class. It calls the load method of the exper class. 
 # slices argument value is just an example
     """
@@ -427,7 +380,7 @@ class project:
 	    # in case netcdf information has been pre-added:
    	for k in self.expers.keys():
             
-	  self.expers[k].load(varname,filename = filename,ax=ax, name_suffix=name_suffix, new_coord_name = new_coord_name, new_coord= new_coord)  
+	  self.expers[k].load(varname,ax=ax, name_suffix=name_suffix, new_coord_name = new_coord_name, new_coord= new_coord)  
 
     self.update_nbytes()
     return    

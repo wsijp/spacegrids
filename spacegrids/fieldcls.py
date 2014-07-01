@@ -100,7 +100,13 @@ class coord():
 
 
   def __and__(self,other):
-    # test whether coord objects contain identical coord values, name and direction. 
+    """
+    self&other
+
+    coord1&coord2 tests whether coord objects coord1, coord2 contain identical coord values, name and direction. 
+    """
+
+    # 
 
     return (self.name == other.name) and (self.direction == other.direction) and self.array_equal(other) 
 
@@ -1464,6 +1470,7 @@ class gr(tuple):
 
   def __and__(self,other):
     """
+    self&other
     Tests whether gr object contains same values (in attributes) as argument grid. A&B = True when gr objects A,B contain the same values (but need not be same objects). Corresponds to copy method.
     """
 
@@ -2149,6 +2156,7 @@ class field:
 
   def __and__(self,other):
     """
+    self&other
     Tests whether fields contain equal values. At the moment, if the value contains nan, this function will return false.
     """
     if (self.name == other.name) and np.array_equal(self.value,other.value) and self.gr&other.gr:
@@ -3320,13 +3328,14 @@ def find_equal_axes(lstack,rstack):
   for lc in lstack:
     for i,rc in enumerate(rstack):
       if (lc.axis == rc.axis):
-        # use coord equality method &:
+        # use coord equality method & (__and__):
         if lc&rc:
           # if all 3 attributes are equal values, replace right stack element with left stack element
           rstack[i] = lc
         else:
           # in this case the coord elements only have the same axis attribute, and are merely equivalent.
-          rstack[i] | lc
+          if not rstack[i]^lc:
+            rstack[i] | lc
 
 
 #  return rstack
