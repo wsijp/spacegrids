@@ -394,13 +394,8 @@ class coord():
 
     """
 
-    file_handle.createDimension(self.name,len(self))
-
-
-    var_cdf = file_handle.createVariable(self.name, self[:].dtype.char, (self.name,)   )
-    
-    for k in self.metadata:
-      setattr(var_cdf,k, self.metadata[k]) 
+    # make a copy of self content and deal with missing values.
+    value = copy.deepcopy(self[:])
 
     miss_val = miss_default
     if 'FillValue' in self.metadata:
@@ -410,15 +405,27 @@ class coord():
 
     try:
     
-      var_cdf[  np.isnan( var_cdf[:]  ) == True   ] = miss_val
+      value[  np.isnan( value[:]  ) == True   ] = miss_val
     except:
       try:
-        var_cdf[  np.isnan( var_cdf[:]  ) == True   ] = miss_default
+        value[  np.isnan( value[:]  ) == True   ] = miss_default
 
       except:
         warnings.warn('Could not set missing value for coord %s.'%self.name)
 
-    var_cdf[:] = self[:]
+
+
+
+
+    file_handle.createDimension(self.name,len(self))
+
+
+    var_cdf = file_handle.createVariable(self.name, value.dtype.char, (self.name,)   )
+    
+    for k in self.metadata:
+      setattr(var_cdf,k, self.metadata[k]) 
+
+    var_cdf[:] = value
 
     return file_handle
 
@@ -2200,9 +2207,12 @@ class field:
 
     """
 
+
+    # handle the squeeze dimensions
     if not force_squeeze and len(self.squeezed_dims) > 0:
       return unsqueeze(self).cdf_insert(file_handle = file_handle, insert_dual = insert_dual)    
 
+    # insert the coords in own grid
     for crd in self.gr:
       if not crd.name in file_handle.variables:
         crd.cdf_insert(file_handle)
@@ -2210,13 +2220,8 @@ class field:
         if insert_dual and (crd.dual != crd) and (not crd.dual.name in file_handle.variables):
           crd.dual.cdf_insert(file_handle)         
 
-
-    var_cdf = file_handle.createVariable(self.name, self[:].dtype.char, tuple( [crd.name for crd in self.gr] )   )
-    var_cdf[:] = self[:]
-
-
-    for k in self.metadata:
-      setattr(var_cdf,k, self.metadata[k]) 
+    # This could bloat memory. Redo in a new way.
+    value = copy.deepcopy(self[:])
 
     miss_val = miss_default
     if 'FillValue' in self.metadata:
@@ -2225,15 +2230,25 @@ class field:
       miss_val = self.metadata['missing_value']
 
     try:
-      var_cdf[  np.isnan( var_cdf[:]  ) == True   ] = miss_val
+      value[  np.isnan( value  ) == True   ] = miss_val
+      
     except:
       try:
-        var_cdf[  np.isnan( var_cdf[:]  ) == True   ] = miss_default
+        value[  np.isnan( value  ) == True   ] = miss_default
 
       except:
         warnings.warn('Could not set missing value for field %s.'%self.name)
 
 
+
+
+    # Create the actual variable corresponding to field.value
+    var_cdf = file_handle.createVariable(self.name, value.dtype.char, tuple( [crd.name for crd in self.gr] )   )
+    var_cdf[:] = value
+
+
+    for k in self.metadata:
+      setattr(var_cdf,k, self.metadata[k]) 
 
     return file_handle
 

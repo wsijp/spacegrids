@@ -526,6 +526,7 @@ class project:
     if sort:
       pairs.sort()
 
+
     new_ax = ax(new_ax_name)
 
     if add2cstack:
@@ -541,9 +542,9 @@ class project:
         if not new_ax in self.expers.values()[0].axes:
           self.expers.values()[0].axes.append(new_ax)  
 
+    func = lambda x:np.nan if x is None else x 
 
-    new_coord = coord(name = new_coord_name, value = np.array( [e[0] for e in pairs] ), axis = new_ax, direction = new_ax.name)
-
+    new_coord = coord(name = new_coord_name, value = np.array( [func(e[0]) for e in pairs] ), axis = new_ax, direction = new_ax.name)
 
     if add2cstack:
       for E in self.expers.values():
