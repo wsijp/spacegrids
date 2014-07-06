@@ -1,6 +1,6 @@
 #encoding:utf-8
 
-""" exper class
+""" Exper class
 """
 
 import types
@@ -26,13 +26,13 @@ import os
 import copy
 
 from fieldcls import *
-from io_sg import *
+from iosg import *
 
 warnings.formatwarning = warning_on_one_line
 
 # ---------------- Class definition for experiments -----------
 
-class exper:
+class Exper(object):
   
   def __repr__(self):
     return self.name
@@ -43,7 +43,7 @@ class exper:
     l = len(loaded_fields)
 
 
-    REP = report()
+    REP = Report()
     REP.echoln(self.name)
     REP.line()
     if loaded_fields:
@@ -54,13 +54,13 @@ class exper:
     else:
       plural = ''
 
-    REP.echo('exper using %1.2f Mb. %i field%s loaded.  '%(self.nbytes/1024./1024.  ,len(loaded_fields)  , plural ) )
+    REP.echo('Exper using %1.2f Mb. %i field%s loaded.  '%(self.nbytes/1024./1024.  ,len(loaded_fields)  , plural ) )
 
     print REP.value
     
 
   def __init__(self,path=home_path, name = 'test',cstack = [], params = {}, descr = 0, parent = 'orphan'):
-# --> belongs to class exper
+# --> belongs to  Exper
 
     self.path = os.path.join(path,name) 
     self.name = name
@@ -72,7 +72,7 @@ class exper:
     else:
       self.descr = descr  
 
-    # this is needed because otherwise all exper objects have the same params object!
+    # this is needed because otherwise all Exper objects have the same params object!
     self.params = copy.deepcopy(params)
     # check for other places where this effect might occur.
 
@@ -85,7 +85,7 @@ class exper:
 
   def __call__(self, varnames ='*'):
 
-# --> belongs to class expers
+# --> belongs to Expers
     return self.get(varnames)
 
   def __setitem__(self,varname, arr):
@@ -95,7 +95,7 @@ class exper:
 
   def __getitem__(self, varnames ='*'):
 
-# --> belongs to class expers    
+# --> belongs to Exper 
     return self.get(varnames)
 
 
@@ -110,19 +110,19 @@ class exper:
 	
     if not(fields):
       try:
-        fields = [field(varnames, parent = self)]
+        fields = [Field(varnames, parent = self)]
       except:
         print "No fields found for %s. Try P.load(\'%s\')"%(self.name, varnames)
         return 
     
     if len(fields) == 1:
-# if only single field found, return that field and not a list of fields.
+# if only single Field found, return that Field and not a list of fields.
       fields =fields[0]
 
     return fields    	
 
   def list_vars(self):
-    RP = report()
+    RP = Report()
     if len(self.vars) == 0:
       RP.echo('No variables.')
     else:
@@ -145,7 +145,7 @@ class exper:
     del self.vars[i]
 
   def delvar(self, varnames, msg = ''):
-# this delvar is a method of class exper
+# this delvar is a method of  Exper
   
     if not(isinstance(varnames, types.ListType)):
       varnames = [ varnames ]
@@ -162,7 +162,7 @@ class exper:
     self.update_nbytes()
 
 #  def cdf(self):
-# --> method of class exper        
+# --> method of  Exper        
 #    print 'Netcdf variables available (loaded marked **):'
 #    print_box(mark_sublist(self.var_names,self.vars.keys()))
       
@@ -171,9 +171,9 @@ class exper:
   def write(self, path = None, name = None , history = 'Created from Spacegrids ' , insert_dual = True ):
 
     """
-    Write method of exper class.
+    Write method of Exper .
 
-    Creates Netcdf file and writes all loaded field to it, along with their coord objects.
+    Creates Netcdf file and writes all loaded Field to it, along with their Coord objects.
 
     """
 
@@ -215,13 +215,13 @@ class exper:
       
   def load(self,varnames, squeeze_field = True, ax=None, name_suffix='_cat', new_coord_name = 'gamma', new_coord= None ):
     """
-    Field load method of exper class.
+    Field load method of Exper .
 
     Load a variable or list of variables contained in varnames. Takes either a single string or a list of strings. If multiple files inside a directory contain the same variable, this method will attempt to concatenate them (e.g. in the case where there are different time slices).
 
     Inputs:
     varnames		list of the variable names to load
-    squeeze_field	switch to squeeze field on loading (default True)	
+    squeeze_field	switch to squeeze Field on loading (default True)	
 
     The following arguments are passed on to the concatenate function:
     ax			
@@ -229,12 +229,12 @@ class exper:
     new_coord_name
     new_coord
  
-    if self.path is to a file (likely to be an experiment file), the variable will be loaded from that file.
+    if self.path is to a file (likely to be an Experiment file), the variable will be loaded from that file.
     if self.path is to a directory (likely to be an experiment dir), the variable will be loaded from Netcdf files inside that directory.
 
     """  
 
-# --> this load is a method of class exper
+# --> this load is a method of  Exper
 
     if not(isinstance(varnames, list)):
       varnames = [varnames ]
@@ -245,7 +245,7 @@ class exper:
      
       # Prepare the paths to all the netcdf files into a list     
       if os.path.isfile(self.path):
-        # this exper object was created from a project containing an experiment file
+        # this Exper object was created from a project containing an experiment file
         paths = [self.path]
 
       else:            
@@ -260,7 +260,7 @@ class exper:
       # test if var already in list.
       self.delvar(varname, msg = "")  	
             
-#	Try to find netcdf var in any of the found files, and then read into field object.
+#	Try to find netcdf var in any of the found files, and then read into Field object.
 
       fnames = []
       F = []
@@ -293,11 +293,11 @@ class exper:
           plural = 's'
         else:
           plural = ''
-        print 'OK. Fetched field %s for %s. %s file%s found.'%(varname, self.name,num_files,plural)
+        print 'OK. Fetched Field %s for %s. %s file%s found.'%(varname, self.name,num_files,plural)
 
         new_field = concatenate(F,ax=ax, name_suffix=name_suffix, new_coord_name = new_coord_name, strings = fnames, new_coord= new_coord   )
 
-        # insert field into experiment
+        # insert Field into experiment
         if squeeze_field:
           self.insert(what = (varname, squeeze( new_field ) ) ) 
         else:
@@ -308,9 +308,9 @@ class exper:
 
   def insert(self,what):
     """
-    Insert field in field list of this exper object under key varname.  If argument what is a number, it will be inserted as a parameter.
+    Insert Field in Field list of this exper object under key varname.  If argument what is a number, it will be inserted as a parameter.
 
-    Input: what a 2 tuple (pair) of name and value: (name, value). Value can be a field or a single value. Name must be a string, but can be None in the case of a field, where the field name will then be used. For example what = ('temp',TEMP), where TEMP is a field. If value is a single value (e.g. int or float), a name must be provided.
+    Input: what a 2 tuple (pair) of name and value: (name, value). Value can be a Field or a single value. Name must be a string, but can be None in the case of a Field, where the Field name will then be used. For example what = ('temp',TEMP), where TEMP is a Field. If value is a single value (e.g. int or float), a name must be provided.
 
     Argument what can also be a list of (name,value) pairs, in which case the entire collection of pairs will be inserted.   
 
@@ -328,17 +328,17 @@ class exper:
       name = what[0]
       value = what[1]
 
-      if isinstance(value,field):  
+      if isinstance(value,Field):  
 
         if name is None: 
           name = value.name
         else:
           value = value.copy(name = name)
-        # insert field 
+        # insert Field 
         self.vars[name] = value
 
       else:
-      # it is assumed field is a parameter
+      # it is assumed Field is a parameter
         if name is None:
           raise Exception('Provide name if trying to insert what as parameter.')
 
@@ -351,15 +351,15 @@ class exper:
 
   def available(self):
     """
-    Method of exper class that returns a list of all available Netcdf variable names (strings).
+    Method of Exper  that returns a list of all available Netcdf variable names (strings).
     """
   
     if os.path.isfile(self.path):
-        # this exper object corresponds to a file (not directory).
+        # this Exper object corresponds to a file (not directory).
       paths = [self.path]
 
     else:            
-        # this exper object corresponds to a directory (not file).
+        # this Exper object corresponds to a directory (not file).
         paths = []
         for root, dirs, files in os.walk(top = self.path):
           for fname in files:
@@ -367,7 +367,7 @@ class exper:
               paths.append(os.path.join(root,fname))
 
            
-# Try to find netcdf var in any of the found files, and then read into field object.
+# Try to find netcdf var in any of the found files, and then read into Field object.
 
     variables = []
     for filepath in paths:
@@ -386,12 +386,12 @@ class exper:
 
   def ls(self, width = 20):
     """
-    Variable list method of exper class.
+    Variable list method of Exper .
     Examine which fields (Netcdf variables) are available of experiment object.
 
     """  
  
-    RP = report()
+    RP = Report()
     av_list = self.available()
     av_list.sort()
     RP.echo(av_list,delim = '\t ',maxlen=300, width = width)
@@ -410,7 +410,7 @@ class exper:
      
     
 
-# ----- end exper class ------------
+# ----- end Exper  ------------
 
 
 
@@ -439,21 +439,21 @@ file_extensions is the list of known filenames in the form of glob expressions, 
     raise Exception('No such file or directory %s.'%path)
     
   # go through list L of subdirectories of path (e.g. /home/me/PROJECTS/test_project/) to see which ones are experiment directories (i.e. contain .nc and .cdf files).
-  for l in L:
+  for it in L:
     try:
       # look for files ending in .nc or .cdf
       
-      exp_path = os.path.join(path , l)
+      exp_path = os.path.join(path , it)
       # Try globbing <path>.nc and <path>.cdf. E.g. /home/me/PROJECTS/test_project/DPC/*.nc for a globfpath
       globfpaths = [os.path.join(exp_path , e) for e in file_extensions]
  
       # Test whether any files of the extensions (e.g .nc) in file_extensions occur in this directory:
       if not(reduce(lambda x,y: x + y, [glob.glob(e) for e in globfpaths])):	
          # if no files with these extensions are found, delete the directory from the list:
-        Lc.remove(l)
+        Lc.remove(it)
     except:
      # bad directory anyway
-      Lc.remove(l)
+      Lc.remove(it)
 
   globfpaths = [os.path.join(path , e) for e in file_extensions]
   raw_files = reduce(lambda x,y: x + y, [glob.glob(e) for e in globfpaths])

@@ -54,7 +54,7 @@ class Test_project_helpers(unittest.TestCase):
   def test_isexpdir_on_project_dir(self):
 
     D = self.fixture
-    self.assertEqual(set(sg.isexpdir(os.path.join(D['my_project']))),  set(['DPO', 'DPC','Lev.nc'] ) ) 
+    self.assertEqual(set(sg.isexpdir(os.path.join(D['my_project']))),  set(['DPO', 'DPC','Lev.cdf'] ) ) 
 
 
   def test_isexpdir_on_exper_dir(self):
@@ -68,13 +68,13 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
   def setUp(self):
     print 'Setting up %s'%type(self).__name__
          
-    coord1 = sg.coord(name = 'test1',direction ='X',value =np.array([1,2,3]))
-    coord2 = sg.coord(name = 'test2',direction ='Y',value =np.array([1,2,3,4]))
-    coord3 = sg.coord(name = 'test',direction ='X',value =np.array([1,2,3,4]))
+    coord1 = sg.Coord(name = 'test1',direction ='X',value =np.array([1,2,3]))
+    coord2 = sg.Coord(name = 'test2',direction ='Y',value =np.array([1,2,3,4]))
+    coord3 = sg.Coord(name = 'test',direction ='X',value =np.array([1,2,3,4]))
     # identical to previous set:
-    coord4 = sg.coord(name = 'test1',direction ='X',value =np.array([1,2,3]))
-    coord5 = sg.coord(name = 'test2',direction ='Y',value =np.array([1,2,3, 4]))
-    coord6 = sg.coord(name = 'test',direction ='X',value =np.array([1,2,3, 4]))
+    coord4 = sg.Coord(name = 'test1',direction ='X',value =np.array([1,2,3]))
+    coord5 = sg.Coord(name = 'test2',direction ='Y',value =np.array([1,2,3, 4]))
+    coord6 = sg.Coord(name = 'test',direction ='X',value =np.array([1,2,3, 4]))
 
 
     cstack1 = [coord1,coord2,coord3]
@@ -91,7 +91,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     cstack1 = self.fixture[0]
     cstack2 = self.fixture[1]
 
-    # bring coord names into namespace
+    # First two coord objects should have same content
 
     self.assertEqual(cstack1[0]&cstack2[0], True)
 
@@ -99,7 +99,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     cstack1 = self.fixture[0]
     cstack2 = self.fixture[1]
 
-    # bring coord names into namespace
+    # These two coord objects are not the same
 
     self.assertEqual(cstack1[0]&cstack2[1], False)
 
@@ -107,17 +107,17 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     cstack1 = self.fixture[0]
     cstack2 = self.fixture[1]
 
-    # bring coord names into namespace
+    # this should remove all redundant coord objects with respect to &-equality
     sg.find_equal_axes(cstack1,cstack2)
 
     self.assertEqual(cstack1,cstack2)
 
 
 
-class TestUtils_sg(unittest.TestCase):
+class TestUtilsg(unittest.TestCase):
 
 
-# 3 tests for very simple function sublist in utils_sg.py
+# 3 tests for very simple function sublist in utilsg.py
   def test_sublist(self):
 
     self.assertEqual(sg.sublist(['test','hi'] ,'hi' ) , ['hi'])
@@ -138,7 +138,7 @@ class TestCoordField(unittest.TestCase):
   def setUp(self):
     print 'Setting up %s'%type(self).__name__
     D = sg.info_dict()
-    P = sg.project(D['my_project']);P.load('O_temp')
+    P = sg.Project(D['my_project']);P.load('O_temp')
     self.fixture = P
 
   def tearDown(self):
@@ -260,7 +260,7 @@ class TestFieldBasic(unittest.TestCase):
   def setUp(self):
     print 'Setting up %s'%type(self).__name__
     D = sg.info_dict()
-    P = sg.project(D['my_project']);
+    P = sg.Project(D['my_project']);
     P.load(['O_temp','A_sat'])
     self.fixture = P
 
@@ -302,7 +302,7 @@ class TestGrid(unittest.TestCase):
   def setUp(self):
     print 'Setting up %s'%type(self).__name__
     D = sg.info_dict()
-    P = sg.project(D['my_project']);
+    P = sg.Project(D['my_project']);
     P.load(['O_temp','A_sat'])
     self.fixture = P
 
@@ -584,7 +584,7 @@ class TestGrid(unittest.TestCase):
     for c in self.fixture['DPO'].cstack:
       exec c.name + ' = c'   
 
-    ctypes = {'x_coord':sg.xcoord,'y_coord':sg.ycoord,'z_coord':sg.coord}
+    ctypes = {'x_coord':sg.XCoord,'y_coord':sg.YCoord,'z_coord':sg.Coord}
   
     self.assertEqual((latitude*longitude).find_args_coord(coord_types = ctypes) , 
     [[], [latitude]] )
@@ -593,7 +593,7 @@ class TestGrid(unittest.TestCase):
   def test_gr_method_der_type(self):
 
     """
-    Test der method of gr class to see whether it returns a field
+    Test der method of gr class to see whether it returns a Field
     """
 
     for c in self.fixture['DPO'].cstack:
@@ -602,12 +602,12 @@ class TestGrid(unittest.TestCase):
     gr1 = longitude*latitude
 
     # should have the shape of longitude**2
-    self.assertEqual( isinstance( gr1.der(longitude,gr1.ones() ) , sg.field )  , True )
+    self.assertEqual( isinstance( gr1.der(longitude,gr1.ones() ) , sg.Field )  , True )
 
   def test_gr_method_der_X(self):
 
     """
-    Test der method of gr class to see whether it returns a field
+    Test der method of gr class to see whether it returns a Field
     """
 
     for c in self.fixture['DPO'].cstack:
@@ -625,7 +625,7 @@ class TestGrid(unittest.TestCase):
   def test_gr_method_der_Y(self):
 
     """
-    Test der method of gr class to see whether it returns a field
+    Test der method of gr class to see whether it returns a Field
     """
 
     for c in self.fixture['DPO'].cstack:
@@ -643,7 +643,7 @@ class TestGrid(unittest.TestCase):
   def test_gr_method_vol(self):
 
     """
-    Test der method of gr class to see whether it returns a field
+    Test volume method 
     """
 
     for c in self.fixture['DPO'].cstack:

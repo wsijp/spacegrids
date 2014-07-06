@@ -7,7 +7,7 @@ from config import *
 
 from fieldcls import *
 
-class Operator():
+class Operator(object):
 
   def __call__(self,F):
     return None # subclasses will override this
@@ -30,7 +30,7 @@ class Operator():
     if isinstance(other,Operator):
       return Mul(self,other)
 
-    elif isinstance(other,field) | isinstance(other,vfield):
+    elif isinstance(other,Field) | isinstance(other,VField):
       return self(other)
 
 class FloatMul(Operator):
@@ -97,21 +97,21 @@ class Pick(Operator):
      
   def __call__(self,UU):
 
-    if isinstance(UU,field):
+    if isinstance(UU,Field):
       if UU.direction == self.ax:
         return UU
       else:
         return None
 
-    elif isinstance(UU,vfield):
+    elif isinstance(UU,VField):
       for U in UU:
         if U.direction == self.ax:
           return U
       return None
     else:
-      raise Exception('Error in pick operator %s on %s, argument must be field or sfield. ' % (self.ax, U.name))
+      raise Exception('Error in pick operator %s on %s, argument must be Field or sfield. ' % (self.ax, U.name))
 
-class Set_Direction(Operator):
+class SetDirection(Operator):
   
   def __init__(self,Xi):
     self.ax = Xi
@@ -124,12 +124,12 @@ class Set_Direction(Operator):
 
 class Innprod(Operator):
   """
-  Inner product on vfields, yields a field. Both fields must be in same linear space: their direction must match up to a permutation. Can be extended later to include non-trivial inner products.
+  Inner product on vfields, yields a Field. Both fields must be in same linear space: their direction must match up to a permutation. Can be extended later to include non-trivial inner products.
   """
   
   def __call__(self,left,right):
 
-    if isinstance(left,field) and isinstance(right,field):
+    if isinstance(left,Field) and isinstance(right,Field):
       return left*right
 
     elif len(left) == len(right):
@@ -148,12 +148,12 @@ class Der(Operator):
     self.ax = Xi
 
   def __call__(self,vF): 
-    if isinstance(vF,field):
+    if isinstance(vF,Field):
       return self.ax^vF
-    elif isinstance(vF,vfield):
-      return vfield([ self.ax^e for e in vF ])
+    elif isinstance(vF,VField):
+      return VField([ self.ax^e for e in vF ])
     else:
-      raise Exception('Error in %s - derivative of %s, argument must be field or vfield ' % (self.ax,vF))
+      raise Exception('Error in %s - derivative of %s, argument must be Field or VField ' % (self.ax,vF))
 
 
 class Integ(Operator):
@@ -164,12 +164,12 @@ class Integ(Operator):
 
   def __call__(self,vF):
 
-    if isinstance(vF,field):
+    if isinstance(vF,Field):
       return self.ax*vF
-    elif isinstance(vF,vfield):
-      return vfield([self.ax*e for e in vF])
+    elif isinstance(vF,VField):
+      return VField([self.ax*e for e in vF])
     else:
-      raise Exception('Error in %s - integration of %s, argument must be field or vfield ' % (self.ax,vF))
+      raise Exception('Error in %s - integration of %s, argument must be Field or VField ' % (self.ax,vF))
 
 class Mean(Operator):
 
@@ -180,12 +180,12 @@ class Mean(Operator):
   def __call__(self,vF):
 
 
-    if isinstance(vF,field):
+    if isinstance(vF,Field):
       return vF/self.ax
-    elif isinstance(vF,vfield):
-      return vfield([self*e for e in vF])
+    elif isinstance(vF,VField):
+      return VField([self*e for e in vF])
     else:
-      raise Exception('Error in taking %s - primitive of %s, argument must be field or vfield ' % (self.ax,vF))    
+      raise Exception('Error in taking %s - primitive of %s, argument must be Field or VField ' % (self.ax,vF))    
 
 
   def __mul__(self,other):
@@ -203,15 +203,15 @@ class Prim(Operator):
 
   def __call__(self,vF):
 
-    if isinstance(vF,field):
+    if isinstance(vF,Field):
       return self.ax|vF
-    elif isinstance(vF,vfield):
-      return vfield([self.ax|e for e in vF])
+    elif isinstance(vF,VField):
+      return VField([self.ax|e for e in vF])
     else:
-      raise Exception('Error in taking %s - primitive of %s, argument must be field or vfield ' % (self.ax,vF))
+      raise Exception('Error in taking %s - primitive of %s, argument must be Field or VField ' % (self.ax,vF))
 
 
-class Field_Mul(Operator):
+class FieldMul(Operator):
 
   def __init__(self, F):
 
@@ -225,16 +225,16 @@ class Sum(Operator):
 
   def __call__(self, vF):
 
-    if isinstance(vF,field):
+    if isinstance(vF,Field):
       return vF
-    elif isinstance(vF,vfield):
+    elif isinstance(vF,VField):
       result = reduce(lambda x,y: x+y, vF)
       result.direction = ID()
       return result
 
     else:
 
-      raise Exception('Error in Sum %s, argument must be field or vfield ' % vF)
+      raise Exception('Error in Sum %s, argument must be Field or VField ' % vF)
 
 class Slice(Operator):
 
@@ -246,13 +246,13 @@ class Slice(Operator):
 
   def __call__(self, vF):
 
-   if isinstance(vF,field):
+   if isinstance(vF,Field):
      return vF[self.tup]
-   elif isinstance(vF,vfield):
-     return vfield([self*e for e in vF])
+   elif isinstance(vF,VField):
+     return VField([self*e for e in vF])
    else:
 
-      raise Exception('Error in Slice %s, argument must be field or vfield ' % vF)
+      raise Exception('Error in Slice %s, argument must be Field or VField ' % vF)
 
 class Identity(Operator):
 
@@ -266,14 +266,14 @@ class If(Operator):
 
   def __init__(self, Cond_Op, True_Op, Else_Op = nop):
 
-    # The state of the system is defined by the field(s) vF. Therefore, the condition can be internal to the call function and must be defined in terms of vF (e.g. 'len(vF.gr) == 3'). 
+    # The state of the system is defined by the Field(s) vF. Therefore, the condition can be internal to the call function and must be defined in terms of vF (e.g. 'len(vF.gr) == 3'). 
     self.Cond_Op = Cond_Op
     self.True_Op = True_Op
     self.Else_Op = Else_Op
 
   def __call__(self,vF):
 
-   if isinstance(vF,field) |  isinstance(vF,vfield):
+   if isinstance(vF,Field) |  isinstance(vF,VField):
      
      result = self.Cond_Op(vF)
 
@@ -284,7 +284,7 @@ class If(Operator):
 
    else:
 
-      raise Exception('Error in If %s, argument must be field or vfield ' % vF)
+      raise Exception('Error in If %s, argument must be Field or VField ' % vF)
 
 
 class While(Operator):
@@ -296,7 +296,7 @@ class While(Operator):
   
   def __call__(self,vF):
 
-   if isinstance(vF,field) |  isinstance(vF,vfield):
+   if isinstance(vF,Field) |  isinstance(vF,VField):
      
      prev_result = vF
      result = self.IF*prev_result
@@ -309,7 +309,7 @@ class While(Operator):
 
    else:
 
-      raise Exception('Error in While %s, argument must be field or vfield ' % vF)
+      raise Exception('Error in While %s, argument must be Field or VField ' % vF)
 
 class Try(Operator):
 

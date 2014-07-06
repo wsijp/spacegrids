@@ -11,8 +11,8 @@ from projectcls import *
 from ops import *
 from plotting import *
 from config import *
-from io_sg import *
-from utils_sg import *
+from iosg import *
+from utilsg import *
 
 # masked arrays are done as follows:
 #  S=[1.,2.,3.,np.nan,5.]

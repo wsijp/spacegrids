@@ -142,11 +142,11 @@ def prep_axes(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=No
 def quiver(vfld, showland=True, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True,ax=None,greyshade = '0.65',kmt = None, **kwargs):
 
   """
-  Function that calls Matplotlib quiver and passes on arguments, but takes a field as argument (instead of a numpy)
+  Function that calls Matplotlib quiver and passes on arguments, but takes a Field as argument (instead of a numpy)
   
   Assuming that z vs x and z vs y quiver plots are rare: expects x-y plots.  
 
-  Input: vfld 	-supergrid vector field to be plotted
+  Input: vfld 	-supergrid vector Field to be plotted
   
   """
 
@@ -155,7 +155,7 @@ def quiver(vfld, showland=True, xlabel = True,ylabel = True, minus_z=True,xl=Non
   if len(vfld.direction()) == 2:
     if len(vfld[0].gr) == 2:
 
- # obtain prepared arrays and names from field object. mbody is a masked array containing the field data. mbody will be used in plotting. Some of the output will not be needed.
+ # obtain prepared arrays and names from Field object. mbody is a masked array containing the Field data. mbody will be used in plotting. Some of the output will not be needed.
           
       if vfld.direction()[0].name == 'X':
 
@@ -219,7 +219,7 @@ def scale_prep_deco(func):
 
     """
 
-  # obtain prepared arrays and names from field object. mbody is a masked array containing the field data. mbody will be used in plotting.
+  # obtain prepared arrays and names from Field object. mbody is a masked array containing the Field data. mbody will be used in plotting.
   # M, m are the max and min of the data.
 
 
@@ -269,9 +269,9 @@ def contourf(X_scaled,Y_scaled,mbody, levels = None, num_cont =15, xlabel = True
 
   """
   Before decoration: takes axes and numpy array argument.
-  After decoration: a function that calls Matplotlib contourf and passes on arguments, but takes a field as argument (instead of a numpy array)
+  After decoration: a function that calls Matplotlib contourf and passes on arguments, but takes a Field as argument (instead of a numpy array)
   
-  Input: fld 	-supergrid field to be plotted
+  Input: fld 	-supergrid Field to be plotted
 
   num_xticks/ num_yticks: number of labeled points on X and Y axis. Disabled if set to None. In this case plt.contour defaults are chosen. 
 
@@ -305,10 +305,10 @@ def contourf(X_scaled,Y_scaled,mbody, levels = None, num_cont =15, xlabel = True
 def contour(X_scaled,Y_scaled,mbody, levels = None, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True, num_xticks = 6, num_yticks = 6, greyshade = '0.65', showland = False,grid = None,*args, **kwargs):
 
   """
-  Function that calls contour, but takes a field as argument (instead of a numpy)
+  Function that calls contour, but takes a Field as argument (instead of a numpy)
   
   
-  fld 	-spacegrid field to be plotted
+  fld 	-spacegrid Field to be plotted
   
   """
 
@@ -340,16 +340,16 @@ def plot(fld0 = None,fld1=None, minus_z=True,xlbl='',ylbl='', grid = None,start_
    Inputs:
    ---------------
 
-   fld0 	field to be plotted if fld1 is None, otherwise x-coord with fld1 as y-coord
+   fld0 	Field to be plotted if fld1 is None, otherwise x-coord with fld1 as y-coord
    minus_z 	z-axis points downard if true
-   xlbl, ylbl 	override field labels if not ''
-   grid 	replaces field grid if not None
+   xlbl, ylbl 	override Field labels if not ''
+   grid 	replaces Field grid if not None
    start_zero	if True, x-axis starts at 0  
 
    """
  
    if fld1 is None:
-     # In this case, no x-axis is given, using field x-axis or explicitly specified grid
+     # In this case, no x-axis is given, using Field x-axis or explicitly specified grid
 
 
      if grid is None:
@@ -391,7 +391,7 @@ def plot(fld0 = None,fld1=None, minus_z=True,xlbl='',ylbl='', grid = None,start_
              xlbl = ''
              warnings.warn('Label not added: not a string.')
 
-       elif isinstance(xax,field):
+       elif isinstance(xax,Field):
          xlbl = xax.name
        if hasattr(xax,'units'):
          if isinstance(xax.units,str) or isinstance(xax.units,unicode):
@@ -405,7 +405,7 @@ def plot(fld0 = None,fld1=None, minus_z=True,xlbl='',ylbl='', grid = None,start_
        if hasattr(yax,'axis'):
         
          ylbl = yax.axis.display_name
-       elif isinstance(yax,field):
+       elif isinstance(yax,Field):
          if isinstance(yax.name,str) or isinstance(yax.name,unicode):
            ylbl = yax.name
          else:
