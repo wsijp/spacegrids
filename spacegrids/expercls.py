@@ -10,18 +10,6 @@ import warnings
 
 from config import *
 
-# use_scientificio is set in config
-#if use_scientificio is True:  
-#  try:
-#    import Scientific.IO.NetCDF
-#    print 'Using Scientific.IO.NetCDF'
-#  except:
-#    print 'no Scientific io. Reverting to scipy'
-#    from scipy.io import netcdf  
-#    use_scientificio = False
-#else:
-#  from scipy.io import netcdf         
-
 import os
 import copy
 

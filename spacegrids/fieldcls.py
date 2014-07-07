@@ -15,18 +15,6 @@ import warnings
 
 from config import *
 
-# use_scientificio is set in config
-#if use_scientificio is True:  
-#  try:
-#    import Scientific.IO.NetCDF
-#    print 'Using Scientific.IO.NetCDF'
-#  except:
-#    print 'no Scientific io. Reverting to scipy'
-#    from scipy.io import netcdf  
-#    use_scientificio = False
-#else:
-#  from scipy.io import netcdf         
-
 import os
 import copy
 
@@ -490,14 +478,14 @@ class Coord(object):
     if self in F.gr:
       sl = slice(None,None,None)
       sl2 = slice(index,index+1,1)
-      I = []
+      L = []
       for e in F.gr:
         if self is e:
-          I.append(sl2)
+          L.append(sl2)
         else:
-          I.append(sl)
+          L.append(sl)
 
-      return F.copy(name = F.name , value = np.squeeze(F.value[I]), grid = F.gr/self, units = F.units)
+      return F.copy(name = F.name , value = np.squeeze(F.value[L]), grid = F.gr/self, units = F.units)
    
     else:
       warnings.warn('Warning Coord slice: Coord not in Field grid. Returning Field.' )   
@@ -556,9 +544,9 @@ class Coord(object):
     Reverse order of elements along axis of this Coord. Note that grid remains unchanged: strictly, this will lead to an inconsistency between the Field data and the grid.
     """
   
-    I = self.slice_index(F, slice_obj = slice(None,None,-1))
+    SI = self.slice_index(F, slice_obj = slice(None,None,-1))
 
-    return F.copy(name = F.name,value = F[I],grid = F.gr, units = F.units)
+    return F.copy(name = F.name,value = F[SI],grid = F.gr, units = F.units)
 
 
 
@@ -567,14 +555,14 @@ class Coord(object):
     Yields a list of slice objects that can be used to slice along the axis of this Coord.
     """
     sl = slice(*(None,))
-    I = []
+    L = []
     for e in F.gr:
       if self is e:
-        I.append(slice_obj)
+        L.append(slice_obj)
       else:
-        I.append(sl)
+        L.append(sl)
 
-    return I
+    return L
 
 # --> belongs to Coord 
 
@@ -1415,7 +1403,7 @@ class Gr(tuple):
 
 #If V is an ndarray consistent with zt*yt*xt
 # and we do R = np.array((zt*yt*xt)(yt*xt)(V));R = R.reshape((yt*xt*zt).shape())
-# Then We get V back, but transposed onto yt*xt*zt. This is because the index grid I = yt*xt is put first by (zt*yt*xt)(yt*xt)
+# Then We get V back, but transposed onto yt*xt*zt. This is because the index grid L = yt*xt is put first by (zt*yt*xt)(yt*xt)
 
 
       # create target_grid of same dimension as self, and with other Coord elements first
@@ -1676,42 +1664,42 @@ class Gr(tuple):
     """
 # belongs to grid object.
 
-# l is the left element. Coord elements of self and other (grids) may be up to equivalence, but need to be in same order. The common (equal) elements will be stored in I
+# l is the left element. Coord elements of self and other (grids) may be up to equivalence, but need to be in same order. The common (equal) elements will be stored in L
 
 
-    I=[]
-    for i, l in enumerate(self):
-      if l == other[i]:
-        I.append(l)
+    L = []
+    for i, it in enumerate(self):
+      if it == other[i]:
+        L.append(it)
       else:
-        if not(l^other[i]):
+        if not(it^other[i]):
           print "order/ equivalence wrong, aborting."
           return
 
-    if I:
+    if L:
       # In this case, the source and destination grid have Coord elements in common. This means we need to interpolate only along the axes they do not have in common.
 
       # check first whether source and destination grids are equal, in which case we can simply return A.
-      if len(I) == len(self):
+      if len(L) == len(self):
         return A
 
       # In this case, source and dest grids are not equal, and contain both equal and equivalent-only Coord elements:
-      I = Gr(I);
+      L = Gr(L);
       
       result = []
 
     # Take slices into a list
-      B=self(I)(A)      
+      B=self(L)(A)      
   
 #    B is a (often long) list containing the slices to be interpolated.
-# array(B) will yield shape (len(coord1)*len(coord2)*...  , shape(array)) for coordi in I and array the slices to be interpolated
-# This should be reshaped to list(I.shape()) + shape(array)
-# where shape(array) = (self/I).shape()
+# array(B) will yield shape (len(coord1)*len(coord2)*...  , shape(array)) for coordi in L and array the slices to be interpolated
+# This should be reshaped to list(L.shape()) + shape(array)
+# where shape(array) = (self/L).shape()
 
       for i,b in enumerate(B):
-      # perform interpolation on array b from self/I to other/I on each slice.
-        srcgrid = self/I
-        destgrid = other/I
+      # perform interpolation on array b from self/L to other/L on each slice.
+        srcgrid = self/L
+        destgrid = other/L
 
         B[i] = srcgrid.interp(b,destgrid)
      
@@ -1719,17 +1707,17 @@ class Gr(tuple):
       B = np.array(B)
 
 # some commented out diagnostic prints
-#      print I
-#      print self/I
+#      print L
+#      print self/L
 
-#      print list(I.shape())
-#      print list((self/I).shape())
+#      print list(L.shape())
+#      print list((self/L).shape())
 
 #      print B.shape
 
-      B = B.reshape(list(I.shape()) + list((other/I).shape()) )
+      B = B.reshape(list(L.shape()) + list((other/L).shape()) )
 
-      pm = (I*(self/I)).perm(self, verbose = False)
+      pm = (L*(self/L)).perm(self, verbose = False)
       B = np.transpose(B,pm)
 
       return B
@@ -2501,7 +2489,7 @@ class Field(object):
 
  
 
-  def __getitem__(self,I):
+  def __getitem__(self,L):
 
     #getitem of Field .
     # returns a numpy array containing the sliced content of self if argument consists only of slice objects.
@@ -2509,13 +2497,13 @@ class Field(object):
 
     # The argument may also contain Ax objects X,Y,Z,T. In this case, the argument will be converted to the corresponding Coord object from the Field grid self.gr via multiplication.
     
-    if isinstance(I,tuple):
+    if isinstance(L,tuple):
       # In this case, the argument is expected to be multiple slice objects only or slice objects interspersed with Coord objects.
  
       crds = []		# holds Coord objects along which to slice
       slices = []	# holds slice objects
       
-      for i in I:
+      for i in L:
         if isinstance(i,Coord):
           if i not in self.gr:
             raise Exception('Slice Coord argument %s not in Field %s grid %s.'%(i,self,self.gr))
@@ -2537,7 +2525,7 @@ class Field(object):
         # No Coord objects recorded
         if len(slices) == 0:
           warnings.warn( '(severe): no slices!', RuntimeWarning )
-        return self.value[I]
+        return self.value[L]
       elif len(crds) == len(slices):        
         # In this case, we can associate a slice object (or int) to each Coord object in the argument.
         # The order then determines which slice object corresponds to which Coord object.
@@ -2583,7 +2571,7 @@ class Field(object):
 
           else:
             # Input is neither slice object nor int
-            raise Exception('Field slice error in Field %s arg %s : use slice objects only or Coord objects and slice objects.' % (self,I)  )                
+            raise Exception('Field slice error in Field %s arg %s : use slice objects only or Coord objects and slice objects.' % (self,L)  )                
 
 
         else:
@@ -2596,10 +2584,10 @@ class Field(object):
 
           return F
       else:
-       raise Exception('Field slice error in Field %s arg %s : use slice objects only or Coord objects and slice objects.' % (self,I)  )         
+       raise Exception('Field slice error in Field %s arg %s : use slice objects only or Coord objects and slice objects.' % (self,L)  )         
 
     else:
-      return self.value[I]
+      return self.value[L]
 
 
 
@@ -2822,15 +2810,15 @@ class Field(object):
      
       sl = slice(*(None,))
       
-      I = []
+      L = []
       for e in self.gr:
         
         if sl_coord is e:
-          I.append(slice_obj)
+          L.append(slice_obj)
         else:
-          I.append(sl)    
+          L.append(sl)    
      
-      return self.value[I]
+      return self.value[L]
 
   def draw(self, colorbar = True,**kwargs):
 
@@ -3211,11 +3199,11 @@ def roll(F,shift=1,coord=None,axis=None,mask=False,keepgrid = False):
       sl_exposed = slice(shift,None,None)
 
 
-    I = []
+    L = []
     for e in F.gr:
-      I.append(sl)
-    I[axis] = sl_exposed
-    Fr.value[I] = np.nan
+      L.append(sl)
+    L[axis] = sl_exposed
+    Fr.value[L] = np.nan
 
   return Fr
 
