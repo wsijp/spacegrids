@@ -28,7 +28,7 @@ class Exper(object):
   def show(self):
 
     loaded_fields = self.vars.keys()
-    l = len(loaded_fields)
+    length = len(loaded_fields)
 
 
     REP = Report()
@@ -37,12 +37,12 @@ class Exper(object):
     if loaded_fields:
       REP.echoln(loaded_fields, width = 30, cols = 3)
 
-    if len(loaded_fields) != 1:
+    if length != 1:
       plural = 's'
     else:
       plural = ''
 
-    REP.echo('Exper using %1.2f Mb. %i field%s loaded.  '%(self.nbytes/1024./1024.  ,len(loaded_fields)  , plural ) )
+    REP.echo('Exper using %1.2f Mb. %i field%s loaded.  '%(self.nbytes/1024./1024.  ,length  , plural ) )
 
     print REP.value
     
@@ -97,11 +97,8 @@ class Exper(object):
 	fields.append(self.vars[vn])
 	
     if not(fields):
-      try:
-        fields = [Field(varnames, parent = self)]
-      except:
-        print "No fields found for %s. Try P.load(\'%s\')"%(self.name, varnames)
-        return 
+      print "No fields found for %s. Try P.load(\'%s\')"%(self.name, varnames)
+      return 
     
     if len(fields) == 1:
 # if only single Field found, return that Field and not a list of fields.

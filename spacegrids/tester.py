@@ -5,6 +5,8 @@ Data required for these tests is the example project my_project mentioned in the
 
 """
 
+import inspect
+import copy
 import unittest
 import os
 import numpy as np
@@ -67,18 +69,25 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
   def setUp(self):
     print 'Setting up %s'%type(self).__name__
-         
-    coord1 = sg.Coord(name = 'test1',direction ='X',value =np.array([1,2,3]))
-    coord2 = sg.Coord(name = 'test2',direction ='Y',value =np.array([1,2,3,4]))
-    coord3 = sg.Coord(name = 'test',direction ='X',value =np.array([1,2,3,4]))
-    # identical to previous set:
-    coord4 = sg.Coord(name = 'test1',direction ='X',value =np.array([1,2,3]))
-    coord5 = sg.Coord(name = 'test2',direction ='Y',value =np.array([1,2,3, 4]))
-    coord6 = sg.Coord(name = 'test',direction ='X',value =np.array([1,2,3, 4]))
+
+    def provide_axis(cstack):
+      for i, c in enumerate(cstack):
+        cstack[i].axis = cstack[i].direction 
+
+      return cstack
+  
+    # Note that some coord values are deliberately unordered.       
+    coord1 = sg.Coord(name = 'test1',direction ='X',value =np.array([1,2,3]) , metadata = {'hi':5} )
+    coord2 = sg.Coord(name = 'test2',direction ='Y',value =np.array([1,2,3,4]), metadata = {'hi':7})
+    coord3 = sg.Coord(name = 'test',direction ='X',value =np.array([5,1,2,3,4]), metadata = {'hi':3})
+    # identical in main attributes to previous set (in order):
+    coord4 = sg.Coord(name = 'test1',direction ='X',value =np.array([1,2,3]), metadata = {'hi':8})
+    coord5 = sg.Coord(name = 'test2',direction ='Y',value =np.array([1,2,3, 4]), metadata = {'hi':10})
+    coord6 = sg.Coord(name = 'test',direction ='X',value =np.array([5,1,2,3, 4]), metadata = {'hi':12})
 
 
-    cstack1 = [coord1,coord2,coord3]
-    cstack2 = [coord4,coord5,coord6]
+    cstack1 = provide_axis([coord1,coord2,coord3])
+    cstack2 = provide_axis([coord4,coord5,coord6])
 
     self.fixture = [cstack1, cstack2]
 
@@ -87,23 +96,94 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     del self.fixture
 
 
-  def test_equality_relation_AND(self):
+  def test_coord_init_attributes_assigned(self):
+    """
+    Test whether all passed are assigned to attributes as intended. This is easy to forget when adding new arguments.
+    """
+
+    pass
+
+  def test_copy_arguments_are_same_to_init(self):
+    """
+    Test whether the Coord copy method takes the same arguments as the __init__ method, with the exception of the Boolean equiv, which is a switch to the copy method. Note that XCoord and YCoord define their own copy methods and need to be tested separately.
+    """
+
+    self.assertEqual(inspect.getargspec(sg.Coord.copy).args[:-1] , inspect.getargspec(sg.Coord.__init__).args  )
+
+
+  def test_copy_method_yields_same(self):
+    """
+    Test whether making a copy with no arguments passed to .copy method yields a Coord object that is the same (with respect to .same method) as the original (although a different object in memory).
+    """
+
+    cstack1 = self.fixture[0]
+    coord3 = cstack1[-1]
+   
+    coord3_copy = coord3.copy()
+
+    self.assertEqual(coord3.same(coord3_copy),True  )
+
+  def test_copy_method_yields_not_same_name(self):
+    """
+    Test whether making a copy with 1 argument passed to .copy method yields a Coord object that is NOT the same (with respect to .same method) as the original (although a different object in memory).
+
+    Note that in general, the .same method tests for:
+
+    self.array_equal(other)
+    self.name == other.name
+    self.axis == other.axis
+    self.direction == other.direction 
+
+    """
+
+    cstack1 = self.fixture[0]
+    coord3 = cstack1[-1]
+   
+    coord3_copy = coord3.copy(name = 'joep')
+
+    self.assertEqual(coord3.same(coord3_copy), False  )
+
+
+#
+
+
+
+  def test_sort(self):
+    cstack1 = self.fixture[0]
+    coord3 = cstack1[-1]
+    coord3.sort()
+    value = copy.deepcopy(coord3.value)
+    value.sort()
+    self.assertEqual(coord3.value.any() , value.any()  )
+
+  def test_equality_relation_weaksame(self):
+    """"
+    Does the &-relationship yield equality?
+    """
     cstack1 = self.fixture[0]
     cstack2 = self.fixture[1]
 
     # First two coord objects should have same content
 
-    self.assertEqual(cstack1[0]&cstack2[0], True)
+    self.assertEqual(cstack1[0].weaksame(cstack2[0]), True)
 
-  def test_inequality_relation_AND(self):
+  def test_inequality_relation_weaksame(self):
+    """"
+    Does the &-relationship yield inequality?
+    """
+
     cstack1 = self.fixture[0]
     cstack2 = self.fixture[1]
 
     # These two coord objects are not the same
 
-    self.assertEqual(cstack1[0]&cstack2[1], False)
+    self.assertEqual(cstack1[0].weaksame(cstack2[1]), False)
 
   def test_equality_relation_find_equal_axes(self):
+    """"
+    Does the function find_equal_axes recognise equivalent coord objects in the two cstacks and replace the elements of the 2nd stack accordingly?
+    """
+
     cstack1 = self.fixture[0]
     cstack2 = self.fixture[1]
 
@@ -111,6 +191,38 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     sg.find_equal_axes(cstack1,cstack2)
 
     self.assertEqual(cstack1,cstack2)
+
+  def test_make_axes_function_type_output(self):
+    """
+    The output should be a list of Ax objects ([X,Y] expected, see below)
+    """
+
+    cstack1 = self.fixture[0]
+    cstack2 = self.fixture[1]
+
+    self.assertEqual(isinstance(sg.make_axes(cstack1 + cstack2)[0],sg.Ax ) , True   )
+
+
+  def test_make_axes_function_output_expected(self):
+    """
+    The test coords contain only X and Y direction Ax objects
+    """
+
+    cstack1 = self.fixture[0]
+    cstack2 = self.fixture[1]
+
+    self.assertEqual(str( sg.make_axes(cstack1 + cstack2) ) , '[X, Y]'  )
+
+
+  def test_make_axes_function_no_output_expected(self):
+    """
+    Calling make_axes twice should not yield further output
+    """
+
+    cstack1 = self.fixture[0]
+    cstack2 = self.fixture[1]
+    sg.make_axes(cstack1 + cstack2) 
+    self.assertEqual(str( sg.make_axes(cstack1 + cstack2) ) , '[]'  )
 
 
 
@@ -130,6 +242,34 @@ class TestUtilsg(unittest.TestCase):
 
     self.assertEqual(sg.sublist(['test','hi'] ,'ho' ) , [])
 
+
+
+class TestExper(unittest.TestCase):
+
+  def setUp(self):
+    print 'Setting up %s'%type(self).__name__
+    D = sg.info_dict()
+    P = sg.Project(D['my_project']);
+    #P.load('O_temp')
+    self.fixture = P
+
+  def tearDown(self):
+    print 'Tearing down %s'%type(self).__name__
+    del self.fixture
+
+  def test_get_function_of_exper_not_loaded(self):
+    # try to get a Field that has not been loaded yet from the Exper object => None returned.
+    E = self.fixture['DPO']
+   
+    self.assertEqual(E.get('O_temp'),None)
+
+  def test_get_of_exper(self):
+    # try to get a Field that has been loaded yet from the Exper object => Field object.
+    E = self.fixture['DPO']
+    self.fixture.load('O_temp')
+    self.assertEqual(str(E.get('O_temp')), 'O_temp')
+
+  
 
 # tests around coord and grid aspects of fields
 
@@ -239,6 +379,17 @@ class TestCoordField(unittest.TestCase):
     self.assertAlmostEqual( self.fixture['DPO']['O_temp']/ (X*Y*Z) ,  3.9464440090035104 , places =2)
 
 
+  def test_avg_temp_value_after_regrid(self):
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'
+
+    # load velocity to get the velocity grid
+    self.fixture.load('O_velX')
+
+    TEMP_regrid = self.fixture['DPO']['O_temp'].regrid(self.fixture['DPO']['O_velX'].gr)
+
+    self.assertAlmostEqual( TEMP_regrid/ (X*Y*Z) , 4.092108709111132  , places =2)
 
 
 

@@ -54,7 +54,7 @@ class Coord(object):
 
   def same(self,other):
     """
-    Coord method to check whether this Coord has identical attributes (except units) to argument other Coord.
+    Coord method to check whether this Coord has identical main attributes (except units) to argument other Coord.
     """
 
     # not checking for units
@@ -87,11 +87,17 @@ class Coord(object):
     return None    
 
 
-  def __and__(self,other):
-    """
-    self&other
 
-    coord1&coord2 tests whether Coord objects coord1, coord2 contain identical Coord values, name and direction. 
+  def __and__(self,other):
+
+    return self.weaksame(other = other)
+
+  def weaksame(self,other):
+    """
+    self.weaksame(other)
+    Returns True/ False
+
+    coord1.weaksame(coord2) tests whether Coord objects coord1, coord2 contain identical Coord values, name and direction. 
     """
 
     # 
@@ -99,16 +105,24 @@ class Coord(object):
     return (self.name == other.name) and (self.direction == other.direction) and self.array_equal(other) 
 
 
+
+
     
   def sort(self,*args,**kwargs):
+    """
+    Sorts Coord value. Passes arguments on to Numpy sort method.
+    """
+
     self.value.sort(*args,**kwargs)
 
 
 
-  def copy(self,name = None,value = None, axis = None,direction = None,units = None, long_name = None, metadata=None, strings = None, equiv = True):
+  def copy(self,name = None,value = None, dual = None, axis = None,direction = None,units = None, long_name = None, metadata=None, strings = None, equiv = True):
 
     """
-    Copy function for Coord objects. If equiv = True, the copies will be equivalent.
+    Copy function for Coord objects. If equiv = True, the copies will be equivalent. When no value is selected for an argument (i.e. it retains its default value of None), a copy of the self attribute will be used. Otherwise, the argument value will be used.
+
+    Returns a copy of the Coord object.
     """
 
     frame = inspect.currentframe()
@@ -967,8 +981,8 @@ class Ax(object):
     return reduce(lambda x,y:x or y, [self.same(it) for it in L] )
 
   def sameindex(self,L):
-    for i,l in enumerate(L):
-      if self.same(l):
+    for i,it in enumerate(L):
+      if self.same(it):
         return i
      
     return None    
@@ -1289,12 +1303,15 @@ class Gr(tuple):
     else:
       return False
 
-
   def __call__(self,other, method = 'linear'):
+
+    return self.regrid(other = other, method = method)
+
+  def regrid(self,other, method = 'linear'):
     """
     Input: other Gr object (grid). 
 
-    The call method of a Gr object takes another Gr object, other, and yields a function F. This function F takes an array A and re-arranges the order of   the indices to match the input Gr object (other). If the length of the input object exceeds that of the calling object, F(A) also expands the array along the additional axes by creating copies of it along those axes (using the expand method). Note that the coords of the calling Gr object need to be a subset of the argument Gr object.
+    The regrid method of a Gr object takes another Gr object, other, and yields a function F. This function F takes an array A and re-arranges the order of   the indices to match the input Gr object (other). If the length of the input object exceeds that of the calling object, F(A) also expands the array along the additional axes by creating copies of it along those axes (using the expand method). Note that the coords of the calling Gr object need to be a subset of the argument Gr object.
     
 
     Yields a transformation on fields going from self grid to other grid.
@@ -1343,7 +1360,7 @@ class Gr(tuple):
 
         if pm:
           # CASE 1b ***
-          return lambda A: (self.shuffle(pm)).smart_interp(np.transpose(A,pm),other, method = method)
+          return lambda A: (self.shuffle(pm))._smart_interp(np.transpose(A,pm),other, method = method)
         else:
           # CASE 1c ***
           # No luck.
@@ -1386,7 +1403,7 @@ class Gr(tuple):
           # case 2b
 
           # line up the equivalent Coord elements in the same order for interpolation.
-          return lambda A: (self_expanded.shuffle(pm)).smart_interp(np.transpose(self.expand(A,self_expanded),pm),other, method = method)
+          return lambda A: (self_expanded.shuffle(pm))._smart_interp(np.transpose(self.expand(A,self_expanded),pm),other, method = method)
         else:
           # case 2c
           print "grids not equivalent"
@@ -1419,7 +1436,7 @@ class Gr(tuple):
         pm = self.eq_perm(target_grid, verbose = False) 
         if pm:
           # case 3b
-          return lambda A: other.to_slices((self.shuffle(pm)).smart_interp(np.transpose(A,pm),target_grid, method = method),target_grid)
+          return lambda A: other.to_slices((self.shuffle(pm))._smart_interp(np.transpose(A,pm),target_grid, method = method),target_grid)
 
         else:
           # case 3c
@@ -1647,7 +1664,7 @@ class Gr(tuple):
       return [Field(name = 'inflated_'+self[i].name,value = e, grid = self ) for i, e in enumerate(self.inflated ) ]
 
 
-  def smart_interp(self,A,other, method = 'linear'):
+  def _smart_interp(self,A,other, method = 'linear'):
 
     """
     Inputs: an array A of the shape corresponding to self.
@@ -1664,7 +1681,7 @@ class Gr(tuple):
     """
 # belongs to grid object.
 
-# l is the left element. Coord elements of self and other (grids) may be up to equivalence, but need to be in same order. The common (equal) elements will be stored in L
+# it is the left element. Coord elements of self and other (grids) may be up to equivalence, but need to be in same order. The common (equal) elements will be stored in L
 
 
     L = []
@@ -1701,7 +1718,7 @@ class Gr(tuple):
         srcgrid = self/L
         destgrid = other/L
 
-        B[i] = srcgrid.interp(b,destgrid)
+        B[i] = srcgrid._interp(b,destgrid)
      
 # B has now been interpolated.
       B = np.array(B)
@@ -1722,11 +1739,11 @@ class Gr(tuple):
 
       return B
     else:
-      return self.interp(A,other, method = method)
+      return self._interp(A,other, method = method)
 
 # methods belong to Gr 
 
-  def interp(self,A,other, method = 'linear'):
+  def _interp(self,A,other, method = 'linear'):
 
 
 # it is assumed that self^other and that the shape of array A corresponds to the lenghts of the Coord elements of self (and therefore other).
@@ -1847,8 +1864,8 @@ class Gr(tuple):
     if len(self) == len(other):
       
       RO = True      
-      for i,l in enumerate(self):
-        RO *= (l^other[i])
+      for i,it in enumerate(self):
+        RO *= (it^other[i])
       return bool(RO)
     else:
       return False
@@ -2590,9 +2607,12 @@ class Field(object):
       return self.value[L]
 
 
-
-
   def __call__(self,grid, method = 'linear'):
+
+    return self.regrid(grid = grid, method = method)
+
+
+  def regrid(self,grid, method = 'linear'):
 
 # this method is very important. 
 # If Field T is naturally defined on grid yt*xt, then T(zt*yt*xt) yields a Field with value a 3D array b such that b[k,:,:] = T(yt*xt) for all possible k.
@@ -3760,35 +3780,40 @@ def guess_grid_type(crd, default = 'ts_grid'):
 
 def make_axes(cstack):
   """
+
+  Replaces axis attribute of Coord objects if it is a string with newly created (non-repeating) corresponding axis objects.
+
   inputs: cstack, a list of Coord objects.
-  outputs: returns a list of axis objects based on the coords argument
-  Replaces axis attribute of Coord object if it is a string with corresponding axis objects. The Ax objects are created here.
+  outputs: returns a list of all unique (no repeats) Ax objects that have been created to replace the axis attribute of the elements of the Coord list (cstack) argument that were strings. None is returned when all cstack Coord elements already have Ax axis attributes.
+
+
+   The Ax objects are created here.
 
   Returns list of Ax objects!!
 
   NOTE THAT THIS FUNCTION DOES 2 THINGS: IT RETURNS A LIST OF AXES AND MODIFIES THE CSTACK ARGUMENT. 
 
   """
-  # no Coord objects will be removed from the cstack list.
-  # L will contain the newly created Ax objects!! So L is NOT cstack!!
-  L = []
+  # No Coord objects will be removed from the cstack list. But cstack argument is modified!
+  # created_axes will contain the newly created Ax objects!! So created_axes is NOT cstack!!
+  created_axes = []
   for c in cstack:
     if hasattr(c,'axis'):
       # string Ax attribute will be replaced with corresponding Ax object attribute
       if isinstance(c.axis,str) or isinstance(c.axis,unicode):
         # str attr found --> create corresponding Ax object.
         new_ax = Ax(c.axis,direction = c.direction)
-        if id_in(L,new_ax):
-          # however, if we already have that Ax object in L, assign existing Ax object instead.
-          i = id_index(L,new_ax)
-          if c.direction != L[i].direction:
+        if id_in(created_axes,new_ax):
+          # however, if we already have that Ax object in created_axes, assign existing Ax object instead.
+          i = id_index(created_axes,new_ax)
+          if c.direction != created_axes[i].direction:
             # if direction inconsistent, proceed but issue warning.
-            warnings.warn('Warning! While creating Ax objects from %s, Coord objects with the same axis have different directions.' % c )
-          c.axis = L[i]
+            warnings.warn('Warning! While associating Ax object %s with coord %s. %s.direction =%s, %s.direction = %s ' %(created_axes[i], c, created_axes[i], created_axes[i].direction, c, c.direction) )
+          c.axis = created_axes[i]
           
         else:
-          # new Ax object not in L, proceed using new Ax object.
-          L.append(new_ax)
+          # new Ax object not in created_axes, proceed using new Ax object.
+          created_axes.append(new_ax)
           c.axis = new_ax 
         # Ax object equivalent (parallel) to Coord object.
         c.axis | c     
@@ -3803,7 +3828,7 @@ def make_axes(cstack):
           
           cstack[j].dual = cstack[i]
 
-  return L        
+  return created_axes        
 
 
 

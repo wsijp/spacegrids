@@ -77,10 +77,10 @@ def print_box(L, cols = 5, numspace = 2):
   Used for formatted output to stdout
   """
 
-  for i, l in enumerate(L):
+  for i, it in enumerate(L):
     if (i%cols == 0):
       print '\n', 
-    print '%-15s' % (l) ,
+    print '%-15s' % (it) ,
 
 def print_table(D, cols = 4, numspace = 2):
   """
@@ -99,12 +99,12 @@ def split_list(L, size = 10):
   Very general function splitting a list L into a list of sublists of equal length (and a remainder).
   """
 
-  l = len(L)
-  full_blocks = l/size
+  length = len(L)
+  full_blocks = length/size
 
   new_L = [ L[i*size:(i+1)*size]   for i in range(full_blocks) ]
   
-  if full_blocks * size != l: 
+  if full_blocks * size != length: 
     new_L.append(L[size*full_blocks:])  
 
   return new_L
@@ -187,7 +187,7 @@ def mark_sublist(Lbig,Lsub, indicator ='*', mult = 2):
     if it in Lsub:
       it =   it +indicator*mult
   
-    cLbig.append(l)
+    cLbig.append(it)
   
   return cLbig    
 
@@ -249,23 +249,23 @@ def flat_list(L):
   return W
 
 
-def rav_index(I,sh):
+def rav_index(L,sh):
   lsh = list(sh)
   lsh[-1] = 1
-  if isinstance(I,int):
-    return I
-  elif isinstance(I,tuple) or isinstance(I,list):
-    if len(I) == len(lsh):
+  if isinstance(L,int):
+    return L
+  elif isinstance(L,tuple) or isinstance(L,list):
+    if len(L) == len(lsh):
    
       result = 0
       coef = 1
       for e in sh:
         coef *= e
 
-      for i in range(len(I)):
+      for i in range(len(L)):
         coef = coef/sh[i]
 
-        result += coef*I[i]
+        result += coef*L[i]
 
       return result
         
@@ -360,8 +360,8 @@ def get_att(obj, att_list,fail_val = None):
 
 def id_index(L,e):
 
-  for i,l in enumerate(L):
-    if (l&e):
+  for i,it in enumerate(L):
+    if (it&e):
       return i
 
 # not raising error as normal in would. 
