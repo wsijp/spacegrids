@@ -1,1085 +1,1001 @@
-# -*- coding: utf-8 -*-
+#encoding:utf-8
 
-import imp 
+""" unit tests.
+Data required for these tests is the example project my_project mentioned in the tutorial.
 
-#import spacegrids as sg
+"""
+
+import inspect
+import copy
+import unittest
+import os
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-
-#sg = imp.load_source('spacegrids', '/path/PACKAGES/spacegrids/__init__.py')
-
 import spacegrids as sg
 
-# <headingcell level=3>
 
-# Overview of the available data
+# test the info function
 
-# <markdowncell>
+class TestInfo(unittest.TestCase):
 
-# The info function returns a dictionary of all the available project names and their paths. Here, we have one project (named ```my_project```). Make sure there is at least one project listed when following these examples. 
+  def setUp(self):
+    print 'Setting up %s'%type(self).__name__
 
-# <codecell>
+    self.fixture = sg.info_dict()
 
-print 'module ', sg
+  def tearDown(self):
+    print 'Tearing down %s'%type(self).__name__
+    del self.fixture
 
+  def test_type(self):
+    
+    self.assertEqual(type(self.fixture),dict)
 
-D = sg.info()
+  def test_type2(self):
+    D = self.fixture
+    if len(D) > 0:
+      self.assertEqual(type(D.keys()[0]),str)
 
-# <codecell>
+  def test_paths_in_D_exist(self):
+    D = self.fixture
+    for path in D.values():
+      self.assertEqual(os.path.exists(path), True)  
 
-D
+class Test_project_helpers(unittest.TestCase):
 
-# <markdowncell>
+  def setUp(self):
+    print 'Setting up %s'%type(self).__name__
+    D = sg.info_dict()
+    self.fixture = D
 
-# To start a project instance, named ```P```, it is easy to use:
+  def tearDown(self):
+    print 'Tearing down %s'%type(self).__name__
+    del self.fixture
 
-# <codecell>
 
-P = sg.project(D['my_project'])
 
-# <markdowncell>
+  def test_isexpdir_on_project_dir(self):
 
-# Ignore the harmless warnings. They relate to the interpretation of the axes and dimension names found in the Netcdf files. Upon project initialization, meta data associated with the grids, dimensions and axis directions is collected from the data files and interpreted. The project is now initialized. Subdirectories of the ```test_project``` directory correspond to (numerical) experiments and also ```exper``` objects. If Netcdf files had been present in the ```test_project``` directory, they would have been interpreted as experiments. In this case, an ```exper``` object (experiments) corresponds not to subdirectory, but a single Netcdf file. This latter arrangement corresponds to the structure of a project saved with ```P.write()```, where all experiments are written to experiment files. If a path to a file (not project directory) is provided to ```sg.project```, a project is initialised assuming all project is contained in that single file.
+    D = self.fixture
+    self.assertEqual(set(sg.isexpdir(os.path.join(D['my_project']))),  set(['DPO', 'DPC','Lev.cdf'] ) ) 
 
-# <headingcell level=1>
 
-# The field class
+  def test_isexpdir_on_exper_dir(self):
 
-# <headingcell level=3>
+    D = self.fixture
+    self.assertEqual(sg.isexpdir(os.path.join(D['my_project'], 'DPO')),  ['time_mean.nc'] ) 
 
-# Introduction to fields
 
-# <markdowncell>
+class TestCoordsOnTheirOwn(unittest.TestCase):
 
-# To look at an example of fields (e.g. temperature or humidity), it is best to load one into the project.
+  def setUp(self):
+    print 'Setting up %s'%type(self).__name__
 
-# <codecell>
+    def provide_axis(cstack):
+      for i, c in enumerate(cstack):
+        cstack[i].axis = cstack[i].direction 
 
-P.load('O_temp')
+      return cstack
+  
+    # Note that some coord values are deliberately unordered.       
+    coord1 = sg.Coord(name = 'test1',direction ='X',value =np.array([1,2,3]) , metadata = {'hi':5} )
+    coord2 = sg.Coord(name = 'test2',direction ='Y',value =np.array([1,2,3,4]), metadata = {'hi':7})
+    coord3 = sg.Coord(name = 'test',direction ='X',value =np.array([5,1,2,3,4]), metadata = {'hi':3})
+    # identical in main attributes to previous set (in order):
+    coord4 = sg.Coord(name = 'test1',direction ='X',value =np.array([1,2,3]), metadata = {'hi':8})
+    coord5 = sg.Coord(name = 'test2',direction ='Y',value =np.array([1,2,3, 4]), metadata = {'hi':10})
+    coord6 = sg.Coord(name = 'test',direction ='X',value =np.array([5,1,2,3, 4]), metadata = {'hi':12})
 
-# <markdowncell>
 
-# 
-# 
-# The ocean temperature field is now loaded into memory and associated with the project P. How do you know what variable name to pick? Inspection on the Bash command line of the Netcdf file with ```ncdump -h``` usually provides this information. Alternatively, experiments have an ls function: ```P['DPO'].ls()``` would yield a long list of available variables to be loaded as fields.
+    cstack1 = provide_axis([coord1,coord2,coord3])
+    cstack2 = provide_axis([coord4,coord5,coord6])
 
-# <markdowncell>
+    self.fixture = [cstack1, cstack2]
 
-# Notice that ```O_temp``` has not been loaded for Lev. This is because the Netcdf file inside the ```Lev``` directory follows different naming conventions. Inspection of the Netcdf file in the ```Lev``` directory reveals that temperature is referred to as ```otemp```. To load it, we use:
+  def tearDown(self):
+    print 'Tearing down %s'%type(self).__name__
+    del self.fixture
 
-# <codecell>
 
-P.load('otemp')
+  def test_coord_init_attributes_assigned(self):
+    """
+    Test whether all passed are assigned to attributes as intended. This is easy to forget when adding new arguments.
+    """
 
-# <markdowncell>
+    pass
 
-# Now all three temperature fields are loaded. We access the temperature fields of the ```DPO``` experiment and the observations ```Lev``` and test resulting field instances:
+  def test_copy_arguments_are_same_to_init(self):
+    """
+    Test whether the Coord copy method takes the same arguments as the __init__ method, with the exception of the Boolean equiv, which is a switch to the copy method. Note that XCoord and YCoord define their own copy methods and need to be tested separately.
+    """
 
-# <codecell>
+    self.assertEqual(inspect.getargspec(sg.Coord.copy).args[:-1] , inspect.getargspec(sg.Coord.__init__).args  )
 
-TEMP = P['DPO']['O_temp'] 
-TEMP2 = P['Lev']['otemp']
 
-TEMP # a field
+  def test_copy_method_yields_not_same_case_name(self):
+    """
+    Test whether making a copy with 1 argument passed to .copy method yields a Coord object that is the same as the original (although a different object in memory) and differs in that specific attribute.
 
-# <markdowncell>
+    """
 
-# The shape of a field corresponds to the shape of the Numpy array it contains and is consistent with the shape of its grid:
+    cstack1 = self.fixture[0]
+    coord2 = cstack1[-2]
+    coord3 = cstack1[-1]
+   
+    coord3_copy = coord3.copy(name = 'joep')
 
-# <codecell>
+    self.assertEqual(coord3_copy.name, 'joep'  )
 
-TEMP.shape # show the shape of the numpy array containing the data. This is a 3D field
+  def test_copy_method_yields_not_same_case_dual(self):
+    """
+    Test whether making a copy with 1 argument passed to .copy method yields a Coord object that is the same as the original (although a different object in memory) and differs in that specific attribute.
 
-# <codecell>
+ 
+    """
 
-TEMP.gr # show the grid on which the temp data is defined
+    cstack1 = self.fixture[0]
+    coord2 = cstack1[-2]
+    coord3 = cstack1[-1]
+    Z = sg.Ax('Z')
+   
+    coord3_copy = coord3.copy(dual = coord2)
 
-# <markdowncell>
+    test_args = {'name':'joep', 'value':np.array([1,2,3]),'dual':coord2,'axis':Z,'direction':'Z','units':'cm','long_name':'this is a coordinate in the x direction','metadata':{'hi':0},'strings':['five','one','two','three','four']}
+ 
 
-# The names of the grid components depth, latitude and longitude correspond to the names used in the Netcdf file. For instance, there are different naming conventions for the Lev data:
+    for ta in test_args:
+      value = test_args[ta]
+      coord3_copy = coord3.copy(**{ta:value})
 
-# <codecell>
+      coord_att = getattr(coord3_copy,ta)
+      if isinstance(coord_att,np.ndarray):
+        self.assertEqual(np.array_equal(coord_att, value), True  )
+      else:
+        self.assertEqual(coord_att, value  )
 
-TEMP2.gr
 
-# <markdowncell>
 
-# Fields can be saved to Netcdf again, along with all their metadata and coordinates via their write method, e.g. ```TEMP2.write()```. To specify the path for instance: ```TEMP2.write(path = '/home/me/')```. Experiment and coord objects also have save methods. In the case of an experiment, all loaded fields are saved to one file. An entire project can be saved with ```P.save()```, yielding a project file structure (directory containing a projname text file and Netcdf files corresponding to experiments). Generally, it is good to provide a ```name``` argument different from the project name, and safeguards exist to avoid overwriting the original project on disk, but no safeguards exist yet to check for multiple instances of the same project name (defined in the projname file): for now, this is up to the user to check. Finally, an arbitrary list of fields can be saved with ```sg.nugget```.
 
-# <markdowncell>
 
-# An overview of the experiments and loaded fields corresponding to the project are shown by:
+  def test_same_method_yields_same(self):
+    """
+    Test whether making a copy with no arguments passed to .copy method yields a Coord object that is the same (with respect to .same method) as the original (although a different object in memory).
+    """
 
-# <codecell>
+    cstack1 = self.fixture[0]
+    coord3 = cstack1[-1]
+   
+    coord3_copy = coord3.copy()
 
-P
+    self.assertEqual(coord3.same(coord3_copy),True  )
 
-# <markdowncell>
+  def test_same_method_yields_not_same_case_array(self):
+    """
+    Test whether making a copy with 1 argument passed to .copy method yields a Coord object that is NOT the same (with respect to .same method) as the original (and a different object in memory).
 
-# And for an experiment:
+    Note that in general, the .same method tests for:
 
-# <codecell>
+    self.array_equal(other)
+    self.name == other.name
+    self.axis == other.axis
+    self.direction == other.direction 
 
-P['DPO']
+    """
 
-# <headingcell level=4>
+    cstack1 = self.fixture[0]
+    coord3 = cstack1[-1]
+   
+    coord3_copy = coord3.copy(value = np.array([5,6,7]))
 
-# *** A note of warning: whenever the sg module is reloaded (e.g. with reload(sg)), all the above steps and the below steps need to be done again in sequence. Stale objects will lead to strange errors! ***
+    self.assertEqual(coord3.same(coord3_copy), False  )
 
-# <headingcell level=3>
+  def test_same_method_yields_not_same_case_name(self):
+    """
+    Test whether making a copy with 1 argument passed to .copy method yields a Coord object that is NOT the same (with respect to .same method) as the original (and a different object in memory).
 
-# Slicing, plotting and interpolation
+    Note that in general, the .same method tests for:
 
-# <markdowncell>
+    self.array_equal(other)
+    self.name == other.name
+    self.axis == other.axis
+    self.direction == other.direction 
 
-# Objects representing general coordinate directions (X,Y axes etc) have been constructed during initialization of project P, and can be accessed as follows:
+    """
 
-# <codecell>
+    cstack1 = self.fixture[0]
+    coord3 = cstack1[-1]
+   
+    coord3_copy = coord3.copy(name = 'joep')
 
-P['DPO'].axes
+    self.assertEqual(coord3.same(coord3_copy), False  )
 
-# <markdowncell>
+  def test_same_method_yields_not_same_case_axis(self):
+    """
+    Test whether making a copy with 1 argument passed to .copy method yields a Coord object that is NOT the same (with respect to .same method) as the original (and a different object in memory).
 
-# Bring these axes into the namespace under their own names:
+    Note that in general, the .same method tests for:
 
-# <codecell>
+    self.array_equal(other)
+    self.name == other.name
+    self.axis == other.axis
+    self.direction == other.direction 
 
-for c in P['DPO'].axes:
-  exec c.name + ' = c'
+    """
 
-# <markdowncell>
+    cstack1 = self.fixture[0]
+    coord3 = cstack1[-1]
+   
+    coord3_copy = coord3.copy(axis = 'Z')
 
-# So that we can reference them:
+    self.assertEqual(coord3.same(coord3_copy), False  )
 
-# <codecell>
+  def test_same_method_yields_not_same_case_direction(self):
+    """
+    Test whether making a copy with 1 argument passed to .copy method yields a Coord object that is NOT the same (with respect to .same method) as the original (and a different object in memory).
 
-X
+    Note that in general, the .same method tests for:
 
-# <markdowncell>
+    self.array_equal(other)
+    self.name == other.name
+    self.axis == other.axis
+    self.direction == other.direction 
 
-# Field objects allow slicing by reference to axis name and using ndarray index values. Here, we use the axis object, followed by a slice object (e.g. ```TEMP[X,5]``` or ```TEMP[Z,:]``` or ```TEMP[Y,55:]``` or ```TEMP[X,slice(55,None,None))]```. To plot the surface temperature using sg version of contourf:
+    """
 
-# <codecell>
+    cstack1 = self.fixture[0]
+    coord3 = cstack1[-1]
+   
+    coord3_copy = coord3.copy(direction = 'Z')
 
-sg.contourf(TEMP[Z,0])
-clb = plt.colorbar()
-clb.set_label(TEMP.units)
-plt.show()
+    self.assertEqual(coord3.same(coord3_copy), False  )
 
-# <markdowncell>
 
-# The sg module automatically selects sensible contour levels and x,y ticks. Versions older than 1.1.4 lack this functionality. The number of levels can be set using argument ```num_cont```. Alternatively, the Matplotlib levels arguments can be passed. Labels and orientation are extracted from the grid metadata. The field grid is used to extract plotting information, unless another grid is specified in the grid argument.
+  def test_same_method_yields_not_same_case_direction(self):
+    """
+    Test whether making a copy with 1 argument passed to .copy method yields a Coord object that is NOT the same (with respect to .same method) as the original (and a different object in memory).
 
-# <codecell>
+    Note that in general, the .same method tests for:
 
-sg.contourf(TEMP[X,50]) # a section at index 50.
-clb = plt.colorbar()
-clb.set_label(TEMP.units)
-plt.show()
+    self.array_equal(other)
+    self.name == other.name
+    self.axis == other.axis
+    self.direction == other.direction 
 
-# <markdowncell>
+    """
 
-# Slicing can also be done via indices using the normal ndarray notation:
+    cstack1 = self.fixture[0]
+    coord3 = cstack1[-1]
+   
+    coord3_copy = coord3.copy(direction = 'Z')
 
-# <codecell>
+    self.assertEqual(coord3.same(coord3_copy), False  )
 
-(TEMP[0,:,:]).shape == (TEMP[Z,0]).shape
 
-# <markdowncell>
 
-# A note of warning on stale objects. Slicing using ax objects is a common case where stale objects after a module reload lead to strange errors. If we were to reload the module in the above case, and bring the ```X```,```Y```,```Z```,```T``` ```ax``` objects into the namespace again, but use the now stale old TEMP field, the above slicing with ```Z``` will lead to a perplexing error. All objects will need to be refreshed in this case, which means redoing all the previous steps. In most common cases a module reload is not required, and this type of confusion arises mostly in module code development situations.  
+#
 
-# <markdowncell>
 
-# Means are calculated easily by division.
 
-# <codecell>
+  def test_sort(self):
+    cstack1 = self.fixture[0]
+    coord3 = cstack1[-1]
+    coord3.sort()
+    value = copy.deepcopy(coord3.value)
+    value.sort()
+    self.assertEqual(coord3.value.any() , value.any()  )
 
-# Determine zonal mean mT of TEMP.
+  def test_equality_relation_weaksame(self):
+    """"
+    Does the &-relationship yield equality?
+    """
+    cstack1 = self.fixture[0]
+    cstack2 = self.fixture[1]
 
-mTEMP = TEMP/X
-mTEMP2 = TEMP2/X
+    # First two coord objects should have same content
 
-sg.contourf(mTEMP,levels = range(-2,34,2)) # plot zonal mean
-clb =plt.colorbar(ticks = range(0,34,4))
-clb.set_label(TEMP.units)
-plt.show()
-# <codecell>
+    self.assertEqual(cstack1[0].weaksame(cstack2[0]), True)
 
-mTEMP.gr  # the dimensionality of the zonal mean is less
+  def test_inequality_relation_weaksame(self):
+    """"
+    Does the &-relationship yield inequality?
+    """
 
-# <markdowncell>
+    cstack1 = self.fixture[0]
+    cstack2 = self.fixture[1]
 
-# A calculated field such as ```mTEMP``` can be inserted into the project using the ```insert``` method. This is generally not needed, but can be useful when the project or experiment is later written to disk.
+    # These two coord objects are not the same
 
-# <codecell>
+    self.assertEqual(cstack1[0].weaksame(cstack2[1]), False)
 
-P['DPO'].insert(mTEMP,name = 'mtemp')
+  def test_equality_relation_find_equal_axes(self):
+    """"
+    Does the function find_equal_axes recognise equivalent coord objects in the two cstacks and replace the elements of the 2nd stack accordingly?
+    """
 
-# <markdowncell>
+    cstack1 = self.fixture[0]
+    cstack2 = self.fixture[1]
 
-# Now, ```temp``` is part of the DPO experiment:
+    # this should remove all redundant coord objects with respect to &-equality
+    sg.find_equal_axes(cstack1,cstack2)
 
-# <codecell>
+    self.assertEqual(cstack1,cstack2)
 
-P['DPO']
+  def test_make_axes_function_type_output(self):
+    """
+    The output should be a list of Ax objects ([X,Y] expected, see below)
+    """
 
-# <markdowncell>
+    cstack1 = self.fixture[0]
+    cstack2 = self.fixture[1]
 
-# To see the effect of opening Drake Passage in the climate model: 
+    self.assertEqual(isinstance(sg.make_axes(cstack1 + cstack2)[0],sg.Ax ) , True   )
 
-# <codecell>
 
-sg.contourf(P['DPO']['O_temp'][Z,0]-P['DPC']['O_temp'][Z,0],cmap = mpl.cm.RdYlBu_r,levels = range(-8,9,1))
-clb = plt.colorbar(ticks = range(-8,9,2))
-clb.set_label(TEMP.units)
-plt.show()
-# <markdowncell>
+  def test_make_axes_function_output_expected(self):
+    """
+    The test coords contain only X and Y direction Ax objects
+    """
 
-# Data is generally defined on different grids, so interpolation is needed. In our example, the observations are defined on a finer grid than the model data:
+    cstack1 = self.fixture[0]
+    cstack2 = self.fixture[1]
 
-# <codecell>
+    self.assertEqual(str( sg.make_axes(cstack1 + cstack2) ) , '[X, Y]'  )
 
-TEMP2.shape
 
-# <markdowncell>
+  def test_make_axes_function_no_output_expected(self):
+    """
+    Calling make_axes twice should not yield further output
+    """
 
-# To overlay a plot of the model geography on atmospheric fields, we can load the ocean bathymetry field G_kmt, interpolate it on a finer grid with ```sg.finer_field``` (to avoid angled contours and show true resolution) and use contour plot over the 0.5 contour to capture the transition from land (value 0) to ocean(values 1 to 19). Here, we overlay this geographic outline over sea level air temperature:
+    cstack1 = self.fixture[0]
+    cstack2 = self.fixture[1]
+    sg.make_axes(cstack1 + cstack2) 
+    self.assertEqual(str( sg.make_axes(cstack1 + cstack2) ) , '[]'  )
 
-# <codecell>
 
-P.load(['G_kmt','A_slat'])
-KMT = P['DPO']['G_kmt']
-SAT = P['DPO']['A_slat']
-nc = 10
-sg.contourf(SAT, num_cont = nc,cmap = mpl.cm.RdYlBu_r)
-cs=sg.contour(SAT,linestyles='solid', num_cont = nc, colors = 'k')
-plt.clabel(cs,fmt='%1.0f')
-sg.contour(sg.finer_field(KMT), colors='k',levels=[0.5,]  )
-plt.show()
-# <markdowncell>
 
-# To interpolate a field ```F``` in Spacegrids, simply call ```F``` on the desired grid ```gr``` as ```F(gr)```. For instance, to compute the difference between the zonal mean of the model and the observations:
+class TestUtilsg(unittest.TestCase):
 
-# <codecell>
 
-dmTEMP = mTEMP(mTEMP2.gr) - mTEMP2
+# 3 tests for very simple function sublist in utilsg.py
+# --------------
+  def test_sublist(self):
 
-# <codecell>
+    self.assertEqual(sg.sublist(['test','hi'] ,'hi' ) , ['hi'])
+     
+  def test_sublist_all(self):
 
-cont_int = np.arange(-3.,6.,1.)
-cmap = mpl.cm.RdYlBu_r	# Colormap red yellow blue reversed
-pl1 = sg.contourf(dmTEMP,  levels = cont_int, cmap = cmap);
+    self.assertEqual(sg.sublist(['test','hi'] ,'*' ) , ['test','hi'])
 
-clb = plt.colorbar(ticks = cont_int)
-clb.set_label(TEMP.units)
-plt.xlim([-80.,70.])
-plt.xticks([-60,-30,0,30,60])
-plt.ylabel('Depth (m)')
-tle = plt.title(' Zonal avg. T difference model - observations')
-plt.show()
-# <markdowncell>
+  def test_sublist_none(self):
 
-# The model is pretty good! It is a bit too warm in the upper 1000m and a bit too cool in the deep ocean.
+    self.assertEqual(sg.sublist(['test','hi'] ,'ho' ) , [])
 
-# <codecell>
 
-dmTEMP.gr # the resulting grid is that of the Lev data
+# -------------
 
-# <markdowncell>
+  def test_add_alias(self):
+    """
+    Create some test coords to test the add_alias function in utilsg.py.
 
-# To compute the meridional streamfunction, we load the velocity in the y direction and apply the calculations in simple notation:
+    An alias attribute is assigned, which is the same as the name attribute unless the name appears more than once.
+    Two names are the same in this example, and in the created alias, the second of those two names must receive a suffix "2". 
+    """
+    coord1 = sg.Coord(name = 'test',direction ='X',value =np.array([1,2,3]) , metadata = {'hi':5} )
+    coord2 = sg.Coord(name = 'test',direction ='Y',value =np.array([1,2,3,4]), metadata = {'hi':7})
 
-# <codecell>
+    coord3 = sg.Coord(name = 'test3',direction ='X',value =np.array([5,1,2,3,4]), metadata = {'hi':3})
 
-# Give the experiment objects convenient names E, E2:
-E = P['DPO'];E2 = P['DPC']
-varname = 'O_velY'
+    coord4 = sg.Coord(name = 'test4',direction ='X',value =np.array([5,1,2,3,4]), metadata = {'hi':5})
 
-# load velocity by netcdf name.
-P.load(varname)
+    L = sg.add_alias([coord1, coord2, coord3, coord4])
 
-# obtain velocity as sg field object V from project.
-V = E[varname]
-V2 = E2[varname]
+    # test that alias is correct (same as names, but if the same name occurs >1 times, it is numbered)
+    self.assertEqual([it.alias for it in L]  , ['test', 'test2', 'test3', 'test4'] )
 
-# take the meridional stream function by taking zonal grid-integral X*V 
-# and the vertical primitive of the result along Z using the pipe.
-PSI = Z|(X*V)*1e-6
-PSI2 = Z|(X*V2)*1e-6
+    # test that names remain the same
+    self.assertEqual([it.name for it in L]  , ['test', 'test', 'test3', 'test4'] )
 
-# <markdowncell>
 
-# Now that we have the required fields, we can plot them. 
 
-# <codecell>
+class TestExper(unittest.TestCase):
 
-lvls = np.arange(-100,100,4)
-xlims = [-80,70]
-ylims = [-4500., -0.]
+  def setUp(self):
+    print 'Setting up %s'%type(self).__name__
+    D = sg.info_dict()
+    P = sg.Project(D['my_project']);
+    #P.load('O_temp')
+    self.fixture = P
 
-# --- start figure ---
+  def tearDown(self):
+    print 'Tearing down %s'%type(self).__name__
+    del self.fixture
 
-lbl = ord('a')
 
-pan = 0
+  def test_load_method_non_existent_var(self):
+    P = self.fixture
+    E = P['DPO']
+    varname = 'this_doesnt_exist'
 
-height = 2
-width = 1
+    # attempt to load non-existent field    
+    P.load(varname)
+    
+    self.assertEqual(len(E.vars),0)
 
-rows = 2
-cols = 1
 
-F = PSI
-ax = plt.subplot2grid((height, width), (int(np.floor(pan/cols)), pan%cols) )
+  def test_load_method_existent_var(self):
+    P = self.fixture
+    E = P['DPO']
+    varname = 'O_temp'
 
-# use the sg wrapper for the contour function.
-cs= sg.contour(F,linestyles='solid',showland=True,levels = lvls,colors='k');
+    # attempt to load non-existent field    
+    P.load(varname)
+    
+    self.assertEqual(len(E.vars),1)
 
-plt.clabel(cs,fmt='%1.1f');
+  def test_load_method_multiple_existent_var(self):
+    P = self.fixture
+    E = P['DPO']
+    varnames = ['A_sat', 'A_slat' ]
 
-plt.xlim(xlims)
-plt.ylim(ylims)
-plt.tick_params(axis='x',labelbottom='off')
-plt.xlabel('')
-plt.ylabel('Depth (m)')
-tle = plt.title('('+ chr(lbl) +') MOC Drake Passage open ')
+    # attempt to load non-existent field    
+    P.load(varnames)
+    
+    self.assertEqual(len(E.vars),2)
 
-lbl += 1
-pan += 1
 
-F = PSI2
-ax = plt.subplot2grid((height, width), (int(np.floor(pan/cols)), pan%cols) )
+  def test_get_function_of_exper_not_loaded(self):
+    # try to get a Field that has not been loaded yet from the Exper object => None returned.
+    E = self.fixture['DPO']
+   
+    self.assertEqual(E.get('O_temp'),None)
 
-cs= sg.contour(F,linestyles='solid',showland=True,levels = lvls,colors='k');
-plt.clabel(cs,fmt='%1.1f');
-plt.xlim(xlims)
-plt.ylim(ylims)
+  def test_get_of_exper(self):
+    # try to get a Field that has been loaded yet from the Exper object => Field object.
+    E = self.fixture['DPO']
+    self.fixture.load('O_temp')
+    self.assertEqual(str(E.get('O_temp')), 'O_temp')
 
-# Overiding the xlabel assigned by sg:
-plt.xlabel('Latitude')
-tle = plt.title('('+ chr(lbl) +') MOC Drake Passage closed ')
-plt.show()
-# <markdowncell>
+  
 
-# There is strong southern sinking in the DP closed case, and a switch to northern sinking in the DP open case. That's why there was warming in the NH.
+# tests around coord and grid aspects of fields
 
-# <markdowncell>
+class TestCoordField(unittest.TestCase):
 
-# Field concatenation is done with the concatenate function, similar to Numpy. If we split surface air temperature ```SAT``` latitudinally into three pieces:
+  def setUp(self):
+    print 'Setting up %s'%type(self).__name__
+    D = sg.info_dict()
+    P = sg.Project(D['my_project']);P.load('O_temp')
+    self.fixture = P
 
-# <codecell>
+  def tearDown(self):
+    print 'Tearing down %s'%type(self).__name__
+    del self.fixture
 
-SAT1=SAT[Y,:40];SAT2=SAT[Y,40:50];SAT3=SAT[Y,50:]
 
-# <markdowncell>
+  def test_field_grid_len(self):
 
-# And re-assemble along the default axis ```ax = None```, sg will guess to use the incomplete (differing) axes:
+    self.assertEqual(len(self.fixture['DPO']['O_temp'].gr),3)
 
-# <codecell>
+  def test_field_shape(self):
 
-SAT_cat = sg.concatenate([SAT1,SAT2,SAT3])
+    self.assertEqual(self.fixture['DPO']['O_temp'].shape,self.fixture['DPO']['O_temp'].gr.shape())
 
-# <markdowncell>
+  def test_coord(self):
 
-# (This yields the same result as ```sg.concatenate([SAT1,SAT2,SAT3],ax=Y)```.) Drawing the zonal mean shows that ```SAT``` has been re-assembled correctly:
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'
 
-# <codecell>
+    self.assertEqual( latitude*(longitude*latitude) , longitude*latitude )
 
-(SAT_cat/X).draw()
-plt.show()
-# <markdowncell>
+  def test_coord_mult2(self):
 
-# If multiple files are found in an experiment directory, and they contain the same field, sg will assume they are pieces of the same field and concatenate them upon loading. An example would be files containing different time slices of the same field (e.g. temperature).
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'
 
-# <markdowncell>
+    self.assertEqual( latitude_edges*(longitude*latitude) , longitude*latitude_edges )
+    
 
-# Tip: field objects have a squeeze and unsqueeze method: use help to learn more about them. Fields are squeezed upon loading and unsqueezed when saved.
+    
+  def test_coord_div(self):
 
-# <headingcell level=3>
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'
 
-# Grids and coord objects
+    self.assertEqual( (longitude*latitude)/longitude , latitude**2 )
 
-# <markdowncell>
+   
 
-# Grid objects model the grids on which the field data is defined. They consist of tuples containing ```coord``` objects. ```Coord``` objects consist of points along an axis and are read and named from the Netcdf files. To bring these objects into the namespace under their own name: 
+  def test_coord_dual(self):
 
-# <codecell>
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'
 
-for c in E.cstack:
-  exec c.name +' = c'
+    self.assertEqual( longitude.dual, longitude_edges )
+   
+  def test_coord_mul_field(self):
 
-# <markdowncell>
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'
 
-# This allows us to reference the ```coord``` objects built from the Netcdf file by the names extracted from the metadata:
+    self.assertEqual( (longitude*self.fixture['DPO']['O_temp']).shape, (19,100) )
 
-# <codecell>
+  def test_coord_div_field(self):
 
-depth[:] # depth coordinate points
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'
 
-# <codecell>
+    self.assertEqual( (self.fixture['DPO']['O_temp'] / longitude).shape, (19,100) )
 
-latitude[:10] # latitudinal coordinate points (truncated)
+  def test_coord_2D_div_field(self):
 
-# <markdowncell>
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'
 
-# The result of the ```__getitem__``` method here is the ndarray containing the data of the coordinate points. It is important to realize that these ```coord``` names (depth, latitude etc) have been read from the Netcdf file and have not been hard coded into Spacegrids. 
+    self.assertEqual( (self.fixture['DPO']['O_temp'] / (longitude*latitude ) ).shape, (19,) )
 
-# <markdowncell>
 
-# A shorthand for grid construction from ```coord``` objects is via multiplication:
+  def test_ax_mul_field(self):
+    
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'
 
-# <codecell>
+    self.assertEqual( (X*self.fixture['DPO']['O_temp']  ).shape, (19, 100) )
 
-latitude*longitude
 
-# <codecell>
+  def test_can_I_divide_field_by_ax_shape(self):
+    
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'
 
-latitude*longitude*depth
+    self.assertEqual( (self.fixture['DPO']['O_temp'] / X ).shape, (19, 100) )
 
-# <markdowncell>
+  def test_can_I_divide_field_by_ax2D_shape(self):
+    
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'
 
-# The latter 3 dimensional grid is associated with ndarray data where the first index represents latitude, the second longitude and the third depth. Field objects contain a grid object that is always congruent with the ndarray holding the field data. The grid objects contained in fields are used to always ensure data alignment, for instance under multiplication.
+    self.assertEqual( (self.fixture['DPO']['O_temp'] / (X*Y ) ).shape, (19,) )
 
-# <markdowncell>
 
-# Coord objects and grid objects are not the same. To construct a one dimensional grid object: 
+  def test_avg_temp_value(self):
 
-# <codecell>
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'
 
-latitude**2
+    self.assertAlmostEqual( self.fixture['DPO']['O_temp']/ (X*Y*Z) ,  3.9464440090035104 , places =2)
 
-# <headingcell level=3>
 
-# Axis alignment
+  def test_avg_temp_value_after_regrid(self):
 
-# <markdowncell>
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'
 
-# We had:
+    # load velocity to get the velocity grid
+    self.fixture.load('O_velX')
 
-# <codecell>
+    TEMP_regrid = self.fixture['DPO']['O_temp'].regrid(self.fixture['DPO']['O_velX'].gr)
 
-TEMP.gr
+    self.assertAlmostEqual( TEMP_regrid/ (X*Y*Z) , 4.092108709111132  , places =2)
 
-# <markdowncell>
 
-# With data in the ndarray:
 
-# <codecell>
+  def test_squeezed_dims_worked_on_loading(self):
 
-(TEMP[:]).shape
+    self.assertEqual( len(self.fixture['DPO']['O_temp'].squeezed_dims) , 1   )
 
-# <markdowncell>
+  def test_if_unsqueezing_adds_dims(self):
 
-# where we recognise the length of the depth coord as 19: 
+    self.assertEqual( len( (sg.unsqueeze(self.fixture['DPO']['O_temp']) ).gr ) , 4   )
 
-# <codecell>
+  def test_if_unsqueezing_removes_squeezed_dims(self):
 
-len(depth[:])
+    self.assertEqual( len( (sg.unsqueeze(self.fixture['DPO']['O_temp']) ).squeezed_dims ) , 0   )
 
-# <markdowncell>
 
-# Rearrangement of the coordinates:
+class TestFieldBasic(unittest.TestCase):
 
-# <codecell>
+  def setUp(self):
+    print 'Setting up %s'%type(self).__name__
+    D = sg.info_dict()
+    P = sg.Project(D['my_project']);
+    P.load(['O_temp','A_sat'])
+    self.fixture = P
 
-TEMP_shuffled = TEMP(latitude*longitude*depth)
-TEMP_shuffled.gr
+  def tearDown(self):
+    print 'Tearing down %s'%type(self).__name__
+    del self.fixture
 
-# <codecell>
+  def test_slice(self):
 
-(TEMP_shuffled[:]).shape
+    SAT = self.fixture['DPO']['A_sat']
 
-# <markdowncell>
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'       
 
-# Data axis alignment is automatic. For instance, multiplying temperature with velocity:
+    SAT_sliced = SAT[Y,:50]
 
-# <codecell>
+    self.assertEqual( SAT_sliced.shape ,  (50,100)  )
 
-F = TEMP*V
+  def test_cat(self):
 
-# <codecell>
+    SAT = self.fixture['DPO']['A_sat']
 
-F.gr
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'       
 
-# <markdowncell>
+    SAT1 = SAT[Y,:40]
+    SAT2 = SAT[Y,40:55]
+    SAT3 = SAT[Y,55:]
 
-# Multiplication alignment works regardless of the order of the coordinates:
+    SAT_combined = sg.concatenate((SAT1,SAT2,SAT3))
 
-# <codecell>
+    self.assertEqual( SAT_combined.shape ,  (100,100)  )
 
-F2 = TEMP_shuffled*V
-F2.gr
 
-# <markdowncell>
 
-# Here, ```V``` is actually defined on a different grid: the velocity grid:
 
-# <codecell>
+class TestGrid(unittest.TestCase):
 
-V.gr
+  def setUp(self):
+    print 'Setting up %s'%type(self).__name__
+    D = sg.info_dict()
+    P = sg.Project(D['my_project']);
+    P.load(['O_temp','A_sat'])
+    self.fixture = P
 
-# <markdowncell>
+  def tearDown(self):
+    print 'Tearing down %s'%type(self).__name__
+    del self.fixture
 
-# Why then is the result of ```TEMP*V``` defined on the temperature grid? This is because multiplication automatically triggers interpolation of the right multiplicant to the grid of the left multiplicant. Vice versa:
 
-# <codecell>
 
-(V*TEMP).gr
+  def test_inflate(self):
 
-# <headingcell level=3>
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
 
-# Axis objects
+    Igr = (depth*latitude*longitude).inflate()
 
-# <markdowncell>
+    self.assertEqual(Igr[0].shape, (19, 100, 100))
 
-# The objects ```P['DPO']```, ```P['DPC']``` and ```P['Lev']``` are experiment objects, and correspond to the directories containing the Netcdf files. Different data ("experiment") files may contain data defined on different grid and use different coordinate naming conventions. A list of the coord objects associated with an experiment object is accessed from the .cstack attribute:
 
-# <codecell>
+  def test_grid_permute_function_equal_len_and_coords(self):
 
-P['Lev'].cstack
+# Corresponds to CASE 1a in equal length grid case in fieldcls.py source code.
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
 
-# <codecell>
+    gr1 = depth*longitude
+    gr2 = longitude*depth
 
-P['DPO'].cstack[:4] # truncated list of coord objects
+    # define a np array consistent with gr1
+    A = np.ones( gr1.shape()  )
 
-# <markdowncell>
+    # gr1(gr2) should yield a function transposing ndarrays consistent with gr1 to ndarrays consistent with gr2
 
-# The depth coordinates differ for the model and the observational data:
+    self.assertEqual((gr1(gr2)(A)).shape, gr2.shape() )
 
-# <codecell>
+  def test_grid_permute_function_equal_len_equiv_coords_only(self):
 
-P['Lev'].cstack[-1][:] # Access the depth levels for the Lev experiment.
+# Corresponds to CASE 1b in equal length grid case in fieldcls.py source code.
 
-# <markdowncell>
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
 
-# We have the depth levels for ```P['DPO']``` in the namespace:
+   # This time, we are going to a new grid that requires interpolation (on longitude).
+ 
+    gr1 = depth*longitude
+    gr2 = longitude_V*depth
 
-# <codecell>
+    # define a np array consistent with gr1
+    A = np.ones( gr1.shape()  )
 
-depth[:] # Access depth levels for the model data 
+    # gr1(gr2) should yield a function transposing ndarrays consistent with gr1 to ndarrays consistent with gr2, and interpolated onto it.
 
-# <markdowncell>
+    self.assertEqual((gr1(gr2)(A)).shape, gr2.shape() )
 
-# However, both coord objects point in the same direction: ```Z```. The name ("Z") of this direction has also been read from the Netcdf files. This is encapsulated in the ```ax``` class (axis).
+  def test_grid_permute_function_equal_len_equiv_coords_only(self):
 
-# <codecell>
+# Corresponds to CASE 1c in equal length grid case in fieldcls.py source code.
 
-Z.__class__.__name__
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
 
-# <codecell>
+   # This time, we are going to a new grid that is incompatible, leading to a None result.
+ 
+    gr1 = depth*longitude
+    gr2 = latitude*depth
 
-depth.axis
+    self.assertEqual(gr1(gr2), None )
 
-# <markdowncell>
 
-# Multiplication of a grid with an ```ax``` object (representing an axis) picks the ```coord``` component along that axis.
+  def test_gr_method_expand_size(self):
+    """
+    Test expand method of fieldcls.py
 
-# <codecell>
 
-X*(latitude*longitude)
+    SAT = P['DPO']['A_sat']
+    SAT.shape is (100,100)
+    W=SAT.gr.expand(SAT[:],depth**2)
+    W.shape is (19,100,100)
+    W contains 19 identical copies (slices) of SAT[:] 
 
-# <codecell>
+    """
 
-Y*(P['Lev'].cstack[0]*P['Lev'].cstack[1])
+    SAT = self.fixture['DPO']['A_sat']
 
-# <markdowncell>
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+    
+    W=SAT.gr.expand(SAT[:],depth**2)
 
-# We also saw the ```ax``` object being used to calculate zonal means. In the following example, we load the surface heat flux, demonstrate some operations using ```ax``` objects and compute the poleward heat transport.
+#    W has been expanded, and the other grid (depth**2) should be appended on the left side.         
 
-# <codecell>
+    self.assertEqual(W.shape, (19,100,100)  )
 
-# load heat flux by netcdf name.
-P.load('F_heat')
+  def test_gr_method_expand_broadcast(self):
+    """
+    Test expand method of fieldcls.py
+    """
 
-# obtain oceanic heat flux as sg field object HF from project.
-HF = P['DPO']['F_heat']
-HF2 = P['DPC']['F_heat']
+    SAT = self.fixture['DPO']['A_sat']
 
-# <markdowncell>
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+    
+    W=SAT.gr.expand(SAT[:],depth**2)
 
-# Again, ignore the harmless warning: the Lev data contains no heat flux data. The heat flux data is 2 dimensional, as can be seen from the grid:
+#    W contains 19 identical copies (slices) of SAT[:]          
 
-# <codecell>
+    K=W[:,50,50]
+    self.assertEqual((K == K[0]).all() , True  )
 
-HF.gr
+  def test_call_small_gr_on_big_gr(self):
 
-# <markdowncell>
+    SAT = self.fixture['DPO']['A_sat']
 
-# And looks like this:
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
 
-# <codecell>
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'   
 
-pl = sg.contourf(HF,levels = range(-200,200,20),cmap = mpl.cm.RdYlBu)
-clb = plt.colorbar()
-clb.set_label(HF.units)
-plt.show()
-# <markdowncell>
+    # need to do slice test earlier.
+    SAT2 = SAT[Y,:50]
 
-# Shift fields by reference to the ```ax``` objects:
+    gr1 = SAT2.gr
+    gr2 = depth*SAT2.gr
 
-# <codecell>
+    A = SAT2[:]
+    B = gr1(gr2)(A)
 
-HF_shifted = sg.roll(HF,coord = X,shift = 50)
+    self.assertEqual(B.shape ,  (19, 50, 100) )
 
-# <codecell>
+  def test_call_small_gr_on_big_gr_permute(self):
 
-pl = sg.contourf(HF_shifted,levels = range(-200,200,20),cmap = mpl.cm.RdYlBu)
-clb = plt.colorbar()
-clb.set_label(HF.units)
-plt.show()
-# <codecell>
+    """
+    corresponds to case 2a of gr class call method in fieldcls.py
+    """
 
-HF_shifted.gr
+    SAT = self.fixture['DPO']['A_sat']
 
-# <markdowncell>
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
 
-# Note that the grid is updated along with the data (the zero meridian still passes through Greenwich), resulting in a different grid (```longitude_rolled``` appears in place of ```longitude```). This behaviour can be disabled.
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'   
 
-# <markdowncell>
+    # need to do slice test earlier.
+    SAT2 = SAT[Y,:50]
 
-# Compute the zonal integral (using multiplication notation ```HF*X```) followed by the primitive in the ```Y``` direction (using the pipe | notation):
+    gr1 = SAT2.gr
+    # note that this does something different for a single coord left multiplicant:
+    gr2 = (depth*longitude)*SAT2.gr   
 
-# <codecell>
+    A = SAT2[:]
+    B = gr1(gr2)(A)
 
-# Determine the total oceanic poleward heat transport via the y-primitive and X-intergral, and scale to Petawatt.
+    self.assertEqual(B.shape ,  (19, 100, 50) )
 
-PHT = Y|(HF*X)*1e-15
-PHT2 = Y|(HF2*X)*1e-15
+  def test_call_small_gr_on_big_gr_permute_interp(self):
 
-# <codecell>
+    """
+    corresponds to case 2b of gr class call method in fieldcls.py
+    """
 
-pl1, = sg.plot(PHT,color = 'b');
-pl2, = sg.plot(PHT2,color='r');
 
-plt.grid()
-plt.xlim([-80.,80.])
-plt.xticks([-60,-30,0,30,60])
-plt.ylabel('PW')
-tle = plt.title(' Ocean PHT (PW) ')
-lgnd = plt.legend([pl1,pl2],['DP open','DP closed'],loc=2)
-plt.show()
-# <markdowncell>
+    SAT = self.fixture['DPO']['A_sat']
 
-# Interesting, the Drake Passage closed configuration has more southward poleward heat transport. We could have used the ```coord``` names to compute the PHT:
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
 
-# <codecell>
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'   
 
-PHT = latitude|(HF*longitude)*1e-15
+    # need to do slice test earlier.
+    SAT2 = SAT[Y,:50]
 
-# <markdowncell>
+    gr1 = SAT2.gr
+    # note that this does something different for a single coord left multiplicant:
+    gr2 = (depth*longitude_V)*SAT2.gr   
 
-# The axis names X,Y,... are a shorthand for these coord names, and are easier to use. 
+    A = SAT2[:]
+    B = gr1(gr2)(A)
 
-# <headingcell level=3>
+    self.assertEqual(B.shape ,  (19, 100, 50) )
+    
+  def test_call_small_gr_on_big_gr_not_equiv(self):
 
-# More grid operations
+    """
+    corresponds to case 2c of gr class call method in fieldcls.py
+    """
 
-# <markdowncell>
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
 
-# Operations such as derivatives and integration are methods of the ```coord``` class:
 
-# <codecell>
+    self.assertEqual(depth(latitude*longitude) ,  None )
 
-latitude.der # the derivative on the sphere in the latitudinal direction
 
-# <codecell>
+  def test_gr_method_reduce_dim1vs3_len_list(self):
+    """
+    Test reduce method of gr class
+    """
 
-X.der
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
 
-# <codecell>
+    gr1 = depth**2
+    gr2 = depth*latitude*longitude
 
-HF_shifted2 = longitude.coord_shift(HF,50)
+    A = np.ones(gr2.shape() )
 
-# <codecell>
+    # should have the length of len(depth)
+    self.assertEqual(len(gr1.to_slices(A,gr2)) ,  19 )
+    
+  def test_gr_method_reduce_dim1vs3_shape_element(self):
+    """
+    Test reduce method of gr class
+    """
 
-HF_shifted2.gr
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
 
-# <markdowncell>
+    gr1 = depth**2
+    gr2 = depth*latitude*longitude
 
-# Do we get the same result from both shifts? This is a shorthand to access the X ```coord``` of ```HF_shifted2```:
+    A = np.ones(gr2.shape() )
 
-# <codecell>
+    # should have the shape of latitude*longitude
+    self.assertEqual( gr1.to_slices(A,gr2)[0].shape  ,  (100,100) )
 
-# obtain coord in X direction
-X*(HF_shifted2.gr) 
+  def test_gr_method_reduce_dim2vs3_len_list(self):
+    """
+    Test reduce method of gr class
+    """
 
-# <markdowncell>
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
 
-# The two shifted ```coord``` objects are different objects
+    gr1 = depth*latitude
+    gr2 = depth*latitude*longitude
 
-# <codecell>
+    A = np.ones(gr2.shape() )
 
-# compare the ndarray content of the X components of the two shifted grids
-X*(HF_shifted2.gr) == X*(HF_shifted.gr)
+    # should have the length of len(depth)*len(longitude) 
+    self.assertEqual(len(gr1.to_slices(A,gr2)) ,  1900 )
+    
+  def test_gr_method_to_slices_dim2vs3_shape_element(self):
+    """
+    Test to_slices method of gr class
+    """
 
-# <markdowncell>
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
 
-# But contain the same values:
+    gr1 = depth*latitude
+    gr2 = depth*latitude*longitude
 
-# <codecell>
+    A = np.ones(gr2.shape() )
 
-(X*(HF_shifted2.gr))[:] == (X*(HF_shifted.gr))[:]
+    # should have the shape of longitude**2
+    self.assertEqual( gr1.to_slices(A,gr2)[0].shape  ,  (100,) )
 
-# <markdowncell>
+  def test_gr_method_vsum(self):
 
-# Other derived ```coord``` objects are obtained from slicing:
+    """
+    Test vsum method of gr class
+    """
 
-# <codecell>
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
 
-HF_sliced = HF_shifted[Y,:36]
+    gr1 = depth*latitude
 
-# <codecell>
+    # should have the shape of longitude**2
+    self.assertAlmostEqual( gr1.vsum(gr1.ones() )  , 121672626836.47124 , places =2 )
 
-pl = sg.contourf(HF_sliced,levels = range(-200,200,20),cmap = mpl.cm.RdYlBu)
-clb = plt.colorbar()
-clb.set_label(HF.units)
-tle = plt.title('Heat flux in Southern Ocean')
-plt.show()
-# <markdowncell>
 
-# Similar to the roll function, slicing gives a new grid:
+  def test_gr_method_find_args_coord(self):
 
-# <codecell>
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
 
-HF3 = HF[X,:50,Y,:36]
+    ctypes = {'x_coord':sg.XCoord,'y_coord':sg.YCoord,'z_coord':sg.Coord}
+  
+    self.assertEqual((latitude*longitude).find_args_coord(coord_types = ctypes) , 
+    [[], [latitude]] )
 
-# <codecell>
+    
+  def test_gr_method_der_type(self):
 
-HF3.gr
+    """
+    Test der method of gr class to see whether it returns a Field
+    """
 
-# <codecell>
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
 
-len(Y*HF3.gr)
+    gr1 = longitude*latitude
 
-# <markdowncell>
+    # should have the shape of longitude**2
+    self.assertEqual( isinstance( gr1.der(longitude,gr1.ones() ) , sg.Field )  , True )
 
-# The sum method of a ```coord``` object only sums the ```ndarray``` content of a ```field```:
+  def test_gr_method_der_X(self):
 
-# <codecell>
+    """
+    Test der method of gr class to see whether it returns a Field
+    """
 
-sTEMP = longitude.sum(TEMP)
-sTEMP.gr
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
 
-# <markdowncell>
+    gr1 = longitude*latitude
 
-# Similar to Pandas, the NaN (```np.nan```) values are not counted in these operations. Similarly, the vsum method is the sum weighted with the volumes (lengths, areas) of the grid cells:
+    W = gr1.der(longitude,gr1.ones() )
 
-# <codecell>
+    W.value[np.isnan(W.value)]=1
 
-help(longitude.vsum)
+    # should have the shape of longitude**2
+    self.assertEqual( W.value.sum()   , 0.0 )
 
-# <markdowncell>
+  def test_gr_method_der_Y(self):
 
-# Similar for cumsum and vcumsum.
+    """
+    Test der method of gr class to see whether it returns a Field
+    """
 
-# <markdowncell>
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
 
-# Grid objects also have volume weighted sum methods. These methods are preferred over their ```coord``` counterparts as coordinate cell dimensions may depend on other coordinates (e.g. the distance between longitudinal arcs diminishes towards the poles), and grid objects take care of this. 
+    gr1 = depth*latitude
 
-# <codecell>
+    W = gr1.der(latitude,gr1.ones() )
 
-my_grid = latitude*longitude
-my_grid.vsum(TEMP)[:]
+    W.value[np.isnan(W.value)]=1
 
-# <codecell>
+    # should have the shape of longitude**2
+    self.assertEqual( W.value.sum()   , 19.0 )
 
-my_grid.vsum(TEMP).gr
+  def test_gr_method_vol(self):
 
-# <markdowncell>
+    """
+    Test volume method 
+    """
 
-# The volume of the domain of non NaN values inside TEMP is found from: 
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
 
-# <codecell>
+    gr1 = depth*latitude
 
-TEMP.gr.vsum(TEMP.ones())
+    W = gr1.vol()
+    # should have the shape of longitude**2
+    self.assertAlmostEqual( W.value.sum()   , 121672626836.47124 , places = 2 )
 
-# <markdowncell>
 
-# This can also be achieved with the multiplication notation:
 
-# <codecell>
+# --------- run the classes ------------
 
-TEMP.ones()*(X*Y*Z)
-
-# <markdowncell>
-
-# The ```ones``` method of fields gives a new field where all non- NaN values (of ```TEMP``` in this case) are set to 1 and the NaN values remain unchanged. Here, the one values constitute the domain of ocean water, as NaN values indicate land (rock).
-
-# <codecell>
-
-# slice at surface and show part of array to illustratie only 2 values
-TEMP[Z,0].ones()[27:37,:7]
-
-# <markdowncell>
-
-# This allows a calculation of the mean ocean temperature in the model:
-
-# <codecell>
-
-TEMP.gr.vsum(TEMP)/TEMP.gr.vsum(TEMP.ones())
-
-# <codecell>
-
-# more succinctly:
-TEMP.gr.mean(TEMP)
-
-# <markdowncell>
-
-# This can also be achieved with the division notation:
-
-# <codecell>
-
-TEMP/(X*Y*Z)
-
-# <markdowncell>
-
-# The ```ax``` class has a derivative method:
-
-# <codecell>
-
-# Calculate derivative in X direction:
-dTEMPdX = X.der(TEMP)
-dTEMPdX.gr
-
-# <codecell>
-
-# compute the vertical temperature profile and plot it.
-vpTEMP = TEMP/(Y*X)
-pl, = sg.plot(vpTEMP)
-lb = plt.xlabel('degrees C');tle = plt.title('Vertical profile of average ocean temp')
-plt.show()
-# <codecell>
-
-# take the vertical derivative of the vertical temperature profile and plot it.
-pl, = sg.plot(Z.der(vpTEMP))
-lb = plt.xlabel('degs C per m');tle = plt.title('Vertical temperature gradient')
-plt.show()
-# <markdowncell>
-
-# Another notation, involving ```ax``` objects, uses the ^ (carat) symbol:
-
-# <codecell>
-
-# test whether nparray content is the same. Excluding the first nan value.
-(Z^vpTEMP)[1:] == (Z.der(vpTEMP))[1:]
-
-# <markdowncell>
-
-# The volume weighted cumulative sum method ```vcumsum``` of the ```coord``` class, the primitive integral along that axis, is easily accessed with the pipe | notation and the ```ax``` class (here the instance ```Z```). In the latter case the name of the particular coord need not be known.
-
-# <codecell>
-
-# test whether the depth coord method vcumsum yields the same result as Z|
-depth.vcumsum(vpTEMP)[:] == (Z|vpTEMP)[:] 
-
-# <headingcell level=1>
-
-# Operators, divergences and vector fields.
-
-# <markdowncell>
-
-# Spacegrids allows representations of vector fields (e.g. velocity fields). We're loading the zonal velocity to examine a 2 dimensional vector fields constructed from ```U``` and ```V```.
-
-# <codecell>
-
-# load the ocean velocity in the X direction.
-P.load('O_velX')
-
-# <markdowncell>
-
-# Earlier, multiplication of two fields yielded a new field. In contrast, multiplying the two fields ```U``` and ```V``` does not result in a new field here. Instead, we get a container class holding the two fields. This container is the ```vfield``` class (vector field).
-
-# <codecell>
-
-# obtain horizontal velocity fields
-U = P['DPC']['O_velX']
-V = P['DPO']['O_velY']
-# create a 2 dimensional vector field defined on 3 dimensional space
-my_vector_field = U*V
-my_vector_field
-
-# <markdowncell>
-
-# Why do these fields behave differently under multiplication? Fields have a direction attribute:
-
-# <codecell>
-
-U.direction
-
-# <codecell>
-
-V.direction
-
-# <codecell>
-
-TEMP.direction
-
-# <markdowncell>
-
-# The velocity fields ```U``` and ```V``` have directions ```X``` and ```Y```, obviously indicating the direction they are pointing in: they are "directional" fields. In contrast, temperature ```TEMP``` is marked as a scaler, this is a "scalar" field. In general, fields of like direction multiply to yield a new field containing the multiplied nparray data. For instance:
-
-# <codecell>
-
-# This gives a field
-U*U
-
-# <markdowncell>
-
-# This gives a vector field of the velocity components squared:
-
-# <codecell>
-
-(U*V)*(U*V)
-
-# <markdowncell>
-
-# Vector fields have a direction method that yields a container of the directions of its component fields.
-
-# <codecell>
-
-my_vector_field.direction()
-
-# <markdowncell>
-
-# The sg module has its own wrapper to the quiver plot method of Matplotlib that takes vector fields:
-
-# <codecell>
-
-# plot surface velocity vector at every other grid cell and up to latitude index of 32.
-step = 2
-show_j = 32
-sg.quiver(U[X,slice(0,100,step),Y,slice(0,show_j,step),Z,0]*V[X,slice(0,100,step),Y,slice(0,show_j,step),Z,0],showland=False)
-plt.show()
-# <markdowncell>
-
-# The (field) ```Operator``` class and its derived classes (e.g. sg.Der, sg.Integ, sg.Field_Mul etc.) allows the construction of operators that act on fields and vector fields. E.g. div and curl operators, etc. Ideas for useful operators are shown below. Operators, say ```K1``` and ```K2```, can be multiplied before they are applied. E.g. if ```K = K1*K2```, no evaluation has occurred yet, and evaluation yields: ```K*F = K1(K2(F))```. So ```K2``` acts on ```F``` first, then ```K1``` acts on the resulting field. the curl of a 2D vectorfield U*V would then be ```curl*(U*V)```. If ```U*V``` is defined on 3D space, the ```curl``` operator acts on each z-level. For instance, the X-derivative object can be instantiated as follows:
-
-# <codecell>
-
-# Instatiate an X-derivative operator object
-ddX = sg.Der(X)
-ddX
-
-# <codecell>
-
-ddX*TEMP
-
-# <markdowncell>
-
-# This is equivalent to calling the ```ddX``` field operator object on ```TEMP```:
-
-# <codecell>
-
-ddX(TEMP)
-
-# <markdowncell>
-
-# Applying field operators in succession:
-
-# <codecell>
-
-ddX*ddX
-
-# <markdowncell>
-
-# Where:
-
-# <codecell>
-
-# Create second order X-derivative
-d2dX2 = ddX*ddX
-# Apply it to the temperature field
-d2dX2*TEMP
-
-# <markdowncell>
-
-# Is the same as:
-
-# <codecell>
-
-# Succesive calls of the ddX object
-ddX(ddX(TEMP))
-
-# <markdowncell>
-
-# We could have obtained the Z derivative of the vertical temperature profile above with an operator class:
-
-# <codecell>
-
-# Create Z-derivative object
-ddZ = sg.Der(Z)
-# Apply the derivative operator and plot the result
-pl, = sg.plot(ddZ*vpTEMP)
-lb = plt.xlabel('degs C per meter')
-plt.show()
-# <markdowncell>
-
-# Another useful field operator is ```Pick```. It picks a component of a vector field:
-
-# <codecell>
-
-sg.Pick(X)*my_vector_field
-
-# <markdowncell>
-
-# Here are definitions of some useful field operators:
-
-# <codecell>
-
-ddX = sg.Der(X) # derivative in X
-ddY = sg.Der(Y) # etc
-ddZ = sg.Der(Z)
-
-pX = sg.Pick(X) # pick the component with direction X from vfield object (projection)
-pY = sg.Pick(Y) # etc.
-pZ = sg.Pick(Z)
-
-mX = sg.Mean(X) # take zonal mean of any field argument or right-multiplicant.
-mY = sg.Mean(Y) # etc
-mZ = sg.Mean(Z)
-
-sX = sg.Integ(X) # take integral
-sY = sg.Integ(Y)
-sZ = sg.Integ(Z)
-
-intX = sg.Prim(X) # take primitive function of any field argument
-intY = sg.Prim(Y)
-intZ = sg.Prim(Z)
-
-set2X = sg.Set_Direction(X) # change the direction attribute of field argument to X
-set2Y = sg.Set_Direction(Y)
-set2Z = sg.Set_Direction(Z)
-set2scalar = sg.Set_Direction(sg.ID())
-
-Avg = mZ*mX*mY  # a 3D average
-
-curl = ddX*set2scalar*pY - ddY*set2scalar*pX      #  curl operator expressed in basic operators
-
-div = ddX*set2scalar*pX + ddY*set2scalar*pY       # divergence 
-
-div3 = ddX*set2scalar*pX + ddY*set2scalar*pY + ddZ*set2scalar*pZ
-
-grad = set2X*ddX + set2Y*ddY    # gradient. To be used on single field objects.
-
-# <codecell>
-
-# Take surface slices
-sU = U[Z,0]
-sV = V[Z,0]
-surface_vectors = sU*sV
-(div*surface_vectors).direction
-
-# <codecell>
-
-pl = sg.contourf((div*surface_vectors)[Y,10:-10])
-
-# <codecell>
-
-plt.show()
-
-P.write()
-
-print 'FINISHED.'
+if __name__ == '__main__':
+    unittest.main()
 

@@ -37,12 +37,7 @@ class Exper(object):
     if loaded_fields:
       REP.echoln(loaded_fields, width = 30, cols = 3)
 
-    if length != 1:
-      plural = 's'
-    else:
-      plural = ''
-
-    REP.echo('Exper using %1.2f Mb. %i field%s loaded.  '%(self.nbytes/1024./1024.  ,length  , plural ) )
+    REP.echo('Exper using %1.2f Mb. %i field%s loaded.  '%(self.nbytes/1024./1024.  ,length  , plural(length) ) )
 
     print REP.value
     
@@ -200,23 +195,24 @@ class Exper(object):
       
   def load(self,varnames, squeeze_field = True, ax=None, name_suffix='_cat', new_coord_name = 'gamma', new_coord= None ):
     """
-    Field load method of Exper .
+    Load a variable or list of variables contained in varnames. 
 
-    Load a variable or list of variables contained in varnames. Takes either a single string or a list of strings. If multiple files inside a directory contain the same variable, this method will attempt to concatenate them (e.g. in the case where there are different time slices).
+    Takes either a single string or a list of strings. If multiple files inside a directory contain the same variable, this method will attempt to concatenate them (e.g. in the case where there are different time slices).
 
-    Inputs:
-    varnames		list of the variable names to load
-    squeeze_field	switch to squeeze Field on loading (default True)	
-
-    The following arguments are passed on to the concatenate function:
-    ax			
-    name_suffix
-    new_coord_name
-    new_coord
- 
     if self.path is to a file (likely to be an Experiment file), the variable will be loaded from that file.
     if self.path is to a directory (likely to be an experiment dir), the variable will be loaded from Netcdf files inside that directory.
 
+    Args:
+         varnames: list of the variable names to load
+         squeeze_field:	switch to squeeze Field on loading (default True)	
+         ax: passed on to the concatenate function			
+         name_suffix: passed on to the concatenate function
+         new_coord_name: passed on to the concatenate function
+         new_coord: passed on to the concatenate function
+
+
+    Returns:
+         None
     """  
 
 # --> this load is a method of  Exper
@@ -262,23 +258,17 @@ class Exper(object):
            
             F.append(cdfread(filepath,varname,self.cstack,self.axes))
             fnames.append(fnm)
-#          break
-          file.close()
 
+          file.close()
      
       if F == []:
      
         print '%s for %s could not be read.'%(varname,self.name) 
 
-#        self.vars[varname] = None
       else:
         num_files = len(paths)
-        # determine whether to use plural of word 'file' in stdout message.
-        if num_files > 1:
-          plural = 's'
-        else:
-          plural = ''
-        print 'OK. Fetched Field %s for %s. %s file%s found.'%(varname, self.name,num_files,plural)
+
+        print 'OK. Fetched Field %s for %s. %s file%s found.'%(varname, self.name,num_files,plural(num_files) )
 
         new_field = concatenate(F,ax=ax, name_suffix=name_suffix, new_coord_name = new_coord_name, strings = fnames, new_coord= new_coord   )
 

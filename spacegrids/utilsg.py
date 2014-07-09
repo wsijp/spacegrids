@@ -15,9 +15,49 @@ from config import *
 class Report():
   """
   Reporting class containing useful method for building a string containing messages.
+
+    **Attributes**
+    
+    value : `str` The reporting string being built
+ 
+    **Methods**
+   
+    See online documentation
+
+    **Notes**
+    
+    see interactive help for a full listing of methods with doc
+
+    **See Also**
+
+    **Examples**
+ .. doctest::
+
+  >>> import spacegrids as sg
+  >>> REP = sg.Report()
+  >>> REP.echoln('---')
+  >>> REP.echo('a test')
+  >>> REP.line()
+  >>> D ={'a':1,'b':2,'c':3,'d':5}
+  >>> REP.table(D)
+  >>> REP
+  ---
+  a test
+  ----------
+
+  a               1              c               3              
+  b               2              d               5              
   """
 
   def __init__(self,value = ''):
+    """ Initializes Report instance.
+
+    Args:
+         value: string containing initial string value of Report
+
+    Returns:
+         A Report object with attribute value containing a str.
+    """
 
     self.value = value
 
@@ -25,12 +65,33 @@ class Report():
     return self.value
 
   def line(self,char = '-',times = 10):
+    """
+    Insert a line of --- characters on a new line into Report value.
+
+    Args:
+         char: string containing character used for line (default '-')
+         times: the number of times char is repeated
+    Returns:
+         None. 
+    """
+
     if not self.value[-1] == '\n':
       self.echoln()
 
     self.echoln(char*times)
 
   def block(self,L,delim = '\ ', width = 12, cols = 4 ):
+    """Creates string to display list of strings as a deliminated rows x cols block.
+
+    Args:
+         L: list of strings
+         delim: delimiter character passed to block method
+         width: width in characters of each cell (int)
+         cols: number of columns of block (int)
+    Returns:
+         None
+    """
+
 
     Ls = split_list(L , size = len(L)/cols + 1)
     Ls = transpose_list(Ls)
@@ -41,6 +102,23 @@ class Report():
       self.echoln()
 
   def echoln(self,what = '', delim = ' ', maxlen = 10, width = 12, cols = 4):
+    """
+    Insert a string on a new line into Report value.
+
+    Args:
+         what: string to insert (default '') or list/ tuple of strings
+         delim: delimiter character passed to block method
+         maxlen: max length (int) passed to block method
+         width: int passed to block method
+         cols: int passed to block method
+    Returns:
+         A Report object with updated value attribute.    
+
+    This is the echo method with a '\n' appended.
+
+    **See Also**
+    echo method
+    """
 
     self.echo(what = what , delim = delim, maxlen = maxlen, width = width,cols = cols)
     self.echo('\n') 
@@ -48,7 +126,21 @@ class Report():
 
   def echo(self,what='' , delim = ' ', maxlen = 10, width = 12, cols = 4):
     """
-    Doc here
+    Insert a string into Report value.
+
+    Args:
+         what: string to insert (default '') or list/ tuple of strings
+         delim: delimiter character passed to block method
+         maxlen: max length (int) passed to block method
+         width: int passed to block method
+         cols: int passed to block method
+    Returns:
+         None
+
+    If 'what' is a list of strings, the block method will be used to embed a table of the strings into the Report value.
+
+    **See Also**
+    echoln method
     """
 
 
@@ -56,16 +148,25 @@ class Report():
       self.value = self.value + what
     elif isinstance(what,list) or isinstance(what,tuple):
       if len(what) > maxlen:
-
+        # too many strings to display, truncate.
         self.block(L = what[:maxlen/2] + ['...',] +  what[-maxlen/2:] , delim = delim, width = width, cols = cols)
 
       else:
+        # display entire list
         self.block(L = what, delim = delim, width = width, cols = cols)
      
-  def table(self,D,cols = 4, numspace =2):
-    """ Doc here
+  def table(self,D,cols = 4):
+    """ Create a table based on dictionary D.
 
+
+    Args:
+         D: dictionary of name:value pairs to be included in table
+         cols: number of columns of table (int)
+
+    Returns:
+         None
     """
+
     for i, k in enumerate(D.keys()):
       if (2*i%cols == 0):
         self.echoln()
@@ -75,6 +176,10 @@ class Report():
     
 
   def __add__(self,other):
+    """
+    Creates new Report object with str values concatenated.
+    """
+
     return Report(value = self.value + other.value)
 
  
@@ -98,6 +203,23 @@ def print_table(D, cols = 4, numspace = 2):
       print '\n', 
     print '%-15s %-15s' % (k , D[k]),
 
+
+def plural(n):
+  """Determine whether to use plural of a word describing a qty n of something. 
+
+     Used in stdout messages that mention quantities of something.
+
+    Args:
+         n: int or float, the quantity of the thing that is reported on.
+
+    Returns:
+         A string that is '' or 's', indicating a grammatical plural or singular.
+  """
+
+  if int(n) == 1:
+    return ''
+  else:
+    return 's'
 
 
 def split_list(L, size = 10):
@@ -237,7 +359,7 @@ def add_alias(L):
   """Create alias attribute based on name attribute, and identify objects that have identical name attributes to yield corresponding numbered alias attributes to tell them apart.
 
   Args:
-       L:	list of Coord objects (or any objects with a name attribute).
+       L: list of Coord objects (or any objects with a name attribute).
   
   Returns: 
        A list -- the list L with alias attributes added
@@ -298,15 +420,21 @@ def add_alias(L):
 
 def complete(comp_sets):
   """
-  Expects a list or tuple of tuples (or lists).
+  Assigns attribute others to every element of a list of lists that is a list of all elements in the own group except the element itself. 
+
+  Args:
+       comp_sets: a list or tuple of tuples (or lists).
+  
+  Returns: 
+       None
+
   E.g. 
   ((xt,yt,zt),(xu,yu,zw))
-  It then assignes an attribute others to every element xt,yt,...  that is a tuple containing all other elements in the subset except the element itself.
+  It then assigns an attribute others to every element xt,yt,...  that is a tuple containing all other elements in the subset except the element itself.
 
   i.e. xt.others = (yt,zt)
-  
-
   """
+
   for set in comp_sets:
     
     for co in set:
@@ -315,6 +443,8 @@ def complete(comp_sets):
   return
 
 def flat_list(L):
+  """Documentation to come.
+  """
   W = list(itertools.chain(*L))
   while isinstance(W[0],list):
     W = list(itertools.chain(*W))
@@ -323,6 +453,8 @@ def flat_list(L):
 
 
 def rav_index(L,sh):
+  """Documentation to come.
+  """
   lsh = list(sh)
   lsh[-1] = 1
   if isinstance(L,int):
@@ -355,10 +487,16 @@ def rav_index(L,sh):
 
 def find_perm(left,right, verbose = True):
   """
-  Inputs: a,b tuples or lists of equal length containing the same elements, possibly permuted.
+  Find a permutation to go from tuple argument left to right.
 
-  Output: a tuple of indices perm such that [left[i] for i in perm] = right
+  Args:
+       left: a tuple (or list)
+       right: a tuple (or list) 
+       
+  Returns: 
+       None or perm, a permutation such that [left[i] for i in perm] = right
 
+  If left and right are of equal length and contain the same elements up to their order, a permutation will be returned.
   """
 
   if len(left) == len(right):
@@ -369,7 +507,7 @@ def find_perm(left,right, verbose = True):
         perm.append(left.index(r))
       else:
         if verbose:
-          print 'inputs not permutable: ' + r.name
+          print 'Inputs not permutable: %s'%r.name
         return
 
   else:
@@ -381,6 +519,26 @@ def find_perm(left,right, verbose = True):
 
 
 def round_order(value, order = None):
+  """
+  Round value up to order of magnitude order.
+
+  Args:
+       value: float
+       order:  (int) the order to which to round value (e.g. order=2 is 100)
+       
+  Returns: 
+       value rounded to the order 'order'
+
+  **Examples**
+
+.. doctest::
+
+  >>> import spacegrids as sg
+  >>> sg.round_order(1140.,2.)
+  1100.0
+  >>> sg.round_order(1140.,1.)
+  1140.0
+  """
 
   if order is None:
     order = math.log10(abs(value))//1.
@@ -389,6 +547,23 @@ def round_order(value, order = None):
 
 
 def order_mag(val):
+  """
+  Find order of magnitude of value.
+
+  Args:
+       val: float
+       
+  Returns: 
+       order of magnitude of val
+
+  **Examples**
+
+.. doctest::
+
+  >>> import spacegrids as sg
+  >>> sg.order_mag(1140.)
+  3.0
+  """
   
   if val == 0.:
 
@@ -399,19 +574,21 @@ def order_mag(val):
 
 
 
-
-def dist_angle(angles):
-
-   new_angles = []
-   for a in angles:
-     if a> 180.:
-       new_angles.append(360. - a)
-     else:
-       new_angles.append(a)
-  
-   return np.array(new_angles)
-
 def which_att(obj,att_list,fail_val = None):
+  """
+  Returns first element of list of names if it matches an attribute name of object, None otherwise.
+
+  Args:
+       obj: an object of which to examine the attributes
+       att_list: an iterable containing strings
+       fail_val: value to return if att_list elements not in object attribute names
+       
+  Returns: 
+       attribute name that gives firs match in list, fail_val otherwise
+
+  **See also**
+  get_att
+  """
 
   for attname in att_list:
 
@@ -422,6 +599,20 @@ def which_att(obj,att_list,fail_val = None):
 
 
 def get_att(obj, att_list,fail_val = None):
+  """
+  Returns attribute value corresponding to first element of list of names if it matches an attribute name of object, None otherwise.
+
+  Args:
+       obj: an object of which to examine the attributes
+       att_list: an iterable containing strings
+       fail_val: value to return if att_list elements not in object attribute names
+       
+  Returns: 
+       attribute value that gives firs match in list, fail_val otherwise
+
+  **See also**
+  which_att
+  """
 
   this_att = which_att(obj, att_list)
   if this_att is None:
@@ -432,18 +623,48 @@ def get_att(obj, att_list,fail_val = None):
 
 
 def id_index(L,e):
+  """
+  Same as index method of lists, but with equality defined as &.
+
+  Args:
+       L: list of objects that implement &-equality
+       e: an object of that same type.
+       
+  Returns: 
+      None or integer representing the index of e in L.
+
+
+  **See also**
+  id_in
+  List method 'index'
+  """
 
   for i,it in enumerate(L):
     if (it&e):
       return i
 
-# not raising error as normal in would. 
+# not raising error as normally it would. 
 #  raise ValueError('%s is not in list' % e)
 
-# return None instead
+# return None instead:
   return
 
 def id_in(L,e):
+  """
+  Same as in function for lists, but with equality defined as &.
+
+  Args:
+       L: list of objects that implement &-equality
+       e: an object of that same type.
+       
+  Returns: 
+     True or False depending on whether there is an element e2 of L such that e&e2 is True
+
+
+  **See also**
+  id_in
+  List method 'index'
+  """
 
   for it in L:
     if (it&e):
