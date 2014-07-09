@@ -1,0 +1,288 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>spacegrids.iosg &mdash; spacegrids  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="spacegrids  documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">spacegrids  documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for spacegrids.iosg</h1><div class="highlight"><pre>
+<span class="c">#encoding:utf-8</span>
+
+<span class="sd">&quot;&quot;&quot; io related</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">formatwarning</span> <span class="o">=</span> <span class="n">warning_on_one_line</span>
+
+<span class="c"># use_scientificio is set in config</span>
+<span class="c">#use_scientificio = False</span>
+
+<span class="c"># fallback is always scipy.io: least dependencies</span>
+
+<span class="k">if</span> <span class="n">cdf_lib</span> <span class="o">==</span><span class="s">&#39;netcdf4&#39;</span><span class="p">:</span>  
+  <span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">Dataset</span>
+    <span class="n">cdf_lib_used</span> <span class="o">=</span> <span class="s">&#39;netcdf4&#39;</span>
+<span class="c">#    print &#39;Using netCDF4&#39;</span>
+  <span class="k">except</span><span class="p">:</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;no Netcdf4. Reverting to scipy.&#39;</span><span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">scipy.io</span> <span class="kn">import</span> <span class="n">netcdf</span>  
+    <span class="n">cdf_lib_used</span> <span class="o">=</span> <span class="s">&#39;scipyio&#39;</span>
+
+<span class="k">elif</span> <span class="n">cdf_lib</span> <span class="o">==</span> <span class="s">&#39;scientificio&#39;</span><span class="p">:</span>  
+  <span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">Scientific.IO.NetCDF</span>
+    <span class="k">print</span> <span class="s">&#39;Using Scientific.IO.NetCDF&#39;</span>
+    <span class="n">cdf_lib_used</span> <span class="o">=</span> <span class="s">&#39;scientificio&#39;</span>
+  <span class="k">except</span><span class="p">:</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;no Scientific io. Reverting to scipy.&#39;</span><span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">scipy.io</span> <span class="kn">import</span> <span class="n">netcdf</span>  
+    <span class="n">cdf_lib_used</span> <span class="o">=</span> <span class="s">&#39;scipyio&#39;</span>
+<span class="k">else</span><span class="p">:</span>
+  <span class="kn">from</span> <span class="nn">scipy.io</span> <span class="kn">import</span> <span class="n">netcdf</span>         
+  <span class="n">cdf_lib_used</span> <span class="o">=</span> <span class="s">&#39;scipyio&#39;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">fieldcls</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+
+<div class="viewcode-block" id="netcdf_file"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.iosg.netcdf_file">[docs]</a><span class="k">def</span> <span class="nf">netcdf_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span><span class="n">mode</span> <span class="o">=</span> <span class="s">&#39;r&#39;</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Wrapper for open Netcdf functions from ScientificIO or Scipy</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">if</span> <span class="n">cdf_lib_used</span> <span class="o">==</span><span class="s">&#39;netcdf4&#39;</span><span class="p">:</span>  
+
+    <span class="k">try</span><span class="p">:</span>
+      <span class="nb">file</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span><span class="n">mode</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">&#39;NETCDF4&#39;</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+     <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s">&#39;Cannot open </span><span class="si">%s</span><span class="s"> using NetCDF4&#39;</span><span class="o">%</span><span class="n">filepath</span><span class="p">)</span>
+      
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="nb">file</span>  
+
+  <span class="k">if</span> <span class="n">cdf_lib_used</span> <span class="o">==</span> <span class="s">&#39;scientificio&#39;</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+      <span class="nb">file</span> <span class="o">=</span> <span class="n">Scientific</span><span class="o">.</span><span class="n">IO</span><span class="o">.</span><span class="n">NetCDF</span><span class="o">.</span><span class="n">NetCDFFile</span><span class="p">(</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+     <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s">&#39;Cannot open </span><span class="si">%s</span><span class="s"> using Scientific.IO&#39;</span><span class="o">%</span><span class="n">filepath</span><span class="p">)</span>
+      
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="nb">file</span>  
+
+
+  <span class="k">else</span><span class="p">:</span>
+    <span class="c"># Scipy way:</span>
+
+    <span class="k">try</span><span class="p">:</span>
+      <span class="nb">file</span> <span class="o">=</span> <span class="n">netcdf</span><span class="o">.</span><span class="n">netcdf_file</span><span class="p">(</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s">&#39;Cannot open </span><span class="si">%s</span><span class="s"> using Scipy&#39;</span><span class="o">%</span><span class="n">filepath</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="nb">file</span>
+
+
+
+</div>
+<div class="viewcode-block" id="msk_read"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.iosg.msk_read">[docs]</a><span class="k">def</span> <span class="nf">msk_read</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="s">&#39;masks/msk&#39;</span><span class="p">,</span> <span class="n">crop</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Reads a text file containing a mask pointed to by filepath and returns a corresponding array.</span>
+<span class="sd">  Due to the way these masks are stored for the UVic model, cropping is needed, as indicated </span>
+<span class="sd">  by the crop flag in the arguments.</span>
+<span class="sd">  This is the lowest level mask read function in sg.</span>
+
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="n">str_data</span> <span class="o">=</span> <span class="p">[]</span>
+  
+  <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fobj</span><span class="p">:</span>
+    <span class="n">str_data</span> <span class="o">=</span> <span class="n">fobj</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+  
+  <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span> 
+  <span class="k">for</span> <span class="n">eachline</span> <span class="ow">in</span> <span class="n">str_data</span><span class="p">:</span>
+    <span class="n">data_line</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">eachline</span><span class="p">:</span>
+      <span class="k">try</span><span class="p">:</span>
+        <span class="n">data_line</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">elem</span><span class="p">))</span>  
+      <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_line</span><span class="p">)</span>
+   
+
+  <span class="k">if</span> <span class="n">crop</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">))[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+  <span class="k">else</span><span class="p">:</span>  
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="read_masks"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.iosg.read_masks">[docs]</a><span class="k">def</span> <span class="nf">read_masks</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">msk_shape</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">grids</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">msk_val</span> <span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="s">&#39;orphan&#39;</span><span class="p">):</span>
+  
+      <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">      Reads mask and returns a list of Field objects containing masks.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+
+      <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">grids</span><span class="p">):</span>
+        <span class="k">print</span> <span class="s">&#39;read_masks: Provide grid --&gt; no masks loaded.&#39;</span>
+        <span class="k">return</span>
+
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">grids</span><span class="p">,</span><span class="n">Gr</span><span class="p">):</span>
+        <span class="n">grids</span> <span class="o">=</span> <span class="p">[</span><span class="n">grids</span><span class="p">]</span>
+   
+      <span class="k">try</span><span class="p">:</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)</span>
+      <span class="k">except</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;No mask dir.&quot;</span>
+        <span class="n">L</span><span class="o">=</span><span class="p">[]</span>      
+
+      <span class="n">masks</span> <span class="o">=</span> <span class="p">{}</span>
+      <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">L</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+          <span class="n">fpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span><span class="n">it</span><span class="p">)</span>
+	  <span class="n">msk</span> <span class="o">=</span> <span class="n">msk_read</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span>
+
+          <span class="k">if</span> <span class="n">msk_shape</span><span class="p">:</span>
+<span class="c"># only test shape if msk_shape not default value of 0</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">msk</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">msk_shape</span><span class="p">)):</span>
+              <span class="k">print</span> <span class="s">&quot;Warning: mask shape does not agree: &quot;</span> <span class="o">+</span> <span class="n">it</span><span class="p">,</span>
+              <span class="k">print</span> <span class="n">msk</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+              <span class="k">print</span> <span class="n">msk_shape</span>
+          <span class="n">msk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+          
+          <span class="k">if</span> <span class="n">msk_val</span><span class="p">:</span>
+            <span class="n">msk</span><span class="p">[</span><span class="n">msk</span> <span class="o">!=</span> <span class="n">msk_val</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">msk</span><span class="p">[</span><span class="n">msk</span> <span class="o">==</span> <span class="n">msk_val</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> 
+
+          <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">grids</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+              <span class="k">print</span> <span class="s">&#39;Trying to join mask and grid to create Field, ignore possibe error.&#39;</span>
+              <span class="n">mskob</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">it</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">msk</span><span class="p">,</span> <span class="n">grid</span> <span class="o">=</span><span class="n">g</span><span class="p">)</span>
+              <span class="k">break</span>
+            <span class="k">except</span><span class="p">:</span>
+              <span class="k">pass</span>
+
+          <span class="n">masks</span><span class="p">[</span><span class="n">it</span><span class="p">]</span> <span class="o">=</span> <span class="n">mskob</span>
+ 
+        <span class="k">except</span><span class="p">:</span>	  
+          <span class="k">print</span> <span class="s">&quot;No mask.&quot;</span>
+
+      <span class="k">return</span> <span class="n">masks</span>
+
+</div>
+<div class="viewcode-block" id="locate"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.iosg.locate">[docs]</a><span class="k">def</span> <span class="nf">locate</span><span class="p">(</span><span class="n">top</span> <span class="o">=</span> <span class="s">&#39;/home/&#39;</span><span class="p">,</span><span class="n">fname</span> <span class="o">=</span> <span class="n">projnickfile</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Locates all files with filename fname. Helper function to info function.</span>
+<span class="sd">  </span>
+<span class="sd">  Inputs: </span>
+<span class="sd">  top		(default &#39;/home/&#39;) the start dir</span>
+<span class="sd">  fname		(default projname) the filename to look for. </span>
+<span class="sd">  </span>
+<span class="sd">  Outputs:</span>
+<span class="sd">  paths		all paths to dirs containing fname</span>
+<span class="sd">  </span>
+<span class="sd">  </span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+ 
+  <span class="n">paths</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="k">if</span> <span class="n">fname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+
+    <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">top</span><span class="o">=</span><span class="n">top</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+  
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">top</span><span class="p">,</span><span class="n">subdir</span><span class="p">)</span> <span class="k">for</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">top</span><span class="p">)</span>   <span class="p">]</span>
+
+
+  <span class="k">return</span> <span class="n">paths</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">spacegrids  documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,541 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>spacegrids.expercls &mdash; spacegrids  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="spacegrids  documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">spacegrids  documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for spacegrids.expercls</h1><div class="highlight"><pre>
+<span class="c">#encoding:utf-8</span>
+
+<span class="sd">&quot;&quot;&quot; Exper class</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">types</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="kn">from</span> <span class="nn">fieldcls</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">iosg</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">warnings</span><span class="o">.</span><span class="n">formatwarning</span> <span class="o">=</span> <span class="n">warning_on_one_line</span>
+
+<span class="c"># ---------------- Class definition for experiments -----------</span>
+
+<div class="viewcode-block" id="Exper"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper">[docs]</a><span class="k">class</span> <span class="nc">Exper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  
+  <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+<div class="viewcode-block" id="Exper.show"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.show">[docs]</a>  <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="n">loaded_fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">loaded_fields</span><span class="p">)</span>
+
+
+    <span class="n">REP</span> <span class="o">=</span> <span class="n">Report</span><span class="p">()</span>
+    <span class="n">REP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">REP</span><span class="o">.</span><span class="n">line</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">loaded_fields</span><span class="p">:</span>
+      <span class="n">REP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="n">loaded_fields</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">length</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="n">plural</span> <span class="o">=</span> <span class="s">&#39;s&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">plural</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+
+    <span class="n">REP</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s">&#39;Exper using </span><span class="si">%1.2f</span><span class="s"> Mb. </span><span class="si">%i</span><span class="s"> field</span><span class="si">%s</span><span class="s"> loaded.  &#39;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nbytes</span><span class="o">/</span><span class="mf">1024.</span><span class="o">/</span><span class="mf">1024.</span>  <span class="p">,</span><span class="n">length</span>  <span class="p">,</span> <span class="n">plural</span> <span class="p">)</span> <span class="p">)</span>
+
+    <span class="k">print</span> <span class="n">REP</span><span class="o">.</span><span class="n">value</span>
+    
+</div>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">path</span><span class="o">=</span><span class="n">home_path</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;test&#39;</span><span class="p">,</span><span class="n">cstack</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">params</span> <span class="o">=</span> <span class="p">{},</span> <span class="n">descr</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="s">&#39;orphan&#39;</span><span class="p">):</span>
+<span class="c"># --&gt; belongs to  Exper</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="n">name</span><span class="p">)</span> 
+    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">cstack</span> <span class="o">=</span> <span class="n">cstack</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+      
+    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">descr</span><span class="p">):</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">descr</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">descr</span> <span class="o">=</span> <span class="n">descr</span>  
+
+    <span class="c"># this is needed because otherwise all Exper objects have the same params object!</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="c"># check for other places where this effect might occur.</span>
+
+          
+<span class="c"># The variables associated with this experiment. It is a dictionary of name vs struct    </span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">vars</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">nbytes</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">nbytes</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">cstack</span><span class="p">]</span>  <span class="p">)</span>
+    
+
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varnames</span> <span class="o">=</span><span class="s">&#39;*&#39;</span><span class="p">):</span>
+
+<span class="c"># --&gt; belongs to Expers</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">varnames</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">varname</span><span class="p">,</span> <span class="n">arr</span><span class="p">):</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span>
+
+
+  <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varnames</span> <span class="o">=</span><span class="s">&#39;*&#39;</span><span class="p">):</span>
+
+<span class="c"># --&gt; belongs to Exper </span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">varnames</span><span class="p">)</span>
+
+
+
+<div class="viewcode-block" id="Exper.get"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.get">[docs]</a>  <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varnames</span><span class="p">):</span>
+  
+    <span class="n">fields</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">VN</span> <span class="o">=</span> <span class="n">sublist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">varnames</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">VN</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">vn</span> <span class="ow">in</span> <span class="n">VN</span><span class="p">:</span>
+	<span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="p">[</span><span class="n">vn</span><span class="p">])</span>
+	
+    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">fields</span><span class="p">):</span>
+      <span class="k">print</span> <span class="s">&quot;No fields found for </span><span class="si">%s</span><span class="s">. Try P.load(</span><span class="se">\&#39;</span><span class="si">%s</span><span class="se">\&#39;</span><span class="s">)&quot;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">varnames</span><span class="p">)</span>
+      <span class="k">return</span> 
+    
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+<span class="c"># if only single Field found, return that Field and not a list of fields.</span>
+      <span class="n">fields</span> <span class="o">=</span><span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">fields</span>    	
+</div>
+<div class="viewcode-block" id="Exper.list_vars"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.list_vars">[docs]</a>  <span class="k">def</span> <span class="nf">list_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">RP</span> <span class="o">=</span> <span class="n">Report</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="n">RP</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s">&#39;No variables.&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+
+      <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&#39;name  </span><span class="se">\t</span><span class="s"> descr&#39;</span><span class="p">)</span> 
+     
+      <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&#39;-&#39;</span><span class="o">*</span><span class="mi">20</span><span class="p">)</span>
+      <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">RP</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="s">&#39; </span><span class="se">\t</span><span class="s"> &#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="p">[</span><span class="n">k</span><span class="p">],</span><span class="s">&#39;descr&#39;</span><span class="p">):</span>
+          <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">descr</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">RP</span>      
+
+</div>
+  <span class="k">def</span> <span class="nf">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i</span><span class="p">):</span>
+  
+    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Exper.delvar"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.delvar">[docs]</a>  <span class="k">def</span> <span class="nf">delvar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varnames</span><span class="p">,</span> <span class="n">msg</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">):</span>
+<span class="c"># this delvar is a method of  Exper</span>
+  
+    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">varnames</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">ListType</span><span class="p">)):</span>
+      <span class="n">varnames</span> <span class="o">=</span> <span class="p">[</span> <span class="n">varnames</span> <span class="p">]</span>
+  
+    <span class="k">for</span> <span class="n">varname</span> <span class="ow">in</span> <span class="n">varnames</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">varname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="p">:</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span>
+        <span class="k">print</span> <span class="s">&#39;Deleting existing &#39;</span><span class="o">+</span><span class="n">varname</span> <span class="o">+</span> <span class="s">&#39; ... &#39;</span><span class="p">,</span>  
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">msg</span><span class="p">:</span>
+          <span class="k">print</span> <span class="s">&#39;var &#39;</span> <span class="o">+</span> <span class="n">varname</span> <span class="o">+</span><span class="s">&#39; not in list. &#39;</span> <span class="o">+</span> <span class="n">msg</span><span class="p">,</span>
+
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">update_nbytes</span><span class="p">()</span>
+
+<span class="c">#  def cdf(self):</span>
+<span class="c"># --&gt; method of  Exper        </span>
+<span class="c">#    print &#39;Netcdf variables available (loaded marked **):&#39;</span>
+<span class="c">#    print_box(mark_sublist(self.var_names,self.vars.keys()))</span>
+      
+
+</div>
+<div class="viewcode-block" id="Exper.write"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.write">[docs]</a>  <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span> <span class="p">,</span> <span class="n">history</span> <span class="o">=</span> <span class="s">&#39;Created from Spacegrids &#39;</span> <span class="p">,</span> <span class="n">insert_dual</span> <span class="o">=</span> <span class="bp">True</span> <span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write method of Exper .</span>
+
+<span class="sd">    Creates Netcdf file and writes all loaded Field to it, along with their Coord objects.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;nc&#39;</span><span class="p">,</span><span class="s">&#39;cdf&#39;</span><span class="p">]:</span>
+      <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span><span class="s">&#39;.nc&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">path</span> <span class="p">,</span> <span class="n">name</span> <span class="p">)</span> 
+   
+    
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="k">print</span> <span class="s">&#39;Writing experiment </span><span class="si">%s</span><span class="s"> to file </span><span class="si">%s</span><span class="s">&#39;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+      <span class="k">try</span><span class="p">:</span>
+        <span class="c"># using io_sg version of netcdf_file. May use ScientificIO or Scipy</span>
+        <span class="n">file_handle</span> <span class="o">=</span> <span class="n">netcdf_file</span><span class="p">(</span><span class="n">name</span> <span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span>
+
+      <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Cannot open</span><span class="si">%s</span><span class="s">&#39;</span><span class="o">%</span><span class="n">name</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+
+        <span class="k">for</span> <span class="n">fld</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+
+          <span class="n">file_handle</span> <span class="o">=</span> <span class="n">fld</span><span class="o">.</span><span class="n">cdf_insert</span><span class="p">(</span><span class="n">file_handle</span><span class="p">,</span> <span class="n">insert_dual</span> <span class="o">=</span> <span class="n">insert_dual</span><span class="p">)</span>
+
+        <span class="n">file_handle</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="n">history</span> <span class="o">+</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">&#39;</span><span class="o">%</span><span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+ 
+<span class="c">#    var_cdf.units = self.units</span>
+
+        <span class="n">file_handle</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">print</span> <span class="s">&#39;No fields to write for experiment </span><span class="si">%s</span><span class="s">&#39;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+  
+
+
+      </div>
+<div class="viewcode-block" id="Exper.load"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.load">[docs]</a>  <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">varnames</span><span class="p">,</span> <span class="n">squeeze_field</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name_suffix</span><span class="o">=</span><span class="s">&#39;_cat&#39;</span><span class="p">,</span> <span class="n">new_coord_name</span> <span class="o">=</span> <span class="s">&#39;gamma&#39;</span><span class="p">,</span> <span class="n">new_coord</span><span class="o">=</span> <span class="bp">None</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Field load method of Exper .</span>
+
+<span class="sd">    Load a variable or list of variables contained in varnames. Takes either a single string or a list of strings. If multiple files inside a directory contain the same variable, this method will attempt to concatenate them (e.g. in the case where there are different time slices).</span>
+
+<span class="sd">    Inputs:</span>
+<span class="sd">    varnames		list of the variable names to load</span>
+<span class="sd">    squeeze_field	switch to squeeze Field on loading (default True)	</span>
+
+<span class="sd">    The following arguments are passed on to the concatenate function:</span>
+<span class="sd">    ax			</span>
+<span class="sd">    name_suffix</span>
+<span class="sd">    new_coord_name</span>
+<span class="sd">    new_coord</span>
+<span class="sd"> </span>
+<span class="sd">    if self.path is to a file (likely to be an Experiment file), the variable will be loaded from that file.</span>
+<span class="sd">    if self.path is to a directory (likely to be an experiment dir), the variable will be loaded from Netcdf files inside that directory.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>  
+
+<span class="c"># --&gt; this load is a method of  Exper</span>
+
+    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">varnames</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+      <span class="n">varnames</span> <span class="o">=</span> <span class="p">[</span><span class="n">varnames</span> <span class="p">]</span>
+    
+    <span class="k">for</span> <span class="n">varname</span> <span class="ow">in</span> <span class="n">varnames</span><span class="p">:</span> 
+<span class="c"># Big loop.</span>
+
+     
+      <span class="c"># Prepare the paths to all the netcdf files into a list     </span>
+      <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
+        <span class="c"># this Exper object was created from a project containing an experiment file</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">]</span>
+
+      <span class="k">else</span><span class="p">:</span>            
+          <span class="c"># experiment corresponds to directory containing Netcdf files. Construct list of full paths to those files</span>
+          <span class="n">paths</span> <span class="o">=</span> <span class="p">[]</span>
+          <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">top</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+              <span class="k">if</span> <span class="n">fname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;nc&#39;</span><span class="p">,</span><span class="s">&#39;cdf&#39;</span><span class="p">]:</span>
+                <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">fname</span><span class="p">))</span>
+
+
+      <span class="c"># test if var already in list.</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">delvar</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">)</span>  	
+            
+<span class="c">#	Try to find netcdf var in any of the found files, and then read into Field object.</span>
+
+      <span class="n">fnames</span> <span class="o">=</span> <span class="p">[]</span>
+      <span class="n">F</span> <span class="o">=</span> <span class="p">[]</span>
+      <span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+
+        <span class="k">try</span><span class="p">:</span>       
+          <span class="nb">file</span> <span class="o">=</span> <span class="n">netcdf_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">)</span>
+          <span class="n">fnm</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">filepath</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+          <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s">&#39;Cannot open </span><span class="si">%s</span><span class="s">&#39;</span><span class="o">%</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+
+          <span class="k">if</span> <span class="n">varname</span> <span class="ow">in</span> <span class="nb">file</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+           
+            <span class="n">F</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cdfread</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span><span class="n">varname</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">cstack</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">))</span>
+            <span class="n">fnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fnm</span><span class="p">)</span>
+<span class="c">#          break</span>
+          <span class="nb">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+     
+      <span class="k">if</span> <span class="n">F</span> <span class="o">==</span> <span class="p">[]:</span>
+     
+        <span class="k">print</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> for </span><span class="si">%s</span><span class="s"> could not be read.&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> 
+
+<span class="c">#        self.vars[varname] = None</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">num_files</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>
+        <span class="c"># determine whether to use plural of word &#39;file&#39; in stdout message.</span>
+        <span class="k">if</span> <span class="n">num_files</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+          <span class="n">plural</span> <span class="o">=</span> <span class="s">&#39;s&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">plural</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="k">print</span> <span class="s">&#39;OK. Fetched Field </span><span class="si">%s</span><span class="s"> for </span><span class="si">%s</span><span class="s">. </span><span class="si">%s</span><span class="s"> file</span><span class="si">%s</span><span class="s"> found.&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span><span class="n">num_files</span><span class="p">,</span><span class="n">plural</span><span class="p">)</span>
+
+        <span class="n">new_field</span> <span class="o">=</span> <span class="n">concatenate</span><span class="p">(</span><span class="n">F</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">name_suffix</span><span class="o">=</span><span class="n">name_suffix</span><span class="p">,</span> <span class="n">new_coord_name</span> <span class="o">=</span> <span class="n">new_coord_name</span><span class="p">,</span> <span class="n">strings</span> <span class="o">=</span> <span class="n">fnames</span><span class="p">,</span> <span class="n">new_coord</span><span class="o">=</span> <span class="n">new_coord</span>   <span class="p">)</span>
+
+        <span class="c"># insert Field into experiment</span>
+        <span class="k">if</span> <span class="n">squeeze_field</span><span class="p">:</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">what</span> <span class="o">=</span> <span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="n">squeeze</span><span class="p">(</span> <span class="n">new_field</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span> 
+        <span class="k">else</span><span class="p">:</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">what</span> <span class="o">=</span> <span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="n">new_field</span> <span class="p">)</span> <span class="p">)</span> 
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">update_nbytes</span><span class="p">()</span> 
+
+</div>
+<div class="viewcode-block" id="Exper.insert"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.insert">[docs]</a>  <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">what</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Insert Field in Field list of this exper object under key varname.  If argument what is a number, it will be inserted as a parameter.</span>
+
+<span class="sd">    Input: what a 2 tuple (pair) of name and value: (name, value). Value can be a Field or a single value. Name must be a string, but can be None in the case of a Field, where the Field name will then be used. For example what = (&#39;temp&#39;,TEMP), where TEMP is a Field. If value is a single value (e.g. int or float), a name must be provided.</span>
+
+<span class="sd">    Argument what can also be a list of (name,value) pairs, in which case the entire collection of pairs will be inserted.   </span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">what</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="k">return</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">what</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+      <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">what</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+
+      <span class="n">name</span> <span class="o">=</span> <span class="n">what</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="n">value</span> <span class="o">=</span> <span class="n">what</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="n">Field</span><span class="p">):</span>  
+
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> 
+          <span class="n">name</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">)</span>
+        <span class="c"># insert Field </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+      <span class="k">else</span><span class="p">:</span>
+      <span class="c"># it is assumed Field is a parameter</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+          <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Provide name if trying to insert what as parameter.&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        
+
+
+    
+
+</div>
+<div class="viewcode-block" id="Exper.available"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.available">[docs]</a>  <span class="k">def</span> <span class="nf">available</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Method of Exper  that returns a list of all available Netcdf variable names (strings).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+  
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
+        <span class="c"># this Exper object corresponds to a file (not directory).</span>
+      <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">]</span>
+
+    <span class="k">else</span><span class="p">:</span>            
+        <span class="c"># this Exper object corresponds to a directory (not file).</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">top</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
+          <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">fname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;nc&#39;</span><span class="p">,</span><span class="s">&#39;cdf&#39;</span><span class="p">]:</span>
+              <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">fname</span><span class="p">))</span>
+
+           
+<span class="c"># Try to find netcdf var in any of the found files, and then read into Field object.</span>
+
+    <span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+      <span class="k">try</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">netcdf_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">)</span>
+      <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&#39;Cannot open&#39;</span><span class="p">,</span><span class="n">filepath</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">var_in_cdf</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+          <span class="k">if</span> <span class="ow">not</span> <span class="n">var_in_cdf</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+            <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">var_in_cdf</span><span class="p">)</span>
+
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">variables</span>
+
+</div>
+<div class="viewcode-block" id="Exper.ls"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.ls">[docs]</a>  <span class="k">def</span> <span class="nf">ls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">20</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Variable list method of Exper .</span>
+<span class="sd">    Examine which fields (Netcdf variables) are available of experiment object.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>  
+ 
+    <span class="n">RP</span> <span class="o">=</span> <span class="n">Report</span><span class="p">()</span>
+    <span class="n">av_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">available</span><span class="p">()</span>
+    <span class="n">av_list</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="n">RP</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">av_list</span><span class="p">,</span><span class="n">delim</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\t</span><span class="s"> &#39;</span><span class="p">,</span><span class="n">maxlen</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="n">width</span><span class="p">)</span>
+
+    <span class="k">print</span> <span class="n">RP</span><span class="o">.</span><span class="n">value</span>
+
+</div>
+<div class="viewcode-block" id="Exper.update_nbytes"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.update_nbytes">[docs]</a>  <span class="k">def</span> <span class="nf">update_nbytes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+     <span class="n">coord_bytes</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">nbytes</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cstack</span><span class="p">]</span>  <span class="p">)</span>
+     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+       <span class="n">field_bytes</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">nbytes</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>  <span class="p">)</span>    
+     <span class="k">else</span><span class="p">:</span>
+       <span class="n">field_bytes</span> <span class="o">=</span> <span class="mi">0</span>
+     <span class="bp">self</span><span class="o">.</span><span class="n">nbytes</span>  <span class="o">=</span> <span class="n">coord_bytes</span> <span class="o">+</span> <span class="n">field_bytes</span>
+
+     
+    
+
+<span class="c"># ----- end Exper  ------------</span>
+
+
+
+
+
+</div></div>
+<div class="viewcode-block" id="isexpdir"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.isexpdir">[docs]</a><span class="k">def</span> <span class="nf">isexpdir</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">file_extensions</span> <span class="o">=</span> <span class="n">cdf_file_extensions</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd"> Tests whether the subdirectories in the path contain data files. </span>
+
+<span class="sd"> Returns the list of those subdirectories (relative path to path argument) that </span>
+<span class="sd"> contain these known files. To be used by adexp functionality and such.</span>
+<span class="sd"> file_extensions is the list of known filenames in the form of glob expressions, e.g.   </span>
+<span class="sd"> [&#39;*.nc&#39;,&#39;*.cdf&#39;] (the default).   </span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+    <span class="c"># examine all subdirectories of path. Create copy for manipulation.</span>
+
+ 
+  <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="n">L</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">Lc</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+  <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">path</span><span class="p">,]</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;No such file or directory </span><span class="si">%s</span><span class="s">.&#39;</span><span class="o">%</span><span class="n">path</span><span class="p">)</span>
+    
+  <span class="c"># go through list L of subdirectories of path (e.g. /home/me/PROJECTS/test_project/) to see which ones are experiment directories (i.e. contain .nc and .cdf files).</span>
+  <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">L</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+      <span class="c"># look for files ending in .nc or .cdf</span>
+      
+      <span class="n">exp_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span> <span class="p">,</span> <span class="n">it</span><span class="p">)</span>
+      <span class="c"># Try globbing &lt;path&gt;.nc and &lt;path&gt;.cdf. E.g. /home/me/PROJECTS/test_project/DPC/*.nc for a globfpath</span>
+      <span class="n">globfpaths</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">exp_path</span> <span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">file_extensions</span><span class="p">]</span>
+ 
+      <span class="c"># Test whether any files of the extensions (e.g .nc) in file_extensions occur in this directory:</span>
+      <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">globfpaths</span><span class="p">])):</span>	
+         <span class="c"># if no files with these extensions are found, delete the directory from the list:</span>
+        <span class="n">Lc</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+     <span class="c"># bad directory anyway</span>
+      <span class="n">Lc</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+
+  <span class="n">globfpaths</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span> <span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">file_extensions</span><span class="p">]</span>
+  <span class="n">raw_files</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">globfpaths</span><span class="p">])</span>
+  <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">raw_files</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">e</span><span class="p">)]</span>
+
+  <span class="c"># Returning list of directory and file names (not full paths) believed to correspond to experiments.</span>
+  <span class="k">return</span> <span class="n">Lc</span> <span class="o">+</span> <span class="p">[</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">e</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span>   <span class="n">files</span> <span class="p">]</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">spacegrids  documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

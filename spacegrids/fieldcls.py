@@ -1581,15 +1581,12 @@ class Gr(tuple):
 
   def expand(self,A,other):
     """
+    Adds dimensions specified in Gr other at the beginning of array A
 
-    A Gr method called on a ndarray and an other Gr
-    Adds dimensions specified in other, a Gr object, at the beginning of array A
-
-    input: ndarray of shape consistent with self.
-	   Gr other
+    input: ndarray of shape consistent with self, Gr other
     output: an ndarray of shape (other/self)*self containing identical copies of A along other/self
 
-    Example: 
+    Example.
 
     SAT = P['DPO']['A_sat']
     SAT.shape is (100,100)
@@ -1599,7 +1596,7 @@ class Gr(tuple):
 
     Note that the other grid is appended on the left side.
 
-    Example 2:
+    Example 2.
 
     (zt*yt*xt).shape() is (46, 110, 200)
 
@@ -1612,7 +1609,6 @@ class Gr(tuple):
     K.shape is (46, 110, 200)
 
     Warning: method requires Gr argument, do not use coord argument. Instead, for a single coord (e.g.) xt, use xt**2.
-
     """
 
     # only use those coord elements that are in the other gr but not the self gr.
@@ -1636,9 +1632,7 @@ class Gr(tuple):
     """
  
     Input:
-    type = output type. 
-		-'array' in arguments will return a list of arrays.
-		-'Field' in arguments will return a list of fields.
+    type = output type. -'array' in arguments will return a list of arrays. -'Field' in arguments will return a list of fields.
 
     Output: 
     A list of arrays or fields of the dimension of the grid being called.
@@ -1649,7 +1643,6 @@ class Gr(tuple):
 
 
     Cached for performance. Refresh with force = True.
-
     """
 
     if  not(hasattr(self,'inflated')) or (not self.inflated) or (force == True):
@@ -3031,22 +3024,19 @@ class VField(tuple):
 
 def concatenate(fields, ax=None, name_suffix='_cat', new_coord_name = 'gamma', new_coord= None, strings = None ):
   """
-  concatenate((a1,a2,...),ax=None)
-
   Joins a sequence of fields together.
 
+  concatenate((a1,a2,...),ax=None)
   Parameters
   ----------
   a1, a2,.... : sequence of Field objects
-        The Field value ndarrays must have the same shape, except in the dimension
-        corresponding to `ax` (the one with unequal Coord point values, by default).
-    axis : Ax object, optional
-        The axis along which the arrays will be joined.  Default is the first one with unequal Coord point values.
+       
+  The Field value ndarrays must have the same shape, except in the dimension
+  corresponding to `ax` (the one with unequal Coord point values, by default). axis : Ax object, optional       
+  The axis along which the arrays will be joined.  Default is the first one with unequal Coord point values.
 
   a new Coord is created if none of the grid elements point in the direction of the ax argument. Then, new_coord_name is used. 
   The above behaviour is overridden if the new_coord argument is given. This is a Coord object that will be used to construct one Field from the fields list argument. The list elements become slices (at single Coord values) and the new_coord values are the corresponding coordinates.
-  
-
   """
 
   

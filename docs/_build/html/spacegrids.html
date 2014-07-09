@@ -1,0 +1,1782 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>spacegrids package &mdash; spacegrids  documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="spacegrids  documentation" href="index.html" />
+    <link rel="prev" title="Welcome to spacegrids’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to spacegrids’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">spacegrids  documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="spacegrids-package">
+<h1>spacegrids package<a class="headerlink" href="#spacegrids-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-spacegrids.config">
+<span id="spacegrids-config-module"></span><h2>spacegrids.config module<a class="headerlink" href="#module-spacegrids.config" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="spacegrids.config.warning_on_one_line">
+<tt class="descclassname">spacegrids.config.</tt><tt class="descname">warning_on_one_line</tt><big>(</big><em>message</em>, <em>category</em>, <em>filename</em>, <em>lineno</em>, <em>file=None</em>, <em>line=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/config.html#warning_on_one_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.config.warning_on_one_line" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-spacegrids.expercls">
+<span id="spacegrids-expercls-module"></span><h2>spacegrids.expercls module<a class="headerlink" href="#module-spacegrids.expercls" title="Permalink to this headline">¶</a></h2>
+<p>Exper class</p>
+<dl class="class">
+<dt id="spacegrids.expercls.Exper">
+<em class="property">class </em><tt class="descclassname">spacegrids.expercls.</tt><tt class="descname">Exper</tt><big>(</big><em>path='/home/wim'</em>, <em>name='test'</em>, <em>cstack=</em>, <span class="optional">[</span><span class="optional">]</span><em>params={}</em>, <em>descr=0</em>, <em>parent='orphan'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/expercls.html#Exper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.expercls.Exper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="spacegrids.expercls.Exper.available">
+<tt class="descname">available</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/expercls.html#Exper.available"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.expercls.Exper.available" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method of Exper  that returns a list of all available Netcdf variable names (strings).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.expercls.Exper.delvar">
+<tt class="descname">delvar</tt><big>(</big><em>varnames</em>, <em>msg=''</em><big>)</big><a class="reference internal" href="_modules/spacegrids/expercls.html#Exper.delvar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.expercls.Exper.delvar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.expercls.Exper.get">
+<tt class="descname">get</tt><big>(</big><em>varnames</em><big>)</big><a class="reference internal" href="_modules/spacegrids/expercls.html#Exper.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.expercls.Exper.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.expercls.Exper.insert">
+<tt class="descname">insert</tt><big>(</big><em>what</em><big>)</big><a class="reference internal" href="_modules/spacegrids/expercls.html#Exper.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.expercls.Exper.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert Field in Field list of this exper object under key varname.  If argument what is a number, it will be inserted as a parameter.</p>
+<p>Input: what a 2 tuple (pair) of name and value: (name, value). Value can be a Field or a single value. Name must be a string, but can be None in the case of a Field, where the Field name will then be used. For example what = (&#8216;temp&#8217;,TEMP), where TEMP is a Field. If value is a single value (e.g. int or float), a name must be provided.</p>
+<p>Argument what can also be a list of (name,value) pairs, in which case the entire collection of pairs will be inserted.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.expercls.Exper.list_vars">
+<tt class="descname">list_vars</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/expercls.html#Exper.list_vars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.expercls.Exper.list_vars" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.expercls.Exper.load">
+<tt class="descname">load</tt><big>(</big><em>varnames</em>, <em>squeeze_field=True</em>, <em>ax=None</em>, <em>name_suffix='_cat'</em>, <em>new_coord_name='gamma'</em>, <em>new_coord=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/expercls.html#Exper.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.expercls.Exper.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Field load method of Exper .</p>
+<p>Load a variable or list of variables contained in varnames. Takes either a single string or a list of strings. If multiple files inside a directory contain the same variable, this method will attempt to concatenate them (e.g. in the case where there are different time slices).</p>
+<p>Inputs:
+varnames            list of the variable names to load
+squeeze_field       switch to squeeze Field on loading (default True)</p>
+<p>The following arguments are passed on to the concatenate function:
+ax                  
+name_suffix
+new_coord_name
+new_coord</p>
+<p>if self.path is to a file (likely to be an Experiment file), the variable will be loaded from that file.
+if self.path is to a directory (likely to be an experiment dir), the variable will be loaded from Netcdf files inside that directory.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.expercls.Exper.ls">
+<tt class="descname">ls</tt><big>(</big><em>width=20</em><big>)</big><a class="reference internal" href="_modules/spacegrids/expercls.html#Exper.ls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.expercls.Exper.ls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Variable list method of Exper .
+Examine which fields (Netcdf variables) are available of experiment object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.expercls.Exper.show">
+<tt class="descname">show</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/expercls.html#Exper.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.expercls.Exper.show" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.expercls.Exper.update_nbytes">
+<tt class="descname">update_nbytes</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/expercls.html#Exper.update_nbytes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.expercls.Exper.update_nbytes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.expercls.Exper.write">
+<tt class="descname">write</tt><big>(</big><em>path=None</em>, <em>name=None</em>, <em>history='Created from Spacegrids '</em>, <em>insert_dual=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/expercls.html#Exper.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.expercls.Exper.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write method of Exper .</p>
+<p>Creates Netcdf file and writes all loaded Field to it, along with their Coord objects.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.expercls.isexpdir">
+<tt class="descclassname">spacegrids.expercls.</tt><tt class="descname">isexpdir</tt><big>(</big><em>path, file_extensions=['*.nc', '*.cdf']</em><big>)</big><a class="reference internal" href="_modules/spacegrids/expercls.html#isexpdir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.expercls.isexpdir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether the subdirectories in the path contain data files.</p>
+<p>Returns the list of those subdirectories (relative path to path argument) that 
+contain these known files. To be used by adexp functionality and such.
+file_extensions is the list of known filenames in the form of glob expressions, e.g.   
+[&#8216;<em>.nc&#8217;,&#8217;</em>.cdf&#8217;] (the default).</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spacegrids.fieldcls">
+<span id="spacegrids-fieldcls-module"></span><h2>spacegrids.fieldcls module<a class="headerlink" href="#module-spacegrids.fieldcls" title="Permalink to this headline">¶</a></h2>
+<p>Coord, Gr, Ax, AxGr and Field class</p>
+<dl class="class">
+<dt id="spacegrids.fieldcls.Ax">
+<em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">Ax</tt><big>(</big><em>name='scalar'</em>, <em>direction='scalar'</em>, <em>display_name=''</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Ax"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Ax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>axis .</p>
+<dl class="method">
+<dt id="spacegrids.fieldcls.Ax.copy">
+<tt class="descname">copy</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Ax.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Ax.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Ax.der">
+<tt class="descname">der</tt><big>(</big><em>F</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Ax.der"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Ax.der" title="Permalink to this definition">¶</a></dt>
+<dd><p>Derivative method of Ax . Uses entire grid, in case some coords depend on other coords. e.g. x-differentiation requires knowledge of y-position due to nature of polar coords.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Ax.same">
+<tt class="descname">same</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Ax.same"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Ax.same" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Ax.samein">
+<tt class="descname">samein</tt><big>(</big><em>L</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Ax.samein"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Ax.samein" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Ax.sameindex">
+<tt class="descname">sameindex</tt><big>(</big><em>L</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Ax.sameindex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Ax.sameindex" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.fieldcls.AxGr">
+<em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">AxGr</tt><a class="reference internal" href="_modules/spacegrids/fieldcls.html#AxGr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.AxGr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt></p>
+<dl class="method">
+<dt id="spacegrids.fieldcls.AxGr.copy">
+<tt class="descname">copy</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#AxGr.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.AxGr.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.AxGr.eq_in">
+<tt class="descname">eq_in</tt><big>(</big><em>crd</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#AxGr.eq_in"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.AxGr.eq_in" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.fieldcls.Coord">
+<em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">Coord</tt><big>(</big><em>name='scalar'</em>, <em>value=array([0])</em>, <em>dual=None</em>, <em>axis='?'</em>, <em>direction='scalar'</em>, <em>units=None</em>, <em>long_name='?'</em>, <em>metadata={}</em>, <em>strings=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>coordinate , represents single coordinate elements such as points along the x axis. 
+Coord objects are defined by a name, value (generally a numpy array) and units.
+Coord objects c1 and c2 are considered equal, c1&amp;c2 yields True, when the name, value (numpy array) and units attributes are equal.</p>
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.array_equal">
+<tt class="descname">array_equal</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.array_equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.array_equal" title="Permalink to this definition">¶</a></dt>
+<dd><p>test whether Coord objects contain identical Coord values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.bigslice">
+<tt class="descname">bigslice</tt><big>(</big><em>F=None</em>, <em>index=0</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.bigslice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.bigslice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method of Coord .</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.cdf_insert">
+<tt class="descname">cdf_insert</tt><big>(</big><em>file_handle</em>, <em>miss_default=9.96921e+36</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.cdf_insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.cdf_insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Netcdf insert method of Coord 
+Inserts Coord as variable into Netcdf file.</p>
+<p>Input: file_handle file handle of opened Netcdf file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.coord_shift">
+<tt class="descname">coord_shift</tt><big>(</big><em>F</em>, <em>shift</em>, <em>keepgrid=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.coord_shift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.coord_shift" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Method of Coord .
+This method shifts the coordinates by a number of indices, namely parameter shift. The shifted Coord in the grid of the Field argument is replaced with a (different) shifted Coord: disable this behaviour with argument keepgrid = True.</div></blockquote>
+<p>calls roll function.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.copy">
+<tt class="descname">copy</tt><big>(</big><em>name=None</em>, <em>value=None</em>, <em>dual=None</em>, <em>axis=None</em>, <em>direction=None</em>, <em>units=None</em>, <em>long_name=None</em>, <em>metadata=None</em>, <em>strings=None</em>, <em>equiv=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy function for Coord objects. If equiv = True, the copies will be equivalent. When no value is selected for an argument (i.e. it retains its default value of None), a copy of the self attribute will be used. Otherwise, the argument value will be used.</p>
+<p>Returns a copy of the Coord object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.cumsum">
+<tt class="descname">cumsum</tt><big>(</big><em>F</em>, <em>upward=False</em>, <em>land_nan=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.cumsum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.cumsum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method of Coord .
+Compute cumulative sum (integral) of input Field F along axis of F corresponding to this Coord object. If argument upward is set to true, summing takes place with increasing array index. If it is set to False, summing takes place with decreasing array index starting at index -1. Values of nan are set to 0, and therefore not counted.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.d">
+<tt class="descname">d</tt><big>(</big><em>F=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.d" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Calculates changes of argument Field F in direction of self Coord and defined on the dual of the self Coord. If no Field is given, this yields the grid cell width, and then calculates width of grid cell in direction of self Coord object using the dual of self. Can be used to compute volumes.</div></blockquote>
+<p>To be overriden by coord_edge derived objects to yield a function from fields to fields and yielding differentiation. Also overriden in x and y direction to accomodate for sphere.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.der">
+<tt class="descname">der</tt><big>(</big><em>F</em>, <em>method=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.der"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.der" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method of Coord .
+Derivative method on Field F. If Coord non-cyclical, the first derivative element is nan and the second is the derivative at the first element of the original Coord.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.dist">
+<tt class="descname">dist</tt><big>(</big><em>fact=1.0</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to calculate the distance between elements of Coord.
+Appropriate to vertical direction.
+To be over-ridden for hor coords x,y =&gt; derive classes XCoord, YCoord</p>
+<p>Returns an array as len(result) == len(grid)-1</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.finer">
+<tt class="descname">finer</tt><big>(</big><em>factor=5.0</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.finer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.finer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method of Coord. Refine the coordinate point interval with a given factor.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.flip">
+<tt class="descname">flip</tt><big>(</big><em>F</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.flip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.flip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reverse order of elements along axis of this Coord. Note that grid remains unchanged: strictly, this will lead to an inconsistency between the Field data and the grid.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.roll">
+<tt class="descname">roll</tt><big>(</big><em>shift=0</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.roll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.roll" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.s">
+<tt class="descname">s</tt><big>(</big><em>fact=1.0</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.s"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.s" title="Permalink to this definition">¶</a></dt>
+<dd><p>Yields the distance along Coord from a certain fixed point (e.g. ocean surface or from equator along y-direction).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.same">
+<tt class="descname">same</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.same"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.same" title="Permalink to this definition">¶</a></dt>
+<dd><p>Coord method to check whether this Coord has identical main attributes (except units) to argument other Coord.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.samein">
+<tt class="descname">samein</tt><big>(</big><em>L</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.samein"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.samein" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.sameindex">
+<tt class="descname">sameindex</tt><big>(</big><em>L</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.sameindex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.sameindex" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.slice_index">
+<tt class="descname">slice_index</tt><big>(</big><em>F</em>, <em>slice_obj=slice(1</em>, <em>None</em>, <em>None)</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.slice_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.slice_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Yields a list of slice objects that can be used to slice along the axis of this Coord.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.sort">
+<tt class="descname">sort</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.sort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.sort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sorts Coord value. Passes arguments on to Numpy sort method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.start_zero">
+<tt class="descname">start_zero</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.start_zero"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.start_zero" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a copy of this Coord where the coordinate values start at 0.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.sum">
+<tt class="descname">sum</tt><big>(</big><em>F</em>, <em>land_nan=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method of Coord  that sums Field F along self Coord direction. Not weighted with grid cell width. Uses masked arrays to handle nan values. nan values can be used to eliminate areas from summing area.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.trans">
+<tt class="descname">trans</tt><big>(</big><em>F</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.trans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.trans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method of Coord .
+Gives the change in Field F upon a Coord shift of 1 index in the direction of the self Coord</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.vcumsum">
+<tt class="descname">vcumsum</tt><big>(</big><em>F</em>, <em>upward=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.vcumsum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.vcumsum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method of Coord .
+Calculates the cumulative sum weighted by width of grid cells along self direction.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.vol">
+<tt class="descname">vol</tt><big>(</big><em>gr</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.vol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.vol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines widths of cells along self Coord. grid argument acts as filter: aborts if self not in grid. The grid argument is more critical in derived classes (e.g. x_coord), where auxhiliary coordinates are picked from Gr and need to be present.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.vsum">
+<tt class="descname">vsum</tt><big>(</big><em>F</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.vsum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.vsum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method of Coord .
+Sums Field along self Coord, weighted with grid cell width (using self.d(), called by self.vol(F.gr)). Note: due to possible dependence of one Coord on the other, only use mean method of grid. There is no mean method for Coord objects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.weaksame">
+<tt class="descname">weaksame</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.weaksame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.weaksame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True/ False</p>
+<p>coord1.weaksame(coord2) tests whether Coord objects coord1, coord2 contain identical Coord values, name and direction.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Coord.write">
+<tt class="descname">write</tt><big>(</big><em>path=None</em>, <em>name=None</em>, <em>history='Created from Spacegrids '</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write method of Coord .
+Writes Coord data to Netcdf file.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.fieldcls.Field">
+<em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">Field</tt><big>(</big><em>name</em>, <em>value</em>, <em>grid</em>, <em>units='?'</em>, <em>direction=None</em>, <em>strict_v=True</em>, <em>long_name='?'</em>, <em>metadata={}</em>, <em>squeezed_dims=()</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Field  to represent a scalar valued function, also dataset, defined on a grid.</p>
+<p>The call method allows fields to act as function defined on grid objects.
+For a 2D scalar corresponding to Field T, say defined on grid yt*xt, T(dy*dx) yields a 2D array of the scalar values.</p>
+<p>If Field T is naturally defined on grid yt*xt, then T(zt*yt*xt) yields a 3D array b such that b[k,:,:] = T(yt*xt) for all possible k.</p>
+<blockquote>
+<div>If g is a Gr (grid) or Coord object, left or right multiplication of a Field  object F with Gr Coord results in the grid-cell width weighted summing of the Field over the coords in the multiplicant g (integration, via g.vsum method), resulting in a smaller dimension Field.</div></blockquote>
+<p>If g is a Coord object, g^F yields the derivative of F along g (via g.der method). g|F yields the grid cell width-weight cumulative sum of F over g (primitive, via g.vcumsum).</p>
+<p>two fields F1, F2 are considered equal, F1&amp;F2 yields True, when their name, value (an numpy array) and Gr (grid) attribute are equal, unless they contain nan values.</p>
+<p>NOTE: multiplication works a bit different from addition at the moment. Addition will go ahead even when coords in the grids are differently named (or have other non-value attributes differ) as long as the value (the coord points) are the same: then the (left and right) coords are considered equal. Multiplication treats them as different coords in this case.</p>
+<dl class="method">
+<dt id="spacegrids.fieldcls.Field.cat">
+<tt class="descname">cat</tt><big>(</big><em>other</em>, <em>ax=None</em>, <em>name_suffix='_cat'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.cat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.cat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concatenate with another Field along axis ax. If ax is None, concatenation takes place along the first encountered common axis with non-equal values.
+Grids must be orient along same axes and in same axis order.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Field.cdf_insert">
+<tt class="descname">cdf_insert</tt><big>(</big><em>file_handle</em>, <em>insert_dual=True</em>, <em>force_squeeze=False</em>, <em>miss_default=9.96921e+36</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.cdf_insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.cdf_insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Netcdf insert method of Field .</p>
+<p>Writes Field to already opened file referred to with file_handle argument, along with its Coord objects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Field.copy">
+<tt class="descname">copy</tt><big>(</big><em>name=None</em>, <em>value=None</em>, <em>grid=None</em>, <em>units=None</em>, <em>direction=None</em>, <em>long_name=None</em>, <em>metadata=None</em>, <em>squeezed_dims=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Field.dV">
+<tt class="descname">dV</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.dV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.dV" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Field.draw">
+<tt class="descname">draw</tt><big>(</big><em>colorbar=True</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.draw" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Field.mean">
+<tt class="descname">mean</tt><big>(</big><em>grid=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.mean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.mean" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Field.ones">
+<tt class="descname">ones</tt><big>(</big><em>nan_val=nan</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.ones"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.ones" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Field containing domain of this Field: values are 1 in grid locations where Field is defined, nan otherwise.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Field.regrid">
+<tt class="descname">regrid</tt><big>(</big><em>grid</em>, <em>method='linear'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.regrid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.regrid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Field.roll">
+<tt class="descname">roll</tt><big>(</big><em>shift</em>, <em>crd</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.roll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.roll" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Field.slice">
+<tt class="descname">slice</tt><big>(</big><em>sl_coord=None</em>, <em>slice_obj=slice(1</em>, <em>None</em>, <em>None)</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.slice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.slice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Slice along Coord (e.g. xt) using slice_obj as slice, e.g. slice(1,None,None).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Field.sum">
+<tt class="descname">sum</tt><big>(</big><em>grid=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes sum of Field over grid using masked array (nan is not counted). Outputs a float if grid is entire grid of the Field, and a Field on remaining grid (self.gr/grid) if grid argument is a subgrid.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Field.vol">
+<tt class="descname">vol</tt><big>(</big><em>grid=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.vol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.vol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute volume (area/ length) of non-nan grid cells.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Field.vsum">
+<tt class="descname">vsum</tt><big>(</big><em>grid=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.vsum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.vsum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Field.write">
+<tt class="descname">write</tt><big>(</big><em>path=None</em>, <em>name=None</em>, <em>history='Created from Spacegrids '</em>, <em>insert_dual=True</em>, <em>force_squeeze=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write method of Field .</p>
+<p>Creates Netcdf file and writes Field to it, along with its Coord objects.</p>
+<p>Fields are unsqueezed before saving, along Coord objects of single length to be saved as well (override with force_squeeze = True).</p>
+<p>If path and name are not specified, the file will be located in the working directory.
+If only name is specified, the file will be in the wd under that name
+If path is specified, the wd is replaced by the path in the above 2 scenarios.</p>
+<p>insert_dual determines whether the edges of a the Coord objects are saved as well (the default).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.fieldcls.GetId">
+<em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">GetId</tt><a class="reference internal" href="_modules/spacegrids/fieldcls.html#GetId"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.GetId" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.fieldcls.Gr">
+<em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">Gr</tt><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt></p>
+<p>Gr . consists of a tuple of Coord objects, with additional methods. Gr objects g1 and g2 are considered equal, g1&amp;g2 yields True, when the individual Coord elements are equal.</p>
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.array_equal">
+<tt class="descname">array_equal</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.array_equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.array_equal" title="Permalink to this definition">¶</a></dt>
+<dd><p>grid component-wise test whether the Coord objects contain the same grid point location values. Input another grid.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.axis">
+<tt class="descname">axis</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an AxGr object containing the axis properties of the Coord elements of this grid.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.copy">
+<tt class="descname">copy</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates object with same values. A = B.copy() yields A&amp;B = True, see __and__ method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.der">
+<tt class="descname">der</tt><big>(</big><em>crd</em>, <em>F</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.der"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.der" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method of grid object. Often the wider context of the grid needs to be known to take the derivative along a Coord, hence a Gr method.</p>
+<p>Input:
+crd         Coord object along which to differentiate (e.g. latitude)
+F           Field object to differentiate (e.g. temperature)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.dual">
+<tt class="descname">dual</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.dual"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.dual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method of Gr object that returns a grid made up of the dual Coord elements of this Gr object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.eq_in">
+<tt class="descname">eq_in</tt><big>(</big><em>crd</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.eq_in"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.eq_in" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.eq_index">
+<tt class="descname">eq_index</tt><big>(</big><em>crd</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.eq_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.eq_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.eq_perm">
+<tt class="descname">eq_perm</tt><big>(</big><em>other</em>, <em>verbose=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.eq_perm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.eq_perm" title="Permalink to this definition">¶</a></dt>
+<dd><p>yields permutation of axes going from grid self to grid other, where equivalent axes are treated as identical.</p>
+<p>See also perm.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.expand">
+<tt class="descname">expand</tt><big>(</big><em>A</em>, <em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.expand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.expand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds dimensions specified in Gr other at the beginning of array A</p>
+<p>input: ndarray of shape consistent with self, Gr other
+output: an ndarray of shape (other/self)*self containing identical copies of A along other/self</p>
+<p>Example.</p>
+<p>SAT = P[&#8216;DPO&#8217;][&#8216;A_sat&#8217;]
+SAT.shape is (100,100)
+W=SAT.gr.expand(SAT[:],depth**2)
+W.shape is (19,100,100)
+W contains 19 identical copies (slices) of SAT[:]</p>
+<p>Note that the other grid is appended on the left side.</p>
+<p>Example 2.</p>
+<p>(zt*yt*xt).shape() is (46, 110, 200)</p>
+<p>A = np.ones((xt**2).shape())</p>
+<p>K=(xt**2).expand(A,zt*yu*xt  )
+K.shape is (46, 110, 200)</p>
+<p>K=(xt**2).expand(A,zt*xt*yt  )
+K.shape is (46, 110, 200)</p>
+<p>Warning: method requires Gr argument, do not use coord argument. Instead, for a single coord (e.g.) xt, use xt**2.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.find_args_coord">
+<tt class="descname">find_args_coord</tt><big>(</big><em>coord_types</em>, <em>method_name='d'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.find_args_coord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.find_args_coord" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.function">
+<tt class="descname">function</tt><big>(</big><em>func</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a Field containing the values of function argument func on the grid points defined in this grid. The Field name is the name of the function.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.inflate">
+<tt class="descname">inflate</tt><big>(</big><em>type='array'</em>, <em>force=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.inflate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.inflate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Input:
+type = output type. -&#8216;array&#8217; in arguments will return a list of arrays. -&#8216;Field&#8217; in arguments will return a list of fields.</p>
+<p>Output: 
+A list of arrays or fields of the dimension of the grid being called.
+Each element in the list corresponds to a Coord object in the called grid, where the array equals the content of the Coord along the array index corresponding to that Coord, and is constant otherwise.</p>
+<p>For example, a grid defined by (yt,xt) (equal to yt*xt) yields [YT,XT] where YT = yt(yt*xt) and XT = XT(yt*xt). We refer to XT as the inflated version of xt. Here, the Coord object has been called on the grid object: this yields an array defined on the argument grid and constant in all Coord axes other than the calling Coord. The array equals the value of the calling Coord object along that axis.</p>
+<p>Cached for performance. Refresh with force = True.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.mean">
+<tt class="descname">mean</tt><big>(</big><em>F</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.mean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.mean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method of Gr object.
+Determines mean of Field argument F weighted with grid cell width.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.nbytes">
+<tt class="descname">nbytes</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.nbytes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.nbytes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.ones">
+<tt class="descname">ones</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.ones"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.ones" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.perm">
+<tt class="descname">perm</tt><big>(</big><em>g1.perm(g2)</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.perm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.perm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns None if no permutation exists.</p>
+<p>See also shuffle.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.regrid">
+<tt class="descname">regrid</tt><big>(</big><em>other</em>, <em>method='linear'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.regrid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.regrid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Input: other Gr object (grid).</p>
+<p>The regrid method of a Gr object takes another Gr object, other, and yields a function F. This function F takes an array A and re-arranges the order of   the indices to match the input Gr object (other). If the length of the input object exceeds that of the calling object, F(A) also expands the array along the additional axes by creating copies of it along those axes (using the expand method). Note that the coords of the calling Gr object need to be a subset of the argument Gr object.</p>
+<p>Yields a transformation on fields going from self grid to other grid.</p>
+<p>E.g. xt*yt(yt*xt) yields a tranpose operation on an array
+xt*yt(xu*yu) yields an interpolation acting on fields.</p>
+<p>yt*xt(zt*yt*xt) yields a functions transforming a 2D array corresponding to the values of a Field defined on yt*xt to a 3D array constant in the zt direction.</p>
+<p>If self is longer than other, calling will lead to a reduction. E.g.</p>
+<p>R=(zt*yt*xt)((yt**2))(A) where A.shape = (len(zt),len(yt),len(xt))
+Leads to a list of length len(yt) containing arrays of dimension len(zt) by len(xt).
+Then for S=array(R) we get S.shape is (len(yt), len(zt), len(xt))</p>
+<p>For R=(zt*yt*xt)((xt*yt))(A) we get a list of lists and S.shape is (len(xt), len(yt), len(zt))
+Note that yt,xt appear in different order in self and other.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.reverse">
+<tt class="descname">reverse</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.reverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.reverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.same">
+<tt class="descname">same</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.same"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.same" title="Permalink to this definition">¶</a></dt>
+<dd><p>Coord-wise comparison of elements using Coord same method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.shape">
+<tt class="descname">shape</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.shuffle">
+<tt class="descname">shuffle</tt><big>(</big><em>permutation</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.shuffle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.shuffle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gr method that rearranges the order of the elements of this grid Gr object via permutation arrgument. E.g.</p>
+<p>g1 = latitude*depth
+g1.shuffle( (1,0) ) is (depth, latitude)</p>
+<p>See also perm method of Gr.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.strict_equiv">
+<tt class="descname">strict_equiv</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.strict_equiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.strict_equiv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether two Gr objects have equivalent Coord elements at each position.
+This is a stricter test than grid (Gr object) equivalence testing via gr1^gr2, which only tests whether both grids describe the same space (elements equivalent up to a permutation).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.to_slices">
+<tt class="descname">to_slices</tt><big>(</big><em>A</em>, <em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.to_slices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.to_slices" title="Permalink to this definition">¶</a></dt>
+<dd><p>yields a list of slices along the coords defined in self. e.g.
+zt(zt*yt*xt) = [A[0,:,:],A[1,:,:],...] where A.shape is (zt*yt*xt).shape()</p>
+<p>Expects self coords to be subset of other, and appearing in same order in both.
+other must appear in the left side of self (i.e. self is self*(other/self)  ).
+For instance, zt*yt(zt*yt*xt) is valid,  yt*xt(zt*yt*xt) and zt(yt*xt) are not.
+The indexing in the output list (as list of lists) is of opposite order to the Coord elements in self.</p>
+<p>No checks are done on consistency between A or other or self and other.</p>
+<p>The opposite of expand. Used by call method of fields on Gr objects of lower dimension that the Field.</p>
+<p>Inputs: 
+A           ndarray of shape other.shape()
+other       another larger Gr (grid) object containing self</p>
+<p>Outputs:
+A list of nparrays being slices of input A along the self Gr.</p>
+<p>Note that argument is longer than self. This is opposite to __call__ method, where a longer self leads to a reduction.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.vol">
+<tt class="descname">vol</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.vol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.vol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gr method that determines volumes (areas/ lengths) of grid elements, returns Field.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.vsum">
+<tt class="descname">vsum</tt><big>(</big><em>F</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.vsum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.vsum" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Method of Gr object. Sum weighted with Coord grid cell widths (integration) over self grid.</div></blockquote>
+<p>Takes Field argument and returns a Field with grid made up of remaining Coord objects or a float. E.g. if F.gr == (&#8216;zt&#8217;,&#8217;yt&#8217;,&#8217;xt&#8217;), (xt*yt).vsum(F) yields a Field defined on grid (&#8216;zt&#8217;,).</p>
+<blockquote>
+<div>Note that when Coord elements with direction attribute &#8216;X&#8217; and &#8216;Y&#8217; both appear in the Gr object, vsum will check whether the &#8216;X&#8217; Coord appears after the &#8216;Y&#8217; Coord. If so, they will be interchanged when performing the calculation as otherwise no y-coord is available when the x grid cell width is required. This is a small detail.</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.fieldcls.VField">
+<em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">VField</tt><a class="reference internal" href="_modules/spacegrids/fieldcls.html#VField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.VField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt></p>
+<p>vector Field. A tuple of fields with extra rules. Allows multiplication.</p>
+<dl class="method">
+<dt id="spacegrids.fieldcls.VField.copy">
+<tt class="descname">copy</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#VField.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.VField.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.VField.direction">
+<tt class="descname">direction</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#VField.direction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.VField.direction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method that returns a tuple of the directions of the tuple components of this vector Field by examining these components.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.VField.draw">
+<tt class="descname">draw</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#VField.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.VField.draw" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.VField.sum">
+<tt class="descname">sum</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#VField.sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.VField.sum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.fieldcls.XCoord">
+<em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">XCoord</tt><big>(</big><em>name='scalar'</em>, <em>value=array([0])</em>, <em>dual=None</em>, <em>axis='?'</em>, <em>direction='scalar'</em>, <em>units=None</em>, <em>long_name='?'</em>, <em>metadata={}</em>, <em>strings=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#XCoord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.XCoord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.fieldcls.Coord" title="spacegrids.fieldcls.Coord"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.fieldcls.Coord</span></tt></a></p>
+<dl class="method">
+<dt id="spacegrids.fieldcls.XCoord.angle_trans">
+<tt class="descname">angle_trans</tt><big>(</big><em>y_coord</em>, <em>fact=6370000.0</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#XCoord.angle_trans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.XCoord.angle_trans" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.XCoord.coord_shift">
+<tt class="descname">coord_shift</tt><big>(</big><em>F</em>, <em>shift</em>, <em>keepgrid=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#XCoord.coord_shift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.XCoord.coord_shift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overides Coord coord_shift method. Here, mask is False, so that the array is rotated.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.XCoord.copy">
+<tt class="descname">copy</tt><big>(</big><em>name=None</em>, <em>value=None</em>, <em>axis=None</em>, <em>direction=None</em>, <em>units=None</em>, <em>long_name=None</em>, <em>strings=None</em>, <em>equiv=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#XCoord.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.XCoord.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy function for Coord objects. If equiv = True, the copies will be equivalent.
+Copies with identical key attributes that are not equivalent will yield a severe warning about this when equivalance is tested with the ^ operator.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.XCoord.d">
+<tt class="descname">d</tt><big>(</big><em>y_coord</em>, <em>F=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#XCoord.d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.XCoord.d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grid cell width method&#8221;. Calculates width of grid cell in direction of self Coord object (e.g. in the direction of xt) using the dual of self (e.g. xt_edges).</p>
+<p>Can be used to compute volumes.</p>
+<p>Returns Field of shape (len(yt),len(xt)) containing the widths
+For instance, xt.d(yt) yields a Field containing name attribute &#8216;dxt&#8217;</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.XCoord.der">
+<tt class="descname">der</tt><big>(</big><em>F</em>, <em>y_coord</em>, <em>method=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#XCoord.der"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.XCoord.der" title="Permalink to this definition">¶</a></dt>
+<dd><p>Derivative method on Field F.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.XCoord.dist">
+<tt class="descname">dist</tt><big>(</big><em>y_coord</em>, <em>fact=6370000.0</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#XCoord.dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.XCoord.dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to calculate the distance between elements of Coord.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.XCoord.roll">
+<tt class="descname">roll</tt><big>(</big><em>shift=0</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#XCoord.roll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.XCoord.roll" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.XCoord.s">
+<tt class="descname">s</tt><big>(</big><em>y_coord</em>, <em>fact=6370000.0</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#XCoord.s"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.XCoord.s" title="Permalink to this definition">¶</a></dt>
+<dd><p>Distance along self x-coord direction from a fixed point.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.XCoord.vol">
+<tt class="descname">vol</tt><big>(</big><em>gr</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#XCoord.vol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.XCoord.vol" title="Permalink to this definition">¶</a></dt>
+<dd><p>1-D volume method of XCoord class (the lengths of the grid cells in the x-direction, dependent on y).
+Determines widths of grid cells in self Coord, picking auxiliary coordinate (as when x-widths depend on y) from grid argument gr (y grid is chosen on the same grid as x-coord). 
+Returns Field. Returns None if self not in grid.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.fieldcls.YCoord">
+<em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">YCoord</tt><big>(</big><em>name='scalar'</em>, <em>value=array([0])</em>, <em>dual=None</em>, <em>axis='?'</em>, <em>direction='scalar'</em>, <em>units=None</em>, <em>long_name='?'</em>, <em>metadata={}</em>, <em>strings=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#YCoord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.YCoord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.fieldcls.Coord" title="spacegrids.fieldcls.Coord"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.fieldcls.Coord</span></tt></a></p>
+<dl class="method">
+<dt id="spacegrids.fieldcls.YCoord.copy">
+<tt class="descname">copy</tt><big>(</big><em>name=None</em>, <em>value=None</em>, <em>axis=None</em>, <em>direction=None</em>, <em>units=None</em>, <em>long_name=None</em>, <em>strings=None</em>, <em>equiv=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#YCoord.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.YCoord.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy function for Coord objects. If equiv = True, the copies will be equivalent.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.YCoord.s">
+<tt class="descname">s</tt><big>(</big><em>fact=6370000.0</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#YCoord.s"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.YCoord.s" title="Permalink to this definition">¶</a></dt>
+<dd><p>Yields the distance along Coord from a certain fixed point (e.g. ocean surface or from equator along y-direction).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.fieldcls.cdfread">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">cdfread</tt><big>(</big><em>filepath</em>, <em>varname</em>, <em>coord_stack=</em>, <span class="optional">[</span><span class="optional">]</span><em>ax_stack=</em>, <span class="optional">[</span><span class="optional">]</span><em>verbose=True</em>, <em>squeeze_Field=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#cdfread"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.cdfread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads data corresponding to variable name varname from netcdf file. Returns Field object. coord_stack is used to provide Field with grid object built from corresponding Coord objects according to information in netcdf.
+Input filepath is complete path pointing to file.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.fieldcls.cdfsniff">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">cdfsniff</tt><big>(</big><em>path_parent, file_extensions=['*.nc', '*.cdf'], verbose=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#cdfsniff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.cdfsniff" title="Permalink to this definition">¶</a></dt>
+<dd><p>This sg function looks inside the path_parent path (path to directory containing the Netcdf files, provided as argument) for Netcdf files and extracts Coord objects from the dim data using sg.cdfsniff_helper.</p>
+<p>Returns all Coord objects that contain different data, to be used in the Coord stack cstack.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.fieldcls.cdfsniff_helper">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">cdfsniff_helper</tt><big>(</big><em>filepath</em>, <em>verbose=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#cdfsniff_helper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.cdfsniff_helper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes inventory of coords in netcdf file.</p>
+<p>Input:
+filepath      total file path the specific Netcdf file.</p>
+<p>Output:
+A list of spacegrids Coord objects.</p>
+<p>Directions and therefore types of Coord objects (e.g. XCoord) are guessed from description and naming of Netcdf vars.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.fieldcls.concatenate">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">concatenate</tt><big>(</big><em>fields</em>, <em>ax=None</em>, <em>name_suffix='_cat'</em>, <em>new_coord_name='gamma'</em>, <em>new_coord=None</em>, <em>strings=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#concatenate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.concatenate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Joins a sequence of fields together.</p>
+<p>concatenate((a1,a2,...),ax=None)
+Parameters
+&#8212;&#8212;&#8212;-
+a1, a2,.... : sequence of Field objects</p>
+<p>The Field value ndarrays must have the same shape, except in the dimension
+corresponding to <cite>ax</cite> (the one with unequal Coord point values, by default). axis : Ax object, optional       
+The axis along which the arrays will be joined.  Default is the first one with unequal Coord point values.</p>
+<p>a new Coord is created if none of the grid elements point in the direction of the ax argument. Then, new_coord_name is used. 
+The above behaviour is overridden if the new_coord argument is given. This is a Coord object that will be used to construct one Field from the fields list argument. The list elements become slices (at single Coord values) and the new_coord values are the corresponding coordinates.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.fieldcls.delta">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">delta</tt><big>(</big><em>x</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#delta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.delta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calls the d method of the Coord object depending on the kind of coordinate (i.e. x or y).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.fieldcls.dimname">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">dimname</tt><big>(</big><em>crd</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#dimname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.dimname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strip off _crd suffix if it had been added because dim name equalled axis name</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.fieldcls.find_equal_axes">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">find_equal_axes</tt><big>(</big><em>lstack</em>, <em>rstack</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#find_equal_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.find_equal_axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expects two lists of Coord objects and determines which Coord objects are equal. This is needed when different Coord objects have identical attributes.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.fieldcls.find_set_dual">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">find_set_dual</tt><big>(</big><em>cstack</em>, <em>force=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#find_set_dual"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.find_set_dual" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function tries to find duals among a list cstack (argument) of Coord objects.</p>
+<p>Checks if duals have been defined before. If one such Coord is found, function is aborted (it is assumed it is not needed then). Override with argument force = True.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.fieldcls.finer_Field">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">finer_Field</tt><big>(</big><em>F</em>, <em>factor=5.0</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#finer_Field"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.finer_Field" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a more UVic specific function to prepare a Field containing the outline of the continents for horizontal plots.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.fieldcls.finer_grid">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">finer_grid</tt><big>(</big><em>grid</em>, <em>factor=5.0</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#finer_grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.finer_grid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.fieldcls.guess_direction">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">guess_direction</tt><big>(</big><em>cdf_var, name_atts=['long_name', 'standard_name'], x_dir_names=['eastward', 'Eastward', 'zonal', 'Zonal'], y_dir_names=['northward', 'Northward', 'meridional', 'Meridional'], z_dir_names=['upward', 'Upward', 'vertical', 'Vertical'], t_dir_names=[], directional_names=['velocity', 'stress', 'momentum flux', 'momentum_flux']</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#guess_direction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.guess_direction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function for cdfread. Used to guess, based on keywords in the netcdf data descriptions, whether a Field is a (space-) vector Field component and in what direction it points. The directional_names argument is a list of keywords that might show up in a description that indicates a vector component: e.g. the word velocity. If this list is empty, the function will not search for those keywords (less restrictive). The name_atts argument indicates the possible name of a descriptive attribute in a netcdf file. The {x,y,z}_dir_names correspond to keywords indicating that particular direction (x,y,z).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.fieldcls.guess_grid_type">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">guess_grid_type</tt><big>(</big><em>crd</em>, <em>default='ts_grid'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#guess_grid_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.guess_grid_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that guesses the grid type using the keywords contained in the (sg) global dictionary grid_type_names by testing for keywords (contained as lists in that dictionary).</p>
+<p>Returns None if no grid type is found.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.fieldcls.guess_helper">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">guess_helper</tt><big>(</big><em>desc</em>, <em>guess_names</em>, <em>true_val=None</em>, <em>false_val=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#guess_helper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.guess_helper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function for guess_direction</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.fieldcls.make_axes">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">make_axes</tt><big>(</big><em>cstack</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#make_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.make_axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replaces axis attribute of Coord objects if it is a string with newly created (non-repeating) corresponding axis objects.</p>
+<p>inputs: cstack, a list of Coord objects.
+outputs: returns a list of all unique (no repeats) Ax objects that have been created to replace the axis attribute of the elements of the Coord list (cstack) argument that were strings. None is returned when all cstack Coord elements already have Ax axis attributes.</p>
+<blockquote>
+<div>The Ax objects are created here.</div></blockquote>
+<p>Returns list of Ax objects!!</p>
+<p>NOTE THAT THIS FUNCTION DOES 2 THINGS: IT RETURNS A LIST OF AXES AND MODIFIES THE CSTACK ARGUMENT.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.fieldcls.make_dual">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">make_dual</tt><big>(</big><em>crd</em>, <em>name=None</em>, <em>guess_append=True</em>, <em>append_last=True</em>, <em>zero_boundary=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#make_dual"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.make_dual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a dual Coord by appending one entry, of which the width is guessed based on the adjacent cell width.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.fieldcls.nugget">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">nugget</tt><big>(</big><em>path=None</em>, <em>name=None</em>, <em>fields=</em>, <span class="optional">[</span><span class="optional">]</span><em>history='Created from Spacegrids '</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#nugget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.nugget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write.</p>
+<p>Creates Netcdf file and writes all loaded Field to it, along with their Coord objects.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.fieldcls.ones">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">ones</tt><big>(</big><em>grid</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#ones"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.ones" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.fieldcls.prep_dual_array">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">prep_dual_array</tt><big>(</big><em>raw_array</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#prep_dual_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.prep_dual_array" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.fieldcls.roll">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">roll</tt><big>(</big><em>F</em>, <em>shift=1</em>, <em>coord=None</em>, <em>axis=None</em>, <em>mask=False</em>, <em>keepgrid=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#roll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.roll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that rolls a Field similar to np.roll on numpy arrays (sg roll actually calls np.roll). Axis can be picked via coord name. If mask is True, the elements that rolled from the other side of the array are set to nan (appropriate for non re-entrant domains). The rolled coord element of the grid belonging to Field F is replaced by a new Coord object reflecting the roll operation. To disable this Coord replacement, use argument keepgrid = True</p>
+<p>NOTE: axis here means np array index.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.fieldcls.squeeze">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">squeeze</tt><big>(</big><em>F</em>, <em>hard=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#squeeze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.squeeze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equivalent to Numpy squeeze method. Remove dimensions and associated coords in grid of length 1. Reversible operation as squeezed dimensions are recorded. Setting argument hard to True yields an irreversible squeeze where the squeezed dims are not recorded (and cannot be unsqueezed later).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.fieldcls.unsqueeze">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">unsqueeze</tt><big>(</big><em>F</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#unsqueeze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.unsqueeze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opposite of squeeze. Uses the grid stored in squeezed_dims Field attribute to restore the unit-length dimensions (coords) of the Field.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spacegrids.iosg">
+<span id="spacegrids-iosg-module"></span><h2>spacegrids.iosg module<a class="headerlink" href="#module-spacegrids.iosg" title="Permalink to this headline">¶</a></h2>
+<p>io related</p>
+<dl class="function">
+<dt id="spacegrids.iosg.locate">
+<tt class="descclassname">spacegrids.iosg.</tt><tt class="descname">locate</tt><big>(</big><em>top='/home/'</em>, <em>fname='projname'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/iosg.html#locate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.iosg.locate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Locates all files with filename fname. Helper function to info function.</p>
+<p>Inputs: 
+top           (default &#8216;/home/&#8217;) the start dir
+fname         (default projname) the filename to look for.</p>
+<p>Outputs:
+paths         all paths to dirs containing fname</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.iosg.msk_read">
+<tt class="descclassname">spacegrids.iosg.</tt><tt class="descname">msk_read</tt><big>(</big><em>filepath='masks/msk'</em>, <em>crop=1</em><big>)</big><a class="reference internal" href="_modules/spacegrids/iosg.html#msk_read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.iosg.msk_read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a text file containing a mask pointed to by filepath and returns a corresponding array.
+Due to the way these masks are stored for the UVic model, cropping is needed, as indicated 
+by the crop flag in the arguments.
+This is the lowest level mask read function in sg.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.iosg.netcdf_file">
+<tt class="descclassname">spacegrids.iosg.</tt><tt class="descname">netcdf_file</tt><big>(</big><em>filepath</em>, <em>mode='r'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/iosg.html#netcdf_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.iosg.netcdf_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper for open Netcdf functions from ScientificIO or Scipy</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.iosg.read_masks">
+<tt class="descclassname">spacegrids.iosg.</tt><tt class="descname">read_masks</tt><big>(</big><em>dir_path</em>, <em>msk_shape=0</em>, <em>grids=False</em>, <em>msk_val=2</em>, <em>parent='orphan'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/iosg.html#read_masks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.iosg.read_masks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads mask and returns a list of Field objects containing masks.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spacegrids.ops">
+<span id="spacegrids-ops-module"></span><h2>spacegrids.ops module<a class="headerlink" href="#module-spacegrids.ops" title="Permalink to this headline">¶</a></h2>
+<p>io related</p>
+<dl class="class">
+<dt id="spacegrids.ops.Add">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">Add</tt><big>(</big><em>left</em>, <em>right</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#Add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.Add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.ops.Der">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">Der</tt><big>(</big><em>Xi</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#Der"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.Der" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.ops.FieldMul">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">FieldMul</tt><big>(</big><em>F</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#FieldMul"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.FieldMul" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.ops.FloatMul">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">FloatMul</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#FloatMul"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.FloatMul" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.ops.Identity">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">Identity</tt><a class="reference internal" href="_modules/spacegrids/ops.html#Identity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.Identity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.ops.If">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">If</tt><big>(</big><em>Cond_Op</em>, <em>True_Op</em>, <em>Else_Op=&lt;spacegrids.ops.Identity object at 0xa21952c&gt;</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#If"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.If" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.ops.Innprod">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">Innprod</tt><a class="reference internal" href="_modules/spacegrids/ops.html#Innprod"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.Innprod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
+<p>Inner product on vfields, yields a Field. Both fields must be in same linear space: their direction must match up to a permutation. Can be extended later to include non-trivial inner products.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.ops.Integ">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">Integ</tt><big>(</big><em>Xi</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#Integ"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.Integ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.ops.Lazy">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">Lazy</tt><big>(</big><em>op_fctn</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#Lazy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.Lazy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.ops.Mean">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">Mean</tt><big>(</big><em>Xi</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#Mean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.Mean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.ops.Mul">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">Mul</tt><big>(</big><em>left</em>, <em>right</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#Mul"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.Mul" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.ops.Operator">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">Operator</tt><a class="reference internal" href="_modules/spacegrids/ops.html#Operator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.Operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.ops.Pick">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">Pick</tt><big>(</big><em>Xi</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#Pick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.Pick" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.ops.Prim">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">Prim</tt><big>(</big><em>Xi</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#Prim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.Prim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.ops.SetDirection">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">SetDirection</tt><big>(</big><em>Xi</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#SetDirection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.SetDirection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.ops.Slice">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">Slice</tt><big>(</big><em>tup</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#Slice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.Slice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.ops.Sum">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">Sum</tt><a class="reference internal" href="_modules/spacegrids/ops.html#Sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.Sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.ops.Try">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">Try</tt><big>(</big><em>Op</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#Try"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.Try" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.ops.While">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">While</tt><big>(</big><em>True_Op</em>, <em>Cond_Op</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#While"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.While" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.ops.make_lin_form">
+<tt class="descclassname">spacegrids.ops.</tt><tt class="descname">make_lin_form</tt><big>(</big><em>Xi</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#make_lin_form"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.make_lin_form" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-spacegrids.plotting">
+<span id="spacegrids-plotting-module"></span><h2>spacegrids.plotting module<a class="headerlink" href="#module-spacegrids.plotting" title="Permalink to this headline">¶</a></h2>
+<p>plotting</p>
+<dl class="function">
+<dt id="spacegrids.plotting.add_kmt">
+<tt class="descclassname">spacegrids.plotting.</tt><tt class="descname">add_kmt</tt><big>(</big><em>kmt</em><big>)</big><a class="reference internal" href="_modules/spacegrids/plotting.html#add_kmt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.plotting.add_kmt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.plotting.auto_cont">
+<tt class="descclassname">spacegrids.plotting.</tt><tt class="descname">auto_cont</tt><big>(</big><em>m</em>, <em>M</em>, <em>num_cont</em>, <em>max_try=5</em><big>)</big><a class="reference internal" href="_modules/spacegrids/plotting.html#auto_cont"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.plotting.auto_cont" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.plotting.contour">
+<tt class="descclassname">spacegrids.plotting.</tt><tt class="descname">contour</tt><big>(</big><em>fld</em>, <em>num_cont=15</em>, <em>xlabel=True</em>, <em>ylabel=True</em>, <em>minus_z=True</em>, <em>xl=None</em>, <em>yl=None</em>, <em>xscale=1.0</em>, <em>yscale=1.0</em>, <em>ax_units=True</em>, <em>num_xticks=6</em>, <em>num_yticks=6</em>, <em>greyshade='0.65'</em>, <em>showland=False</em>, <em>grid=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/plotting.html#contour"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.plotting.contour" title="Permalink to this definition">¶</a></dt>
+<dd><p>Arguments specific to only one function:</p>
+<p>contourf
+greyshade = &#8216;0.65&#8217;</p>
+<p>contour
+showland = False</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.plotting.contourf">
+<tt class="descclassname">spacegrids.plotting.</tt><tt class="descname">contourf</tt><big>(</big><em>fld</em>, <em>num_cont=15</em>, <em>xlabel=True</em>, <em>ylabel=True</em>, <em>minus_z=True</em>, <em>xl=None</em>, <em>yl=None</em>, <em>xscale=1.0</em>, <em>yscale=1.0</em>, <em>ax_units=True</em>, <em>num_xticks=6</em>, <em>num_yticks=6</em>, <em>greyshade='0.65'</em>, <em>showland=False</em>, <em>grid=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/plotting.html#contourf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.plotting.contourf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Arguments specific to only one function:</p>
+<p>contourf
+greyshade = &#8216;0.65&#8217;</p>
+<p>contour
+showland = False</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.plotting.plot">
+<tt class="descclassname">spacegrids.plotting.</tt><tt class="descname">plot</tt><big>(</big><em>fld0=None</em>, <em>fld1=None</em>, <em>minus_z=True</em>, <em>xlbl=''</em>, <em>ylbl=''</em>, <em>grid=None</em>, <em>start_zero=False</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/plotting.html#plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.plotting.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calls Matplotlib plot, but takes fields as arguments (instead of numpy arrays)</p>
+<p>Inputs:
+fld0         Field to be plotted if fld1 is None, otherwise x-coord with fld1 as y-coord
+minus_z      z-axis points downard if true
+xlbl, ylbl   override Field labels if not &#8216;&#8217;
+grid         replaces Field grid if not None
+start_zero   if True, x-axis starts at 0</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.plotting.prep_axes">
+<tt class="descclassname">spacegrids.plotting.</tt><tt class="descname">prep_axes</tt><big>(</big><em>fld</em>, <em>num_cont=15</em>, <em>xlabel=True</em>, <em>ylabel=True</em>, <em>minus_z=True</em>, <em>xl=None</em>, <em>yl=None</em>, <em>xscale=1.0</em>, <em>yscale=1.0</em>, <em>ax_units=True</em>, <em>grid=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/plotting.html#prep_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.plotting.prep_axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare axes names etc for plotting.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.plotting.quiver">
+<tt class="descclassname">spacegrids.plotting.</tt><tt class="descname">quiver</tt><big>(</big><em>vfld</em>, <em>showland=True</em>, <em>xlabel=True</em>, <em>ylabel=True</em>, <em>minus_z=True</em>, <em>xl=None</em>, <em>yl=None</em>, <em>xscale=1.0</em>, <em>yscale=1.0</em>, <em>ax_units=True</em>, <em>ax=None</em>, <em>greyshade='0.65'</em>, <em>kmt=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/plotting.html#quiver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.plotting.quiver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calls Matplotlib quiver and passes on arguments, but takes a Field as argument (instead of a numpy)</p>
+<p>Assuming that z vs x and z vs y quiver plots are rare: expects x-y plots.</p>
+<p>Input: vfld   -supergrid vector Field to be plotted</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.plotting.scale_prep_deco">
+<tt class="descclassname">spacegrids.plotting.</tt><tt class="descname">scale_prep_deco</tt><big>(</big><em>func</em><big>)</big><a class="reference internal" href="_modules/spacegrids/plotting.html#scale_prep_deco"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.plotting.scale_prep_deco" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.plotting.treat_kmt">
+<tt class="descclassname">spacegrids.plotting.</tt><tt class="descname">treat_kmt</tt><big>(</big><em>kmt</em><big>)</big><a class="reference internal" href="_modules/spacegrids/plotting.html#treat_kmt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.plotting.treat_kmt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-spacegrids.projectcls">
+<span id="spacegrids-projectcls-module"></span><h2>spacegrids.projectcls module<a class="headerlink" href="#module-spacegrids.projectcls" title="Permalink to this headline">¶</a></h2>
+<p>Project class</p>
+<dl class="class">
+<dt id="spacegrids.projectcls.Project">
+<em class="property">class </em><tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">Project</tt><big>(</big><em>path='/home/wim', expnames=['*'], varnames=[], msk_grid='UVic2.8_t', name=None, nonick=False, descr=None, verbose=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="spacegrids.projectcls.Project.Report">
+<tt class="descname">Report</tt><big>(</big><em>varname</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project.Report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project.Report" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.projectcls.Project.ad_mask">
+<tt class="descname">ad_mask</tt><big>(</big><em>sub_dir='/masks/'</em>, <em>grid=False</em>, <em>msk_val=2</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project.ad_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project.ad_mask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.projectcls.Project.adexp">
+<tt class="descname">adexp</tt><big>(</big><em>expnames=['*'], descr='An experiment.'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project.adexp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project.adexp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an experiment  to this Project. Also looks for a sub-directory &#8220;masks&#8221; for masks. If it can&#8217;t find that, it will use the mask inherited from the Project.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.projectcls.Project.cat">
+<tt class="descname">cat</tt><big>(</big><em>fld_name</em>, <em>new_ax_name='exper'</em>, <em>new_coord_name=None</em>, <em>new_coord=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project.cat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project.cat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concatenate the Field fld_name for all experiments where that Field is loaded.</p>
+<p>If new_coord coord object argument is given, other arguments are overridden and that argument is used as the new coord along which the different experiments are lined up.</p>
+<p>if no new_coord argument is given, a new Coord will be constructed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.projectcls.Project.delexp">
+<tt class="descname">delexp</tt><big>(</big><em>expnames</em>, <em>msg=' '</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project.delexp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project.delexp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.projectcls.Project.delvar">
+<tt class="descname">delvar</tt><big>(</big><em>varname</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project.delvar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project.delvar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.projectcls.Project.get">
+<tt class="descname">get</tt><big>(</big><em>expnames</em>, <em>varnames</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Project method to fetch fields from a Project.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.projectcls.Project.incdf">
+<tt class="descname">incdf</tt><big>(</big><em>varname</em>, <em>expname=''</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project.incdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project.incdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether variable name is in the netcdf database.</p>
+<p>Input:
+varname     variable name to check</p>
+<p>Output:
+True/ False depending on whether the variable name is in the netcdf database.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.projectcls.Project.insert">
+<tt class="descname">insert</tt><big>(</big><em>func</em>, <em>param_name=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply function func to each Exper object in self and insert the result. The result must be a tuple (name, value) or a list of such tuples (as taken by the Exper insert method). Conform the Exper insert method, name must be a string, and value a Field or ordinary float/ int kind of datatype.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.projectcls.Project.load">
+<tt class="descname">load</tt><big>(</big><em>varnames</em>, <em>descr=0</em>, <em>chk_loaded=False</em>, <em>ax=None</em>, <em>name_suffix='_cat'</em>, <em>new_coord_name='gamma'</em>, <em>new_coord=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method of Project. E.g. P.load(&#8216;salinity&#8217;) for Project P.
+Loads a variable (or list of variables) for all experiments belonging to the Project instance.
+E.g.</p>
+<p>P.load(&#8216;salinity&#8217;)
+E = P[&#8216;CNTRL_2200p&#8217;]        # pick this particular experiment
+S = E[&#8216;salinity&#8217;]           # create Field object and assign it to S</p>
+<p>chk_loaded = True (default False) makes load method check whether the Field is already loaded. If so, it is not loaded.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.projectcls.Project.loaded">
+<tt class="descname">loaded</tt><big>(</big><em>varname</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project.loaded"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project.loaded" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.projectcls.Project.ls">
+<tt class="descname">ls</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project.ls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project.ls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method of Project  to display experiments in columns.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.projectcls.Project.param2gr">
+<tt class="descname">param2gr</tt><big>(</big><em>param_name</em>, <em>func</em>, <em>name_filter=None</em>, <em>sort=True</em>, <em>new_Ax_name=None</em>, <em>add2cstack=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project.param2gr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project.param2gr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use a param from the experiments to construct a Coord, and so construct a new concatenated Field defined on a new grid with this new Coord.</p>
+<p>func is a function that must yield a Field and take an Exper object as argument.
+it should return None for elements that are not desired. This method is somewhat different from its near-opposite method insert, where the function argument is allowed to yield fields or single values (float/ int).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.projectcls.Project.pattern2gr">
+<tt class="descname">pattern2gr</tt><big>(</big><em>fld_name</em>, <em>pattern</em>, <em>parname=None</em>, <em>name_filter=None</em>, <em>nomatch_fill=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project.pattern2gr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project.pattern2gr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.projectcls.Project.show">
+<tt class="descname">show</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display summary of experiments and fields loaded in Project.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.projectcls.Project.update_nbytes">
+<tt class="descname">update_nbytes</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project.update_nbytes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project.update_nbytes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update estimate of number of Mb used by Project.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.projectcls.Project.write">
+<tt class="descname">write</tt><big>(</big><em>path=None</em>, <em>name=None</em>, <em>force=False</em>, <em>history='Created from Spacegrids '</em>, <em>insert_dual=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write entire loaded Project to disk.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.projectcls.avg_temp">
+<tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">avg_temp</tt><big>(</big><em>P</em>, <em>varname='O_temp'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#avg_temp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.avg_temp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.projectcls.info">
+<tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">info</tt><big>(</big><em>rootdir='/home/wim'</em>, <em>projdirname='PROJECTS'</em>, <em>fname='projname'</em>, <em>nonick=False</em>, <em>verbose=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple function to take inventory of all Project directories so that no specific paths need to be used, and projects can be referred to by their nicknames defined in a file called projname in each directory containing the experiment directories.</p>
+<p>Inputs: 
+rootdir       dir in which to look for main PROJECTS dir
+projdirname   dir in which to look for specific Project directories. Default is &#8216;PROJECTS&#8217;. So by default, projects are expected in &#8216;~/PROJECTS/&#8217;).
+fname         (default projname) the filename to look for and read the content of to determine nickname of specific Project. Disabled with nonick = True</p>
+<p>Outputs:
+D, dictionary of Project nicknames vs full paths</p>
+<p>If nonick is False:  finds all dir paths with file called fname in them, reads that file for each dir to find the nickname of that Project and builds a dictionary of nicknames vs paths. Otherwise, just takes inventory of all sub directories of projects (~/PROJECTS)</p>
+<p>Example of use when projects are in default location ~/PROJECTS/ (spacegrids loaded as sg):</p>
+<p>D=sg.info()</p>
+<p>Say this gives keys &#8216;test&#8217; and &#8216;TKE&#8217;. To open the Project with nickname test:</p>
+<p>P = sg.Project(D[&#8216;test&#8217;])</p>
+<p>and start working with P. No specific path had to be identified, only a sufficiently specific top.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.projectcls.info_dict">
+<tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">info_dict</tt><big>(</big><em>rootdir='/home/wim'</em>, <em>projdirname='PROJECTS'</em>, <em>fname='projname'</em>, <em>nonick=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#info_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.info_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple function to take inventory of all Project directories so that no specific paths need to be used, and projects can be referred to by their nicknames defined in a file called projname in each directory containing the experiment directories.</p>
+<p>Inputs: 
+top           (default &#8216;~/PROJECTS/&#8217;) the start dir
+fname         (default projname) the filename to look for and read the content of</p>
+<p>Outputs:
+D, dictionary of Project nicknames vs paths</p>
+<p>If nonick is False:  finds all dir paths with file called fname in them, reads that file for each dir to find the nickname of that Project and builds a dictionary of nicknames vs paths. Otherwise, just takes inventory of all sub directories of projects (~/PROJECTS)</p>
+<p>Example of use when projects are in default location ~/PROJECTS/ (spacegrids loaded as sg):</p>
+<p>D=sg.info_dict()</p>
+<p>Say this gives keys &#8216;test&#8217; and &#8216;TKE&#8217;. To open the Project with nickname test:</p>
+<p>P = sg.Project(D[&#8216;test&#8217;])</p>
+<p>and start working with P. No specific path had to be identified, only a sufficiently specific top.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.projectcls.ls">
+<tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">ls</tt><big>(</big><em>rootdir='/home/wim'</em>, <em>projdirname='PROJECTS'</em>, <em>fname='projname'</em>, <em>nonick=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#ls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.ls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple function to display all Project directories so that no specific paths need to be used, and projects can be referred to by their nicknames defined in a file called projname in each directory containing the experiment directories.</p>
+<p>Inputs: 
+top           (default &#8216;~/PROJECTS/&#8217;) the start dir
+fname         (default projname) the filename to look for and read the content of</p>
+<p>displays all Project (nick)names</p>
+<p>If nonick is False: finds all dir paths with file called fname in them, reads that file for each dir to find the nickname of that Project. Otherwise just lists the subdirectories of projects dir (~/PROJECTS)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.projectcls.overview">
+<tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">overview</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#overview"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.overview" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.projectcls.parse_fname_func">
+<tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">parse_fname_func</tt><big>(</big><em>pattern</em>, <em>parname=None</em>, <em>value_type=&lt;type 'float'&gt;</em>, <em>nomatch_fill=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#parse_fname_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.parse_fname_func" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.projectcls.project">
+<em class="property">class </em><tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">project</tt><big>(</big><em>path='/home/wim', expnames=['*'], varnames=[], msk_grid='UVic2.8_t', name=None, nonick=False, descr=None, verbose=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.projectcls.read_control_func">
+<tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">read_control_func</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#read_control_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.read_control_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>function that yields a useful function that can be used in the Project insert method: it reads a control file in the MOM 2 control file format (as used by UVic) and outputs it in the list of (name, value) tuples format required by the Exper insert method. Think of it as inserting a parameter to each Exper, although it can be a Field too.</p>
+<p>The argument filename is the file name of the control file to be read, usually control.in.</p>
+<p>For example: P.insert(sg.read_control_func(&#8216;control.in&#8217;)) goes through all experiment directories and looks for, and parses, the file control.in, and then inserts the result as Exper parameters.</p>
+<p>The user could construct similar functions for their own use: the function must take an experiment as argument, and return None or a list of (name, value) pairs (2 tuples).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.projectcls.read_projnick">
+<tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">read_projnick</tt><big>(</big><em>f</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#read_projnick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.read_projnick" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-spacegrids.utilsg">
+<span id="spacegrids-utilsg-module"></span><h2>spacegrids.utilsg module<a class="headerlink" href="#module-spacegrids.utilsg" title="Permalink to this headline">¶</a></h2>
+<p>useful general functions</p>
+<dl class="class">
+<dt id="spacegrids.utilsg.Report">
+<em class="property">class </em><tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">Report</tt><big>(</big><em>value=''</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#Report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.Report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reporting class containing useful method for building a string containing messages.</p>
+<dl class="method">
+<dt id="spacegrids.utilsg.Report.block">
+<tt class="descname">block</tt><big>(</big><em>L</em>, <em>delim='\ '</em>, <em>width=12</em>, <em>cols=4</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#Report.block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.Report.block" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.utilsg.Report.echo">
+<tt class="descname">echo</tt><big>(</big><em>what=''</em>, <em>delim=' '</em>, <em>maxlen=10</em>, <em>width=12</em>, <em>cols=4</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#Report.echo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.Report.echo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Doc here</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.utilsg.Report.echoln">
+<tt class="descname">echoln</tt><big>(</big><em>what=''</em>, <em>delim=' '</em>, <em>maxlen=10</em>, <em>width=12</em>, <em>cols=4</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#Report.echoln"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.Report.echoln" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.utilsg.Report.line">
+<tt class="descname">line</tt><big>(</big><em>char='-'</em>, <em>times=10</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#Report.line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.Report.line" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.utilsg.Report.table">
+<tt class="descname">table</tt><big>(</big><em>D</em>, <em>cols=4</em>, <em>numspace=2</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#Report.table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.Report.table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Doc here</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.add_alias">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">add_alias</tt><big>(</big><em>L</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#add_alias"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.add_alias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create alias attribute based on name attribute, and identify objects that have identical name attributes to yield corresponding numbered alias attributes to tell them apart.</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>Args:</dt>
+<dd>L:       list of Coord objects (or any objects with a name attribute).</dd>
+<dt>Returns: </dt>
+<dd>A list &#8211; the list L with alias attributes added</dd>
+</dl>
+<p>Takes list L of objects with name attribute. Assigns alias attribute.
+Some of these names might be the same. To yield unique identifiers, a unique
+alias attribute can be assigned to the objects, to be used in practice instead
+of the names (as the names might need to correspond to the netcdf names). E.g. (&#8216;latitude&#8217;,&#8217;latitude&#8217;,&#8217;latitude&#8217;,&#8217;longitude&#8217;,&#8217;depth&#8217;) yields aliases: (&#8216;latitude&#8217;,&#8217;latitude2&#8217;,&#8217;latitude3&#8217;,&#8217;longitude&#8217;,&#8217;depth&#8217;)</p>
+<p>This is useful when Coord names are used interactively in the namespace of
+e.g. ipython, and allows the user to tell the Coord objects that have the 
+same name apart.  Coord and Gr __repr__ methods will display alias attribute 
+instead of name if the alias attribute is available.</p>
+<p><strong>Examples</strong></p>
+<p>For example, we could apply add_alias to a list of 4 test Coord objects, two of which have the same name.</p>
+</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spacegrids</span> <span class="kn">as</span> <span class="nn">sg</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coord1</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Coord</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;test&#39;</span><span class="p">,</span><span class="n">direction</span> <span class="o">=</span><span class="s">&#39;X&#39;</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span> <span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coord2</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Coord</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;test&#39;</span><span class="p">,</span><span class="n">direction</span> <span class="o">=</span><span class="s">&#39;Y&#39;</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span> <span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coord3</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Coord</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;test3&#39;</span><span class="p">,</span><span class="n">direction</span> <span class="o">=</span><span class="s">&#39;X&#39;</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]))</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coord4</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Coord</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;test4&#39;</span><span class="p">,</span><span class="n">direction</span> <span class="o">=</span><span class="s">&#39;X&#39;</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]))</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">L</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">add_alias</span><span class="p">([</span><span class="n">coord1</span><span class="p">,</span> <span class="n">coord2</span><span class="p">,</span> <span class="n">coord3</span><span class="p">,</span> <span class="n">coord4</span><span class="p">])</span>  
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="p">[</span><span class="n">it</span><span class="o">.</span><span class="n">alias</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">L</span><span class="p">]</span>
+<span class="go">[&#39;test&#39;, &#39;test2&#39;, &#39;test3&#39;, &#39;test4&#39;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.add_html_row">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">add_html_row</tt><big>(</big><em>row</em>, <em>t_str=''</em>, <em>row_tag='tr'</em>, <em>cell_tag='td'</em>, <em>decimal='%.3f'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#add_html_row"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.add_html_row" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.add_html_row_str">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">add_html_row_str</tt><big>(</big><em>row</em>, <em>t_str=''</em>, <em>row_tag='tr'</em>, <em>cell_tag='td'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#add_html_row_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.add_html_row_str" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.add_html_rows">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">add_html_rows</tt><big>(</big><em>T</em>, <em>t_str=''</em>, <em>row_tag='tr'</em>, <em>cell_tag='td'</em>, <em>format='%.3f'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#add_html_rows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.add_html_rows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert block of rows to HTML. Does not yet add table tags.
+format argument determines whether data is string (value &#8220;string&#8221; passed) or float (formatting string passed).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.complete">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">complete</tt><big>(</big><em>comp_sets</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#complete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.complete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expects a list or tuple of tuples (or lists).
+E.g. 
+((xt,yt,zt),(xu,yu,zw))
+It then assignes an attribute others to every element xt,yt,...  that is a tuple containing all other elements in the subset except the element itself.</p>
+<p>i.e. xt.others = (yt,zt)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.dist_angle">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">dist_angle</tt><big>(</big><em>angles</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#dist_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.dist_angle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.end_of_filepath">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">end_of_filepath</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#end_of_filepath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.end_of_filepath" title="Permalink to this definition">¶</a></dt>
+<dd><p>utility that finds the last element of a path without using os module.
+e.g. /foo/bar yields bar, as does /foo/bar/</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.find_perm">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">find_perm</tt><big>(</big><em>left</em>, <em>right</em>, <em>verbose=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#find_perm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.find_perm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inputs: a,b tuples or lists of equal length containing the same elements, possibly permuted.</p>
+<p>Output: a tuple of indices perm such that [left[i] for i in perm] = right</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.flat_list">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">flat_list</tt><big>(</big><em>L</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#flat_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.flat_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.float_html_row">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">float_html_row</tt><big>(</big><em>row</em>, <em>cell_tag='td'</em>, <em>decimal='%.3f'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#float_html_row"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.float_html_row" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to construct a HTML table row from a list of string values.
+row: list of row values
+cell_tag = the HTML tag for a cell. Usually &#8216;td&#8217; or &#8216;th&#8217;</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.fromcsv">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">fromcsv</tt><big>(</big><em>raw_string</em>, <em>row_header=0</em>, <em>col_dates=0</em>, <em>data_start_row=1</em>, <em>data_start_col=1</em>, <em>hor_desc_col=None</em>, <em>separator='</em>, <em>'</em>, <em>row_delin='\n'</em>, <em>nanval=-999999</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#fromcsv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.fromcsv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert csv string to list of lists of floats T, list of header strings H and (optional) list pf dates D.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.get_att">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">get_att</tt><big>(</big><em>obj</em>, <em>att_list</em>, <em>fail_val=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#get_att"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.get_att" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.id_in">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">id_in</tt><big>(</big><em>L</em>, <em>e</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#id_in"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.id_in" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.id_index">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">id_index</tt><big>(</big><em>L</em>, <em>e</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#id_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.id_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.interp_line">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">interp_line</tt><big>(</big><em>line</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#interp_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.interp_line" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.mark_sublist">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">mark_sublist</tt><big>(</big><em>Lbig</em>, <em>Lsub</em>, <em>indicator='*'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#mark_sublist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.mark_sublist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Marks all strings in a list of strings that also occur in a sublist by appending an indicator (*) at the end of those strings.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>Lbig:    The larger list, of which the contained strings will be marked.
+Lsub:    The list of strings that need to be marked
+indicator:       string containing the marker.</dd>
+<dt>Returns: </dt>
+<dd>cLbig &#8211; the list with marked strings</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.merge">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">merge</tt><big>(</big><em>A1</em>, <em>A2</em>, <em>sort=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge two ndarrays or iterables and order them.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>A1: first array
+A2: second array to be combined with first array
+sort: flag. sort called on result if True.</dd>
+<dt>Returns:</dt>
+<dd>new_list: sorted list of combined values.</dd>
+</dl>
+<p>Used to merge Coord values.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.order_mag">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">order_mag</tt><big>(</big><em>val</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#order_mag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.order_mag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.parse_control_file">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">parse_control_file</tt><big>(</big><em>fname, rem_chars=['\n', '/']</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#parse_control_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.parse_control_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read and parse a UVic/ MOM2 - style control file. Returns list(s) of (name, value) pairs found in the control file.</p>
+<p>Input: fname full path to configuration file  
+Output: La, L
+La    list of (name, value) pairs of all parameters found in the control file, excluding names of parameter groups (generally preceded with &amp; in file). If the same parameter name occurs more than once in the file, it is overwritten in the list (unique names are expected).
+L     more detailed list. List of (parameter group name, list of (name, value) ) pairs, where the lists of (name, value) pairs belong to each parameter group name.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.print_box">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">print_box</tt><big>(</big><em>L</em>, <em>cols=5</em>, <em>numspace=2</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#print_box"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.print_box" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used for formatted output to stdout</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.print_table">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">print_table</tt><big>(</big><em>D</em>, <em>cols=4</em>, <em>numspace=2</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#print_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.print_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used for formatted output to stdout</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.rav_index">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">rav_index</tt><big>(</big><em>L</em>, <em>sh</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#rav_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.rav_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.read">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">read</tt><big>(</big><em>fname</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.read" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.rem_equivs">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">rem_equivs</tt><big>(</big><em>L</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#rem_equivs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.rem_equivs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.round_order">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">round_order</tt><big>(</big><em>value</em>, <em>order=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#round_order"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.round_order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.simple_glob">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">simple_glob</tt><big>(</big><em>L</em>, <em>name_filter</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#simple_glob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.simple_glob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies very simple shell wildcard * expansion-type matching of argument name_filter on a list of strings, argument L, without using re module.
+* can only appear at beginning or end of name_filter (e.g. &#8216;*foo*&#8217;).</p>
+<p>E.g. name_filter = &#8216;*oo&#8217; and L=[&#8216;foo&#8217;,&#8217;bar&#8217;] yields [&#8216;foo&#8217;]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.split_list">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">split_list</tt><big>(</big><em>L</em>, <em>size=10</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#split_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.split_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Very general function splitting a list L into a list of sublists of equal length (and a remainder).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.str_html_row">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">str_html_row</tt><big>(</big><em>row</em>, <em>cell_tag='td'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#str_html_row"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.str_html_row" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to construct a HTML table row from a list of string values.
+row: list of row values
+cell_tag = the HTML tag for a cell. Usually &#8216;td&#8217; or &#8216;th&#8217;</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.sublist">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">sublist</tt><big>(</big><em>L</em>, <em>pick_vals</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#sublist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.sublist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Picks a sublist from a list L of strings (e.g. names) using the filematch function.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>L: list of strings from which to pick
+pick_vals: pattern or list of patterns used in fnmatch.fnmatch</dd>
+<dt>Returns:</dt>
+<dd>sL: a list of matching values</dd>
+</dl>
+<p>For instance, a wildcard will pick all elements.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.tocsv">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">tocsv</tt><big>(</big><em>T</em>, <em>H=None</em>, <em>D=None</em>, <em>separator='</em>, <em>'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#tocsv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.tocsv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts lists to csv string.
+T list of row lists containing cols of floats.
+optional:
+H list of head strings
+D list of dates. Must be of length len(T)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.tohtml">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">tohtml</tt><big>(</big><em>T</em>, <em>H=None</em>, <em>D=None</em>, <em>topleft=''</em>, <em>table_tag='table'</em>, <em>format='%.3f'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#tohtml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.tohtml" title="Permalink to this definition">¶</a></dt>
+<dd><p>T data
+H header
+D dates</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.transpose_list">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">transpose_list</tt><big>(</big><em>L</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#transpose_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.transpose_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transpose a list of lists.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>L: list of lists to be transposed.</dd>
+<dt>Returns:</dt>
+<dd>A list of lists</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.tryfloat">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">tryfloat</tt><big>(</big><em>value</em>, <em>nanval</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#tryfloat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.tryfloat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.which_att">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">which_att</tt><big>(</big><em>obj</em>, <em>att_list</em>, <em>fail_val=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#which_att"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.which_att" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-spacegrids">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-spacegrids" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">spacegrids package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-spacegrids.config">spacegrids.config module</a></li>
+<li><a class="reference internal" href="#module-spacegrids.expercls">spacegrids.expercls module</a></li>
+<li><a class="reference internal" href="#module-spacegrids.fieldcls">spacegrids.fieldcls module</a></li>
+<li><a class="reference internal" href="#module-spacegrids.iosg">spacegrids.iosg module</a></li>
+<li><a class="reference internal" href="#module-spacegrids.ops">spacegrids.ops module</a></li>
+<li><a class="reference internal" href="#module-spacegrids.plotting">spacegrids.plotting module</a></li>
+<li><a class="reference internal" href="#module-spacegrids.projectcls">spacegrids.projectcls module</a></li>
+<li><a class="reference internal" href="#module-spacegrids.utilsg">spacegrids.utilsg module</a></li>
+<li><a class="reference internal" href="#module-spacegrids">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to spacegrids&#8217;s documentation!</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/spacegrids.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to spacegrids’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">spacegrids  documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

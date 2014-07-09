@@ -111,7 +111,52 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     self.assertEqual(inspect.getargspec(sg.Coord.copy).args[:-1] , inspect.getargspec(sg.Coord.__init__).args  )
 
 
-  def test_copy_method_yields_same(self):
+  def test_copy_method_yields_not_same_case_name(self):
+    """
+    Test whether making a copy with 1 argument passed to .copy method yields a Coord object that is the same as the original (although a different object in memory) and differs in that specific attribute.
+
+    """
+
+    cstack1 = self.fixture[0]
+    coord2 = cstack1[-2]
+    coord3 = cstack1[-1]
+   
+    coord3_copy = coord3.copy(name = 'joep')
+
+    self.assertEqual(coord3_copy.name, 'joep'  )
+
+  def test_copy_method_yields_not_same_case_dual(self):
+    """
+    Test whether making a copy with 1 argument passed to .copy method yields a Coord object that is the same as the original (although a different object in memory) and differs in that specific attribute.
+
+ 
+    """
+
+    cstack1 = self.fixture[0]
+    coord2 = cstack1[-2]
+    coord3 = cstack1[-1]
+    Z = sg.Ax('Z')
+   
+    coord3_copy = coord3.copy(dual = coord2)
+
+    test_args = {'name':'joep', 'value':np.array([1,2,3]),'dual':coord2,'axis':Z,'direction':'Z','units':'cm','long_name':'this is a coordinate in the x direction','metadata':{'hi':0},'strings':['five','one','two','three','four']}
+ 
+
+    for ta in test_args:
+      value = test_args[ta]
+      coord3_copy = coord3.copy(**{ta:value})
+
+      coord_att = getattr(coord3_copy,ta)
+      if isinstance(coord_att,np.ndarray):
+        self.assertEqual(np.array_equal(coord_att, value), True  )
+      else:
+        self.assertEqual(coord_att, value  )
+
+
+
+
+
+  def test_same_method_yields_same(self):
     """
     Test whether making a copy with no arguments passed to .copy method yields a Coord object that is the same (with respect to .same method) as the original (although a different object in memory).
     """
@@ -123,9 +168,29 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     self.assertEqual(coord3.same(coord3_copy),True  )
 
-  def test_copy_method_yields_not_same_name(self):
+  def test_same_method_yields_not_same_case_array(self):
     """
-    Test whether making a copy with 1 argument passed to .copy method yields a Coord object that is NOT the same (with respect to .same method) as the original (although a different object in memory).
+    Test whether making a copy with 1 argument passed to .copy method yields a Coord object that is NOT the same (with respect to .same method) as the original (and a different object in memory).
+
+    Note that in general, the .same method tests for:
+
+    self.array_equal(other)
+    self.name == other.name
+    self.axis == other.axis
+    self.direction == other.direction 
+
+    """
+
+    cstack1 = self.fixture[0]
+    coord3 = cstack1[-1]
+   
+    coord3_copy = coord3.copy(value = np.array([5,6,7]))
+
+    self.assertEqual(coord3.same(coord3_copy), False  )
+
+  def test_same_method_yields_not_same_case_name(self):
+    """
+    Test whether making a copy with 1 argument passed to .copy method yields a Coord object that is NOT the same (with respect to .same method) as the original (and a different object in memory).
 
     Note that in general, the .same method tests for:
 
@@ -142,6 +207,68 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     coord3_copy = coord3.copy(name = 'joep')
 
     self.assertEqual(coord3.same(coord3_copy), False  )
+
+  def test_same_method_yields_not_same_case_axis(self):
+    """
+    Test whether making a copy with 1 argument passed to .copy method yields a Coord object that is NOT the same (with respect to .same method) as the original (and a different object in memory).
+
+    Note that in general, the .same method tests for:
+
+    self.array_equal(other)
+    self.name == other.name
+    self.axis == other.axis
+    self.direction == other.direction 
+
+    """
+
+    cstack1 = self.fixture[0]
+    coord3 = cstack1[-1]
+   
+    coord3_copy = coord3.copy(axis = 'Z')
+
+    self.assertEqual(coord3.same(coord3_copy), False  )
+
+  def test_same_method_yields_not_same_case_direction(self):
+    """
+    Test whether making a copy with 1 argument passed to .copy method yields a Coord object that is NOT the same (with respect to .same method) as the original (and a different object in memory).
+
+    Note that in general, the .same method tests for:
+
+    self.array_equal(other)
+    self.name == other.name
+    self.axis == other.axis
+    self.direction == other.direction 
+
+    """
+
+    cstack1 = self.fixture[0]
+    coord3 = cstack1[-1]
+   
+    coord3_copy = coord3.copy(direction = 'Z')
+
+    self.assertEqual(coord3.same(coord3_copy), False  )
+
+
+  def test_same_method_yields_not_same_case_direction(self):
+    """
+    Test whether making a copy with 1 argument passed to .copy method yields a Coord object that is NOT the same (with respect to .same method) as the original (and a different object in memory).
+
+    Note that in general, the .same method tests for:
+
+    self.array_equal(other)
+    self.name == other.name
+    self.axis == other.axis
+    self.direction == other.direction 
+
+    """
+
+    cstack1 = self.fixture[0]
+    coord3 = cstack1[-1]
+   
+    coord3_copy = coord3.copy(direction = 'Z')
+
+    self.assertEqual(coord3.same(coord3_copy), False  )
+
 
 
 #
@@ -230,6 +357,7 @@ class TestUtilsg(unittest.TestCase):
 
 
 # 3 tests for very simple function sublist in utilsg.py
+# --------------
   def test_sublist(self):
 
     self.assertEqual(sg.sublist(['test','hi'] ,'hi' ) , ['hi'])
@@ -241,6 +369,31 @@ class TestUtilsg(unittest.TestCase):
   def test_sublist_none(self):
 
     self.assertEqual(sg.sublist(['test','hi'] ,'ho' ) , [])
+
+
+# -------------
+
+  def test_add_alias(self):
+    """
+    Create some test coords to test the add_alias function in utilsg.py.
+
+    An alias attribute is assigned, which is the same as the name attribute unless the name appears more than once.
+    Two names are the same in this example, and in the created alias, the second of those two names must receive a suffix "2". 
+    """
+    coord1 = sg.Coord(name = 'test',direction ='X',value =np.array([1,2,3]) , metadata = {'hi':5} )
+    coord2 = sg.Coord(name = 'test',direction ='Y',value =np.array([1,2,3,4]), metadata = {'hi':7})
+
+    coord3 = sg.Coord(name = 'test3',direction ='X',value =np.array([5,1,2,3,4]), metadata = {'hi':3})
+
+    coord4 = sg.Coord(name = 'test4',direction ='X',value =np.array([5,1,2,3,4]), metadata = {'hi':5})
+
+    L = sg.add_alias([coord1, coord2, coord3, coord4])
+
+    # test that alias is correct (same as names, but if the same name occurs >1 times, it is numbered)
+    self.assertEqual([it.alias for it in L]  , ['test', 'test2', 'test3', 'test4'] )
+
+    # test that names remain the same
+    self.assertEqual([it.name for it in L]  , ['test', 'test', 'test3', 'test4'] )
 
 
 

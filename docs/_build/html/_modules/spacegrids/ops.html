@@ -1,0 +1,423 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>spacegrids.ops &mdash; spacegrids  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="spacegrids  documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">spacegrids  documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for spacegrids.ops</h1><div class="highlight"><pre>
+<span class="c">#encoding:utf-8</span>
+
+<span class="sd">&quot;&quot;&quot; io related</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">from</span> <span class="nn">fieldcls</span> <span class="kn">import</span> <span class="o">*</span>
+
+<div class="viewcode-block" id="Operator"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.ops.Operator">[docs]</a><span class="k">class</span> <span class="nc">Operator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">F</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">None</span> <span class="c"># subclasses will override this</span>
+
+  <span class="k">def</span> <span class="nf">__pow__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n</span><span class="p">):</span>
+
+    <span class="k">return</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">*</span><span class="n">y</span><span class="p">,</span> <span class="n">n</span><span class="o">*</span><span class="p">[</span><span class="bp">self</span><span class="p">])</span>
+
+  <span class="k">def</span> <span class="nf">__neg__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">FloatMul</span><span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span>
+
+  <span class="k">def</span> <span class="nf">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="n">other</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">Add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span><span class="n">Operator</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">Mul</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span><span class="n">Field</span><span class="p">)</span> <span class="o">|</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span><span class="n">VField</span><span class="p">):</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="FloatMul"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.ops.FloatMul">[docs]</a><span class="k">class</span> <span class="nc">FloatMul</span><span class="p">(</span><span class="n">Operator</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">F</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">F</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+</div>
+<div class="viewcode-block" id="Add"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.ops.Add">[docs]</a><span class="k">class</span> <span class="nc">Add</span><span class="p">(</span><span class="n">Operator</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">left</span><span class="p">,</span><span class="n">right</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">left</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">right</span>
+
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">F</span><span class="p">):</span>
+
+    <span class="n">right_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">right_result</span><span class="p">:</span>
+      <span class="n">left_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">left_result</span><span class="p">:</span>
+        <span class="n">combined_value</span> <span class="o">=</span> <span class="n">left_result</span> <span class="o">+</span> <span class="n">right_result</span>
+        <span class="k">return</span> <span class="n">combined_value</span>
+    <span class="k">return</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="Mul"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.ops.Mul">[docs]</a><span class="k">class</span> <span class="nc">Mul</span><span class="p">(</span><span class="n">Operator</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">left</span><span class="p">,</span><span class="n">right</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">left</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">right</span>
+
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">F</span><span class="p">):</span>
+
+    <span class="n">right_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">right_result</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">(</span><span class="n">right_result</span><span class="p">)</span>
+   
+       
+    <span class="k">return</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="make_lin_form"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.ops.make_lin_form">[docs]</a><span class="k">def</span> <span class="nf">make_lin_form</span><span class="p">(</span><span class="n">Xi</span><span class="p">):</span>
+  
+    <span class="k">return</span> <span class="k">lambda</span> <span class="p">:</span><span class="k">lambda</span> <span class="n">x</span> <span class="p">:</span> <span class="n">Xi</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Lazy"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.ops.Lazy">[docs]</a><span class="k">class</span> <span class="nc">Lazy</span><span class="p">(</span><span class="n">Operator</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">op_fctn</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">fctn</span> <span class="o">=</span> <span class="n">op_fctn</span> 
+
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">operator</span><span class="p">):</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fctn</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Pick"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.ops.Pick">[docs]</a><span class="k">class</span> <span class="nc">Pick</span><span class="p">(</span><span class="n">Operator</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Xi</span><span class="p">):</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="n">Xi</span>
+     
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">UU</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">UU</span><span class="p">,</span><span class="n">Field</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">UU</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">UU</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">UU</span><span class="p">,</span><span class="n">VField</span><span class="p">):</span>
+      <span class="k">for</span> <span class="n">U</span> <span class="ow">in</span> <span class="n">UU</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">U</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">:</span>
+          <span class="k">return</span> <span class="n">U</span>
+      <span class="k">return</span> <span class="bp">None</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Error in pick operator </span><span class="si">%s</span><span class="s"> on </span><span class="si">%s</span><span class="s">, argument must be Field or sfield. &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">,</span> <span class="n">U</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="SetDirection"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.ops.SetDirection">[docs]</a><span class="k">class</span> <span class="nc">SetDirection</span><span class="p">(</span><span class="n">Operator</span><span class="p">):</span>
+  
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Xi</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="n">Xi</span>
+    <span class="k">return</span> 
+
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">F</span><span class="p">):</span>
+    
+     <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">direction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Innprod"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.ops.Innprod">[docs]</a><span class="k">class</span> <span class="nc">Innprod</span><span class="p">(</span><span class="n">Operator</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Inner product on vfields, yields a Field. Both fields must be in same linear space: their direction must match up to a permutation. Can be extended later to include non-trivial inner products.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">left</span><span class="p">,</span><span class="n">right</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">left</span><span class="p">,</span><span class="n">Field</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">right</span><span class="p">,</span><span class="n">Field</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">left</span><span class="o">*</span><span class="n">right</span>
+
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">left</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">right</span><span class="p">):</span>
+
+      <span class="k">if</span> <span class="n">find_perm</span><span class="p">(</span><span class="n">left</span><span class="o">.</span><span class="n">direction</span><span class="p">(),</span><span class="n">right</span><span class="o">.</span><span class="n">direction</span><span class="p">()):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">left</span><span class="o">*</span><span class="n">right</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Error in inner product </span><span class="si">%s</span><span class="s"> * </span><span class="si">%s</span><span class="s">, must be in same space. &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">left</span><span class="p">,</span><span class="n">right</span><span class="p">))</span>
+
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Error in inner product </span><span class="si">%s</span><span class="s"> * </span><span class="si">%s</span><span class="s">, must be of equal length &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">left</span><span class="p">,</span><span class="n">right</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="Der"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.ops.Der">[docs]</a><span class="k">class</span> <span class="nc">Der</span><span class="p">(</span><span class="n">Operator</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Xi</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="n">Xi</span>
+
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">vF</span><span class="p">):</span> 
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vF</span><span class="p">,</span><span class="n">Field</span><span class="p">):</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">^</span><span class="n">vF</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vF</span><span class="p">,</span><span class="n">VField</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">VField</span><span class="p">([</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">^</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">vF</span> <span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Error in </span><span class="si">%s</span><span class="s"> - derivative of </span><span class="si">%s</span><span class="s">, argument must be Field or VField &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">,</span><span class="n">vF</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="Integ"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.ops.Integ">[docs]</a><span class="k">class</span> <span class="nc">Integ</span><span class="p">(</span><span class="n">Operator</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xi</span><span class="p">):</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="n">Xi</span>
+
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">vF</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vF</span><span class="p">,</span><span class="n">Field</span><span class="p">):</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">*</span><span class="n">vF</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vF</span><span class="p">,</span><span class="n">VField</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">VField</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">*</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">vF</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Error in </span><span class="si">%s</span><span class="s"> - integration of </span><span class="si">%s</span><span class="s">, argument must be Field or VField &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">,</span><span class="n">vF</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="Mean"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.ops.Mean">[docs]</a><span class="k">class</span> <span class="nc">Mean</span><span class="p">(</span><span class="n">Operator</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xi</span><span class="p">):</span>
+    <span class="c"># Argument can be a grid too</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="n">Xi</span>
+
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">vF</span><span class="p">):</span>
+
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vF</span><span class="p">,</span><span class="n">Field</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">vF</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vF</span><span class="p">,</span><span class="n">VField</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">VField</span><span class="p">([</span><span class="bp">self</span><span class="o">*</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">vF</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Error in taking </span><span class="si">%s</span><span class="s"> - primitive of </span><span class="si">%s</span><span class="s">, argument must be Field or VField &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">,</span><span class="n">vF</span><span class="p">))</span>    
+
+
+  <span class="k">def</span> <span class="nf">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
+     
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span><span class="n">Mean</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">Mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">*</span><span class="n">other</span><span class="o">.</span><span class="n">ax</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Prim"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.ops.Prim">[docs]</a><span class="k">class</span> <span class="nc">Prim</span><span class="p">(</span><span class="n">Operator</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xi</span><span class="p">):</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="n">Xi</span>
+
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">vF</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vF</span><span class="p">,</span><span class="n">Field</span><span class="p">):</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">|</span><span class="n">vF</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vF</span><span class="p">,</span><span class="n">VField</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">VField</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">|</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">vF</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Error in taking </span><span class="si">%s</span><span class="s"> - primitive of </span><span class="si">%s</span><span class="s">, argument must be Field or VField &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">,</span><span class="n">vF</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="FieldMul"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.ops.FieldMul">[docs]</a><span class="k">class</span> <span class="nc">FieldMul</span><span class="p">(</span><span class="n">Operator</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">):</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">F</span> <span class="o">=</span> <span class="n">F</span>
+
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">vF</span><span class="p">):</span>
+
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">F</span><span class="o">*</span><span class="n">vF</span>
+</div>
+<div class="viewcode-block" id="Sum"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.ops.Sum">[docs]</a><span class="k">class</span> <span class="nc">Sum</span><span class="p">(</span><span class="n">Operator</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vF</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vF</span><span class="p">,</span><span class="n">Field</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">vF</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vF</span><span class="p">,</span><span class="n">VField</span><span class="p">):</span>
+      <span class="n">result</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">+</span><span class="n">y</span><span class="p">,</span> <span class="n">vF</span><span class="p">)</span>
+      <span class="n">result</span><span class="o">.</span><span class="n">direction</span> <span class="o">=</span> <span class="n">ID</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">else</span><span class="p">:</span>
+
+      <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Error in Sum </span><span class="si">%s</span><span class="s">, argument must be Field or VField &#39;</span> <span class="o">%</span> <span class="n">vF</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Slice"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.ops.Slice">[docs]</a><span class="k">class</span> <span class="nc">Slice</span><span class="p">(</span><span class="n">Operator</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">tup</span><span class="p">):</span>
+
+    <span class="c"># tup argument contains a tuple containing coord-slice obj pairs.</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">tup</span> <span class="o">=</span> <span class="n">tup</span>
+
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vF</span><span class="p">):</span>
+
+   <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vF</span><span class="p">,</span><span class="n">Field</span><span class="p">):</span>
+     <span class="k">return</span> <span class="n">vF</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tup</span><span class="p">]</span>
+   <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vF</span><span class="p">,</span><span class="n">VField</span><span class="p">):</span>
+     <span class="k">return</span> <span class="n">VField</span><span class="p">([</span><span class="bp">self</span><span class="o">*</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">vF</span><span class="p">])</span>
+   <span class="k">else</span><span class="p">:</span>
+
+      <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Error in Slice </span><span class="si">%s</span><span class="s">, argument must be Field or VField &#39;</span> <span class="o">%</span> <span class="n">vF</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Identity"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.ops.Identity">[docs]</a><span class="k">class</span> <span class="nc">Identity</span><span class="p">(</span><span class="n">Operator</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">vF</span><span class="p">):</span>
+
+    <span class="k">return</span> <span class="n">vF</span>
+</div>
+<span class="n">nop</span> <span class="o">=</span> <span class="n">Identity</span><span class="p">();</span>
+
+<div class="viewcode-block" id="If"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.ops.If">[docs]</a><span class="k">class</span> <span class="nc">If</span><span class="p">(</span><span class="n">Operator</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Cond_Op</span><span class="p">,</span> <span class="n">True_Op</span><span class="p">,</span> <span class="n">Else_Op</span> <span class="o">=</span> <span class="n">nop</span><span class="p">):</span>
+
+    <span class="c"># The state of the system is defined by the Field(s) vF. Therefore, the condition can be internal to the call function and must be defined in terms of vF (e.g. &#39;len(vF.gr) == 3&#39;). </span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">Cond_Op</span> <span class="o">=</span> <span class="n">Cond_Op</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">True_Op</span> <span class="o">=</span> <span class="n">True_Op</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">Else_Op</span> <span class="o">=</span> <span class="n">Else_Op</span>
+
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">vF</span><span class="p">):</span>
+
+   <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vF</span><span class="p">,</span><span class="n">Field</span><span class="p">)</span> <span class="o">|</span>  <span class="nb">isinstance</span><span class="p">(</span><span class="n">vF</span><span class="p">,</span><span class="n">VField</span><span class="p">):</span>
+     
+     <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Cond_Op</span><span class="p">(</span><span class="n">vF</span><span class="p">)</span>
+
+     <span class="k">if</span> <span class="n">result</span> <span class="o">!=</span> <span class="n">vF</span><span class="p">:</span>
+       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">True_Op</span><span class="p">(</span><span class="n">vF</span><span class="p">)</span>
+     <span class="k">else</span><span class="p">:</span>
+       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Else_Op</span><span class="p">(</span><span class="n">vF</span><span class="p">)</span>
+
+   <span class="k">else</span><span class="p">:</span>
+
+      <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Error in If </span><span class="si">%s</span><span class="s">, argument must be Field or VField &#39;</span> <span class="o">%</span> <span class="n">vF</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="While"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.ops.While">[docs]</a><span class="k">class</span> <span class="nc">While</span><span class="p">(</span><span class="n">Operator</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">True_Op</span><span class="p">,</span><span class="n">Cond_Op</span><span class="p">):</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">Cond_Op</span> <span class="o">=</span> <span class="n">Cond_Op</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">IF</span> <span class="o">=</span> <span class="n">If</span><span class="p">(</span><span class="n">Cond_Op</span> <span class="o">=</span> <span class="n">Cond_Op</span><span class="p">,</span><span class="n">True_Op</span> <span class="o">=</span> <span class="n">True_Op</span><span class="p">)</span>
+  
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">vF</span><span class="p">):</span>
+
+   <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vF</span><span class="p">,</span><span class="n">Field</span><span class="p">)</span> <span class="o">|</span>  <span class="nb">isinstance</span><span class="p">(</span><span class="n">vF</span><span class="p">,</span><span class="n">VField</span><span class="p">):</span>
+     
+     <span class="n">prev_result</span> <span class="o">=</span> <span class="n">vF</span>
+     <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">IF</span><span class="o">*</span><span class="n">prev_result</span>
+
+     <span class="k">while</span> <span class="n">result</span> <span class="o">!=</span> <span class="n">prev_result</span><span class="p">:</span>
+       <span class="n">prev_result</span> <span class="o">=</span> <span class="n">result</span>
+       <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">IF</span><span class="o">*</span><span class="n">result</span>
+
+     <span class="k">return</span> <span class="n">result</span>       
+
+   <span class="k">else</span><span class="p">:</span>
+
+      <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Error in While </span><span class="si">%s</span><span class="s">, argument must be Field or VField &#39;</span> <span class="o">%</span> <span class="n">vF</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Try"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.ops.Try">[docs]</a><span class="k">class</span> <span class="nc">Try</span><span class="p">(</span><span class="n">Operator</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Op</span><span class="p">):</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">Op</span> <span class="o">=</span> <span class="n">Op</span>
+
+  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">vF</span><span class="p">):</span>
+
+    <span class="k">try</span><span class="p">:</span>
+      <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Op</span><span class="o">*</span><span class="n">vF</span>
+    <span class="k">except</span><span class="p">:</span>
+      <span class="n">result</span> <span class="o">=</span> <span class="n">vF</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+
+</div>
+<span class="n">dot</span> <span class="o">=</span> <span class="n">Innprod</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">spacegrids  documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

@@ -338,14 +338,11 @@ def plot(fld0 = None,fld1=None, minus_z=True,xlbl='',ylbl='', grid = None,start_
    Function that calls Matplotlib plot, but takes fields as arguments (instead of numpy arrays)
 
    Inputs:
-   ---------------
-
    fld0 	Field to be plotted if fld1 is None, otherwise x-coord with fld1 as y-coord
    minus_z 	z-axis points downard if true
    xlbl, ylbl 	override Field labels if not ''
    grid 	replaces Field grid if not None
    start_zero	if True, x-axis starts at 0  
-
    """
  
    if fld1 is None:

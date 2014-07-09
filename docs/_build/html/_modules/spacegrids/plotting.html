@@ -1,0 +1,547 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>spacegrids.plotting &mdash; spacegrids  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="spacegrids  documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">spacegrids  documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for spacegrids.plotting</h1><div class="highlight"><pre>
+<span class="c">#encoding:utf-8</span>
+
+<span class="sd">&quot;&quot;&quot; plotting</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy.ma</span> <span class="kn">as</span> <span class="nn">ma</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="kn">as</span> <span class="nn">mpl</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">fieldcls</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">warnings</span><span class="o">.</span><span class="n">formatwarning</span> <span class="o">=</span> <span class="n">warning_on_one_line</span>
+
+<div class="viewcode-block" id="auto_cont"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.plotting.auto_cont">[docs]</a><span class="k">def</span> <span class="nf">auto_cont</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="n">M</span><span class="p">,</span> <span class="n">num_cont</span><span class="p">,</span> <span class="n">max_try</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
+
+  <span class="k">if</span> <span class="n">M</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">:</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">auto_cont</span><span class="p">(</span><span class="n">m</span> <span class="o">=</span> <span class="o">-</span><span class="n">m</span><span class="p">,</span> <span class="n">M</span> <span class="o">=</span> <span class="o">-</span> <span class="n">M</span><span class="p">,</span> <span class="n">num_cont</span> <span class="o">=</span> <span class="n">num_cont</span><span class="p">)</span>
+    <span class="k">return</span> <span class="o">-</span><span class="n">rng</span>
+
+  <span class="n">raw_step</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">M</span> <span class="o">-</span> <span class="n">m</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">num_cont</span><span class="p">)</span>
+
+<span class="c">#  print m</span>
+<span class="c">#  print M</span>
+
+  <span class="n">m_order</span> <span class="o">=</span> <span class="n">order_mag</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+  <span class="n">M_order</span> <span class="o">=</span> <span class="n">order_mag</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+  <span class="n">step_order</span> <span class="o">=</span> <span class="n">order_mag</span><span class="p">(</span><span class="n">raw_step</span><span class="p">)</span>
+
+
+  <span class="n">step</span> <span class="o">=</span> <span class="n">round_order</span><span class="p">(</span><span class="n">raw_step</span><span class="p">)</span>
+  <span class="n">m_new</span> <span class="o">=</span> <span class="n">round_order</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="n">step_order</span><span class="p">)</span> 
+  <span class="n">M_new</span> <span class="o">=</span> <span class="n">round_order</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">step_order</span><span class="p">)</span> <span class="o">+</span> <span class="n">step</span>
+
+<span class="c">#  print conts[0], m, M, step</span>
+
+  <span class="n">tries</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">m</span><span class="o">-</span><span class="n">step</span> <span class="o">&lt;</span> <span class="n">m_new</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">tries</span> <span class="o">&lt;</span> <span class="n">max_try</span><span class="p">):</span>
+    <span class="n">m_new</span> <span class="o">=</span> <span class="n">m_new</span> <span class="o">-</span> <span class="n">step</span>
+    <span class="n">tries</span> <span class="o">+=</span> <span class="mi">1</span>
+
+  <span class="n">tries</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">M</span><span class="o">+</span><span class="n">step</span> <span class="o">&gt;</span> <span class="n">M_new</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">tries</span> <span class="o">&lt;</span> <span class="n">max_try</span><span class="p">):</span>
+    <span class="n">M_new</span> <span class="o">=</span> <span class="n">M_new</span> <span class="o">+</span> <span class="n">step</span>
+    <span class="n">tries</span> <span class="o">+=</span> <span class="mi">1</span>
+
+
+  <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">m_new</span><span class="p">,</span><span class="n">M_new</span><span class="p">,</span><span class="n">step</span><span class="p">)</span>      
+</div>
+<div class="viewcode-block" id="prep_axes"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.plotting.prep_axes">[docs]</a><span class="k">def</span> <span class="nf">prep_axes</span><span class="p">(</span><span class="n">fld</span><span class="p">,</span> <span class="n">num_cont</span> <span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span><span class="n">ylabel</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">minus_z</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">xl</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">yl</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">xscale</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span><span class="n">yscale</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span><span class="n">ax_units</span><span class="o">=</span><span class="bp">True</span> <span class="p">,</span> <span class="n">grid</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Prepare axes names etc for plotting.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="n">xlbl</span><span class="o">=</span><span class="s">&#39;&#39;</span>
+  <span class="n">ylbl</span> <span class="o">=</span> <span class="s">&#39;&#39;</span> 
+ 
+  <span class="k">if</span> <span class="n">grid</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">fld</span><span class="o">.</span><span class="n">gr</span>
+
+
+  <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">x_name</span><span class="p">,</span> <span class="n">y_name</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+
+
+  <span class="k">if</span> <span class="n">minus_z</span><span class="p">:</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="s">&#39;axis&#39;</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;Z&#39;</span><span class="p">:</span>
+        <span class="n">yscale</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+      <span class="k">elif</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;Z&#39;</span><span class="p">:</span>
+        <span class="n">xscale</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+
+<span class="c"># determine full label display names (e.g. &#39;Longitude&#39;)</span>
+  <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="s">&#39;axis&#39;</span><span class="p">):</span>
+  
+    <span class="n">ylbl</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">display_name</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">ylbl</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+ 
+  <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="s">&#39;axis&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">,</span> <span class="s">&#39;display_name&#39;</span><span class="p">):</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">display_name</span><span class="p">,</span><span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">display_name</span><span class="p">,</span><span class="nb">unicode</span><span class="p">):</span>
+        <span class="n">xlbl</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">display_name</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Label not added: not a string.&#39;</span><span class="p">)</span>  
+        <span class="n">xlbl</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Label not added: not available.&#39;</span><span class="p">)</span>     
+      <span class="n">xlbl</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">xlbl</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+
+  <span class="k">if</span> <span class="n">ax_units</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="s">&#39;units&#39;</span><span class="p">):</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">,</span><span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">,</span><span class="nb">unicode</span><span class="p">):</span>
+        <span class="n">ylbl</span> <span class="o">+=</span> <span class="s">&#39; (&#39;</span> <span class="o">+</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">units</span> <span class="o">+</span><span class="s">&#39;)&#39;</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Label not added: not a string.&#39;</span><span class="p">)</span>
+        <span class="n">ylbl</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Label not added: not available.&#39;</span><span class="p">)</span>
+      <span class="n">ylbl</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="s">&#39;units&#39;</span><span class="p">):</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">,</span><span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="p">,</span><span class="nb">unicode</span><span class="p">):</span>
+        <span class="n">xlbl</span> <span class="o">+=</span> <span class="s">&#39; (&#39;</span> <span class="o">+</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">units</span> <span class="o">+</span><span class="s">&#39;)&#39;</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Label not added: not a string.&#39;</span><span class="p">)</span>
+        <span class="n">xlbl</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Label not added: not available.&#39;</span><span class="p">)</span>
+      <span class="n">xlbl</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+
+
+  <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">xl</span><span class="p">):</span>
+    <span class="n">xl</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)]</span>
+
+  <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">yl</span><span class="p">):</span>
+    <span class="n">yl</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">Y</span><span class="p">)]</span>
+
+  <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">xl</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">xl</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+  <span class="n">Y</span> <span class="o">=</span> <span class="n">Y</span><span class="p">[</span><span class="n">yl</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">yl</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+
+  <span class="n">body</span> <span class="o">=</span> <span class="n">fld</span><span class="p">[:]</span>
+  <span class="n">mbody</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">body</span><span class="p">)[</span><span class="n">yl</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">yl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">xl</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">xl</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+
+  <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+  <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+
+<span class="c">#  step = (M-m)/num_cont</span>
+  
+<span class="c">#  M += 2*step</span>
+<span class="c">#  m -= step</span>
+
+  <span class="k">return</span> <span class="n">body</span><span class="p">,</span><span class="n">mbody</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">xlbl</span><span class="p">,</span><span class="n">ylbl</span><span class="p">,</span><span class="n">xscale</span><span class="p">,</span><span class="n">yscale</span>
+
+
+</div>
+<div class="viewcode-block" id="quiver"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.plotting.quiver">[docs]</a><span class="k">def</span> <span class="nf">quiver</span><span class="p">(</span><span class="n">vfld</span><span class="p">,</span> <span class="n">showland</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span><span class="n">ylabel</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">minus_z</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">xl</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">yl</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">xscale</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span><span class="n">yscale</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span><span class="n">ax_units</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">greyshade</span> <span class="o">=</span> <span class="s">&#39;0.65&#39;</span><span class="p">,</span><span class="n">kmt</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Function that calls Matplotlib quiver and passes on arguments, but takes a Field as argument (instead of a numpy)</span>
+<span class="sd">  </span>
+<span class="sd">  Assuming that z vs x and z vs y quiver plots are rare: expects x-y plots.  </span>
+
+<span class="sd">  Input: vfld 	-supergrid vector Field to be plotted</span>
+<span class="sd">  </span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="n">greyshade</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">greyshade</span><span class="p">)</span>
+
+  <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vfld</span><span class="o">.</span><span class="n">direction</span><span class="p">())</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vfld</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">gr</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+
+ <span class="c"># obtain prepared arrays and names from Field object. mbody is a masked array containing the Field data. mbody will be used in plotting. Some of the output will not be needed.</span>
+          
+      <span class="k">if</span> <span class="n">vfld</span><span class="o">.</span><span class="n">direction</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;X&#39;</span><span class="p">:</span>
+
+        <span class="n">body_x</span><span class="p">,</span><span class="n">mbody_x</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">xlbl</span><span class="p">,</span><span class="n">ylbl</span><span class="p">,</span><span class="n">xscale</span><span class="p">,</span><span class="n">yscale</span> <span class="o">=</span> <span class="n">prep_axes</span><span class="p">(</span><span class="n">fld</span><span class="o">=</span><span class="n">vfld</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xlabel</span><span class="o">=</span><span class="n">xlabel</span> <span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">minus_z</span><span class="o">=</span><span class="n">minus_z</span><span class="p">,</span> <span class="n">xl</span><span class="o">=</span><span class="n">xl</span><span class="p">,</span><span class="n">yl</span><span class="o">=</span><span class="n">yl</span><span class="p">,</span><span class="n">xscale</span> <span class="o">=</span> <span class="n">xscale</span><span class="p">,</span><span class="n">yscale</span> <span class="o">=</span> <span class="n">yscale</span><span class="p">,</span><span class="n">ax_units</span><span class="o">=</span><span class="n">ax_units</span><span class="p">)</span>
+
+        <span class="n">body_y</span><span class="p">,</span><span class="n">mbody_y</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">xlbl</span><span class="p">,</span><span class="n">ylbl</span><span class="p">,</span><span class="n">xscale</span><span class="p">,</span><span class="n">yscale</span> <span class="o">=</span> <span class="n">prep_axes</span><span class="p">(</span><span class="n">fld</span><span class="o">=</span><span class="n">vfld</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">xlabel</span><span class="o">=</span><span class="n">xlabel</span> <span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">minus_z</span><span class="o">=</span><span class="n">minus_z</span><span class="p">,</span> <span class="n">xl</span><span class="o">=</span><span class="n">xl</span><span class="p">,</span><span class="n">yl</span><span class="o">=</span><span class="n">yl</span><span class="p">,</span><span class="n">xscale</span> <span class="o">=</span> <span class="n">xscale</span><span class="p">,</span><span class="n">yscale</span> <span class="o">=</span> <span class="n">yscale</span><span class="p">,</span><span class="n">ax_units</span><span class="o">=</span><span class="n">ax_units</span><span class="p">)</span>
+        
+      <span class="k">elif</span> <span class="n">vfld</span><span class="o">.</span><span class="n">direction</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;Y&#39;</span><span class="p">:</span>
+
+        <span class="n">body_y</span><span class="p">,</span><span class="n">mbody_y</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">xlbl</span><span class="p">,</span><span class="n">ylbl</span><span class="p">,</span><span class="n">xscale</span><span class="p">,</span><span class="n">yscale</span> <span class="o">=</span> <span class="n">prep_axes</span><span class="p">(</span><span class="n">fld</span><span class="o">=</span><span class="n">vfld</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>  <span class="n">xlabel</span><span class="o">=</span><span class="n">xlabel</span> <span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">minus_z</span><span class="o">=</span><span class="n">minus_z</span><span class="p">,</span> <span class="n">xl</span><span class="o">=</span><span class="n">xl</span><span class="p">,</span><span class="n">yl</span><span class="o">=</span><span class="n">yl</span><span class="p">,</span><span class="n">xscale</span> <span class="o">=</span> <span class="n">xscale</span><span class="p">,</span><span class="n">yscale</span> <span class="o">=</span> <span class="n">yscale</span><span class="p">,</span><span class="n">ax_units</span><span class="o">=</span><span class="n">ax_units</span><span class="p">)</span>
+
+        <span class="n">body_x</span><span class="p">,</span><span class="n">mbody_x</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">xlbl</span><span class="p">,</span><span class="n">ylbl</span><span class="p">,</span><span class="n">xscale</span><span class="p">,</span><span class="n">yscale</span> <span class="o">=</span> <span class="n">prep_axes</span><span class="p">(</span><span class="n">fld</span><span class="o">=</span><span class="n">vfld</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>  <span class="n">xlabel</span><span class="o">=</span><span class="n">xlabel</span> <span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">minus_z</span><span class="o">=</span><span class="n">minus_z</span><span class="p">,</span> <span class="n">xl</span><span class="o">=</span><span class="n">xl</span><span class="p">,</span><span class="n">yl</span><span class="o">=</span><span class="n">yl</span><span class="p">,</span><span class="n">xscale</span> <span class="o">=</span> <span class="n">xscale</span><span class="p">,</span><span class="n">yscale</span> <span class="o">=</span> <span class="n">yscale</span><span class="p">,</span><span class="n">ax_units</span><span class="o">=</span><span class="n">ax_units</span><span class="p">)</span>
+
+
+      <span class="k">if</span> <span class="n">showland</span><span class="p">:</span>
+        <span class="n">msk</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">body_x</span><span class="p">)</span>
+        <span class="n">msk</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">msk</span><span class="p">)</span> <span class="o">==</span> <span class="bp">False</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span>
+        <span class="n">msk</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">msk</span><span class="p">)</span> <span class="o">==</span> <span class="bp">True</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+    
+        <span class="n">BW_pair</span> <span class="o">=</span> <span class="p">((</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">),(</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span><span class="mf">1.</span><span class="p">))</span>
+       
+        <span class="n">cdict</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;red&#39;</span><span class="p">:</span><span class="n">BW_pair</span><span class="p">,</span><span class="s">&#39;green&#39;</span><span class="p">:</span><span class="n">BW_pair</span><span class="p">,</span><span class="s">&#39;blue&#39;</span><span class="p">:</span><span class="n">BW_pair</span><span class="p">}</span>
+
+        <span class="n">my_cmap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="p">(</span><span class="s">&#39;my_colormap&#39;</span><span class="p">,</span><span class="n">cdict</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">xscale</span><span class="o">*</span><span class="n">X</span><span class="p">,</span><span class="n">yscale</span><span class="o">*</span><span class="n">Y</span><span class="p">,</span><span class="n">msk</span><span class="p">,</span><span class="n">cmap</span> <span class="o">=</span> <span class="n">my_cmap</span><span class="p">)</span>
+
+      <span class="n">Q</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">quiver</span><span class="p">(</span><span class="n">xscale</span><span class="o">*</span><span class="n">X</span><span class="p">,</span><span class="n">yscale</span><span class="o">*</span><span class="n">Y</span><span class="p">,</span><span class="n">mbody_x</span><span class="p">,</span><span class="n">mbody_y</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>    
+
+ 
+      <span class="k">if</span> <span class="n">xlabel</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xlbl</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">ylabel</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylbl</span><span class="p">)</span> 
+
+      <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">ax</span><span class="p">):</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+
+
+      <span class="k">return</span> <span class="n">Q</span>
+
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Define quiver input on 2D grid.&#39;</span><span class="p">,</span><span class="ne">RuntimeWarning</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="scale_prep_deco"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.plotting.scale_prep_deco">[docs]</a><span class="k">def</span> <span class="nf">scale_prep_deco</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">plot_wrapper</span><span class="p">(</span><span class="n">fld</span><span class="p">,</span> <span class="n">num_cont</span> <span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span><span class="n">ylabel</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">minus_z</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">xl</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">yl</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">xscale</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span><span class="n">yscale</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span><span class="n">ax_units</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">num_xticks</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">num_yticks</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">greyshade</span> <span class="o">=</span> <span class="s">&#39;0.65&#39;</span><span class="p">,</span> <span class="n">showland</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span><span class="n">grid</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<span class="c">#  def plot_wrapper(*args, **kwargs):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">   </span>
+<span class="sd">  Arguments specific to only one function:</span>
+<span class="sd">  </span>
+<span class="sd">  contourf</span>
+<span class="sd">  greyshade = &#39;0.65&#39;</span>
+
+<span class="sd">  contour</span>
+<span class="sd">  showland = False</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+  <span class="c"># obtain prepared arrays and names from Field object. mbody is a masked array containing the Field data. mbody will be used in plotting.</span>
+  <span class="c"># M, m are the max and min of the data.</span>
+
+
+<span class="c">#    body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes({k:kwargs[k] for k in [&#39;fld&#39;, &#39;num_cont&#39;, &#39;xlabel&#39; ,&#39;ylabel&#39;, &#39;minus_z&#39;, &#39;xl&#39;,&#39;yl&#39;,&#39;xscale&#39;,&#39;yscale&#39;,&#39;ax_units&#39;]})</span>
+
+    <span class="n">body</span><span class="p">,</span><span class="n">mbody</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">xlbl</span><span class="p">,</span><span class="n">ylbl</span><span class="p">,</span><span class="n">xscale</span><span class="p">,</span><span class="n">yscale</span> <span class="o">=</span> <span class="n">prep_axes</span><span class="p">(</span><span class="n">fld</span><span class="o">=</span><span class="n">fld</span><span class="p">,</span> <span class="n">num_cont</span><span class="o">=</span><span class="n">num_cont</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="n">xlabel</span> <span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">minus_z</span><span class="o">=</span><span class="n">minus_z</span><span class="p">,</span> <span class="n">xl</span><span class="o">=</span><span class="n">xl</span><span class="p">,</span><span class="n">yl</span><span class="o">=</span><span class="n">yl</span><span class="p">,</span><span class="n">xscale</span> <span class="o">=</span> <span class="n">xscale</span><span class="p">,</span><span class="n">yscale</span> <span class="o">=</span> <span class="n">yscale</span><span class="p">,</span><span class="n">ax_units</span><span class="o">=</span><span class="n">ax_units</span><span class="p">,</span> <span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span><span class="p">)</span>
+
+  <span class="c"># Use of X, Y confusing here, as they refer to coord objects, whereas X,Y,... usually refer to ax objects. Change in later version</span>
+
+<span class="c">#    print num_cont </span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">num_cont</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span><span class="p">(</span><span class="s">&#39;levels&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">):</span>
+      <span class="n">levels</span> <span class="o">=</span>  <span class="n">auto_cont</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">num_cont</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">levels</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;levels&#39;</span><span class="p">]</span>
+      <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;levels&#39;</span><span class="p">]</span>
+
+
+    <span class="n">X_scaled</span> <span class="o">=</span> <span class="n">xscale</span><span class="o">*</span><span class="n">X</span>
+    <span class="n">Y_scaled</span> <span class="o">=</span> <span class="n">yscale</span><span class="o">*</span><span class="n">Y</span>
+
+    <span class="n">cset</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">X_scaled</span><span class="p">,</span><span class="n">Y_scaled</span><span class="p">,</span><span class="n">mbody</span><span class="p">,</span> <span class="n">levels</span> <span class="o">=</span> <span class="n">levels</span><span class="p">,</span> <span class="n">num_cont</span> <span class="o">=</span><span class="n">num_cont</span><span class="p">,</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="n">xlabel</span><span class="p">,</span><span class="n">ylabel</span> <span class="o">=</span> <span class="n">ylabel</span><span class="p">,</span> <span class="n">minus_z</span><span class="o">=</span><span class="n">minus_z</span><span class="p">,</span><span class="n">xl</span><span class="o">=</span><span class="n">xl</span><span class="p">,</span><span class="n">yl</span><span class="o">=</span><span class="n">yl</span><span class="p">,</span><span class="n">xscale</span> <span class="o">=</span> <span class="n">xscale</span> <span class="p">,</span><span class="n">yscale</span> <span class="o">=</span> <span class="n">yscale</span> <span class="p">,</span><span class="n">ax_units</span><span class="o">=</span><span class="n">ax_units</span><span class="p">,</span> <span class="n">num_xticks</span> <span class="o">=</span> <span class="n">num_xticks</span><span class="p">,</span> <span class="n">num_yticks</span> <span class="o">=</span> <span class="n">num_yticks</span><span class="p">,</span> <span class="n">greyshade</span> <span class="o">=</span> <span class="n">greyshade</span><span class="p">,</span> <span class="n">showland</span> <span class="o">=</span> <span class="n">showland</span><span class="p">,</span> <span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">xlabel</span><span class="p">:</span>
+      <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xlbl</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ylabel</span><span class="p">:</span>
+      <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylbl</span><span class="p">)</span> 
+
+    <span class="k">if</span> <span class="n">num_xticks</span><span class="p">:</span>
+      <span class="n">conts</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">auto_cont</span><span class="p">(</span><span class="n">X_scaled</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">X_scaled</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">num_xticks</span><span class="p">)</span> <span class="k">if</span> <span class="n">e</span> <span class="o">&gt;</span> <span class="n">cset</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">e</span> <span class="o">&lt;</span> <span class="n">cset</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>   <span class="p">]</span>
+   
+      <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">conts</span><span class="p">)</span>
+  
+    <span class="k">if</span> <span class="n">num_yticks</span><span class="p">:</span>
+   
+      <span class="n">conts</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">auto_cont</span><span class="p">(</span><span class="n">Y_scaled</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">Y_scaled</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">num_yticks</span><span class="p">)</span> <span class="k">if</span> <span class="n">e</span> <span class="o">&gt;</span> <span class="n">cset</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">e</span> <span class="o">&lt;</span> <span class="n">cset</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>   <span class="p">]</span>
+   
+      <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">conts</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">cset</span>
+
+  <span class="k">return</span> <span class="n">plot_wrapper</span>
+
+</div>
+<span class="nd">@scale_prep_deco</span>
+<div class="viewcode-block" id="contourf"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.plotting.contourf">[docs]</a><span class="k">def</span> <span class="nf">contourf</span><span class="p">(</span><span class="n">X_scaled</span><span class="p">,</span><span class="n">Y_scaled</span><span class="p">,</span><span class="n">mbody</span><span class="p">,</span> <span class="n">levels</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">num_cont</span> <span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span><span class="n">ylabel</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">minus_z</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">xl</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">yl</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">xscale</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span><span class="n">yscale</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span><span class="n">ax_units</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">num_xticks</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">num_yticks</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">greyshade</span> <span class="o">=</span> <span class="s">&#39;0.65&#39;</span><span class="p">,</span> <span class="n">showland</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span><span class="n">grid</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Before decoration: takes axes and numpy array argument.</span>
+<span class="sd">  After decoration: a function that calls Matplotlib contourf and passes on arguments, but takes a Field as argument (instead of a numpy array)</span>
+<span class="sd">  </span>
+<span class="sd">  Input: fld 	-supergrid Field to be plotted</span>
+
+<span class="sd">  num_xticks/ num_yticks: number of labeled points on X and Y axis. Disabled if set to None. In this case plt.contour defaults are chosen. </span>
+
+
+
+<span class="sd">  &quot;&quot;&quot;</span>
+
+
+  <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">jet</span>
+  <span class="n">cmap</span><span class="o">.</span><span class="n">set_bad</span><span class="p">(</span><span class="s">&#39;w&#39;</span><span class="p">,</span><span class="mf">1.</span><span class="p">)</span>
+
+  <span class="n">cset</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">X_scaled</span><span class="p">,</span><span class="n">Y_scaled</span><span class="p">,</span><span class="n">mbody</span><span class="p">,</span> <span class="n">levels</span> <span class="o">=</span> <span class="n">levels</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> 
+
+<span class="c"># create the patch and place it in the back of countourf (zorder!)</span>
+  <span class="k">if</span> <span class="n">greyshade</span> <span class="o">!=</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+  
+    <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+    <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+    <span class="n">xy</span> <span class="o">=</span> <span class="p">(</span><span class="n">xmin</span><span class="p">,</span><span class="n">ymin</span><span class="p">)</span>
+    <span class="n">pwidth</span> <span class="o">=</span> <span class="n">xmax</span> <span class="o">-</span> <span class="n">xmin</span>
+    <span class="n">pheight</span> <span class="o">=</span> <span class="n">ymax</span> <span class="o">-</span> <span class="n">ymin</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">patches</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">(</span><span class="n">xy</span><span class="p">,</span> <span class="n">pwidth</span><span class="p">,</span> <span class="n">pheight</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="n">greyshade</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=-</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+  
+  <span class="k">return</span> <span class="n">cset</span>
+
+</div>
+<span class="nd">@scale_prep_deco</span>
+<div class="viewcode-block" id="contour"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.plotting.contour">[docs]</a><span class="k">def</span> <span class="nf">contour</span><span class="p">(</span><span class="n">X_scaled</span><span class="p">,</span><span class="n">Y_scaled</span><span class="p">,</span><span class="n">mbody</span><span class="p">,</span> <span class="n">levels</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">num_cont</span> <span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span><span class="n">ylabel</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">minus_z</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">xl</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">yl</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">xscale</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span><span class="n">yscale</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span><span class="n">ax_units</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">num_xticks</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">num_yticks</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">greyshade</span> <span class="o">=</span> <span class="s">&#39;0.65&#39;</span><span class="p">,</span> <span class="n">showland</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span><span class="n">grid</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Function that calls contour, but takes a Field as argument (instead of a numpy)</span>
+<span class="sd">  </span>
+<span class="sd">  </span>
+<span class="sd">  fld 	-spacegrid Field to be plotted</span>
+<span class="sd">  </span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">if</span> <span class="n">showland</span><span class="p">:</span>
+    <span class="n">msk</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">mbody</span><span class="p">)</span>
+    <span class="n">msk</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">msk</span><span class="p">)</span> <span class="o">==</span> <span class="bp">False</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span>
+    <span class="n">msk</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">msk</span><span class="p">)</span> <span class="o">==</span> <span class="bp">True</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+    
+    <span class="n">BW_pair</span> <span class="o">=</span> <span class="p">((</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">),(</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span><span class="mf">1.</span><span class="p">))</span>
+       
+    <span class="n">cdict</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;red&#39;</span><span class="p">:</span><span class="n">BW_pair</span><span class="p">,</span><span class="s">&#39;green&#39;</span><span class="p">:</span><span class="n">BW_pair</span><span class="p">,</span><span class="s">&#39;blue&#39;</span><span class="p">:</span><span class="n">BW_pair</span><span class="p">}</span>
+
+    <span class="n">my_cmap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="p">(</span><span class="s">&#39;my_colormap&#39;</span><span class="p">,</span><span class="n">cdict</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">X_scaled</span><span class="p">,</span><span class="n">Y_scaled</span><span class="p">,</span><span class="n">msk</span><span class="p">,</span><span class="n">cmap</span> <span class="o">=</span> <span class="n">my_cmap</span><span class="p">)</span>
+ 
+  <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">jet</span>
+  <span class="n">cmap</span><span class="o">.</span><span class="n">set_bad</span><span class="p">(</span><span class="s">&#39;w&#39;</span><span class="p">,</span><span class="mf">1.</span><span class="p">)</span>
+
+  <span class="n">cset</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">X_scaled</span><span class="p">,</span><span class="n">Y_scaled</span><span class="p">,</span><span class="n">mbody</span><span class="p">,</span> <span class="n">levels</span> <span class="o">=</span> <span class="n">levels</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> 
+
+ 
+  <span class="k">return</span> <span class="n">cset</span>
+
+</div>
+<div class="viewcode-block" id="plot"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.plotting.plot">[docs]</a><span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="n">fld0</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">fld1</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">minus_z</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">xlbl</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span><span class="n">ylbl</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">grid</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">start_zero</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+   <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">   Function that calls Matplotlib plot, but takes fields as arguments (instead of numpy arrays)</span>
+
+<span class="sd">   Inputs:</span>
+<span class="sd">   fld0 	Field to be plotted if fld1 is None, otherwise x-coord with fld1 as y-coord</span>
+<span class="sd">   minus_z 	z-axis points downard if true</span>
+<span class="sd">   xlbl, ylbl 	override Field labels if not &#39;&#39;</span>
+<span class="sd">   grid 	replaces Field grid if not None</span>
+<span class="sd">   start_zero	if True, x-axis starts at 0  </span>
+<span class="sd">   &quot;&quot;&quot;</span>
+ 
+   <span class="k">if</span> <span class="n">fld1</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+     <span class="c"># In this case, no x-axis is given, using Field x-axis or explicitly specified grid</span>
+
+
+     <span class="k">if</span> <span class="n">grid</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+       <span class="n">crd</span> <span class="o">=</span> <span class="n">fld0</span><span class="o">.</span><span class="n">gr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+     <span class="k">else</span><span class="p">:</span>
+       <span class="n">crd</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+     <span class="k">if</span> <span class="n">start_zero</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+       <span class="c"># Start x-axis at 0</span>
+       <span class="n">crd</span> <span class="o">=</span> <span class="n">crd</span><span class="o">.</span><span class="n">start_zero</span><span class="p">()</span>
+
+     <span class="k">if</span> <span class="n">minus_z</span><span class="p">:</span> 
+       <span class="c"># z-axis points downard</span>
+       <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">crd</span><span class="p">,</span><span class="s">&#39;axis&#39;</span><span class="p">):</span>
+         <span class="k">if</span> <span class="n">crd</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;Z&#39;</span><span class="p">:</span>
+           <span class="n">xax</span> <span class="o">=</span> <span class="n">fld0</span>
+           <span class="n">yax</span> <span class="o">=</span> <span class="o">-</span><span class="n">crd</span>
+         <span class="k">else</span><span class="p">:</span>
+           <span class="n">xax</span> <span class="o">=</span> <span class="n">crd</span>
+           <span class="n">yax</span> <span class="o">=</span> <span class="n">fld0</span>
+       <span class="k">else</span><span class="p">:</span>
+         <span class="n">xax</span> <span class="o">=</span> <span class="n">crd</span>
+         <span class="n">yax</span> <span class="o">=</span> <span class="n">fld0</span>
+     <span class="k">else</span><span class="p">:</span>
+       <span class="n">xax</span> <span class="o">=</span> <span class="n">crd</span>
+       <span class="n">yax</span> <span class="o">=</span> <span class="n">fld0</span>
+            
+   <span class="k">else</span><span class="p">:</span>
+     <span class="n">xax</span> <span class="o">=</span> <span class="n">fld0</span>
+     <span class="n">yax</span> <span class="o">=</span> <span class="n">fld1</span>
+
+   <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">xlbl</span> <span class="o">==</span> <span class="s">&#39;No&#39;</span><span class="p">):</span>
+     <span class="k">if</span> <span class="n">xlbl</span> <span class="o">==</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+       <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">xax</span><span class="p">,</span><span class="s">&#39;axis&#39;</span><span class="p">):</span>
+         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">xax</span><span class="o">.</span><span class="n">axis</span><span class="p">,</span> <span class="s">&#39;display_name&#39;</span><span class="p">):</span>
+           <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xax</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">display_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xax</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">display_name</span><span class="p">,</span> <span class="nb">unicode</span><span class="p">):</span>
+             <span class="n">xlbl</span> <span class="o">=</span> <span class="n">xax</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">display_name</span>
+           <span class="k">else</span><span class="p">:</span>
+             <span class="n">xlbl</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Label not added: not a string.&#39;</span><span class="p">)</span>
+
+       <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xax</span><span class="p">,</span><span class="n">Field</span><span class="p">):</span>
+         <span class="n">xlbl</span> <span class="o">=</span> <span class="n">xax</span><span class="o">.</span><span class="n">name</span>
+       <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">xax</span><span class="p">,</span><span class="s">&#39;units&#39;</span><span class="p">):</span>
+         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xax</span><span class="o">.</span><span class="n">units</span><span class="p">,</span><span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xax</span><span class="o">.</span><span class="n">units</span><span class="p">,</span><span class="nb">unicode</span><span class="p">):</span>
+           <span class="n">xlbl</span> <span class="o">+=</span> <span class="s">&#39; (&#39;</span><span class="o">+</span> <span class="n">xax</span><span class="o">.</span><span class="n">units</span> <span class="o">+</span> <span class="s">&#39;)&#39;</span>
+         <span class="k">else</span><span class="p">:</span>
+           <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Label units not added: not a string.&#39;</span><span class="p">)</span>
+
+
+   <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">ylbl</span> <span class="o">==</span> <span class="s">&#39;No&#39;</span><span class="p">):</span>
+     <span class="k">if</span> <span class="n">ylbl</span> <span class="o">==</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+       <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">yax</span><span class="p">,</span><span class="s">&#39;axis&#39;</span><span class="p">):</span>
+        
+         <span class="n">ylbl</span> <span class="o">=</span> <span class="n">yax</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">display_name</span>
+       <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">yax</span><span class="p">,</span><span class="n">Field</span><span class="p">):</span>
+         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">yax</span><span class="o">.</span><span class="n">name</span><span class="p">,</span><span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">yax</span><span class="o">.</span><span class="n">name</span><span class="p">,</span><span class="nb">unicode</span><span class="p">):</span>
+           <span class="n">ylbl</span> <span class="o">=</span> <span class="n">yax</span><span class="o">.</span><span class="n">name</span>
+         <span class="k">else</span><span class="p">:</span>
+           <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Label not added. Not a string.&#39;</span><span class="p">)</span>
+       <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">yax</span><span class="p">,</span><span class="s">&#39;units&#39;</span><span class="p">):</span>
+         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">yax</span><span class="o">.</span><span class="n">units</span><span class="p">,</span><span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">yax</span><span class="o">.</span><span class="n">units</span><span class="p">,</span><span class="nb">unicode</span><span class="p">):</span>
+           <span class="n">ylbl</span> <span class="o">+=</span> <span class="s">&#39; (&#39;</span><span class="o">+</span> <span class="n">yax</span><span class="o">.</span><span class="n">units</span> <span class="o">+</span> <span class="s">&#39;)&#39;</span>
+         <span class="k">else</span><span class="p">:</span>
+           <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Label units not added. Not a string.&#39;</span><span class="p">)</span>
+
+   <span class="k">else</span><span class="p">:</span>
+     <span class="n">ylbl</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+
+
+   <span class="n">p</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xax</span><span class="p">[:],</span><span class="n">yax</span><span class="p">[:],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+   <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xlbl</span><span class="p">)</span>
+   <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylbl</span><span class="p">)</span>
+ 
+   <span class="k">return</span> <span class="n">p</span>
+
+
+
+
+
+</div>
+<div class="viewcode-block" id="treat_kmt"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.plotting.treat_kmt">[docs]</a><span class="k">def</span> <span class="nf">treat_kmt</span><span class="p">(</span><span class="n">kmt</span><span class="p">):</span>
+
+  <span class="n">sh</span> <span class="o">=</span> <span class="n">kmt</span><span class="o">.</span><span class="n">shape</span>
+
+  <span class="n">grx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sh</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sh</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="p">])</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+  <span class="n">gry</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="p">[</span><span class="n">y</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sh</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sh</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="p">])</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+  <span class="n">grxi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="p">[</span><span class="n">x</span><span class="o">/</span><span class="mi">5</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="n">sh</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="n">sh</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="p">])</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+  <span class="n">gryi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="p">[</span><span class="n">y</span><span class="o">/</span><span class="mi">5</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="n">sh</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="n">sh</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="p">])</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+
+  <span class="n">kmti</span> <span class="o">=</span> <span class="n">griddata</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">grx</span><span class="p">,</span><span class="n">gry</span><span class="p">])</span><span class="o">.</span><span class="n">transpose</span><span class="p">(),</span><span class="n">kmt</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">grxi</span><span class="p">,</span><span class="n">gryi</span><span class="p">])</span><span class="o">.</span><span class="n">transpose</span><span class="p">(),</span><span class="n">method</span> <span class="o">=</span> <span class="s">&#39;nearest&#39;</span><span class="p">)</span>
+
+
+  <span class="n">kmti</span> <span class="o">=</span> <span class="n">kmti</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">5</span><span class="o">*</span><span class="n">sh</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">5</span><span class="o">*</span><span class="n">sh</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+  <span class="k">return</span> <span class="n">kmti</span>
+
+</div>
+<div class="viewcode-block" id="add_kmt"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.plotting.add_kmt">[docs]</a><span class="k">def</span> <span class="nf">add_kmt</span><span class="p">(</span><span class="n">kmt</span><span class="p">):</span>
+  <span class="n">kmti</span> <span class="o">=</span> <span class="n">treat_kmt</span><span class="p">(</span><span class="n">kmt</span><span class="p">)</span>
+  <span class="n">sh</span> <span class="o">=</span> <span class="n">kmti</span><span class="o">.</span><span class="n">shape</span>
+
+  <span class="n">plt</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">360</span><span class="p">,</span><span class="n">sh</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">90</span><span class="p">,</span><span class="mi">90</span><span class="p">,</span><span class="n">sh</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="p">,</span> <span class="n">kmti</span><span class="p">,</span><span class="n">levels</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">],</span><span class="n">interpolation</span><span class="o">=</span><span class="s">&#39;nearest&#39;</span><span class="p">,</span><span class="n">colors</span><span class="o">=</span><span class="s">&#39;k&#39;</span><span class="p">,</span><span class="n">linewidths</span><span class="o">=</span><span class="mf">1.5</span><span class="p">);</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">spacegrids  documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

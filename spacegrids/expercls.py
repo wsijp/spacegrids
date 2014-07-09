@@ -403,13 +403,13 @@ class Exper(object):
 
 
 def isexpdir(path, file_extensions = cdf_file_extensions):
-
   """
- 
-  Tests whether the subdirectories in the path contain data files recognised as known data files and returns the list of those subdirectories (relative path to path argument) that contain these known files. To be used by adexp functionality and such.
-file_extensions is the list of known filenames in the form of glob expressions, e.g. ['*.nc','*.cdf'] (the default). 
+ Tests whether the subdirectories in the path contain data files. 
 
-  
+ Returns the list of those subdirectories (relative path to path argument) that 
+ contain these known files. To be used by adexp functionality and such.
+ file_extensions is the list of known filenames in the form of glob expressions, e.g.   
+ ['*.nc','*.cdf'] (the default).   
   """
 
     # examine all subdirectories of path. Create copy for manipulation.

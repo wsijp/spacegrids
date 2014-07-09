@@ -1,0 +1,934 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>spacegrids.projectcls &mdash; spacegrids  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="spacegrids  documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">spacegrids  documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for spacegrids.projectcls</h1><div class="highlight"><pre>
+<span class="c">#encoding:utf-8</span>
+
+<span class="sd">&quot;&quot;&quot; Project class</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">types</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">from</span> <span class="nn">fieldcls</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">expercls</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<span class="c"># ---- temporary classes for old code warnings -----</span>
+
+<div class="viewcode-block" id="project"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.project">[docs]</a><span class="k">class</span> <span class="nc">project</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">path</span><span class="o">=</span><span class="n">home_path</span><span class="p">,</span> <span class="n">expnames</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;*&#39;</span><span class="p">],</span> <span class="n">varnames</span> <span class="o">=</span> <span class="p">[],</span><span class="n">msk_grid</span> <span class="o">=</span> <span class="s">&#39;UVic2.8_t&#39;</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">nonick</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">descr</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    In case user tries to invoke class by old name</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;sg.project now depreciated. Use sg.Project. All class names now use capital convention.&#39;</span><span class="p">)</span>
+
+
+<span class="c"># ---------------- Class definition for projects -----------</span>
+</div>
+<div class="viewcode-block" id="Project"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project">[docs]</a><span class="k">class</span> <span class="nc">Project</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+  <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+ 
+  <span class="k">def</span> <span class="nf">__unicode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+    
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">path</span><span class="o">=</span><span class="n">home_path</span><span class="p">,</span> <span class="n">expnames</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;*&#39;</span><span class="p">],</span> <span class="n">varnames</span> <span class="o">=</span> <span class="p">[],</span><span class="n">msk_grid</span> <span class="o">=</span> <span class="s">&#39;UVic2.8_t&#39;</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">nonick</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">descr</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initialize Project object.</span>
+
+<span class="sd">    Inputs:</span>
+
+<span class="sd">    path	path to the Project directory (e.g. /home/me/PROJECTS/test_project/). Default is sg.home_path</span>
+<span class="sd">    expnames	filter on experiment names to load</span>
+<span class="sd">    varnames    list of variables to be loaded (can also be done later after init)</span>
+<span class="sd">    nonick 	Switch whether to look for a projname text file inside the Project directory to obtain Project nickname. True/ False</span>
+
+
+<span class="sd">    Example use:</span>
+<span class="sd">    D = sg.info()	# obtain dictionary of nicknames vs full paths</span>
+<span class="sd">    P = sg.Project(D[&#39;my_project&#39;])</span>
+<span class="sd">    </span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">global</span> <span class="n">ax_disp_names</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span> 
+<span class="c"># The variables associated with this experiment. It is a dictionary of name vs struct   </span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">expers</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;joep&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+
+      <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+
+        <span class="c"># if nonick is selected, a Project nickname file (usually projname) is not required.</span>
+        <span class="k">if</span> <span class="n">nonick</span><span class="p">:</span>
+          <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">projnickfile</span>  <span class="p">)</span>  <span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+              <span class="n">name</span> <span class="o">=</span> <span class="n">read_projnick</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>      
+          <span class="k">except</span><span class="p">:</span>
+            <span class="c"># following only works on unix/ linux systems:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">end_of_filepath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;/&#39;</span><span class="p">:</span>
+              <span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+          <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">projnickfile</span>  <span class="p">)</span>  <span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">read_projnick</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>      
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+ 
+    <span class="c"># sniff out the netcdf situation:</span>
+    
+       <span class="c"># find a list of the directories in the Project path that qualify as experiment data dirs, i.e. contain .nc or .cdf files: </span>
+    <span class="n">DL</span> <span class="o">=</span> <span class="n">isexpdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span> 
+    <span class="c"># Filter experiment names list against expnames filter argument:</span>
+
+    <span class="n">expnames</span> <span class="o">=</span> <span class="n">sublist</span><span class="p">(</span><span class="n">DL</span><span class="p">,</span><span class="n">expnames</span><span class="p">)</span>     
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+      <span class="k">print</span> <span class="s">&#39;Adding: &#39;</span><span class="p">,</span>
+      <span class="k">print</span> <span class="n">expnames</span>
+
+    <span class="k">if</span> <span class="n">descr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">descr</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">descr</span> <span class="o">=</span> <span class="n">descr</span>  
+ 
+    <span class="k">if</span> <span class="n">expnames</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">adexp</span><span class="p">(</span><span class="n">expnames</span><span class="p">)</span>
+      <span class="c"># after the experiments have been loaded, their Coord elements are all different objects. So check if some of them should be the same object:</span>
+      <span class="k">for</span> <span class="n">le</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">re</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">:</span>
+        <span class="c"># if axes between experiments are different objects but have identical attribute values, make the objects identical. If they only have the same axis attribute value, make them equivalent. </span>
+
+          <span class="n">find_equal_axes</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">le</span><span class="p">]</span><span class="o">.</span><span class="n">cstack</span> <span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">re</span><span class="p">]</span><span class="o">.</span><span class="n">cstack</span> <span class="p">)</span>
+
+      <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">:</span>
+        <span class="c"># make a handy dictionary for easy reference</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">e</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="p">:</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">e</span><span class="p">]</span><span class="o">.</span><span class="n">cstack</span><span class="p">}</span>
+
+      <span class="c"># at this stage of the loading process, the Coord elements in the experiment cstack attributes (lists) have an axis attribute, but they are only the strings (e.g. &#39;X&#39;,&#39;Y&#39;,&#39;Z&#39;) obtained from the netcdf file. Next, we will replace these string instances with axis objects (defined as a class in sg) with their name attributes being the original strings (e.g. &#39;X&#39;). Here, as with coords above, we need to be carefully to make those objects the same objects (in memory) if they are equal according to the &amp; method criteria (equal name, values etc, but possibly different objects in memory). So: if a&amp;b True, then b is replaced with a in the list). </span>
+      <span class="c"># So, replace axis string attribute with object attribute and obtain corresponding accumulated list of axis objects. We do this using the make_axis function:</span>
+       
+      <span class="n">L</span> <span class="o">=</span> <span class="n">make_axes</span><span class="p">([</span> <span class="n">c</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">e</span><span class="p">]</span><span class="o">.</span><span class="n">cstack</span> <span class="p">])</span>
+
+      <span class="c"># NOTE THAT ALL EXP OBJECTS HAVE AXES POINTING TO THE SAME LIST IN MEM!!</span>
+      <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">e</span><span class="p">]</span><span class="o">.</span><span class="n">axes</span> <span class="o">=</span> <span class="n">L</span>      
+
+
+      <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">e</span><span class="p">]</span><span class="o">.</span><span class="n">cstack</span> <span class="o">=</span>  <span class="n">find_set_dual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">e</span><span class="p">]</span><span class="o">.</span><span class="n">cstack</span><span class="p">)</span>
+
+      <span class="c"># axis objects have now been created based on information in the netcdf files.</span>
+      <span class="c"># the exper objects now have a list of axis objects as an attribute, these should normally be identical for all experiments.</span>
+      <span class="c"># each Coord object in each cstack attached to each exper object now also has an axis object associated with it.</span>
+
+      <span class="c"># now that the axis objects have been created, we can attempt to assign display names to them, to be used in plotting etc.</span>
+
+     
+      <span class="k">for</span> <span class="n">ax_elem</span> <span class="ow">in</span> <span class="n">L</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ax_elem</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">ax_disp_names</span><span class="p">:</span>
+          <span class="n">ax_elem</span><span class="o">.</span><span class="n">display_name</span> <span class="o">=</span> <span class="n">ax_disp_names</span><span class="p">[</span><span class="n">ax_elem</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        
+
+    <span class="k">if</span> <span class="n">msk_grid</span><span class="p">:</span>
+      <span class="c"># this is a temporary fix</span>
+<span class="c">#      y_name = &#39;yt&#39;</span>
+<span class="c">#      x_name = &#39;xt&#39;</span>
+      <span class="k">try</span><span class="p">:</span>
+        <span class="n">y_name</span><span class="p">,</span> <span class="n">x_name</span> <span class="o">=</span> <span class="n">tgrid_names</span><span class="p">[</span><span class="n">msk_grid</span><span class="p">]</span>
+        <span class="k">print</span> <span class="s">&#39;Trying to read mask using &#39;</span> <span class="o">+</span> <span class="n">y_name</span> <span class="o">+</span><span class="s">&#39;, &#39;</span> <span class="o">+</span> <span class="n">x_name</span> <span class="o">+</span> <span class="s">&#39; for mask.&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">masks</span> <span class="o">=</span> <span class="n">read_masks</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">+</span><span class="n">mask_dir</span><span class="p">,</span> <span class="n">grids</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="p">[</span><span class="n">ename</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">y_name</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="p">[</span><span class="n">ename</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">x_name</span><span class="p">]</span> <span class="k">for</span> <span class="n">ename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">]</span> <span class="p">)</span> 
+      <span class="k">except</span><span class="p">:</span>    
+        <span class="k">print</span> <span class="s">&#39;...no masks read in Project init.&#39;</span>
+
+    <span class="k">if</span> <span class="n">varnames</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">varnames</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">nbytes</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">nbytes</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>  <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">nbytes</span> <span class="o">=</span> <span class="mf">0.</span>
+
+
+<div class="viewcode-block" id="Project.ls"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.ls">[docs]</a>  <span class="k">def</span> <span class="nf">ls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Method of Project  to display experiments in columns.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">RP</span> <span class="o">=</span> <span class="n">Report</span><span class="p">()</span>
+
+    <span class="n">RP</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span><span class="n">delim</span><span class="o">=</span><span class="s">&#39;</span><span class="se">\t</span><span class="s">&#39;</span><span class="p">)</span>   
+ 
+    <span class="k">return</span> <span class="n">RP</span>
+</div>
+<div class="viewcode-block" id="Project.get"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.get">[docs]</a>  <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expnames</span><span class="p">,</span> <span class="n">varnames</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Project method to fetch fields from a Project.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">fields</span> <span class="o">=</span> <span class="p">[]</span>
+  
+ <span class="c"># Search in masks first</span>
+
+    <span class="n">VN</span> <span class="o">=</span> <span class="n">sublist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">masks</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">varnames</span><span class="p">)</span>
+	
+    <span class="k">if</span> <span class="n">VN</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">vn</span> <span class="ow">in</span> <span class="n">VN</span><span class="p">:</span>
+	<span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">masks</span><span class="p">[</span><span class="n">vn</span><span class="p">]</span>  <span class="p">)</span>
+
+<span class="c"># and then in fields	    </span>
+    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">fields</span><span class="p">):</span> 
+      <span class="n">EN</span> <span class="o">=</span> <span class="n">sublist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">,</span> <span class="n">expnames</span><span class="p">)</span>    
+      <span class="k">if</span> <span class="n">EN</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">en</span> <span class="ow">in</span> <span class="n">EN</span><span class="p">:</span>
+  	  <span class="n">VN</span> <span class="o">=</span> <span class="n">sublist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">en</span><span class="p">]</span><span class="o">.</span><span class="n">vars</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">varnames</span><span class="p">)</span>
+	
+	  <span class="k">if</span> <span class="n">VN</span><span class="p">:</span>
+	    <span class="k">for</span> <span class="n">vn</span> <span class="ow">in</span> <span class="n">VN</span><span class="p">:</span>
+	      <span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">en</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">vn</span><span class="p">)</span>  <span class="p">)</span>
+
+	    
+    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">fields</span><span class="p">):</span>
+      <span class="k">print</span> <span class="s">&quot;No fields found. Try P.load(</span><span class="si">%s</span><span class="s">)&quot;</span><span class="o">%</span><span class="n">varnames</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+<span class="c"># if only single Field found, return that Field and not a list of fields.</span>
+        <span class="n">fields</span> <span class="o">=</span><span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">fields</span>    
+
+  <span class="c"># --&gt; method belongs to Project	    </span></div>
+<div class="viewcode-block" id="Project.ad_mask"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.ad_mask">[docs]</a>  <span class="k">def</span> <span class="nf">ad_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">sub_dir</span> <span class="o">=</span> <span class="n">mask_dir</span><span class="p">,</span><span class="n">grid</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">msk_val</span> <span class="o">=</span> <span class="mi">2</span><span class="p">):</span>
+
+<span class="c">#    print read_masks(self.path + sub_dir, grid = grid, msk_val = msk_val, parent = self)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">masks</span> <span class="o">=</span> <span class="n">read_masks</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">+</span> <span class="n">sub_dir</span><span class="p">,</span> <span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span><span class="p">,</span> <span class="n">msk_val</span> <span class="o">=</span> <span class="n">msk_val</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="p">)</span>
+
+    </div>
+  <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">val</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns an exper object by the name of key k</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<span class="c"># --&gt; method belongs to Project</span>
+ 
+    <span class="k">if</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">val</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">val</span> <span class="o">==</span> <span class="nb">slice</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span> <span class="o">|</span> <span class="p">(</span><span class="n">val</span> <span class="o">==</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9223372036854775807</span><span class="p">,</span> <span class="bp">None</span><span class="p">)):</span>
+      <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">]</span>
+
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;io: exper </span><span class="si">%s</span><span class="s"> not loaded.&quot;</span> <span class="o">%</span> <span class="n">val</span><span class="p">)</span>
+
+
+<span class="c"># --&gt; belongs to Project      </span>
+<div class="viewcode-block" id="Project.show"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.show">[docs]</a>  <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> 
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Display summary of experiments and fields loaded in Project.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">RP</span> <span class="o">=</span> <span class="n">Report</span><span class="p">(</span><span class="s">&#39;---- </span><span class="si">%s</span><span class="s"> ----</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="c">#    RP.echo(&#39;Experiments: &#39;)</span>
+    <span class="n">explist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="n">explist</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+   
+    <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="n">explist</span><span class="p">,</span><span class="n">delim</span><span class="o">=</span><span class="s">&#39;</span><span class="se">\t</span><span class="s">&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+
+      <span class="n">RP</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s">&#39;No experiments in Project.&#39;</span><span class="p">)</span>
+      <span class="k">print</span> <span class="n">RP</span><span class="o">.</span><span class="n">value</span>
+      <span class="k">return</span>
+
+    <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">()</span>
+    <span class="n">RP</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s">&#39;Project using </span><span class="si">%1.2f</span><span class="s"> Mb.&#39;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nbytes</span><span class="o">/</span><span class="mf">1024.</span><span class="o">/</span><span class="mf">1024.</span><span class="p">)</span> <span class="p">)</span>
+
+    <span class="k">print</span> <span class="n">RP</span><span class="o">.</span><span class="n">value</span>
+    </div>
+<div class="viewcode-block" id="Project.incdf"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.incdf">[docs]</a>  <span class="k">def</span> <span class="nf">incdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varname</span><span class="p">,</span> <span class="n">expname</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check whether variable name is in the netcdf database.</span>
+
+<span class="sd">    Input:</span>
+<span class="sd">    varname	variable name to check</span>
+<span class="sd">    </span>
+<span class="sd">    Output:</span>
+<span class="sd">    True/ False depending on whether the variable name is in the netcdf database.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+ <span class="c"># --&gt; belongs to Project</span>
+
+    <span class="n">exps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span> 
+    <span class="k">if</span> <span class="n">expname</span> <span class="o">==</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+      <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">exps</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="n">exps</span><span class="p">[</span><span class="n">exps</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;Load exps first.&quot;</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">exp</span> <span class="o">=</span> <span class="n">exps</span><span class="p">[</span><span class="n">expname</span><span class="p">]</span>
+    
+    <span class="k">if</span> <span class="n">varname</span> <span class="ow">in</span> <span class="n">exp</span><span class="o">.</span><span class="n">var_names</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">True</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">False</span>
+
+ <span class="c"># --&gt; belongs to Project</span>
+ </div>
+<div class="viewcode-block" id="Project.delvar"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.delvar">[docs]</a>  <span class="k">def</span> <span class="nf">delvar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">varname</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">:</span> 
+      <span class="k">for</span> <span class="n">expname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">expname</span><span class="p">]</span><span class="o">.</span><span class="n">delvar</span><span class="p">(</span><span class="n">varname</span><span class="p">)</span> 
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_nbytes</span><span class="p">()</span>
+
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">print</span> <span class="s">&#39;No experiments.&#39;</span>
+</div>
+<div class="viewcode-block" id="Project.delexp"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.delexp">[docs]</a>  <span class="k">def</span> <span class="nf">delexp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expnames</span><span class="p">,</span> <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot; &quot;</span><span class="p">):</span>
+  
+    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">expnames</span><span class="p">,</span><span class="n">types</span><span class="o">.</span><span class="n">ListType</span><span class="p">)):</span>   
+      <span class="n">expnames</span> <span class="o">=</span> <span class="p">[</span> <span class="n">expnames</span> <span class="p">]</span>
+    
+    <span class="k">for</span> <span class="n">expname</span> <span class="ow">in</span> <span class="n">expnames</span><span class="p">:</span>
+
+      <span class="k">if</span> <span class="n">expname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">:</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">expname</span><span class="p">]</span>
+        <span class="k">print</span> <span class="s">&#39;Deleting existing &#39;</span><span class="o">+</span> <span class="n">expname</span>   	      
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">msg</span><span class="p">:</span>
+          <span class="k">print</span> <span class="s">&#39;No experiment by that name. &#39;</span> <span class="o">+</span> <span class="n">msg</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">update_nbytes</span><span class="p">()</span>
+
+
+<span class="c"># --&gt; belongs to Project</span>
+</div>
+<div class="viewcode-block" id="Project.adexp"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.adexp">[docs]</a>  <span class="k">def</span> <span class="nf">adexp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expnames</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;*&#39;</span><span class="p">],</span> <span class="n">descr</span> <span class="o">=</span> <span class="s">&#39;An experiment.&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds an experiment  to this Project. Also looks for a sub-directory &quot;masks&quot; for masks. If it can&#39;t find that, it will use the mask inherited from the Project.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># Convert argument expnames to list if it is not yet a list, e.g. &#39;flx_BL&#39; to [&#39;flx_BL&#39;]</span>
+    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">expnames</span><span class="p">,</span><span class="n">types</span><span class="o">.</span><span class="n">ListType</span><span class="p">)):</span>
+      <span class="n">expnames</span> <span class="o">=</span> <span class="p">[</span> <span class="n">expnames</span> <span class="p">]</span>
+    
+    <span class="c"># find a list of the directories in the Project path that qualify as experiment data dirs. </span>
+    <span class="n">DL</span> <span class="o">=</span> <span class="n">isexpdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    
+    <span class="c"># match the argument expnames against DL via wildcard expansion etc.</span>
+    <span class="n">expnames</span> <span class="o">=</span> <span class="n">sublist</span><span class="p">(</span><span class="n">DL</span><span class="p">,</span><span class="n">expnames</span><span class="p">)</span>     
+    
+    <span class="k">for</span> <span class="n">expname</span> <span class="ow">in</span> <span class="n">expnames</span><span class="p">:</span>
+       
+      <span class="c"># removes this exp if it is already present.</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">delexp</span><span class="p">(</span><span class="n">expname</span><span class="p">,</span><span class="s">&#39;&#39;</span><span class="p">)</span>  	
+
+<span class="c"># Create new experiment object projectd on name</span>
+ 
+      <span class="k">print</span> <span class="s">&#39;Creating exp object &#39;</span> <span class="o">+</span> <span class="n">expname</span> <span class="o">+</span><span class="s">&#39; from &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span>
+
+      <span class="n">cstack</span> <span class="o">=</span> <span class="n">cdfsniff</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">expname</span><span class="p">)</span> <span class="p">)</span>
+
+      <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">expname</span><span class="p">]</span> <span class="o">=</span> <span class="n">Exper</span><span class="p">(</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="n">expname</span><span class="p">,</span> <span class="n">cstack</span> <span class="o">=</span> <span class="n">cstack</span><span class="p">,</span> <span class="n">descr</span> <span class="o">=</span> <span class="n">descr</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">update_nbytes</span><span class="p">()</span>
+    <span class="k">return</span> 
+</div>
+<div class="viewcode-block" id="Project.load"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.load">[docs]</a>  <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varnames</span><span class="p">,</span> <span class="n">descr</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="n">chk_loaded</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name_suffix</span><span class="o">=</span><span class="s">&#39;_cat&#39;</span><span class="p">,</span> <span class="n">new_coord_name</span> <span class="o">=</span> <span class="s">&#39;gamma&#39;</span><span class="p">,</span> <span class="n">new_coord</span><span class="o">=</span> <span class="bp">None</span> <span class="p">):</span>
+<span class="c"># --&gt;This load belongs to Project. It calls the load method of the Exper. </span>
+<span class="c"># slices argument value is just an example</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Method of Project. E.g. P.load(&#39;salinity&#39;) for Project P.</span>
+<span class="sd">    Loads a variable (or list of variables) for all experiments belonging to the Project instance.</span>
+<span class="sd">    E.g. </span>
+<span class="sd">    </span>
+<span class="sd">    P.load(&#39;salinity&#39;)</span>
+<span class="sd">    E = P[&#39;CNTRL_2200p&#39;]	# pick this particular experiment</span>
+<span class="sd">    S = E[&#39;salinity&#39;]		# create Field object and assign it to S</span>
+<span class="sd">    </span>
+<span class="sd">   </span>
+<span class="sd">    chk_loaded = True (default False) makes load method check whether the Field is already loaded. If so, it is not loaded.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="c"># errno is returned by this method and gives information about errors encountered in this method.    </span>
+    <span class="n">errno</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="c"># list functionality only exists at the level of the Project .</span>
+    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">varnames</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+      <span class="n">varnames</span> <span class="o">=</span> <span class="p">[</span> <span class="n">varnames</span><span class="p">]</span>
+   
+    <span class="k">for</span> <span class="n">varname</span> <span class="ow">in</span> <span class="n">varnames</span><span class="p">:</span>
+ 
+<span class="c"># Test if experiments have been registered with the Project:    </span>
+      <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">):</span>
+        <span class="k">print</span> <span class="s">&quot;No experiments.&quot;</span> 
+<span class="c"># errno signifies that there are no experiments to load for.</span>
+        <span class="n">errno</span> <span class="o">=</span> <span class="mi">1</span>
+      <span class="k">else</span><span class="p">:</span>
+
+<span class="c"># See if chk_loaded is set. If so, check whether the Field is already loaded for the fist experiment.</span>
+<span class="c"># If so, do not attempt to load again (but keep what&#39;s been loaded).</span>
+        <span class="k">if</span> <span class="n">chk_loaded</span><span class="p">:</span>
+<span class="c"># chk_loaded flags whether it should be checked whether the Field is already loaded. Usually False.</span>
+          <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">loaded</span><span class="p">(</span><span class="n">varname</span><span class="p">):</span>
+            <span class="c"># This error number signifies a warning, and means that the variable is already loaded.</span>
+            <span class="n">errno</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+	    <span class="k">continue</span>
+<span class="c"># Now the actual netcdf calling part.</span>
+
+	    <span class="c"># in case netcdf information has been pre-added:</span>
+   	<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            
+	  <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">name_suffix</span><span class="o">=</span><span class="n">name_suffix</span><span class="p">,</span> <span class="n">new_coord_name</span> <span class="o">=</span> <span class="n">new_coord_name</span><span class="p">,</span> <span class="n">new_coord</span><span class="o">=</span> <span class="n">new_coord</span><span class="p">)</span>  
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">update_nbytes</span><span class="p">()</span>
+    <span class="k">return</span>    
+</div>
+<div class="viewcode-block" id="Project.write"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.write">[docs]</a>  <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">force</span> <span class="o">=</span> <span class="bp">False</span> <span class="p">,</span> <span class="n">history</span> <span class="o">=</span> <span class="s">&#39;Created from Spacegrids &#39;</span><span class="p">,</span> <span class="n">insert_dual</span> <span class="o">=</span> <span class="bp">True</span>  <span class="p">):</span> 
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write entire loaded Project to disk. </span>
+<span class="sd">    &quot;&quot;&quot;</span>     
+
+
+    <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">home_path</span><span class="p">,</span><span class="s">&quot;PROJECTS&quot;</span><span class="p">)</span>
+
+      <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+     
+      <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+      <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+      <span class="k">print</span> <span class="s">&#39;Creating dir </span><span class="si">%s</span><span class="s">&#39;</span><span class="o">%</span><span class="n">path</span>  
+
+    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">force</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">samefile</span><span class="p">(</span><span class="n">path</span> <span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="p">):</span>
+        <span class="k">print</span> <span class="s">&#39;Refusing to write Project </span><span class="si">%s</span><span class="s"> to own path at risk of overwriting data. Use different path or set force = True&#39;</span><span class="o">%</span><span class="n">name</span>
+        <span class="k">return</span>
+
+    <span class="c"># write Project name text file:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">path</span><span class="p">,</span> <span class="n">projnickfile</span> <span class="p">),</span><span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>    
+      <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+      <span class="n">e</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="p">,</span> <span class="n">insert_dual</span> <span class="o">=</span> <span class="n">insert_dual</span><span class="p">)</span>
+      
+
+</div>
+<div class="viewcode-block" id="Project.loaded"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.loaded">[docs]</a>  <span class="k">def</span> <span class="nf">loaded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">varname</span><span class="p">):</span>
+  
+    <span class="n">flag</span> <span class="o">=</span> <span class="bp">False</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">):</span>
+      <span class="n">ex</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">expers</span>
+      <span class="k">if</span> <span class="n">varname</span> <span class="ow">in</span> <span class="n">ex</span><span class="p">[</span><span class="n">ex</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">vars</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+	<span class="n">flag</span> <span class="o">=</span> <span class="bp">True</span>
+	
+    <span class="k">return</span> <span class="n">flag</span>	
+    </div>
+<div class="viewcode-block" id="Project.Report"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.Report">[docs]</a>  <span class="k">def</span> <span class="nf">Report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varname</span><span class="p">):</span>
+    
+    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">):</span>
+      <span class="k">print</span> <span class="s">&quot;No experiments.&quot;</span> 
+    <span class="k">else</span><span class="p">:</span>    
+
+      <span class="k">for</span> <span class="n">expname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">varname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">expname</span><span class="p">]</span><span class="o">.</span><span class="n">vars</span><span class="p">:</span>   
+
+          <span class="k">print</span> <span class="n">expname</span> <span class="o">+</span> <span class="s">&#39; &#39;</span> <span class="o">+</span>  <span class="n">varname</span> <span class="o">+</span> <span class="s">&#39; of len &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">expname</span><span class="p">]</span><span class="o">.</span><span class="n">getbody</span><span class="p">(</span><span class="n">varname</span><span class="p">)))</span>
+    
+        <span class="k">else</span><span class="p">:</span>
+	  <span class="k">print</span> <span class="n">varname</span> <span class="o">+</span><span class="s">&#39; not in experiment &#39;</span> <span class="o">+</span> <span class="n">expname</span>
+</div>
+<div class="viewcode-block" id="Project.update_nbytes"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.update_nbytes">[docs]</a>  <span class="k">def</span> <span class="nf">update_nbytes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update estimate of number of Mb used by Project.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">nbytes</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">nbytes</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>  <span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">nbytes</span> <span class="o">=</span> <span class="mi">0</span>
+
+
+</div>
+<div class="viewcode-block" id="Project.cat"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.cat">[docs]</a>  <span class="k">def</span> <span class="nf">cat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fld_name</span><span class="p">,</span> <span class="n">new_ax_name</span> <span class="o">=</span> <span class="s">&#39;exper&#39;</span><span class="p">,</span> <span class="n">new_coord_name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">new_coord</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Concatenate the Field fld_name for all experiments where that Field is loaded.</span>
+<span class="sd">  </span>
+<span class="sd">    If new_coord coord object argument is given, other arguments are overridden and that argument is used as the new coord along which the different experiments are lined up.</span>
+
+<span class="sd">    if no new_coord argument is given, a new Coord will be constructed.</span>
+<span class="sd"> </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">e_loaded</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">fld_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">e</span><span class="p">]</span><span class="o">.</span><span class="n">vars</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">e_loaded</span> <span class="o">==</span><span class="p">[]:</span>
+      <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Field </span><span class="si">%s</span><span class="s"> not loaded. Returning None.&#39;</span><span class="o">%</span><span class="n">fld_name</span><span class="p">)</span> 
+      <span class="k">return</span>     
+
+    <span class="c"># If new_coord has been provided, use that:</span>
+    <span class="k">if</span> <span class="n">new_coord</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">e</span><span class="p">]</span><span class="o">.</span><span class="n">vars</span><span class="p">[</span><span class="n">fld_name</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">e_loaded</span><span class="p">]</span>
+    
+      <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_coord</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Provide equal amount of loaded Field instances to length new_coord&#39;</span><span class="p">)</span>
+
+      <span class="c"># EXIT POINT</span>
+      <span class="k">return</span> <span class="n">concatenate</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span>  <span class="n">new_coord</span> <span class="o">=</span> <span class="n">new_coord</span><span class="p">)</span>
+      
+
+    <span class="c"># if new_coord has not been provided, construct one.</span>
+
+    <span class="k">if</span> <span class="n">new_coord_name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">new_coord_name</span> <span class="o">=</span> <span class="n">new_ax_name</span> <span class="o">+</span> <span class="s">&#39;_crd&#39;</span>
+
+    <span class="n">e_loaded</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+    <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">e</span><span class="p">]</span><span class="o">.</span><span class="n">vars</span><span class="p">[</span><span class="n">fld_name</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">e_loaded</span><span class="p">]</span>
+
+    <span class="n">new_axis</span> <span class="o">=</span> <span class="n">Ax</span><span class="p">(</span><span class="n">new_ax_name</span><span class="p">)</span>   
+    <span class="n">new_coord_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">))</span>
+    <span class="n">new_coord</span> <span class="o">=</span> <span class="n">Coord</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">new_coord_name</span> <span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">new_coord_value</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="n">new_axis</span><span class="p">,</span> <span class="n">direction</span> <span class="o">=</span> <span class="n">new_axis</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">strings</span> <span class="o">=</span> <span class="n">e_loaded</span> <span class="p">)</span>
+
+    <span class="c"># EXIT POINT  </span>
+    <span class="k">return</span> <span class="n">concatenate</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span>  <span class="n">new_coord</span> <span class="o">=</span> <span class="n">new_coord</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Project.param2gr"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.param2gr">[docs]</a>  <span class="k">def</span> <span class="nf">param2gr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">name_filter</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">sort</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">new_Ax_name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">add2cstack</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Use a param from the experiments to construct a Coord, and so construct a new concatenated Field defined on a new grid with this new Coord.</span>
+
+<span class="sd">    func is a function that must yield a Field and take an Exper object as argument.</span>
+<span class="sd">    it should return None for elements that are not desired. This method is somewhat different from its near-opposite method insert, where the function argument is allowed to yield fields or single values (float/ int).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">name_filter</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">expers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">exp_keys</span> <span class="o">=</span> <span class="n">simple_glob</span><span class="p">([</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">],</span> <span class="n">name_filter</span> <span class="p">)</span>
+      <span class="n">expers</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">exp_keys</span><span class="p">]</span>
+
+
+    <span class="k">if</span> <span class="n">new_ax_name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">new_ax_name</span> <span class="o">=</span> <span class="n">param_name</span>
+
+    <span class="n">new_coord_name</span> <span class="o">=</span> <span class="n">new_ax_name</span> <span class="o">+</span> <span class="s">&#39;_crd&#39;</span>
+
+    <span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">E</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">param_name</span><span class="p">],</span> <span class="n">func</span><span class="p">(</span><span class="n">E</span><span class="p">)</span> <span class="p">)</span> <span class="k">for</span> <span class="n">E</span> <span class="ow">in</span> <span class="n">expers</span> <span class="k">if</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="n">E</span><span class="o">.</span><span class="n">params</span><span class="p">]</span>
+
+    <span class="n">pairs</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">pairs</span> <span class="k">if</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>   <span class="p">]</span> 
+
+    <span class="k">if</span> <span class="n">sort</span><span class="p">:</span>
+      <span class="n">pairs</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+
+    <span class="n">new_ax</span> <span class="o">=</span> <span class="n">Ax</span><span class="p">(</span><span class="n">new_ax_name</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">add2cstack</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">E</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">new_ax</span><span class="o">.</span><span class="n">sameindex</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+          <span class="n">new_ax</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+          <span class="k">break</span>
+
+
+      <span class="c"># ax has to be added to ONLY 1 EXP. This is because axes attributes of all experiments point to the same list of axis objects!!!</span>
+      <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">new_ax</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_ax</span><span class="p">)</span>  
+
+    <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">x</span><span class="p">):</span> <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">x</span> 
+
+    <span class="n">new_coord</span> <span class="o">=</span> <span class="n">Coord</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">new_coord_name</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span><span class="n">func</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">]</span> <span class="p">),</span> <span class="n">axis</span> <span class="o">=</span> <span class="n">new_ax</span><span class="p">,</span> <span class="n">direction</span> <span class="o">=</span> <span class="n">new_ax</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">add2cstack</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">E</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">new_coord</span><span class="o">.</span><span class="n">sameindex</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">cstack</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+          <span class="n">new_coord</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">cstack</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+          <span class="k">break</span>
+            
+      <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">E</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+          <span class="k">if</span> <span class="ow">not</span> <span class="n">new_coord</span> <span class="ow">in</span> <span class="n">E</span><span class="o">.</span><span class="n">cstack</span><span class="p">:</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">cstack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_coord</span><span class="p">)</span>  
+
+
+    <span class="k">return</span> <span class="n">concatenate</span><span class="p">(</span><span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">],</span> <span class="n">new_coord</span> <span class="o">=</span> <span class="n">new_coord</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Project.insert"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.insert">[docs]</a>  <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">param_name</span><span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply function func to each Exper object in self and insert the result. The result must be a tuple (name, value) or a list of such tuples (as taken by the Exper insert method). Conform the Exper insert method, name must be a string, and value a Field or ordinary float/ int kind of datatype.</span>
+
+<span class="sd">   </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">E</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+      <span class="k">if</span> <span class="n">E</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>  
+        <span class="n">E</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span> <span class="n">func</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>  <span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Project.pattern2gr"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.pattern2gr">[docs]</a>  <span class="k">def</span> <span class="nf">pattern2gr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">fld_name</span><span class="p">,</span><span class="n">pattern</span><span class="p">,</span> <span class="n">parname</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">name_filter</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">nomatch_fill</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+
+<span class="c"># expect [(parname, value),]  or None</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">parse_fname_func</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span><span class="n">parname</span><span class="o">=</span><span class="n">parname</span><span class="p">,</span> <span class="n">nomatch_fill</span> <span class="o">=</span> <span class="n">nomatch_fill</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">param2gr</span><span class="p">(</span><span class="n">parname</span> <span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="n">fld_name</span><span class="p">],</span> <span class="n">name_filter</span> <span class="o">=</span> <span class="n">name_filter</span><span class="p">)</span> 
+
+<span class="c"># ---------------- End  definition for projects -----------</span>
+
+
+<span class="c"># -------- Exper helper functions to be used with insert method ------------</span>
+</div></div>
+<div class="viewcode-block" id="read_control_func"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.read_control_func">[docs]</a><span class="k">def</span> <span class="nf">read_control_func</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  function that yields a useful function that can be used in the Project insert method: it reads a control file in the MOM 2 control file format (as used by UVic) and outputs it in the list of (name, value) tuples format required by the Exper insert method. Think of it as inserting a parameter to each Exper, although it can be a Field too.</span>
+
+<span class="sd">  The argument filename is the file name of the control file to be read, usually control.in.</span>
+
+<span class="sd">  For example: P.insert(sg.read_control_func(&#39;control.in&#39;)) goes through all experiment directories and looks for, and parses, the file control.in, and then inserts the result as Exper parameters.</span>
+
+<span class="sd">  The user could construct similar functions for their own use: the function must take an experiment as argument, and return None or a list of (name, value) pairs (2 tuples).</span>
+
+
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">get_controls</span><span class="p">(</span><span class="n">E</span><span class="p">):</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+      <span class="n">La</span><span class="p">,</span> <span class="n">L</span> <span class="o">=</span> <span class="n">parse_control_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+      <span class="n">La</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">return</span> <span class="n">La</span>
+  
+
+  <span class="k">return</span> <span class="n">get_controls</span>
+</div>
+<div class="viewcode-block" id="parse_fname_func"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.parse_fname_func">[docs]</a><span class="k">def</span> <span class="nf">parse_fname_func</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">parname</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">value_type</span> <span class="o">=</span> <span class="nb">float</span><span class="p">,</span> <span class="n">nomatch_fill</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+  <span class="n">prog</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>  
+
+
+  <span class="k">if</span> <span class="n">parname</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_fname</span><span class="p">(</span><span class="n">E</span><span class="p">):</span>
+      <span class="n">M</span> <span class="o">=</span><span class="n">prog</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">name</span><span class="p">);</span>
+
+
+      <span class="k">if</span> <span class="n">M</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">parname</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">value_type</span><span class="p">(</span><span class="n">M</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> 
+
+      <span class="k">return</span> <span class="p">[(</span><span class="n">parname</span><span class="p">,</span> <span class="n">value</span><span class="p">),]</span>
+  
+
+    <span class="k">return</span> <span class="n">get_fname</span>
+
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_fname</span><span class="p">(</span><span class="n">E</span><span class="p">):</span>
+      <span class="n">M</span> <span class="o">=</span><span class="n">prog</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">name</span><span class="p">);</span>
+
+
+      <span class="k">if</span> <span class="n">M</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">value_type</span><span class="p">(</span><span class="n">M</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="n">parname</span><span class="p">,</span> <span class="n">nomatch_fill</span><span class="p">),]</span>
+
+      <span class="k">return</span> <span class="p">[(</span><span class="n">parname</span><span class="p">,</span> <span class="n">value</span><span class="p">),]</span>
+  
+
+    <span class="k">return</span> <span class="n">get_fname</span>
+
+
+
+<span class="c"># -----------------------------</span>
+<span class="c"># functions to be used for creating new coords</span>
+</div>
+<div class="viewcode-block" id="avg_temp"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.avg_temp">[docs]</a><span class="k">def</span> <span class="nf">avg_temp</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">varname</span> <span class="o">=</span> <span class="s">&#39;O_temp&#39;</span><span class="p">):</span>
+
+  <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">P</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
+    <span class="k">exec</span> <span class="n">c</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39; = c&#39;</span>
+
+  <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">P</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">varname</span> <span class="ow">in</span> <span class="n">P</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">vars</span><span class="p">:</span>
+      <span class="n">mTEMP</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">vars</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">X</span><span class="o">*</span><span class="n">Y</span><span class="o">*</span><span class="n">Z</span><span class="p">)</span>
+
+      <span class="n">P</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">mTEMP</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;avg_temp&#39;</span><span class="p">)</span>
+
+<span class="c">#  return P    </span>
+
+<span class="c"># ------- general functions -----------</span>
+</div>
+<div class="viewcode-block" id="overview"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.overview">[docs]</a><span class="k">def</span> <span class="nf">overview</span><span class="p">():</span>
+  <span class="n">RP</span> <span class="o">=</span> <span class="n">Report</span><span class="p">()</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;Quick start instructions.&quot;</span><span class="p">)</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">line</span><span class="p">()</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">()</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;# To get started: &quot;</span><span class="p">)</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;D = sg.info(nonick = True)	# look for projects in ~/PROJECTS/&quot;</span><span class="p">)</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;P = sg.Project(D[&#39;my_project&#39;] , nonick = True)	# init Project&quot;</span><span class="p">)</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;P.load([&#39;temperature&#39;,&#39;u&#39;])     # load some variables into mem&quot;</span><span class="p">)</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;for c in P[&#39;some_experiment&#39;].axes:   &quot;</span><span class="p">)</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;  exec c.name + &#39; = c&#39;	# bring axes names into namespace&quot;</span><span class="p">)</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;for c in P[&#39;some_experiment&#39;].cstack:   &quot;</span><span class="p">)</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;  exec c.name + &#39; = c&#39;	# bring coord names into namespace&quot;</span><span class="p">)</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">()</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;# *** Some examples ***   &quot;</span><span class="p">)</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;TEMP = P[&#39;some_experiment&#39;][&#39;temperature&#39;]   &quot;</span><span class="p">)</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;U = P[&#39;some_experiment&#39;][&#39;u&#39;]   &quot;</span><span class="p">)</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;TEMP_sliced = TEMP[Y,:50]     &quot;</span><span class="p">)</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;m_TEMP = TEMP_sliced/(X*Y)   &quot;</span><span class="p">)</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;TEMP_regridded = TEMP(U.gr)	   &quot;</span><span class="p">)</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;   &quot;</span><span class="p">)</span>
+
+  <span class="k">print</span> <span class="n">RP</span><span class="o">.</span><span class="n">value</span>
+</div>
+<div class="viewcode-block" id="ls"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.ls">[docs]</a><span class="k">def</span> <span class="nf">ls</span><span class="p">(</span><span class="n">rootdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;HOME&#39;</span><span class="p">],</span> <span class="n">projdirname</span> <span class="o">=</span> <span class="s">&#39;PROJECTS&#39;</span><span class="p">,</span><span class="n">fname</span> <span class="o">=</span> <span class="n">projnickfile</span><span class="p">,</span> <span class="n">nonick</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Simple function to display all Project directories so that no specific paths need to be used, and projects can be referred to by their nicknames defined in a file called projname in each directory containing the experiment directories.</span>
+<span class="sd"> </span>
+<span class="sd">  Inputs: </span>
+<span class="sd">  top		(default &#39;~/PROJECTS/&#39;) the start dir</span>
+<span class="sd">  fname		(default projname) the filename to look for and read the content of</span>
+<span class="sd">  </span>
+<span class="sd">  displays all Project (nick)names</span>
+<span class="sd">    </span>
+<span class="sd">  If nonick is False: finds all dir paths with file called fname in them, reads that file for each dir to find the nickname of that Project. Otherwise just lists the subdirectories of projects dir (~/PROJECTS)</span>
+
+<span class="sd">  </span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="n">D</span> <span class="o">=</span> <span class="n">info_dict</span><span class="p">(</span><span class="n">rootdir</span> <span class="o">=</span> <span class="n">rootdir</span><span class="p">,</span> <span class="n">projdirname</span> <span class="o">=</span> <span class="n">projdirname</span><span class="p">,</span><span class="n">fname</span> <span class="o">=</span> <span class="n">fname</span><span class="p">,</span> <span class="n">nonick</span> <span class="o">=</span> <span class="n">nonick</span><span class="p">)</span>
+ 
+  <span class="n">RP</span> <span class="o">=</span> <span class="n">Report</span><span class="p">()</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;Projects rooted in </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span><span class="n">projdirname</span><span class="p">)</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">line</span><span class="p">()</span>
+  <span class="n">project_names</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+  <span class="n">project_names</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">project_names</span><span class="p">,</span><span class="n">width</span> <span class="o">=</span> <span class="mi">17</span><span class="p">,</span><span class="n">maxlen</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+  <span class="k">print</span> <span class="n">RP</span>
+  
+
+</div>
+<div class="viewcode-block" id="info"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.info">[docs]</a><span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="n">rootdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;HOME&#39;</span><span class="p">],</span> <span class="n">projdirname</span> <span class="o">=</span> <span class="s">&#39;PROJECTS&#39;</span><span class="p">,</span><span class="n">fname</span> <span class="o">=</span> <span class="n">projnickfile</span><span class="p">,</span> <span class="n">nonick</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Simple function to take inventory of all Project directories so that no specific paths need to be used, and projects can be referred to by their nicknames defined in a file called projname in each directory containing the experiment directories.</span>
+<span class="sd"> </span>
+<span class="sd">  Inputs: </span>
+<span class="sd">  rootdir 	dir in which to look for main PROJECTS dir</span>
+<span class="sd">  projdirname   dir in which to look for specific Project directories. Default is &#39;PROJECTS&#39;. So by default, projects are expected in &#39;~/PROJECTS/&#39;).</span>
+<span class="sd">  fname		(default projname) the filename to look for and read the content of to determine nickname of specific Project. Disabled with nonick = True</span>
+<span class="sd">  </span>
+<span class="sd">  Outputs:</span>
+<span class="sd">  D, dictionary of Project nicknames vs full paths		</span>
+<span class="sd">    </span>
+<span class="sd">  If nonick is False:  finds all dir paths with file called fname in them, reads that file for each dir to find the nickname of that Project and builds a dictionary of nicknames vs paths. Otherwise, just takes inventory of all sub directories of projects (~/PROJECTS)</span>
+<span class="sd">  </span>
+<span class="sd">  Example of use when projects are in default location ~/PROJECTS/ (spacegrids loaded as sg):</span>
+<span class="sd">  </span>
+<span class="sd">  D=sg.info()</span>
+<span class="sd">  </span>
+<span class="sd">  Say this gives keys &#39;test&#39; and &#39;TKE&#39;. To open the Project with nickname test:</span>
+
+<span class="sd">  P = sg.Project(D[&#39;test&#39;])</span>
+<span class="sd">  </span>
+<span class="sd">  and start working with P. No specific path had to be identified, only a sufficiently specific top.</span>
+
+<span class="sd">  </span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="n">D</span> <span class="o">=</span> <span class="n">info_dict</span><span class="p">(</span><span class="n">rootdir</span> <span class="o">=</span> <span class="n">rootdir</span><span class="p">,</span> <span class="n">projdirname</span> <span class="o">=</span> <span class="n">projdirname</span><span class="p">,</span><span class="n">fname</span> <span class="o">=</span> <span class="n">fname</span><span class="p">,</span> <span class="n">nonick</span> <span class="o">=</span> <span class="n">nonick</span><span class="p">)</span>
+  
+  <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+
+    <span class="n">ls</span><span class="p">(</span><span class="n">rootdir</span> <span class="o">=</span> <span class="n">rootdir</span><span class="p">,</span> <span class="n">projdirname</span> <span class="o">=</span> <span class="n">projdirname</span><span class="p">,</span><span class="n">fname</span> <span class="o">=</span> <span class="n">fname</span><span class="p">,</span> <span class="n">nonick</span> <span class="o">=</span> <span class="n">nonick</span><span class="p">)</span>
+  
+  <span class="k">return</span> <span class="n">D</span>
+</div>
+<div class="viewcode-block" id="info_dict"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.info_dict">[docs]</a><span class="k">def</span> <span class="nf">info_dict</span><span class="p">(</span><span class="n">rootdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;HOME&#39;</span><span class="p">],</span> <span class="n">projdirname</span> <span class="o">=</span> <span class="s">&#39;PROJECTS&#39;</span><span class="p">,</span><span class="n">fname</span> <span class="o">=</span> <span class="n">projnickfile</span><span class="p">,</span> <span class="n">nonick</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Simple function to take inventory of all Project directories so that no specific paths need to be used, and projects can be referred to by their nicknames defined in a file called projname in each directory containing the experiment directories.</span>
+<span class="sd"> </span>
+<span class="sd">  Inputs: </span>
+<span class="sd">  top		(default &#39;~/PROJECTS/&#39;) the start dir</span>
+<span class="sd">  fname		(default projname) the filename to look for and read the content of</span>
+<span class="sd">  </span>
+<span class="sd">  Outputs:</span>
+<span class="sd">  D, dictionary of Project nicknames vs paths		</span>
+<span class="sd">    </span>
+<span class="sd">  If nonick is False:  finds all dir paths with file called fname in them, reads that file for each dir to find the nickname of that Project and builds a dictionary of nicknames vs paths. Otherwise, just takes inventory of all sub directories of projects (~/PROJECTS)</span>
+<span class="sd">  </span>
+<span class="sd">  Example of use when projects are in default location ~/PROJECTS/ (spacegrids loaded as sg):</span>
+<span class="sd">  </span>
+<span class="sd">  D=sg.info_dict()</span>
+<span class="sd">  </span>
+<span class="sd">  Say this gives keys &#39;test&#39; and &#39;TKE&#39;. To open the Project with nickname test:</span>
+
+<span class="sd">  P = sg.Project(D[&#39;test&#39;])</span>
+<span class="sd">  </span>
+<span class="sd">  and start working with P. No specific path had to be identified, only a sufficiently specific top.</span>
+
+<span class="sd">  </span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+
+  <span class="n">top</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootdir</span><span class="p">,</span> <span class="n">projdirname</span><span class="p">)</span>
+
+  
+<span class="c">#  first find all the file paths using locate function defined above</span>
+  <span class="k">if</span> <span class="n">nonick</span><span class="p">:</span>
+    <span class="n">paths</span> <span class="o">=</span> <span class="n">locate</span><span class="p">(</span><span class="n">top</span> <span class="o">=</span> <span class="n">top</span><span class="p">,</span><span class="n">fname</span> <span class="o">=</span> <span class="bp">None</span><span class="p">)</span>
+
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">paths</span> <span class="o">=</span> <span class="n">locate</span><span class="p">(</span><span class="n">top</span> <span class="o">=</span> <span class="n">top</span><span class="p">,</span><span class="n">fname</span> <span class="o">=</span> <span class="n">fname</span><span class="p">)</span>
+
+<span class="c"># initialise dictionary  </span>
+  <span class="n">D</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+  <span class="k">if</span> <span class="n">nonick</span><span class="p">:</span>
+
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+      <span class="c"># fname contains the Project nickname file (usually projname)       </span>
+      <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="n">fname</span><span class="p">)</span>
+      <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="c"># read the first line and make sure the return char \n is deleted.    </span>
+          <span class="n">projnick</span> <span class="o">=</span> <span class="n">read_projnick</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+      <span class="k">except</span><span class="p">:</span>
+          <span class="n">projnick</span> <span class="o">=</span> <span class="n">end_of_filepath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="c"># ad to dictionary    </span>
+      <span class="n">D</span><span class="p">[</span><span class="n">projnick</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+
+  <span class="k">else</span><span class="p">:</span>
+
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+      <span class="c"># fname contains the Project nickname file (usually projname)</span>
+      <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="n">fname</span><span class="p">)</span>
+      <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="c"># read the first line and make sure the return char \n is deleted.    </span>
+        <span class="n">projnick</span> <span class="o">=</span> <span class="n">read_projnick</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+  
+<span class="c"># ad to dictionary    </span>
+        <span class="n">D</span><span class="p">[</span><span class="n">projnick</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+
+  
+  <span class="k">return</span> <span class="n">D</span>
+
+
+    </div>
+<div class="viewcode-block" id="read_projnick"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.read_projnick">[docs]</a><span class="k">def</span> <span class="nf">read_projnick</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+  
+  <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">spacegrids  documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

@@ -19,7 +19,7 @@ if cdf_lib =='netcdf4':
   try:
     from netCDF4 import Dataset
     cdf_lib_used = 'netcdf4'
-    print 'Using netCDF4'
+#    print 'Using netCDF4'
   except:
     warnings.warn('no Netcdf4. Reverting to scipy.')
     from scipy.io import netcdf  
@@ -86,8 +86,9 @@ def msk_read(filepath='masks/msk', crop = 1):
 
   """
   Reads a text file containing a mask pointed to by filepath and returns a corresponding array.
-  Due to the way these masks are stored for the UVic model, cropping is needed, as indicated by the crop flag in the arguments.
-This is the lowest level mask read function in sg.
+  Due to the way these masks are stored for the UVic model, cropping is needed, as indicated 
+  by the crop flag in the arguments.
+  This is the lowest level mask read function in sg.
 
   """
 

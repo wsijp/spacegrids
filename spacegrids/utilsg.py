@@ -47,6 +47,10 @@ class Report():
 
 
   def echo(self,what='' , delim = ' ', maxlen = 10, width = 12, cols = 4):
+    """
+    Doc here
+    """
+
 
     if isinstance(what,str) or isinstance(what,unicode):
       self.value = self.value + what
@@ -59,7 +63,9 @@ class Report():
         self.block(L = what, delim = delim, width = width, cols = cols)
      
   def table(self,D,cols = 4, numspace =2):
+    """ Doc here
 
+    """
     for i, k in enumerate(D.keys()):
       if (2*i%cols == 0):
         self.echoln()
@@ -110,7 +116,16 @@ def split_list(L, size = 10):
   return new_L
 
 def transpose_list(L):
+  """
+  Transpose a list of lists.
 
+  Args:
+      L: list of lists to be transposed.
+
+  Returns:
+      A list of lists
+
+  """
   if len(L) > 0:
 
     new_L = [[] for e in L[0] ] 
@@ -126,7 +141,20 @@ def transpose_list(L):
 
 
 
-def merge(A1,A2):
+def merge(A1,A2, sort = True):
+  """
+  Merge two ndarrays or iterables and order them. 
+
+  Args:
+       A1: first array
+       A2: second array to be combined with first array
+       sort: flag. sort called on result if True.
+
+  Returns:
+       new_list: sorted list of combined values.
+
+  Used to merge Coord values.
+  """
 
   L1 = list(A1)
   L2 = list(A2)
@@ -136,24 +164,39 @@ def merge(A1,A2):
   while L1 and L2:
     if L1[0] == L2[0]:
       newlist.append(L1.pop(0))
-      list2.pop(0)
+      L2.pop(0)
     elif L1[0] < L2[0]:
       newlist.append(L1.pop(0))
     else:
       newlist.append(L2.pop(0))
 
   if L1:
+    # if there are remaining non-popped elements of L1, append them (at end)
     newlist.extend(L1)
   if L2:
+    # if there are remaining non-popped elements of L2, append them also (at end)
     newlist.extend(L2)
+
+  if sort:
+    newlist.sort()
 
   return np.array(newlist)
 
 
 def sublist(L,pick_vals):
   """
-  Picks a sublist from a LIST L of strings (e.g. names) using the filematch function. For instance, a wildcard will pick all elements.
+  Picks a sublist from a list L of strings (e.g. names) using the filematch function. 
+
+  Args:
+       L: list of strings from which to pick
+       pick_vals: pattern or list of patterns used in fnmatch.fnmatch
+ 
+  Returns:
+       sL: a list of matching values
+
+  For instance, a wildcard will pick all elements.
   """
+
   if not isinstance(pick_vals,types.ListType):
     pick_vals = [pick_vals]
   
@@ -166,26 +209,24 @@ def sublist(L,pick_vals):
 
   return sL	
 
-def subdict(D,pick_vals):
-  if not isinstance(pick_vals,types.ListType):
-    pick_vals = [pick_vals]
-  
-  sD = {}
-  
-  for val in pick_vals:
-    for key in D:
-      if fnmatch.fnmatch(key,val):
-        sD[key] = D[key]
 
-  return sD	
+def mark_sublist(Lbig,Lsub, indicator ='*'):
+  """
+  Marks all strings in a list of strings that also occur in a sublist by appending an indicator (\*) at the end of those strings.
 
+  Args:
+       Lbig:	The larger list, of which the contained strings will be marked.
+       Lsub:	The list of strings that need to be marked
+       indicator:	string containing the marker.
+       
+  Returns: 
+       cLbig -- the list with marked strings
+  """
 
-
-def mark_sublist(Lbig,Lsub, indicator ='*', mult = 2):
   cLbig = []
   for it in Lbig:
     if it in Lsub:
-      it =   it +indicator*mult
+      it =   it +indicator
   
     cLbig.append(it)
   
@@ -193,31 +234,63 @@ def mark_sublist(Lbig,Lsub, indicator ='*', mult = 2):
 
 
 def add_alias(L):
-  """
-  Takes list L of objects with name attribute.
+  """Create alias attribute based on name attribute, and identify objects that have identical name attributes to yield corresponding numbered alias attributes to tell them apart.
+
+  Args:
+       L:	list of Coord objects (or any objects with a name attribute).
+  
+  Returns: 
+       A list -- the list L with alias attributes added
+
+  Takes list L of objects with name attribute. Assigns alias attribute.
   Some of these names might be the same. To yield unique identifiers, a unique
- alias attribute can be assigned to the objects, to be used in practice instead
- of the names (as the names need to correspond to the netcdf names). E.g. ('latitude','latitude','latitude','longitude','depth') yields aliases: ('latitude','latitude2','latitude3','longitude','depth')
+  alias attribute can be assigned to the objects, to be used in practice instead
+  of the names (as the names might need to correspond to the netcdf names). E.g. ('latitude','latitude','latitude','longitude','depth') yields aliases: ('latitude','latitude2','latitude3','longitude','depth')
 
   This is useful when Coord names are used interactively in the namespace of
- e.g. ipython, and allows the user to tell the Coord objects that have the 
-same name apart.  Coord and gr __repr__ methods will display alias attribute 
-instead of name if the alias attribute is available.
+  e.g. ipython, and allows the user to tell the Coord objects that have the 
+  same name apart.  Coord and Gr __repr__ methods will display alias attribute 
+  instead of name if the alias attribute is available.
 
+  **Examples**
+ 
+  For example, we could apply add_alias to a list of 4 test Coord objects, two of which have the same name.
+   
+.. doctest::
+
+  >>> import spacegrids as sg
+  >>> import numpy as np
+  >>> coord1 = sg.Coord(name = 'test',direction ='X',value =np.array([1,2,3]) )
+
+  >>> coord2 = sg.Coord(name = 'test',direction ='Y',value =np.array([1,2,3,4]) )
+
+  >>> coord3 = sg.Coord(name = 'test3',direction ='X',value =np.array([5,1,2,3,4]))
+
+  >>> coord4 = sg.Coord(name = 'test4',direction ='X',value =np.array([5,1,2,3,4]))
+
+  >>> L = sg.add_alias([coord1, coord2, coord3, coord4])  
+  
+  >>> print [it.alias for it in L]
+  ['test', 'test2', 'test3', 'test4']
 
   """
 
-
+  # construct list of names of the objects. Can be non-unique.
   L_names =[e.name for e in L]
 
-  counts = dict((i,L_names.count(i)) for i in L_names)
+  # Create dictionary of name vs the number of times it occurs in L
+  counts = dict((name,L_names.count(name)) for name in L_names)
 
   for base_name in counts:
-    L_sub = [e for e in L if e.name == base_name ]
-    for i,e in enumerate(L_sub):
+    # for each name that occurs, create list L_name of corresponding objects
+    L_name = [e for e in L if e.name == base_name ]
+
+    for i,e in enumerate(L_name):
       if i == 0:
+        # The first element takes the name of the element for alias
         e.alias = e.name 
       else:
+        # Any possible further elements by the same name are suffixed with a number
         e.alias = e.name +str(i+1)
 
   return L
@@ -479,11 +552,11 @@ def parse_control_file(fname,rem_chars = ['\n','/']):
 def simple_glob(L, name_filter):
 
     """
-    Applies very simple shell wildcard * expansion-type matching of argument name_filter on a list of strings, argument L, without using re module.
-    * can only appear at beginning or end of name_filter (e.g. '*foo*').
+    Applies very simple shell wildcard \* expansion-type matching of argument name_filter on a list of strings, argument L, without using re module.
+    \* can only appear at beginning or end of name_filter (e.g. '\*foo\*').
 
 
-    E.g. name_filter = '*oo' and L=['foo','bar'] yields ['foo']
+    E.g. name_filter = '\*oo' and L=['foo','bar'] yields ['foo']
 
   
 
