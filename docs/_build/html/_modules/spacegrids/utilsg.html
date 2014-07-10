@@ -65,9 +65,49 @@
 <div class="viewcode-block" id="Report"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.Report">[docs]</a><span class="k">class</span> <span class="nc">Report</span><span class="p">():</span>
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  Reporting class containing useful method for building a string containing messages.</span>
+
+<span class="sd">    **Attributes**</span>
+<span class="sd">    </span>
+<span class="sd">    value : `str` The reporting string being built</span>
+<span class="sd"> </span>
+<span class="sd">    **Methods**</span>
+<span class="sd">   </span>
+<span class="sd">    See online documentation</span>
+
+<span class="sd">    **Notes**</span>
+<span class="sd">    </span>
+<span class="sd">    see interactive help for a full listing of methods with doc</span>
+
+<span class="sd">    **See Also**</span>
+
+<span class="sd">    **Examples**</span>
+<span class="sd"> .. doctest::</span>
+
+<span class="sd">  &gt;&gt;&gt; import spacegrids as sg</span>
+<span class="sd">  &gt;&gt;&gt; REP = sg.Report()</span>
+<span class="sd">  &gt;&gt;&gt; REP.echoln(&#39;---&#39;)</span>
+<span class="sd">  &gt;&gt;&gt; REP.echo(&#39;a test&#39;)</span>
+<span class="sd">  &gt;&gt;&gt; REP.line()</span>
+<span class="sd">  &gt;&gt;&gt; D ={&#39;a&#39;:1,&#39;b&#39;:2,&#39;c&#39;:3,&#39;d&#39;:5}</span>
+<span class="sd">  &gt;&gt;&gt; REP.table(D)</span>
+<span class="sd">  &gt;&gt;&gt; REP</span>
+<span class="sd">  ---</span>
+<span class="sd">  a test</span>
+<span class="sd">  ----------</span>
+
+<span class="sd">  a               1              c               3              </span>
+<span class="sd">  b               2              d               5              </span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Initializes Report instance.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">         value: string containing initial string value of Report</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">         A Report object with attribute value containing a str.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
 
@@ -75,12 +115,33 @@
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
 
 <div class="viewcode-block" id="Report.line"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.Report.line">[docs]</a>  <span class="k">def</span> <span class="nf">line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">char</span> <span class="o">=</span> <span class="s">&#39;-&#39;</span><span class="p">,</span><span class="n">times</span> <span class="o">=</span> <span class="mi">10</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Insert a line of --- characters on a new line into Report value.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">         char: string containing character used for line (default &#39;-&#39;)</span>
+<span class="sd">         times: the number of times char is repeated</span>
+<span class="sd">    Returns:</span>
+<span class="sd">         None. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">echoln</span><span class="p">()</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="n">char</span><span class="o">*</span><span class="n">times</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Report.block"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.Report.block">[docs]</a>  <span class="k">def</span> <span class="nf">block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">L</span><span class="p">,</span><span class="n">delim</span> <span class="o">=</span> <span class="s">&#39;\ &#39;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="mi">4</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates string to display list of strings as a deliminated rows x cols block.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">         L: list of strings</span>
+<span class="sd">         delim: delimiter character passed to block method</span>
+<span class="sd">         width: width in characters of each cell (int)</span>
+<span class="sd">         cols: number of columns of block (int)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">         None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 
     <span class="n">Ls</span> <span class="o">=</span> <span class="n">split_list</span><span class="p">(</span><span class="n">L</span> <span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">L</span><span class="p">)</span><span class="o">/</span><span class="n">cols</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">Ls</span> <span class="o">=</span> <span class="n">transpose_list</span><span class="p">(</span><span class="n">Ls</span><span class="p">)</span>
@@ -91,6 +152,23 @@
       <span class="bp">self</span><span class="o">.</span><span class="n">echoln</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="Report.echoln"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.Report.echoln">[docs]</a>  <span class="k">def</span> <span class="nf">echoln</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">what</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">delim</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="p">,</span> <span class="n">maxlen</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Insert a string on a new line into Report value.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">         what: string to insert (default &#39;&#39;) or list/ tuple of strings</span>
+<span class="sd">         delim: delimiter character passed to block method</span>
+<span class="sd">         maxlen: max length (int) passed to block method</span>
+<span class="sd">         width: int passed to block method</span>
+<span class="sd">         cols: int passed to block method</span>
+<span class="sd">    Returns:</span>
+<span class="sd">         A Report object with updated value attribute.    </span>
+
+<span class="sd">    This is the echo method with a &#39;\n&#39; appended.</span>
+
+<span class="sd">    **See Also**</span>
+<span class="sd">    echo method</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">what</span> <span class="o">=</span> <span class="n">what</span> <span class="p">,</span> <span class="n">delim</span> <span class="o">=</span> <span class="n">delim</span><span class="p">,</span> <span class="n">maxlen</span> <span class="o">=</span> <span class="n">maxlen</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="n">width</span><span class="p">,</span><span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span> 
@@ -98,7 +176,21 @@
 </div>
 <div class="viewcode-block" id="Report.echo"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.Report.echo">[docs]</a>  <span class="k">def</span> <span class="nf">echo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">what</span><span class="o">=</span><span class="s">&#39;&#39;</span> <span class="p">,</span> <span class="n">delim</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="p">,</span> <span class="n">maxlen</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Doc here</span>
+<span class="sd">    Insert a string into Report value.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">         what: string to insert (default &#39;&#39;) or list/ tuple of strings</span>
+<span class="sd">         delim: delimiter character passed to block method</span>
+<span class="sd">         maxlen: max length (int) passed to block method</span>
+<span class="sd">         width: int passed to block method</span>
+<span class="sd">         cols: int passed to block method</span>
+<span class="sd">    Returns:</span>
+<span class="sd">         None</span>
+
+<span class="sd">    If &#39;what&#39; is a list of strings, the block method will be used to embed a table of the strings into the Report value.</span>
+
+<span class="sd">    **See Also**</span>
+<span class="sd">    echoln method</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 
@@ -106,16 +198,25 @@
       <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">what</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">what</span><span class="p">,</span><span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">what</span><span class="p">,</span><span class="nb">tuple</span><span class="p">):</span>
       <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">what</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">maxlen</span><span class="p">:</span>
-
+        <span class="c"># too many strings to display, truncate.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="n">L</span> <span class="o">=</span> <span class="n">what</span><span class="p">[:</span><span class="n">maxlen</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s">&#39;...&#39;</span><span class="p">,]</span> <span class="o">+</span>  <span class="n">what</span><span class="p">[</span><span class="o">-</span><span class="n">maxlen</span><span class="o">/</span><span class="mi">2</span><span class="p">:]</span> <span class="p">,</span> <span class="n">delim</span> <span class="o">=</span> <span class="n">delim</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="n">width</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="p">)</span>
 
       <span class="k">else</span><span class="p">:</span>
+        <span class="c"># display entire list</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">block</span><span class="p">(</span><span class="n">L</span> <span class="o">=</span> <span class="n">what</span><span class="p">,</span> <span class="n">delim</span> <span class="o">=</span> <span class="n">delim</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="n">width</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="p">)</span>
      </div>
-<div class="viewcode-block" id="Report.table"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.Report.table">[docs]</a>  <span class="k">def</span> <span class="nf">table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">D</span><span class="p">,</span><span class="n">cols</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">numspace</span> <span class="o">=</span><span class="mi">2</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Doc here</span>
+<div class="viewcode-block" id="Report.table"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.Report.table">[docs]</a>  <span class="k">def</span> <span class="nf">table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">D</span><span class="p">,</span><span class="n">cols</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Create a table based on dictionary D.</span>
 
+
+<span class="sd">    Args:</span>
+<span class="sd">         D: dictionary of name:value pairs to be included in table</span>
+<span class="sd">         cols: number of columns of table (int)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">         None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
       <span class="k">if</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="o">%</span><span class="n">cols</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">echoln</span><span class="p">()</span>
@@ -125,6 +226,10 @@
     
 </div>
   <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates new Report object with str values concatenated.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">return</span> <span class="n">Report</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
  </div>
@@ -148,6 +253,23 @@
       <span class="k">print</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span> 
     <span class="k">print</span> <span class="s">&#39;</span><span class="si">%-15s</span><span class="s"> </span><span class="si">%-15s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span> <span class="p">,</span> <span class="n">D</span><span class="p">[</span><span class="n">k</span><span class="p">]),</span>
 
+</div>
+<div class="viewcode-block" id="plural"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.plural">[docs]</a><span class="k">def</span> <span class="nf">plural</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Determine whether to use plural of a word describing a qty n of something. </span>
+
+<span class="sd">     Used in stdout messages that mention quantities of something.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">         n: int or float, the quantity of the thing that is reported on.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">         A string that is &#39;&#39; or &#39;s&#39;, indicating a grammatical plural or singular.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s">&#39;&#39;</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s">&#39;s&#39;</span>
 
 </div>
 <div class="viewcode-block" id="split_list"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.split_list">[docs]</a><span class="k">def</span> <span class="nf">split_list</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">10</span><span class="p">):</span>
@@ -287,7 +409,7 @@
   <span class="sd">&quot;&quot;&quot;Create alias attribute based on name attribute, and identify objects that have identical name attributes to yield corresponding numbered alias attributes to tell them apart.</span>
 
 <span class="sd">  Args:</span>
-<span class="sd">       L:	list of Coord objects (or any objects with a name attribute).</span>
+<span class="sd">       L: list of Coord objects (or any objects with a name attribute).</span>
 <span class="sd">  </span>
 <span class="sd">  Returns: </span>
 <span class="sd">       A list -- the list L with alias attributes added</span>
@@ -348,15 +470,21 @@
 </div>
 <div class="viewcode-block" id="complete"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.complete">[docs]</a><span class="k">def</span> <span class="nf">complete</span><span class="p">(</span><span class="n">comp_sets</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Expects a list or tuple of tuples (or lists).</span>
+<span class="sd">  Assigns attribute others to every element of a list of lists that is a list of all elements in the own group except the element itself. </span>
+
+<span class="sd">  Args:</span>
+<span class="sd">       comp_sets: a list or tuple of tuples (or lists).</span>
+<span class="sd">  </span>
+<span class="sd">  Returns: </span>
+<span class="sd">       None</span>
+
 <span class="sd">  E.g. </span>
 <span class="sd">  ((xt,yt,zt),(xu,yu,zw))</span>
-<span class="sd">  It then assignes an attribute others to every element xt,yt,...  that is a tuple containing all other elements in the subset except the element itself.</span>
+<span class="sd">  It then assigns an attribute others to every element xt,yt,...  that is a tuple containing all other elements in the subset except the element itself.</span>
 
 <span class="sd">  i.e. xt.others = (yt,zt)</span>
-<span class="sd">  </span>
-
 <span class="sd">  &quot;&quot;&quot;</span>
+
   <span class="k">for</span> <span class="nb">set</span> <span class="ow">in</span> <span class="n">comp_sets</span><span class="p">:</span>
     
     <span class="k">for</span> <span class="n">co</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">:</span>
@@ -365,6 +493,8 @@
   <span class="k">return</span>
 </div>
 <div class="viewcode-block" id="flat_list"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.flat_list">[docs]</a><span class="k">def</span> <span class="nf">flat_list</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Documentation to come.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">W</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">L</span><span class="p">))</span>
   <span class="k">while</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">W</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="nb">list</span><span class="p">):</span>
     <span class="n">W</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">W</span><span class="p">))</span>
@@ -373,6 +503,8 @@
 
 </div>
 <div class="viewcode-block" id="rav_index"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.rav_index">[docs]</a><span class="k">def</span> <span class="nf">rav_index</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="n">sh</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Documentation to come.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">lsh</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span>
   <span class="n">lsh</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
   <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="nb">int</span><span class="p">):</span>
@@ -405,10 +537,16 @@
 </div>
 <div class="viewcode-block" id="find_perm"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.find_perm">[docs]</a><span class="k">def</span> <span class="nf">find_perm</span><span class="p">(</span><span class="n">left</span><span class="p">,</span><span class="n">right</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Inputs: a,b tuples or lists of equal length containing the same elements, possibly permuted.</span>
+<span class="sd">  Find a permutation to obtain tuple (iterable) argument &quot;right&quot; from &quot;left&quot;.</span>
 
-<span class="sd">  Output: a tuple of indices perm such that [left[i] for i in perm] = right</span>
+<span class="sd">  Args:</span>
+<span class="sd">       left: a tuple (or list)</span>
+<span class="sd">       right: a tuple (or list) </span>
+<span class="sd">       </span>
+<span class="sd">  Returns: </span>
+<span class="sd">       None or perm, a permutation such that [left[i] for i in perm] = right</span>
 
+<span class="sd">  If left and right are of equal length and contain the same elements up to their order, a permutation will be returned.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">left</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">right</span><span class="p">):</span>
@@ -419,7 +557,7 @@
         <span class="n">perm</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">left</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
       <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-          <span class="k">print</span> <span class="s">&#39;inputs not permutable: &#39;</span> <span class="o">+</span> <span class="n">r</span><span class="o">.</span><span class="n">name</span>
+          <span class="k">print</span> <span class="s">&#39;Inputs not permutable: </span><span class="si">%s</span><span class="s">&#39;</span><span class="o">%</span><span class="n">r</span><span class="o">.</span><span class="n">name</span>
         <span class="k">return</span>
 
   <span class="k">else</span><span class="p">:</span>
@@ -431,6 +569,26 @@
 
 </div>
 <div class="viewcode-block" id="round_order"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.round_order">[docs]</a><span class="k">def</span> <span class="nf">round_order</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">order</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Round value up to order of magnitude order.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">       value: float</span>
+<span class="sd">       order:  (int) the order to which to round value (e.g. order=2 is 100)</span>
+<span class="sd">       </span>
+<span class="sd">  Returns: </span>
+<span class="sd">       value rounded to the order &#39;order&#39;</span>
+
+<span class="sd">  **Examples**</span>
+
+<span class="sd">.. doctest::</span>
+
+<span class="sd">  &gt;&gt;&gt; import spacegrids as sg</span>
+<span class="sd">  &gt;&gt;&gt; sg.round_order(1140.,2.)</span>
+<span class="sd">  1100.0</span>
+<span class="sd">  &gt;&gt;&gt; sg.round_order(1140.,1.)</span>
+<span class="sd">  1140.0</span>
+<span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="k">if</span> <span class="n">order</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
     <span class="n">order</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">value</span><span class="p">))</span><span class="o">//</span><span class="mf">1.</span>
@@ -439,6 +597,23 @@
 
 </div>
 <div class="viewcode-block" id="order_mag"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.order_mag">[docs]</a><span class="k">def</span> <span class="nf">order_mag</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Find order of magnitude of value.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">       val: float</span>
+<span class="sd">       </span>
+<span class="sd">  Returns: </span>
+<span class="sd">       order of magnitude of val</span>
+
+<span class="sd">  **Examples**</span>
+
+<span class="sd">.. doctest::</span>
+
+<span class="sd">  &gt;&gt;&gt; import spacegrids as sg</span>
+<span class="sd">  &gt;&gt;&gt; sg.order_mag(1140.)</span>
+<span class="sd">  3.0</span>
+<span class="sd">  &quot;&quot;&quot;</span>
   
   <span class="k">if</span> <span class="n">val</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
 
@@ -448,20 +623,22 @@
 
 
 
-
-</div>
-<div class="viewcode-block" id="dist_angle"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.dist_angle">[docs]</a><span class="k">def</span> <span class="nf">dist_angle</span><span class="p">(</span><span class="n">angles</span><span class="p">):</span>
-
-   <span class="n">new_angles</span> <span class="o">=</span> <span class="p">[]</span>
-   <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">angles</span><span class="p">:</span>
-     <span class="k">if</span> <span class="n">a</span><span class="o">&gt;</span> <span class="mf">180.</span><span class="p">:</span>
-       <span class="n">new_angles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">360.</span> <span class="o">-</span> <span class="n">a</span><span class="p">)</span>
-     <span class="k">else</span><span class="p">:</span>
-       <span class="n">new_angles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-  
-   <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_angles</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="which_att"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.which_att">[docs]</a><span class="k">def</span> <span class="nf">which_att</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span><span class="n">att_list</span><span class="p">,</span><span class="n">fail_val</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Returns first element of list of names if it matches an attribute name of object, None otherwise.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">       obj: an object of which to examine the attributes</span>
+<span class="sd">       att_list: an iterable containing strings</span>
+<span class="sd">       fail_val: value to return if att_list elements not in object attribute names</span>
+<span class="sd">       </span>
+<span class="sd">  Returns: </span>
+<span class="sd">       attribute name that gives firs match in list, fail_val otherwise</span>
+
+<span class="sd">  **See also**</span>
+<span class="sd">  get_att</span>
+<span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="k">for</span> <span class="n">attname</span> <span class="ow">in</span> <span class="n">att_list</span><span class="p">:</span>
 
@@ -472,6 +649,20 @@
 
 </div>
 <div class="viewcode-block" id="get_att"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.get_att">[docs]</a><span class="k">def</span> <span class="nf">get_att</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">att_list</span><span class="p">,</span><span class="n">fail_val</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Returns attribute value corresponding to first element of list of names if it matches an attribute name of object, None otherwise.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">       obj: an object of which to examine the attributes</span>
+<span class="sd">       att_list: an iterable containing strings</span>
+<span class="sd">       fail_val: value to return if att_list elements not in object attribute names</span>
+<span class="sd">       </span>
+<span class="sd">  Returns: </span>
+<span class="sd">       attribute value that gives firs match in list, fail_val otherwise</span>
+
+<span class="sd">  **See also**</span>
+<span class="sd">  which_att</span>
+<span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="n">this_att</span> <span class="o">=</span> <span class="n">which_att</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">att_list</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">this_att</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -482,18 +673,50 @@
 
 </div>
 <div class="viewcode-block" id="id_index"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.id_index">[docs]</a><span class="k">def</span> <span class="nf">id_index</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="n">e</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Same as index method of lists, but with equality defined as &amp;.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">       L: list of objects that implement &amp;-equality</span>
+<span class="sd">       e: an object of that same type.</span>
+<span class="sd">       </span>
+<span class="sd">  Returns: </span>
+<span class="sd">       None or integer representing the index of e in L.</span>
+
+
+<span class="sd">  **See also**</span>
+<span class="sd">  id_in</span>
+<span class="sd">  rem_equivs</span>
+<span class="sd">  List method &#39;index&#39;</span>
+<span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">it</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">it</span><span class="o">&amp;</span><span class="n">e</span><span class="p">):</span>
       <span class="k">return</span> <span class="n">i</span>
 
-<span class="c"># not raising error as normal in would. </span>
+<span class="c"># not raising error as normally it would. </span>
 <span class="c">#  raise ValueError(&#39;%s is not in list&#39; % e)</span>
 
-<span class="c"># return None instead</span>
+<span class="c"># return None instead:</span>
   <span class="k">return</span>
 </div>
 <div class="viewcode-block" id="id_in"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.id_in">[docs]</a><span class="k">def</span> <span class="nf">id_in</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="n">e</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Same as in function for lists, but with equality defined as &amp;.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">       L: list of objects that implement &amp;-equality</span>
+<span class="sd">       e: an object of that same type.</span>
+<span class="sd">       </span>
+<span class="sd">  Returns: </span>
+<span class="sd">       True or False depending on whether there is an element e2 of L such that e&amp;e2 is True</span>
+
+
+<span class="sd">  **See also**</span>
+<span class="sd">  id_index</span>
+<span class="sd">  rem_equivs</span>
+<span class="sd">  List method &#39;index&#39;</span>
+<span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">L</span><span class="p">:</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">it</span><span class="o">&amp;</span><span class="n">e</span><span class="p">):</span>
@@ -501,6 +724,23 @@
   <span class="k">return</span> <span class="bp">False</span>
 </div>
 <div class="viewcode-block" id="rem_equivs"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.rem_equivs">[docs]</a><span class="k">def</span> <span class="nf">rem_equivs</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Removes all all elements from list that are equivalent under &amp;-relationship</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">       L: list of objects that implement &amp;-relationship</span>
+<span class="sd">      </span>
+<span class="sd">  Returns: </span>
+<span class="sd">       A list of elements that are unique with respect to the &amp;-relationship</span>
+<span class="sd">      </span>
+
+<span class="sd">  Uses function id_in.</span>
+
+<span class="sd">  **see also**</span>
+<span class="sd">  id_in</span>
+<span class="sd">  id_index</span>
+
+<span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="n">L_new</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -513,6 +753,9 @@
 
 </div>
 <div class="viewcode-block" id="read"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.read">[docs]</a><span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Open fname (full path) for simple reading and return data.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="n">data</span> <span class="o">=</span> <span class="bp">None</span>
 
@@ -523,7 +766,19 @@
   <span class="k">return</span> <span class="n">data</span>
 
 </div>
-<div class="viewcode-block" id="interp_line"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.interp_line">[docs]</a><span class="k">def</span> <span class="nf">interp_line</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_parse_control_line</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Interpret the data within one named block of control file, including the name of the block.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">       line: string containing read data occurring inside a named block	</span>
+<span class="sd">       </span>
+
+<span class="sd">  Returns: </span>
+<span class="sd">       (block_name, pairs) where pairs is a list of the (name, value) pairs interpreted from the control file and block_name is the name of the block.  </span>
+
+<span class="sd">  Helper function to function parse_control_file</span>
+<span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">,</span><span class="s">&#39;&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
     <span class="k">return</span>
@@ -565,70 +820,81 @@
   <span class="n">pairs</span> <span class="o">=</span> <span class="p">[</span> <span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">,</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">pairs</span>  <span class="p">]</span>
 
   <span class="k">return</span> <span class="p">(</span><span class="n">block_name</span><span class="p">,</span><span class="n">pairs</span><span class="p">)</span>
-</div>
+
 <div class="viewcode-block" id="parse_control_file"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.parse_control_file">[docs]</a><span class="k">def</span> <span class="nf">parse_control_file</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="n">rem_chars</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span><span class="s">&#39;/&#39;</span><span class="p">]):</span>
 
   <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Read and parse a UVic/ MOM2 - style control file. Returns list(s) of (name, value) pairs found in the control file.</span>
+<span class="sd">  Read and parse a UVic/ MOM2 - style control file to yield list(s) of (name, value) pairs.</span>
 
-<span class="sd">  Input: fname full path to configuration file	</span>
-<span class="sd">  Output: La, L</span>
-<span class="sd">  La	list of (name, value) pairs of all parameters found in the control file, excluding names of parameter groups (generally preceded with &amp; in file). If the same parameter name occurs more than once in the file, it is overwritten in the list (unique names are expected).</span>
-<span class="sd">  L	more detailed list. List of (parameter group name, list of (name, value) ) pairs, where the lists of (name, value) pairs belong to each parameter group name.</span>
+<span class="sd">  Args:</span>
+<span class="sd">       fname: full path to configuration file	</span>
+<span class="sd">       rem_chars: characters to ignore in file (defaults recommended)</span>
 
+<span class="sd">  Returns: </span>
+<span class="sd">       La, L. Here, La is list of (name, value) pairs of all parameters found in the control file, excluding names of parameter groups (generally preceded with &amp; in file). If the same parameter name occurs more than once in the file, it is overwritten in the list (unique names are expected). L is a more detailed list. List of (parameter group name, list of (name, value) ) pairs, where the lists of (name, value) pairs belong to each parameter group name.</span>
 
+<span class="sd">  Data is organized in named blocks. The names of these blocks are included in the second return value L, but not L_all. L_all contains the raw (name, value) pairs</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="n">data</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> 
 
   <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
-  
+    <span class="c"># Remove the chars to be ignored:</span>
     <span class="k">for</span> <span class="n">ec</span> <span class="ow">in</span> <span class="n">rem_chars</span><span class="p">:</span>
       <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">ec</span><span class="p">,</span><span class="s">&#39;&#39;</span><span class="p">)</span>
    
+    <span class="c"># identify lines not by \n but by &amp;, indicating new block</span>
     <span class="n">lines</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;&amp;&#39;</span><span class="p">)</span>
 
+    <span class="c"># obtain a list of (block name, list of (name,value) pair) pairs. </span>
     <span class="n">L</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
-      <span class="n">pair</span> <span class="o">=</span> <span class="n">interp_line</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+      <span class="n">pair</span> <span class="o">=</span> <span class="n">_parse_control_line</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
       <span class="k">if</span> <span class="n">pair</span><span class="p">:</span>
         <span class="n">L</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
 
+    <span class="c"># obtain the first return value L_all by concatenating the lists of all (name, value) pairs for the list of (block name, list) pairs: </span>
     <span class="n">L_all</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">+</span><span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="n">it</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">L</span><span class="p">]</span> <span class="p">)</span>  
 
     <span class="k">return</span> <span class="n">L_all</span><span class="p">,</span> <span class="n">L</span>
 
 </div>
-<div class="viewcode-block" id="simple_glob"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.simple_glob">[docs]</a><span class="k">def</span> <span class="nf">simple_glob</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">name_filter</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_simple_glob</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">name_filter</span><span class="p">):</span>
 
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Applies very simple shell wildcard \* expansion-type matching of argument name_filter on a list of strings, argument L, without using re module.</span>
-<span class="sd">    \* can only appear at beginning or end of name_filter (e.g. &#39;\*foo\*&#39;).</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Very simple wildcard expansion on list of strings.</span>
+<span class="sd"> </span>
+<span class="sd">  Args:</span>
+<span class="sd">       L: list of strings	</span>
+<span class="sd">       name_filter: the wildcard glob pattern (e.g. &#39;*hello&#39;)</span>
+
+<span class="sd">  Returns: </span>
+<span class="sd">       A list of strings that match.</span>
+
+<span class="sd">  Applies very simple shell wildcard \* expansion-type matching of argument name_filter on a list of strings, argument L, without using re module.</span>
+<span class="sd">  \* can only appear at beginning or end of name_filter (e.g. &#39;\*foo\*&#39;).</span>
 
 
-<span class="sd">    E.g. name_filter = &#39;\*oo&#39; and L=[&#39;foo&#39;,&#39;bar&#39;] yields [&#39;foo&#39;]</span>
-
-<span class="sd">  </span>
-
+<span class="sd">  E.g. name_filter = &#39;\*oo&#39; and L=[&#39;foo&#39;,&#39;bar&#39;] yields [&#39;foo&#39;]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="n">name_filter</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-      <span class="k">return</span> <span class="n">L</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="k">if</span> <span class="n">name_filter</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;*&#39;</span> <span class="ow">and</span> <span class="n">name_filter</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;*&#39;</span><span class="p">:</span>
-        <span class="n">L</span> <span class="o">=</span> <span class="p">[</span> <span class="n">it</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">L</span> <span class="k">if</span> <span class="n">it</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">name_filter</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>  <span class="p">]</span> 
-      <span class="k">elif</span> <span class="n">name_filter</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;*&#39;</span> <span class="ow">and</span> <span class="n">name_filter</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;*&#39;</span><span class="p">:</span>
-        <span class="n">L</span> <span class="o">=</span> <span class="p">[</span> <span class="n">it</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">L</span> <span class="k">if</span> <span class="n">it</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">name_filter</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>  <span class="p">]</span> 
-      <span class="k">elif</span> <span class="n">name_filter</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;*&#39;</span> <span class="ow">and</span> <span class="n">name_filter</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;*&#39;</span><span class="p">:</span>
-        <span class="n">L</span> <span class="o">=</span> <span class="p">[</span> <span class="n">it</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">L</span> <span class="k">if</span> <span class="n">name_filter</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">it</span>  <span class="p">]</span> 
-      <span class="k">else</span><span class="p">:</span>
-        <span class="n">L</span> <span class="o">=</span> <span class="p">[</span> <span class="n">it</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">L</span> <span class="k">if</span> <span class="n">name_filter</span> <span class="o">==</span> <span class="n">it</span>  <span class="p">]</span> 
+  <span class="k">if</span> <span class="n">name_filter</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">L</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">name_filter</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;*&#39;</span> <span class="ow">and</span> <span class="n">name_filter</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;*&#39;</span><span class="p">:</span>
+      <span class="n">L</span> <span class="o">=</span> <span class="p">[</span> <span class="n">it</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">L</span> <span class="k">if</span> <span class="n">it</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">name_filter</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>  <span class="p">]</span> 
+    <span class="k">elif</span> <span class="n">name_filter</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;*&#39;</span> <span class="ow">and</span> <span class="n">name_filter</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;*&#39;</span><span class="p">:</span>
+      <span class="n">L</span> <span class="o">=</span> <span class="p">[</span> <span class="n">it</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">L</span> <span class="k">if</span> <span class="n">it</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">name_filter</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>  <span class="p">]</span> 
+    <span class="k">elif</span> <span class="n">name_filter</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;*&#39;</span> <span class="ow">and</span> <span class="n">name_filter</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;*&#39;</span><span class="p">:</span>
+      <span class="n">L</span> <span class="o">=</span> <span class="p">[</span> <span class="n">it</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">L</span> <span class="k">if</span> <span class="n">name_filter</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">it</span>  <span class="p">]</span> 
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">L</span> <span class="o">=</span> <span class="p">[</span> <span class="n">it</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">L</span> <span class="k">if</span> <span class="n">name_filter</span> <span class="o">==</span> <span class="n">it</span>  <span class="p">]</span> 
+  <span class="k">return</span> <span class="n">L</span>
 
-</div>
-<div class="viewcode-block" id="end_of_filepath"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.end_of_filepath">[docs]</a><span class="k">def</span> <span class="nf">end_of_filepath</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+
+<span class="k">def</span> <span class="nf">_end_of_filepath</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  utility that finds the last element of a path without using os module.</span>
+<span class="sd">  Little function that finds the last element of a path, without using os module.</span>
 <span class="sd">  e.g. /foo/bar yields bar, as does /foo/bar/</span>
 
 <span class="sd">  &quot;&quot;&quot;</span>
@@ -643,13 +909,14 @@
 
 <span class="c"># ------------- general time series related functions ----------------</span>
 
-</div>
-<div class="viewcode-block" id="str_html_row"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.str_html_row">[docs]</a><span class="k">def</span> <span class="nf">str_html_row</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">cell_tag</span><span class="o">=</span><span class="s">&#39;td&#39;</span><span class="p">):</span>
+
+<span class="k">def</span> <span class="nf">_str_html_row</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">cell_tag</span><span class="o">=</span><span class="s">&#39;td&#39;</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  Helper function to construct a HTML table row from a list of string values.</span>
 <span class="sd">  row: list of row values</span>
 <span class="sd">  cell_tag = the HTML tag for a cell. Usually &#39;td&#39; or &#39;th&#39;</span>
 
+<span class="sd">  Used by _add_html_row_str</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="n">open_tag</span> <span class="o">=</span> <span class="s">&#39;&lt;&#39;</span> <span class="o">+</span> <span class="n">cell_tag</span> <span class="o">+</span> <span class="s">&#39;&gt;&#39;</span>
@@ -665,7 +932,7 @@
   <span class="k">return</span> <span class="n">row_str</span>
 
 
-</div>
+
 <div class="viewcode-block" id="float_html_row"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.float_html_row">[docs]</a><span class="k">def</span> <span class="nf">float_html_row</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">cell_tag</span><span class="o">=</span><span class="s">&#39;td&#39;</span><span class="p">,</span> <span class="n">decimal</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%.3f</span><span class="s">&quot;</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  Helper function to construct a HTML table row from a list of string values.</span>
@@ -686,7 +953,7 @@
 
   <span class="k">return</span> <span class="n">row_str</span>
 </div>
-<div class="viewcode-block" id="add_html_row"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.add_html_row">[docs]</a><span class="k">def</span> <span class="nf">add_html_row</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">t_str</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">row_tag</span> <span class="o">=</span> <span class="s">&#39;tr&#39;</span><span class="p">,</span> <span class="n">cell_tag</span> <span class="o">=</span> <span class="s">&#39;td&#39;</span> <span class="p">,</span> <span class="n">decimal</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%.3f</span><span class="s">&quot;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_add_html_row</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">t_str</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">row_tag</span> <span class="o">=</span> <span class="s">&#39;tr&#39;</span><span class="p">,</span> <span class="n">cell_tag</span> <span class="o">=</span> <span class="s">&#39;td&#39;</span> <span class="p">,</span> <span class="n">decimal</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%.3f</span><span class="s">&quot;</span><span class="p">):</span>
 
   <span class="n">open_tag</span> <span class="o">=</span> <span class="s">&#39;&lt;&#39;</span> <span class="o">+</span> <span class="n">row_tag</span> <span class="o">+</span> <span class="s">&#39;&gt;&#39;</span>
   <span class="n">close_tag</span> <span class="o">=</span> <span class="s">&#39;&lt;/&#39;</span> <span class="o">+</span> <span class="n">row_tag</span> <span class="o">+</span> <span class="s">&#39;&gt;&#39;</span>
@@ -694,19 +961,19 @@
   <span class="n">row_str</span> <span class="o">=</span> <span class="n">float_html_row</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">cell_tag</span> <span class="o">=</span> <span class="n">cell_tag</span><span class="p">,</span> <span class="n">decimal</span> <span class="o">=</span> <span class="n">decimal</span><span class="p">)</span>
 
   <span class="k">return</span> <span class="n">t_str</span> <span class="o">+</span> <span class="n">open_tag</span> <span class="o">+</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">row_str</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">close_tag</span>   
-</div>
-<div class="viewcode-block" id="add_html_row_str"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.add_html_row_str">[docs]</a><span class="k">def</span> <span class="nf">add_html_row_str</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">t_str</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">row_tag</span> <span class="o">=</span> <span class="s">&#39;tr&#39;</span><span class="p">,</span> <span class="n">cell_tag</span> <span class="o">=</span> <span class="s">&#39;td&#39;</span> <span class="p">):</span>
+
+<span class="k">def</span> <span class="nf">_add_html_row_str</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">t_str</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">row_tag</span> <span class="o">=</span> <span class="s">&#39;tr&#39;</span><span class="p">,</span> <span class="n">cell_tag</span> <span class="o">=</span> <span class="s">&#39;td&#39;</span> <span class="p">):</span>
 
   <span class="n">open_tag</span> <span class="o">=</span> <span class="s">&#39;&lt;&#39;</span> <span class="o">+</span> <span class="n">row_tag</span> <span class="o">+</span> <span class="s">&#39;&gt;&#39;</span>
   <span class="n">close_tag</span> <span class="o">=</span> <span class="s">&#39;&lt;/&#39;</span> <span class="o">+</span> <span class="n">row_tag</span> <span class="o">+</span> <span class="s">&#39;&gt;&#39;</span>
 
-  <span class="n">row_str</span> <span class="o">=</span> <span class="n">str_html_row</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">cell_tag</span> <span class="o">=</span> <span class="n">cell_tag</span><span class="p">)</span>
+  <span class="n">row_str</span> <span class="o">=</span> <span class="n">_str_html_row</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">cell_tag</span> <span class="o">=</span> <span class="n">cell_tag</span><span class="p">)</span>
 
   <span class="k">return</span> <span class="n">t_str</span> <span class="o">+</span> <span class="n">open_tag</span> <span class="o">+</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">row_str</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">close_tag</span>   
 
 
-</div>
-<div class="viewcode-block" id="add_html_rows"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.add_html_rows">[docs]</a><span class="k">def</span> <span class="nf">add_html_rows</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">t_str</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">row_tag</span> <span class="o">=</span> <span class="s">&#39;tr&#39;</span><span class="p">,</span> <span class="n">cell_tag</span> <span class="o">=</span> <span class="s">&#39;td&#39;</span><span class="p">,</span> <span class="n">format</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%.3f</span><span class="s">&quot;</span><span class="p">):</span>
+
+<span class="k">def</span> <span class="nf">_add_html_rows</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">t_str</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">row_tag</span> <span class="o">=</span> <span class="s">&#39;tr&#39;</span><span class="p">,</span> <span class="n">cell_tag</span> <span class="o">=</span> <span class="s">&#39;td&#39;</span><span class="p">,</span> <span class="n">format</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%.3f</span><span class="s">&quot;</span><span class="p">):</span>
 
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  Convert block of rows to HTML. Does not yet add table tags.</span>
@@ -717,16 +984,16 @@
   <span class="k">if</span> <span class="n">format</span> <span class="o">==</span> <span class="s">&quot;string&quot;</span><span class="p">:</span>
 
     <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">T</span><span class="p">:</span>
-      <span class="n">t_str</span> <span class="o">=</span> <span class="n">add_html_row_str</span><span class="p">(</span><span class="n">row</span> <span class="o">=</span> <span class="n">row</span><span class="p">,</span> <span class="n">t_str</span> <span class="o">=</span> <span class="n">t_str</span> <span class="p">,</span> <span class="n">row_tag</span> <span class="o">=</span> <span class="n">row_tag</span><span class="p">,</span> <span class="n">cell_tag</span> <span class="o">=</span> <span class="n">cell_tag</span><span class="p">)</span>
+      <span class="n">t_str</span> <span class="o">=</span> <span class="n">_add_html_row_str</span><span class="p">(</span><span class="n">row</span> <span class="o">=</span> <span class="n">row</span><span class="p">,</span> <span class="n">t_str</span> <span class="o">=</span> <span class="n">t_str</span> <span class="p">,</span> <span class="n">row_tag</span> <span class="o">=</span> <span class="n">row_tag</span><span class="p">,</span> <span class="n">cell_tag</span> <span class="o">=</span> <span class="n">cell_tag</span><span class="p">)</span>
 
   <span class="k">else</span><span class="p">:</span>
     <span class="c"># should check format string here with a regexp to avoid strange errors downstream.</span>
 
     <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">T</span><span class="p">:</span>
-      <span class="n">t_str</span> <span class="o">=</span> <span class="n">add_html_row</span><span class="p">(</span><span class="n">row</span> <span class="o">=</span> <span class="n">row</span><span class="p">,</span> <span class="n">t_str</span> <span class="o">=</span> <span class="n">t_str</span> <span class="p">,</span> <span class="n">row_tag</span> <span class="o">=</span> <span class="n">row_tag</span><span class="p">,</span> <span class="n">cell_tag</span> <span class="o">=</span> <span class="n">cell_tag</span><span class="p">,</span> <span class="n">decimal</span> <span class="o">=</span> <span class="n">format</span><span class="p">)</span>
+      <span class="n">t_str</span> <span class="o">=</span> <span class="n">_add_html_row</span><span class="p">(</span><span class="n">row</span> <span class="o">=</span> <span class="n">row</span><span class="p">,</span> <span class="n">t_str</span> <span class="o">=</span> <span class="n">t_str</span> <span class="p">,</span> <span class="n">row_tag</span> <span class="o">=</span> <span class="n">row_tag</span><span class="p">,</span> <span class="n">cell_tag</span> <span class="o">=</span> <span class="n">cell_tag</span><span class="p">,</span> <span class="n">decimal</span> <span class="o">=</span> <span class="n">format</span><span class="p">)</span>
 
   <span class="k">return</span> <span class="n">t_str</span>
-</div>
+
 <div class="viewcode-block" id="tryfloat"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.tryfloat">[docs]</a><span class="k">def</span> <span class="nf">tryfloat</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">nanval</span><span class="p">):</span>
 
   <span class="k">try</span><span class="p">:</span>
@@ -739,26 +1006,35 @@
 <div class="viewcode-block" id="tohtml"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.tohtml">[docs]</a><span class="k">def</span> <span class="nf">tohtml</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">H</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">D</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">topleft</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">table_tag</span> <span class="o">=</span> <span class="s">&#39;table&#39;</span><span class="p">,</span> <span class="n">format</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%.3f</span><span class="s">&quot;</span><span class="p">):</span>
 
   <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  T data</span>
-<span class="sd">  H header</span>
-<span class="sd">  D dates</span>
+<span class="sd">  Converts lists containing data, headers and dates to a HTML table.</span>
 
+<span class="sd"> </span>
+<span class="sd">  Args:</span>
+<span class="sd">       T: data</span>
+<span class="sd">       H: header</span>
+<span class="sd">       D: dates</span>
+<span class="sd">       topleft: string to fill topleft cell of table (e.g. a name)</span>
+<span class="sd">       table_tag: HTML tag to indicate table</span>
+<span class="sd">       format: string indicating the text formatting (see default).</span>
+
+<span class="sd">  Returns: </span>
+<span class="sd">       A string containing the HTML table only.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
 
   <span class="k">if</span> <span class="n">H</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">D</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
 
-      <span class="n">T_str</span>  <span class="o">=</span> <span class="n">add_html_row_str</span><span class="p">(</span>  <span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="n">topleft</span><span class="p">,]</span> <span class="o">+</span> <span class="n">H</span>  <span class="p">,</span> <span class="n">cell_tag</span> <span class="o">=</span> <span class="s">&#39;th&#39;</span> <span class="p">)</span>
+      <span class="n">T_str</span>  <span class="o">=</span> <span class="n">_add_html_row_str</span><span class="p">(</span>  <span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="n">topleft</span><span class="p">,]</span> <span class="o">+</span> <span class="n">H</span>  <span class="p">,</span> <span class="n">cell_tag</span> <span class="o">=</span> <span class="s">&#39;th&#39;</span> <span class="p">)</span>
       <span class="n">new_T</span> <span class="o">=</span> <span class="p">[]</span>
       <span class="k">for</span> <span class="n">line</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
          <span class="n">new_T</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">[</span><span class="n">D</span><span class="p">[</span><span class="n">line</span><span class="p">],</span> <span class="p">]</span> <span class="o">+</span> <span class="n">row</span>  <span class="p">)</span>
-      <span class="n">T_str</span> <span class="o">=</span> <span class="n">add_html_rows</span><span class="p">(</span><span class="n">t_str</span> <span class="o">=</span> <span class="n">T_str</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="n">new_T</span><span class="p">,</span> <span class="n">format</span> <span class="o">=</span> <span class="n">format</span><span class="p">)</span>
+      <span class="n">T_str</span> <span class="o">=</span> <span class="n">_add_html_rows</span><span class="p">(</span><span class="n">t_str</span> <span class="o">=</span> <span class="n">T_str</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="n">new_T</span><span class="p">,</span> <span class="n">format</span> <span class="o">=</span> <span class="n">format</span><span class="p">)</span>
 
     <span class="k">else</span><span class="p">:</span>
-      <span class="n">T_str</span>  <span class="o">=</span> <span class="n">add_html_row_str</span><span class="p">(</span> <span class="n">row</span> <span class="o">=</span>  <span class="n">H</span>  <span class="p">,</span> <span class="n">cell_tag</span> <span class="o">=</span> <span class="s">&#39;th&#39;</span> <span class="p">)</span>
+      <span class="n">T_str</span>  <span class="o">=</span> <span class="n">_add_html_row_str</span><span class="p">(</span> <span class="n">row</span> <span class="o">=</span>  <span class="n">H</span>  <span class="p">,</span> <span class="n">cell_tag</span> <span class="o">=</span> <span class="s">&#39;th&#39;</span> <span class="p">)</span>
   
-      <span class="n">T_str</span> <span class="o">=</span> <span class="n">add_html_rows</span><span class="p">(</span><span class="n">t_str</span> <span class="o">=</span> <span class="n">T_str</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="n">T</span><span class="p">,</span> <span class="n">format</span> <span class="o">=</span> <span class="n">format</span><span class="p">)</span>
+      <span class="n">T_str</span> <span class="o">=</span> <span class="n">_add_html_rows</span><span class="p">(</span><span class="n">t_str</span> <span class="o">=</span> <span class="n">T_str</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="n">T</span><span class="p">,</span> <span class="n">format</span> <span class="o">=</span> <span class="n">format</span><span class="p">)</span>
 
   <span class="k">else</span><span class="p">:</span>
 
@@ -768,10 +1044,10 @@
       <span class="n">new_T</span> <span class="o">=</span> <span class="p">[]</span>
       <span class="k">for</span> <span class="n">line</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
          <span class="n">new_T</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">[</span><span class="n">D</span><span class="p">[</span><span class="n">line</span><span class="p">],</span> <span class="p">]</span> <span class="o">+</span> <span class="n">row</span>  <span class="p">)</span>
-      <span class="n">T_str</span> <span class="o">=</span> <span class="n">add_html_rows</span><span class="p">(</span><span class="n">t_str</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="n">new_T</span><span class="p">)</span>
+      <span class="n">T_str</span> <span class="o">=</span> <span class="n">_add_html_rows</span><span class="p">(</span><span class="n">t_str</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="n">new_T</span><span class="p">)</span>
 
     <span class="k">else</span><span class="p">:</span>
-      <span class="n">T_str</span> <span class="o">=</span> <span class="n">add_html_rows</span><span class="p">(</span><span class="n">t_str</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="n">T</span><span class="p">)</span>
+      <span class="n">T_str</span> <span class="o">=</span> <span class="n">_add_html_rows</span><span class="p">(</span><span class="n">t_str</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">T</span> <span class="o">=</span> <span class="n">T</span><span class="p">)</span>
 
   <span class="n">table_open_tag</span> <span class="o">=</span> <span class="s">&#39;&lt;&#39;</span> <span class="o">+</span> <span class="n">table_tag</span> <span class="o">+</span> <span class="s">&#39;&gt;</span><span class="se">\n</span><span class="s">&#39;</span>
   <span class="n">table_close_tag</span> <span class="o">=</span> <span class="s">&#39;&lt;/&#39;</span> <span class="o">+</span> <span class="n">table_tag</span> <span class="o">+</span> <span class="s">&#39;&gt;&#39;</span>

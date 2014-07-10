@@ -93,8 +93,8 @@ class Report():
     """
 
 
-    Ls = split_list(L , size = len(L)/cols + 1)
-    Ls = transpose_list(Ls)
+    Ls = _split_list(L , size = len(L)/cols + 1)
+    Ls = _transpose_list(Ls)
  
 
     for LL in Ls:
@@ -182,26 +182,6 @@ class Report():
 
     return Report(value = self.value + other.value)
 
- 
-def print_box(L, cols = 5, numspace = 2):
-  """
-  Used for formatted output to stdout
-  """
-
-  for i, it in enumerate(L):
-    if (i%cols == 0):
-      print '\n', 
-    print '%-15s' % (it) ,
-
-def print_table(D, cols = 4, numspace = 2):
-  """
-  Used for formatted output to stdout
-  """
-
-  for i, k in enumerate(D.keys()):
-    if (2*i%cols == 0):
-      print '\n', 
-    print '%-15s %-15s' % (k , D[k]),
 
 
 def plural(n):
@@ -222,9 +202,9 @@ def plural(n):
     return 's'
 
 
-def split_list(L, size = 10):
+def _split_list(L, size = 10):
   """
-  Very general function splitting a list L into a list of sublists of equal length (and a remainder).
+  Very general function splitting a list L into a list of sublists of equal length (and a remainder). Used in text formatting functionality.
   """
 
   length = len(L)
@@ -237,9 +217,9 @@ def split_list(L, size = 10):
 
   return new_L
 
-def transpose_list(L):
+def _transpose_list(L):
   """
-  Transpose a list of lists.
+  Transpose a list of lists. Used in text formatting functionality.
 
   Args:
       L: list of lists to be transposed.
@@ -265,17 +245,17 @@ def transpose_list(L):
 
 def merge(A1,A2, sort = True):
   """
-  Merge two ndarrays or iterables and order them. 
+  _merge two ndarrays or iterables and order them. 
 
   Args:
-       A1: first array
-       A2: second array to be combined with first array
+       A1: first ndarray
+       A2: second ndarray to be combined with first array
        sort: flag. sort called on result if True.
 
   Returns:
        new_list: sorted list of combined values.
 
-  Used to merge Coord values.
+  Used to _merge Coord values.
   """
 
   L1 = list(A1)
@@ -332,27 +312,6 @@ def sublist(L,pick_vals):
   return sL	
 
 
-def mark_sublist(Lbig,Lsub, indicator ='*'):
-  """
-  Marks all strings in a list of strings that also occur in a sublist by appending an indicator (\*) at the end of those strings.
-
-  Args:
-       Lbig:	The larger list, of which the contained strings will be marked.
-       Lsub:	The list of strings that need to be marked
-       indicator:	string containing the marker.
-       
-  Returns: 
-       cLbig -- the list with marked strings
-  """
-
-  cLbig = []
-  for it in Lbig:
-    if it in Lsub:
-      it =   it +indicator
-  
-    cLbig.append(it)
-  
-  return cLbig    
 
 
 def add_alias(L):
@@ -418,7 +377,7 @@ def add_alias(L):
   return L
 
 
-def complete(comp_sets):
+def _complete(comp_sets):
   """
   Assigns attribute others to every element of a list of lists that is a list of all elements in the own group except the element itself. 
 
@@ -442,7 +401,7 @@ def complete(comp_sets):
 
   return
 
-def flat_list(L):
+def _flat_list(L):
   """Documentation to come.
   """
   W = list(itertools.chain(*L))
@@ -452,7 +411,7 @@ def flat_list(L):
   return W
 
 
-def rav_index(L,sh):
+def _rav_index(L,sh):
   """Documentation to come.
   """
   lsh = list(sh)
@@ -487,7 +446,7 @@ def rav_index(L,sh):
 
 def find_perm(left,right, verbose = True):
   """
-  Find a permutation to go from tuple argument left to right.
+  Find a permutation to obtain tuple (iterable) argument "right" from "left".
 
   Args:
        left: a tuple (or list)
@@ -574,7 +533,7 @@ def order_mag(val):
 
 
 
-def which_att(obj,att_list,fail_val = None):
+def _which_att(obj,att_list,fail_val = None):
   """
   Returns first element of list of names if it matches an attribute name of object, None otherwise.
 
@@ -600,7 +559,7 @@ def which_att(obj,att_list,fail_val = None):
 
 def get_att(obj, att_list,fail_val = None):
   """
-  Returns attribute value corresponding to first element of list of names if it matches an attribute name of object, None otherwise.
+  Returns attribute value corresponding to first element of a list of name strings that matches any attribute name of object, None otherwise.
 
   Args:
        obj: an object of which to examine the attributes
@@ -611,10 +570,10 @@ def get_att(obj, att_list,fail_val = None):
        attribute value that gives firs match in list, fail_val otherwise
 
   **See also**
-  which_att
+  _which_att
   """
 
-  this_att = which_att(obj, att_list)
+  this_att = _which_att(obj, att_list)
   if this_att is None:
     return fail_val
   else:
@@ -631,12 +590,16 @@ def id_index(L,e):
        e: an object of that same type.
        
   Returns: 
-      None or integer representing the index of e in L.
+       None or integer representing the index of e in L.
 
+  Used on both Ax and Coord objects in code. In Coord case, the & method is identical to the weaksame method.
 
   **See also**
   id_in
+  rem_equivs
+  __and__ methods of Ax and Coord class
   List method 'index'
+  
   """
 
   for i,it in enumerate(L):
@@ -658,11 +621,14 @@ def id_in(L,e):
        e: an object of that same type.
        
   Returns: 
-     True or False depending on whether there is an element e2 of L such that e&e2 is True
+       True or False depending on whether there is an element e2 of L such that e&e2 is True
 
+
+  Used on Ax objects in code.
 
   **See also**
-  id_in
+  id_index
+  rem_equivs
   List method 'index'
   """
 
@@ -672,6 +638,23 @@ def id_in(L,e):
   return False
 
 def rem_equivs(L):
+  """
+  Removes all all elements from list that are equivalent under &-relationship
+
+  Args:
+       L: list of objects that implement &-relationship
+      
+  Returns: 
+       A list of elements that are unique with respect to the &-relationship
+      
+
+  Uses function id_in.
+
+  **see also**
+  id_in
+  id_index
+
+  """
 
   L_new = []
 
@@ -684,6 +667,9 @@ def rem_equivs(L):
 
 
 def read(fname):
+  """
+  Open fname (full path) for simple reading and return data.
+  """
 
   data = None
 
@@ -694,7 +680,19 @@ def read(fname):
   return data
 
 
-def interp_line(line):
+def _parse_control_line(line):
+  """
+  Interpret the data within one named block of control file, including the name of the block.
+
+  Args:
+       line: string containing read data occurring inside a named block	
+       
+
+  Returns: 
+       (block_name, pairs) where pairs is a list of the (name, value) pairs interpreted from the control file and block_name is the name of the block.  
+
+  Helper function to function parse_control_file
+  """
 
   if line.replace(' ','') == '':
     return
@@ -740,31 +738,36 @@ def interp_line(line):
 def parse_control_file(fname,rem_chars = ['\n','/']):
 
   """
-  Read and parse a UVic/ MOM2 - style control file. Returns list(s) of (name, value) pairs found in the control file.
+  Read and parse a UVic/ MOM2 - style control file to yield list(s) of (name, value) pairs.
 
-  Input: fname full path to configuration file	
-  Output: La, L
-  La	list of (name, value) pairs of all parameters found in the control file, excluding names of parameter groups (generally preceded with & in file). If the same parameter name occurs more than once in the file, it is overwritten in the list (unique names are expected).
-  L	more detailed list. List of (parameter group name, list of (name, value) ) pairs, where the lists of (name, value) pairs belong to each parameter group name.
+  Args:
+       fname: full path to configuration file	
+       rem_chars: characters to ignore in file (defaults recommended)
 
+  Returns: 
+       La, L. Here, La is list of (name, value) pairs of all parameters found in the control file, excluding names of parameter groups (generally preceded with & in file). If the same parameter name occurs more than once in the file, it is overwritten in the list (unique names are expected). L is a more detailed list. List of (parameter group name, list of (name, value) ) pairs, where the lists of (name, value) pairs belong to each parameter group name.
 
+  Data is organized in named blocks. The names of these blocks are included in the second return value L, but not L_all. L_all contains the raw (name, value) pairs
   """
 
   data = read(fname) 
 
   if data:
-  
+    # Remove the chars to be ignored:
     for ec in rem_chars:
       data = data.replace(ec,'')
    
+    # identify lines not by \n but by &, indicating new block
     lines = data.split('&')
 
+    # obtain a list of (block name, list of (name,value) pair) pairs. 
     L = []
     for line in lines:
-      pair = interp_line(line)
+      pair = _parse_control_line(line)
       if pair:
         L.append(pair)
 
+    # obtain the first return value L_all by concatenating the lists of all (name, value) pairs for the list of (block name, list) pairs: 
     L_all = reduce(lambda x,y: x+y, [it[1] for it in L] )  
 
     return L_all, L
@@ -772,34 +775,40 @@ def parse_control_file(fname,rem_chars = ['\n','/']):
 
 def simple_glob(L, name_filter):
 
+  """
+  Very simple wildcard expansion on list of strings.
+ 
+  Args:
+       L: list of strings	
+       name_filter: the wildcard glob pattern (e.g. '*hello')
+
+  Returns: 
+       A list of strings that match.
+
+  Applies very simple shell wildcard \* expansion-type matching of argument name_filter on a list of strings, argument L, without using re module.
+  \* can only appear at beginning or end of name_filter (e.g. '\*foo\*').
+
+
+  E.g. name_filter = '\*oo' and L=['foo','bar'] yields ['foo']
     """
-    Applies very simple shell wildcard \* expansion-type matching of argument name_filter on a list of strings, argument L, without using re module.
-    \* can only appear at beginning or end of name_filter (e.g. '\*foo\*').
 
-
-    E.g. name_filter = '\*oo' and L=['foo','bar'] yields ['foo']
-
-  
-
-    """
-
-    if name_filter is None:
-      return L
-    else:
-      if name_filter[0] == '*' and name_filter[-1] != '*':
-        L = [ it for it in L if it.endswith(name_filter[1:])  ] 
-      elif name_filter[0] != '*' and name_filter[-1] == '*':
-        L = [ it for it in L if it.startswith(name_filter[:-1])  ] 
-      elif name_filter[0] == '*' and name_filter[-1] == '*':
-        L = [ it for it in L if name_filter[1:-1] in it  ] 
-      else:
-        L = [ it for it in L if name_filter == it  ] 
+  if name_filter is None:
     return L
+  else:
+    if name_filter[0] == '*' and name_filter[-1] != '*':
+      L = [ it for it in L if it.endswith(name_filter[1:])  ] 
+    elif name_filter[0] != '*' and name_filter[-1] == '*':
+      L = [ it for it in L if it.startswith(name_filter[:-1])  ] 
+    elif name_filter[0] == '*' and name_filter[-1] == '*':
+      L = [ it for it in L if name_filter[1:-1] in it  ] 
+    else:
+      L = [ it for it in L if name_filter == it  ] 
+  return L
 
 
 def end_of_filepath(path):
   """
-  utility that finds the last element of a path without using os module.
+  Little function that finds the last element of a path, without using os module.
   e.g. /foo/bar yields bar, as does /foo/bar/
 
   """
@@ -815,12 +824,13 @@ def end_of_filepath(path):
 # ------------- general time series related functions ----------------
 
 
-def str_html_row(row, cell_tag='td'):
+def _str_html_row(row, cell_tag='td'):
   """
   Helper function to construct a HTML table row from a list of string values.
   row: list of row values
   cell_tag = the HTML tag for a cell. Usually 'td' or 'th'
 
+  Used by _add_html_row_str
   """
 
   open_tag = '<' + cell_tag + '>'
@@ -837,7 +847,7 @@ def str_html_row(row, cell_tag='td'):
 
 
 
-def float_html_row(row, cell_tag='td', decimal = "%.3f"):
+def _float_html_row(row, cell_tag='td', decimal = "%.3f"):
   """
   Helper function to construct a HTML table row from a list of string values.
   row: list of row values
@@ -857,27 +867,27 @@ def float_html_row(row, cell_tag='td', decimal = "%.3f"):
 
   return row_str
 
-def add_html_row(row, t_str = '', row_tag = 'tr', cell_tag = 'td' , decimal = "%.3f"):
+def _add_html_row(row, t_str = '', row_tag = 'tr', cell_tag = 'td' , decimal = "%.3f"):
 
   open_tag = '<' + row_tag + '>'
   close_tag = '</' + row_tag + '>'
 
-  row_str = float_html_row(row, cell_tag = cell_tag, decimal = decimal)
+  row_str = _float_html_row(row, cell_tag = cell_tag, decimal = decimal)
 
   return t_str + open_tag +'\n' + row_str + '\n' + close_tag   
 
-def add_html_row_str(row, t_str = '', row_tag = 'tr', cell_tag = 'td' ):
+def _add_html_row_str(row, t_str = '', row_tag = 'tr', cell_tag = 'td' ):
 
   open_tag = '<' + row_tag + '>'
   close_tag = '</' + row_tag + '>'
 
-  row_str = str_html_row(row, cell_tag = cell_tag)
+  row_str = _str_html_row(row, cell_tag = cell_tag)
 
   return t_str + open_tag +'\n' + row_str + '\n' + close_tag   
 
 
 
-def add_html_rows(T, t_str = '', row_tag = 'tr', cell_tag = 'td', format = "%.3f"):
+def _add_html_rows(T, t_str = '', row_tag = 'tr', cell_tag = 'td', format = "%.3f"):
 
   """
   Convert block of rows to HTML. Does not yet add table tags.
@@ -888,17 +898,17 @@ def add_html_rows(T, t_str = '', row_tag = 'tr', cell_tag = 'td', format = "%.3f
   if format == "string":
 
     for row in T:
-      t_str = add_html_row_str(row = row, t_str = t_str , row_tag = row_tag, cell_tag = cell_tag)
+      t_str = _add_html_row_str(row = row, t_str = t_str , row_tag = row_tag, cell_tag = cell_tag)
 
   else:
     # should check format string here with a regexp to avoid strange errors downstream.
 
     for row in T:
-      t_str = add_html_row(row = row, t_str = t_str , row_tag = row_tag, cell_tag = cell_tag, decimal = format)
+      t_str = _add_html_row(row = row, t_str = t_str , row_tag = row_tag, cell_tag = cell_tag, decimal = format)
 
   return t_str
 
-def tryfloat(value, nanval):
+def _tryfloat(value, nanval):
 
   try:
     ret_val = float(value)
@@ -910,26 +920,35 @@ def tryfloat(value, nanval):
 def tohtml(T, H = None, D = None,topleft = '', table_tag = 'table', format = "%.3f"):
 
   """
-  T data
-  H header
-  D dates
+  Converts lists containing data, headers and dates to a HTML table.
 
+ 
+  Args:
+       T: data
+       H: header
+       D: dates
+       topleft: string to fill topleft cell of table (e.g. a name)
+       table_tag: HTML tag to indicate table
+       format: string indicating the text formatting (see default).
+
+  Returns: 
+       A string containing the HTML table only.
   """
 
 
   if H is not None:
     if D is not None:
 
-      T_str  = add_html_row_str(  row = [topleft,] + H  , cell_tag = 'th' )
+      T_str  = _add_html_row_str(  row = [topleft,] + H  , cell_tag = 'th' )
       new_T = []
       for line, row in enumerate(T):
          new_T.append( [D[line], ] + row  )
-      T_str = add_html_rows(t_str = T_str, T = new_T, format = format)
+      T_str = _add_html_rows(t_str = T_str, T = new_T, format = format)
 
     else:
-      T_str  = add_html_row_str( row =  H  , cell_tag = 'th' )
+      T_str  = _add_html_row_str( row =  H  , cell_tag = 'th' )
   
-      T_str = add_html_rows(t_str = T_str, T = T, format = format)
+      T_str = _add_html_rows(t_str = T_str, T = T, format = format)
 
   else:
 
@@ -939,10 +958,10 @@ def tohtml(T, H = None, D = None,topleft = '', table_tag = 'table', format = "%.
       new_T = []
       for line, row in enumerate(T):
          new_T.append( [D[line], ] + row  )
-      T_str = add_html_rows(t_str = '', T = new_T)
+      T_str = _add_html_rows(t_str = '', T = new_T)
 
     else:
-      T_str = add_html_rows(t_str = '', T = T)
+      T_str = _add_html_rows(t_str = '', T = T)
 
   table_open_tag = '<' + table_tag + '>\n'
   table_close_tag = '</' + table_tag + '>'
@@ -974,7 +993,7 @@ def fromcsv(raw_string,row_header=0,col_dates=0,data_start_row =1,data_start_col
   T = []
   for row in ROWS[data_start_row:]:
     cols = row.split(separator)
-    row_list = [tryfloat(e,nanval) for e in cols[data_start_col:]]
+    row_list = [_tryfloat(e,nanval) for e in cols[data_start_col:]]
 
     if row_list:
       T.append(row_list)

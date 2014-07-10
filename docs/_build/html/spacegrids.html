@@ -101,18 +101,21 @@
 <dl class="method">
 <dt id="spacegrids.expercls.Exper.load">
 <tt class="descname">load</tt><big>(</big><em>varnames</em>, <em>squeeze_field=True</em>, <em>ax=None</em>, <em>name_suffix='_cat'</em>, <em>new_coord_name='gamma'</em>, <em>new_coord=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/expercls.html#Exper.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.expercls.Exper.load" title="Permalink to this definition">¶</a></dt>
-<dd><p>Field load method of Exper .</p>
-<p>Load a variable or list of variables contained in varnames. Takes either a single string or a list of strings. If multiple files inside a directory contain the same variable, this method will attempt to concatenate them (e.g. in the case where there are different time slices).</p>
-<p>Inputs:
-varnames            list of the variable names to load
-squeeze_field       switch to squeeze Field on loading (default True)</p>
-<p>The following arguments are passed on to the concatenate function:
-ax                  
-name_suffix
-new_coord_name
-new_coord</p>
+<dd><p>Load a variable or list of variables contained in varnames.</p>
+<p>Takes either a single string or a list of strings. If multiple files inside a directory contain the same variable, this method will attempt to concatenate them (e.g. in the case where there are different time slices).</p>
 <p>if self.path is to a file (likely to be an Experiment file), the variable will be loaded from that file.
 if self.path is to a directory (likely to be an experiment dir), the variable will be loaded from Netcdf files inside that directory.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>varnames: list of the variable names to load
+squeeze_field: switch to squeeze Field on loading (default True)       
+ax: passed on to the concatenate function                      
+name_suffix: passed on to the concatenate function
+new_coord_name: passed on to the concatenate function
+new_coord: passed on to the concatenate function</dd>
+<dt>Returns:</dt>
+<dd>None</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1032,7 +1035,7 @@ This is the lowest level mask read function in sg.</p>
 
 <dl class="class">
 <dt id="spacegrids.ops.If">
-<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">If</tt><big>(</big><em>Cond_Op</em>, <em>True_Op</em>, <em>Else_Op=&lt;spacegrids.ops.Identity object at 0xa21952c&gt;</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#If"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.If" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">If</tt><big>(</big><em>Cond_Op</em>, <em>True_Op</em>, <em>Else_Op=&lt;spacegrids.ops.Identity object at 0xb7e642c&gt;</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#If"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.If" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
 </dd></dl>
 
@@ -1398,32 +1401,116 @@ fname         (default projname) the filename to look for and read the content o
 <dl class="class">
 <dt id="spacegrids.utilsg.Report">
 <em class="property">class </em><tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">Report</tt><big>(</big><em>value=''</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#Report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.Report" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reporting class containing useful method for building a string containing messages.</p>
+<dd><blockquote>
+<div><p>Reporting class containing useful method for building a string containing messages.</p>
+<blockquote>
+<div><p><strong>Attributes</strong></p>
+<p>value : <cite>str</cite> The reporting string being built</p>
+<p><strong>Methods</strong></p>
+<p>See online documentation</p>
+<p><strong>Notes</strong></p>
+<p>see interactive help for a full listing of methods with doc</p>
+<p><strong>See Also</strong></p>
+<p><strong>Examples</strong></p>
+</div></blockquote>
+</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spacegrids</span> <span class="kn">as</span> <span class="nn">sg</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">REP</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Report</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">REP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&#39;---&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">REP</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s">&#39;a test&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">REP</span><span class="o">.</span><span class="n">line</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">D</span> <span class="o">=</span><span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s">&#39;b&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="s">&#39;c&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="s">&#39;d&#39;</span><span class="p">:</span><span class="mi">5</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">REP</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">REP</span>
+<span class="go">---</span>
+<span class="go">a test</span>
+<span class="go">----------</span>
+
+<span class="go">a               1              c               3              </span>
+<span class="go">b               2              d               5              </span>
+</pre></div>
+</div>
 <dl class="method">
 <dt id="spacegrids.utilsg.Report.block">
 <tt class="descname">block</tt><big>(</big><em>L</em>, <em>delim='\ '</em>, <em>width=12</em>, <em>cols=4</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#Report.block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.Report.block" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Creates string to display list of strings as a deliminated rows x cols block.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>L: list of strings
+delim: delimiter character passed to block method
+width: width in characters of each cell (int)
+cols: number of columns of block (int)</dd>
+<dt>Returns:</dt>
+<dd>None</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="spacegrids.utilsg.Report.echo">
 <tt class="descname">echo</tt><big>(</big><em>what=''</em>, <em>delim=' '</em>, <em>maxlen=10</em>, <em>width=12</em>, <em>cols=4</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#Report.echo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.Report.echo" title="Permalink to this definition">¶</a></dt>
-<dd><p>Doc here</p>
+<dd><p>Insert a string into Report value.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>what: string to insert (default &#8216;&#8217;) or list/ tuple of strings
+delim: delimiter character passed to block method
+maxlen: max length (int) passed to block method
+width: int passed to block method
+cols: int passed to block method</dd>
+<dt>Returns:</dt>
+<dd>None</dd>
+</dl>
+<p>If &#8216;what&#8217; is a list of strings, the block method will be used to embed a table of the strings into the Report value.</p>
+<p><strong>See Also</strong>
+echoln method</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="spacegrids.utilsg.Report.echoln">
 <tt class="descname">echoln</tt><big>(</big><em>what=''</em>, <em>delim=' '</em>, <em>maxlen=10</em>, <em>width=12</em>, <em>cols=4</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#Report.echoln"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.Report.echoln" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><blockquote>
+<div><p>Insert a string on a new line into Report value.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>what: string to insert (default &#8216;&#8217;) or list/ tuple of strings
+delim: delimiter character passed to block method
+maxlen: max length (int) passed to block method
+width: int passed to block method
+cols: int passed to block method</dd>
+<dt>Returns:</dt>
+<dd>A Report object with updated value attribute.</dd>
+</dl>
+<p>This is the echo method with a &#8216;</p>
+</div></blockquote>
+<p>&#8216; appended.</p>
+<blockquote>
+<div><strong>See Also</strong>
+echo method</div></blockquote>
+</dd></dl>
 
 <dl class="method">
 <dt id="spacegrids.utilsg.Report.line">
 <tt class="descname">line</tt><big>(</big><em>char='-'</em>, <em>times=10</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#Report.line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.Report.line" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Insert a line of &#8212; characters on a new line into Report value.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>char: string containing character used for line (default &#8216;-&#8216;)
+times: the number of times char is repeated</dd>
+<dt>Returns:</dt>
+<dd>None.</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="spacegrids.utilsg.Report.table">
-<tt class="descname">table</tt><big>(</big><em>D</em>, <em>cols=4</em>, <em>numspace=2</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#Report.table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.Report.table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Doc here</p>
+<tt class="descname">table</tt><big>(</big><em>D</em>, <em>cols=4</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#Report.table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.Report.table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a table based on dictionary D.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>D: dictionary of name:value pairs to be included in table
+cols: number of columns of table (int)</dd>
+<dt>Returns:</dt>
+<dd>None</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -1435,7 +1522,7 @@ fname         (default projname) the filename to look for and read the content o
 <blockquote>
 <div><dl class="docutils">
 <dt>Args:</dt>
-<dd>L:       list of Coord objects (or any objects with a name attribute).</dd>
+<dd>L: list of Coord objects (or any objects with a name attribute).</dd>
 <dt>Returns: </dt>
 <dd>A list &#8211; the list L with alias attributes added</dd>
 </dl>
@@ -1469,55 +1556,40 @@ instead of name if the alias attribute is available.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="spacegrids.utilsg.add_html_row">
-<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">add_html_row</tt><big>(</big><em>row</em>, <em>t_str=''</em>, <em>row_tag='tr'</em>, <em>cell_tag='td'</em>, <em>decimal='%.3f'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#add_html_row"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.add_html_row" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.utilsg.add_html_row_str">
-<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">add_html_row_str</tt><big>(</big><em>row</em>, <em>t_str=''</em>, <em>row_tag='tr'</em>, <em>cell_tag='td'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#add_html_row_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.add_html_row_str" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.utilsg.add_html_rows">
-<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">add_html_rows</tt><big>(</big><em>T</em>, <em>t_str=''</em>, <em>row_tag='tr'</em>, <em>cell_tag='td'</em>, <em>format='%.3f'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#add_html_rows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.add_html_rows" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert block of rows to HTML. Does not yet add table tags.
-format argument determines whether data is string (value &#8220;string&#8221; passed) or float (formatting string passed).</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="spacegrids.utilsg.complete">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">complete</tt><big>(</big><em>comp_sets</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#complete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.complete" title="Permalink to this definition">¶</a></dt>
-<dd><p>Expects a list or tuple of tuples (or lists).
-E.g. 
+<dd><p>Assigns attribute others to every element of a list of lists that is a list of all elements in the own group except the element itself.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>comp_sets: a list or tuple of tuples (or lists).</dd>
+<dt>Returns: </dt>
+<dd>None</dd>
+</dl>
+<p>E.g. 
 ((xt,yt,zt),(xu,yu,zw))
-It then assignes an attribute others to every element xt,yt,...  that is a tuple containing all other elements in the subset except the element itself.</p>
+It then assigns an attribute others to every element xt,yt,...  that is a tuple containing all other elements in the subset except the element itself.</p>
 <p>i.e. xt.others = (yt,zt)</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.utilsg.dist_angle">
-<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">dist_angle</tt><big>(</big><em>angles</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#dist_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.dist_angle" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.utilsg.end_of_filepath">
-<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">end_of_filepath</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#end_of_filepath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.end_of_filepath" title="Permalink to this definition">¶</a></dt>
-<dd><p>utility that finds the last element of a path without using os module.
-e.g. /foo/bar yields bar, as does /foo/bar/</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="spacegrids.utilsg.find_perm">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">find_perm</tt><big>(</big><em>left</em>, <em>right</em>, <em>verbose=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#find_perm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.find_perm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Inputs: a,b tuples or lists of equal length containing the same elements, possibly permuted.</p>
-<p>Output: a tuple of indices perm such that [left[i] for i in perm] = right</p>
+<dd><p>Find a permutation to obtain tuple (iterable) argument &#8220;right&#8221; from &#8220;left&#8221;.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>left: a tuple (or list)
+right: a tuple (or list)</dd>
+<dt>Returns: </dt>
+<dd>None or perm, a permutation such that [left[i] for i in perm] = right</dd>
+</dl>
+<p>If left and right are of equal length and contain the same elements up to their order, a permutation will be returned.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="spacegrids.utilsg.flat_list">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">flat_list</tt><big>(</big><em>L</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#flat_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.flat_list" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Documentation to come.</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="spacegrids.utilsg.float_html_row">
@@ -1536,22 +1608,52 @@ cell_tag = the HTML tag for a cell. Usually &#8216;td&#8217; or &#8216;th&#8217;
 <dl class="function">
 <dt id="spacegrids.utilsg.get_att">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">get_att</tt><big>(</big><em>obj</em>, <em>att_list</em>, <em>fail_val=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#get_att"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.get_att" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns attribute value corresponding to first element of list of names if it matches an attribute name of object, None otherwise.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>obj: an object of which to examine the attributes
+att_list: an iterable containing strings
+fail_val: value to return if att_list elements not in object attribute names</dd>
+<dt>Returns: </dt>
+<dd>attribute value that gives firs match in list, fail_val otherwise</dd>
+</dl>
+<p><strong>See also</strong>
+which_att</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="spacegrids.utilsg.id_in">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">id_in</tt><big>(</big><em>L</em>, <em>e</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#id_in"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.id_in" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Same as in function for lists, but with equality defined as &amp;.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>L: list of objects that implement &amp;-equality
+e: an object of that same type.</dd>
+<dt>Returns: </dt>
+<dd>True or False depending on whether there is an element e2 of L such that e&amp;e2 is True</dd>
+</dl>
+<p><strong>See also</strong>
+id_index
+rem_equivs
+List method &#8216;index&#8217;</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="spacegrids.utilsg.id_index">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">id_index</tt><big>(</big><em>L</em>, <em>e</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#id_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.id_index" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.utilsg.interp_line">
-<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">interp_line</tt><big>(</big><em>line</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#interp_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.interp_line" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Same as index method of lists, but with equality defined as &amp;.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>L: list of objects that implement &amp;-equality
+e: an object of that same type.</dd>
+<dt>Returns: </dt>
+<dd>None or integer representing the index of e in L.</dd>
+</dl>
+<p><strong>See also</strong>
+id_in
+rem_equivs
+List method &#8216;index&#8217;</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="spacegrids.utilsg.mark_sublist">
@@ -1585,16 +1687,49 @@ sort: flag. sort called on result if True.</dd>
 <dl class="function">
 <dt id="spacegrids.utilsg.order_mag">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">order_mag</tt><big>(</big><em>val</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#order_mag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.order_mag" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><blockquote>
+<div><p>Find order of magnitude of value.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>val: float</dd>
+<dt>Returns: </dt>
+<dd>order of magnitude of val</dd>
+</dl>
+<p><strong>Examples</strong></p>
+</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spacegrids</span> <span class="kn">as</span> <span class="nn">sg</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sg</span><span class="o">.</span><span class="n">order_mag</span><span class="p">(</span><span class="mf">1140.</span><span class="p">)</span>
+<span class="go">3.0</span>
+</pre></div>
+</div>
+</dd></dl>
 
 <dl class="function">
 <dt id="spacegrids.utilsg.parse_control_file">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">parse_control_file</tt><big>(</big><em>fname, rem_chars=['\n', '/']</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#parse_control_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.parse_control_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read and parse a UVic/ MOM2 - style control file. Returns list(s) of (name, value) pairs found in the control file.</p>
-<p>Input: fname full path to configuration file  
-Output: La, L
-La    list of (name, value) pairs of all parameters found in the control file, excluding names of parameter groups (generally preceded with &amp; in file). If the same parameter name occurs more than once in the file, it is overwritten in the list (unique names are expected).
-L     more detailed list. List of (parameter group name, list of (name, value) ) pairs, where the lists of (name, value) pairs belong to each parameter group name.</p>
+<dd><p>Read and parse a UVic/ MOM2 - style control file to yield list(s) of (name, value) pairs.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>fname: full path to configuration file   
+rem_chars: characters to ignore in file (defaults recommended)</dd>
+<dt>Returns: </dt>
+<dd>La, L. Here, La is list of (name, value) pairs of all parameters found in the control file, excluding names of parameter groups (generally preceded with &amp; in file). If the same parameter name occurs more than once in the file, it is overwritten in the list (unique names are expected). L is a more detailed list. List of (parameter group name, list of (name, value) ) pairs, where the lists of (name, value) pairs belong to each parameter group name.</dd>
+</dl>
+<p>Data is organized in named blocks. The names of these blocks are included in the second return value L, but not L_all. L_all contains the raw (name, value) pairs</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.plural">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">plural</tt><big>(</big><em>n</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#plural"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.plural" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine whether to use plural of a word describing a qty n of something.</p>
+<blockquote>
+<div>Used in stdout messages that mention quantities of something.</div></blockquote>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>n: int or float, the quantity of the thing that is reported on.</dd>
+<dt>Returns:</dt>
+<dd>A string that is &#8216;&#8217; or &#8216;s&#8217;, indicating a grammatical plural or singular.</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1612,43 +1747,58 @@ L     more detailed list. List of (parameter group name, list of (name, value) )
 <dl class="function">
 <dt id="spacegrids.utilsg.rav_index">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">rav_index</tt><big>(</big><em>L</em>, <em>sh</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#rav_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.rav_index" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Documentation to come.</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="spacegrids.utilsg.read">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">read</tt><big>(</big><em>fname</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.read" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Open fname (full path) for simple reading and return data.</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="spacegrids.utilsg.rem_equivs">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">rem_equivs</tt><big>(</big><em>L</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#rem_equivs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.rem_equivs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Removes all all elements from list that are equivalent under &amp;-relationship</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>L: list of objects that implement &amp;-relationship</dd>
+<dt>Returns: </dt>
+<dd>A list of elements that are unique with respect to the &amp;-relationship</dd>
+</dl>
+<p>Uses function id_in.</p>
+<p><strong>see also</strong>
+id_in
+id_index</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="spacegrids.utilsg.round_order">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">round_order</tt><big>(</big><em>value</em>, <em>order=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#round_order"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.round_order" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.utilsg.simple_glob">
-<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">simple_glob</tt><big>(</big><em>L</em>, <em>name_filter</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#simple_glob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.simple_glob" title="Permalink to this definition">¶</a></dt>
-<dd><p>Applies very simple shell wildcard * expansion-type matching of argument name_filter on a list of strings, argument L, without using re module.
-* can only appear at beginning or end of name_filter (e.g. &#8216;*foo*&#8217;).</p>
-<p>E.g. name_filter = &#8216;*oo&#8217; and L=[&#8216;foo&#8217;,&#8217;bar&#8217;] yields [&#8216;foo&#8217;]</p>
+<dd><blockquote>
+<div><p>Round value up to order of magnitude order.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>value: float
+order:  (int) the order to which to round value (e.g. order=2 is 100)</dd>
+<dt>Returns: </dt>
+<dd>value rounded to the order &#8216;order&#8217;</dd>
+</dl>
+<p><strong>Examples</strong></p>
+</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spacegrids</span> <span class="kn">as</span> <span class="nn">sg</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sg</span><span class="o">.</span><span class="n">round_order</span><span class="p">(</span><span class="mf">1140.</span><span class="p">,</span><span class="mf">2.</span><span class="p">)</span>
+<span class="go">1100.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sg</span><span class="o">.</span><span class="n">round_order</span><span class="p">(</span><span class="mf">1140.</span><span class="p">,</span><span class="mf">1.</span><span class="p">)</span>
+<span class="go">1140.0</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="function">
 <dt id="spacegrids.utilsg.split_list">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">split_list</tt><big>(</big><em>L</em>, <em>size=10</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#split_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.split_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Very general function splitting a list L into a list of sublists of equal length (and a remainder).</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.utilsg.str_html_row">
-<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">str_html_row</tt><big>(</big><em>row</em>, <em>cell_tag='td'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#str_html_row"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.str_html_row" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper function to construct a HTML table row from a list of string values.
-row: list of row values
-cell_tag = the HTML tag for a cell. Usually &#8216;td&#8217; or &#8216;th&#8217;</p>
 </dd></dl>
 
 <dl class="function">
@@ -1678,9 +1828,18 @@ D list of dates. Must be of length len(T)</p>
 <dl class="function">
 <dt id="spacegrids.utilsg.tohtml">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">tohtml</tt><big>(</big><em>T</em>, <em>H=None</em>, <em>D=None</em>, <em>topleft=''</em>, <em>table_tag='table'</em>, <em>format='%.3f'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#tohtml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.tohtml" title="Permalink to this definition">¶</a></dt>
-<dd><p>T data
-H header
-D dates</p>
+<dd><p>Converts lists containing data, headers and dates to a HTML table.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>T: data
+H: header
+D: dates
+topleft: string to fill topleft cell of table (e.g. a name)
+table_tag: HTML tag to indicate table
+format: string indicating the text formatting (see default).</dd>
+<dt>Returns: </dt>
+<dd>A string containing the HTML table only.</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1703,7 +1862,18 @@ D dates</p>
 <dl class="function">
 <dt id="spacegrids.utilsg.which_att">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">which_att</tt><big>(</big><em>obj</em>, <em>att_list</em>, <em>fail_val=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#which_att"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.which_att" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns first element of list of names if it matches an attribute name of object, None otherwise.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>obj: an object of which to examine the attributes
+att_list: an iterable containing strings
+fail_val: value to return if att_list elements not in object attribute names</dd>
+<dt>Returns: </dt>
+<dd>attribute name that gives firs match in list, fail_val otherwise</dd>
+</dl>
+<p><strong>See also</strong>
+get_att</p>
+</dd></dl>
 
 </div>
 <div class="section" id="module-spacegrids">

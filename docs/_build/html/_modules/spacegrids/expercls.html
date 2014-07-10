@@ -87,12 +87,7 @@
     <span class="k">if</span> <span class="n">loaded_fields</span><span class="p">:</span>
       <span class="n">REP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="n">loaded_fields</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">length</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-      <span class="n">plural</span> <span class="o">=</span> <span class="s">&#39;s&#39;</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="n">plural</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
-
-    <span class="n">REP</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s">&#39;Exper using </span><span class="si">%1.2f</span><span class="s"> Mb. </span><span class="si">%i</span><span class="s"> field</span><span class="si">%s</span><span class="s"> loaded.  &#39;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nbytes</span><span class="o">/</span><span class="mf">1024.</span><span class="o">/</span><span class="mf">1024.</span>  <span class="p">,</span><span class="n">length</span>  <span class="p">,</span> <span class="n">plural</span> <span class="p">)</span> <span class="p">)</span>
+    <span class="n">REP</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s">&#39;Exper using </span><span class="si">%1.2f</span><span class="s"> Mb. </span><span class="si">%i</span><span class="s"> field</span><span class="si">%s</span><span class="s"> loaded.  &#39;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nbytes</span><span class="o">/</span><span class="mf">1024.</span><span class="o">/</span><span class="mf">1024.</span>  <span class="p">,</span><span class="n">length</span>  <span class="p">,</span> <span class="n">plural</span><span class="p">(</span><span class="n">length</span><span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
 
     <span class="k">print</span> <span class="n">REP</span><span class="o">.</span><span class="n">value</span>
     
@@ -250,23 +245,24 @@
       </div>
 <div class="viewcode-block" id="Exper.load"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.load">[docs]</a>  <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">varnames</span><span class="p">,</span> <span class="n">squeeze_field</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name_suffix</span><span class="o">=</span><span class="s">&#39;_cat&#39;</span><span class="p">,</span> <span class="n">new_coord_name</span> <span class="o">=</span> <span class="s">&#39;gamma&#39;</span><span class="p">,</span> <span class="n">new_coord</span><span class="o">=</span> <span class="bp">None</span> <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Field load method of Exper .</span>
+<span class="sd">    Load a variable or list of variables contained in varnames. </span>
 
-<span class="sd">    Load a variable or list of variables contained in varnames. Takes either a single string or a list of strings. If multiple files inside a directory contain the same variable, this method will attempt to concatenate them (e.g. in the case where there are different time slices).</span>
+<span class="sd">    Takes either a single string or a list of strings. If multiple files inside a directory contain the same variable, this method will attempt to concatenate them (e.g. in the case where there are different time slices).</span>
 
-<span class="sd">    Inputs:</span>
-<span class="sd">    varnames		list of the variable names to load</span>
-<span class="sd">    squeeze_field	switch to squeeze Field on loading (default True)	</span>
-
-<span class="sd">    The following arguments are passed on to the concatenate function:</span>
-<span class="sd">    ax			</span>
-<span class="sd">    name_suffix</span>
-<span class="sd">    new_coord_name</span>
-<span class="sd">    new_coord</span>
-<span class="sd"> </span>
 <span class="sd">    if self.path is to a file (likely to be an Experiment file), the variable will be loaded from that file.</span>
 <span class="sd">    if self.path is to a directory (likely to be an experiment dir), the variable will be loaded from Netcdf files inside that directory.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">         varnames: list of the variable names to load</span>
+<span class="sd">         squeeze_field:	switch to squeeze Field on loading (default True)	</span>
+<span class="sd">         ax: passed on to the concatenate function			</span>
+<span class="sd">         name_suffix: passed on to the concatenate function</span>
+<span class="sd">         new_coord_name: passed on to the concatenate function</span>
+<span class="sd">         new_coord: passed on to the concatenate function</span>
+
+
+<span class="sd">    Returns:</span>
+<span class="sd">         None</span>
 <span class="sd">    &quot;&quot;&quot;</span>  
 
 <span class="c"># --&gt; this load is a method of  Exper</span>
@@ -312,23 +308,17 @@
            
             <span class="n">F</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cdfread</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span><span class="n">varname</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">cstack</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">))</span>
             <span class="n">fnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fnm</span><span class="p">)</span>
-<span class="c">#          break</span>
-          <span class="nb">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
+          <span class="nb">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
      
       <span class="k">if</span> <span class="n">F</span> <span class="o">==</span> <span class="p">[]:</span>
      
         <span class="k">print</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> for </span><span class="si">%s</span><span class="s"> could not be read.&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> 
 
-<span class="c">#        self.vars[varname] = None</span>
       <span class="k">else</span><span class="p">:</span>
         <span class="n">num_files</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>
-        <span class="c"># determine whether to use plural of word &#39;file&#39; in stdout message.</span>
-        <span class="k">if</span> <span class="n">num_files</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-          <span class="n">plural</span> <span class="o">=</span> <span class="s">&#39;s&#39;</span>
-        <span class="k">else</span><span class="p">:</span>
-          <span class="n">plural</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
-        <span class="k">print</span> <span class="s">&#39;OK. Fetched Field </span><span class="si">%s</span><span class="s"> for </span><span class="si">%s</span><span class="s">. </span><span class="si">%s</span><span class="s"> file</span><span class="si">%s</span><span class="s"> found.&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span><span class="n">num_files</span><span class="p">,</span><span class="n">plural</span><span class="p">)</span>
+
+        <span class="k">print</span> <span class="s">&#39;OK. Fetched Field </span><span class="si">%s</span><span class="s"> for </span><span class="si">%s</span><span class="s">. </span><span class="si">%s</span><span class="s"> file</span><span class="si">%s</span><span class="s"> found.&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span><span class="n">num_files</span><span class="p">,</span><span class="n">plural</span><span class="p">(</span><span class="n">num_files</span><span class="p">)</span> <span class="p">)</span>
 
         <span class="n">new_field</span> <span class="o">=</span> <span class="n">concatenate</span><span class="p">(</span><span class="n">F</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">name_suffix</span><span class="o">=</span><span class="n">name_suffix</span><span class="p">,</span> <span class="n">new_coord_name</span> <span class="o">=</span> <span class="n">new_coord_name</span><span class="p">,</span> <span class="n">strings</span> <span class="o">=</span> <span class="n">fnames</span><span class="p">,</span> <span class="n">new_coord</span><span class="o">=</span> <span class="n">new_coord</span>   <span class="p">)</span>
 

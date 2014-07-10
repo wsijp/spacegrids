@@ -144,7 +144,7 @@ class Exper(object):
 #  def cdf(self):
 # --> method of  Exper        
 #    print 'Netcdf variables available (loaded marked **):'
-#    print_box(mark_sublist(self.var_names,self.vars.keys()))
+#    _print_box(mark_sublist(self.var_names,self.vars.keys()))
       
 
 

@@ -89,7 +89,8 @@ class Coord(object):
 
 
   def __and__(self,other):
-
+    """Shorthand for weaksame method. See weaksame.
+    """
     return self.weaksame(other = other)
 
   def weaksame(self,other):
@@ -136,7 +137,7 @@ class Coord(object):
     
     for arg in values:
       if (arg in self.__dict__):
-
+     
           if values[arg] is None:
             values[arg] = self.__dict__[arg]
 
@@ -721,7 +722,7 @@ To be overriden by coord_edge derived objects to yield a function from fields to
 class XCoord(Coord):
 
 
-  def copy(self,name = None,value = None, axis = None,direction = None,units = None, long_name = None, strings = None, equiv = True):
+  def copy(self,name = None,value = None, dual = None, axis = None,direction = None,units = None, long_name = None, metadata = None, strings = None, equiv = True):
     """
     Copy function for Coord objects. If equiv = True, the copies will be equivalent.
     Copies with identical key attributes that are not equivalent will yield a severe warning about this when equivalance is tested with the ^ operator.
@@ -905,7 +906,7 @@ class XCoord(Coord):
 
 class YCoord(Coord):
 
-  def copy(self,name = None,value = None, axis = None,direction = None,units = None, long_name = None, strings = None, equiv = True):
+  def copy(self,name = None,value = None, dual = None, axis = None,direction = None,units = None, long_name = None, metadata = None, strings = None, equiv = True):
 
     """
     Copy function for Coord objects. If equiv = True, the copies will be equivalent.
@@ -989,6 +990,29 @@ class Ax(object):
 
 
   def __and__(self,other):
+    """ Shorthand for weaksame method. See weaksame.
+    """
+    return self.weaksame(other)
+
+  def weaksame(self,other):
+    """
+    Tests if two Ax objects have the same name.
+
+    Weak test to see if two Ax objects are similar.
+
+    Args:
+         other: other Ax object to compare self with
+       
+    Returns: 
+         True/ False
+
+    **See also**
+    same method
+    samein method
+    sameindex method
+    Coord weaksame method
+    """
+
     if (self.name == other.name):
       return True
     else:
