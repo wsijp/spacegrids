@@ -211,8 +211,8 @@ class Project(object):
   # --> method belongs to Project	    
   def ad_mask(self,sub_dir = mask_dir,grid = False, msk_val = 2):
 
-#    print read_masks(self.path + sub_dir, grid = grid, msk_val = msk_val, parent = self)
-    self.masks = read_masks(self.path + sub_dir, grid = grid, msk_val = msk_val, parent = self)
+#    print read_masks(self.path + sub_dir, grid = grid, msk_val = msk_val)
+    self.masks = read_masks(self.path + sub_dir, grid = grid, msk_val = msk_val)
 
     
   def __getitem__(self,val):
@@ -340,7 +340,7 @@ class Project(object):
 
       cstack = cdfsniff(os.path.join(self.path, expname) )
 
-      self.expers[expname] = Exper(path = self.path,name = expname, cstack = cstack, descr = descr, parent = self)
+      self.expers[expname] = Exper(path = self.path,name = expname, cstack = cstack, descr = descr)
 
     self.update_nbytes()
     return 

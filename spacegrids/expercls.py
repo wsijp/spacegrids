@@ -21,12 +21,45 @@ warnings.formatwarning = warning_on_one_line
 # ---------------- Class definition for experiments -----------
 
 class Exper(object):
-  
+  """
+  Represents experiment data sets. Corresponds to (collections of) Netcdf File(s).
+
+  Attributes:
+    axes: (list of Ax objects) link to axes list belonging to project (same list for all Exper objects). Generally constructed from Netcdf data
+    coords: (dictionary of name vs Coord objects) for easy reference, see cstack
+    cstack: (list of Coord objectd) the coordinate stack of all Coord objects constructed for this experiment
+    descr: (str) an optional description of this experiment.
+    name: (str) the name of this experiment. Generally derived from data file name
+    nbytes: (int) approximate memory usage of experiment in bytes
+    params: (dictionary of name value pairs) collection of single value named parameters (e.g. co2 vs 280)
+    path: (str) full path on filesystem to experiment directory or file 
+    vars: (dictionary of name vs Field objects) contains the loaded Fields (e.g. a 3D dataset of temperature)  
+
+
+  The general workflow starts with the creation of a Project object (providing a path to a project directory). This will lead sg to look through the project directory for subdirectories and Netcdf files (based on the file suffix). An Exper object is created for each subdir and Netcdf file found, and added to the project. So an Exper object may represent either a subdirectory of a project directory or a specific Netcdf file inside that project directory (recorded in the 'path' attribute). Each Exper with name attribute 'foo' can then be accessed via P['foo']. This procedure provides groundwork by interpreting axis and coordinate date found in the Netcdf files (inside the subdirectories in the case where the Exper object represents a subdirectory) and adding this information to the Exper objects (see Attributes). Once this structure is established, specific data sets can be loaded across experiments using P.load.
+
+  Examples:
+
+  >>> import spacegrids as sg
+  >>> D = sg.info_dict()
+  >>> P = sg.Project(D['my_project'])
+  >>> E = P['DPO']
+  >>> E.show()
+  DPO
+  ----------
+  Exper using 0.01 Mb. 0 fields loaded.  
+
+  """
+   
   def __repr__(self):
     return self.name
 
   def show(self):
+    """Shows summary of key Exper specifics.
 
+    Shows the experiment name, its memory usage and the number of Field objects loaded.
+
+    """
     loaded_fields = self.vars.keys()
     length = len(loaded_fields)
 
@@ -41,16 +74,26 @@ class Exper(object):
 
     print REP.value
     
-
-  def __init__(self,path=home_path, name = 'test',cstack = [], params = {}, descr = 0, parent = 'orphan'):
 # --> belongs to  Exper
+  def __init__(self,path=home_path, name = 'test',cstack = [], params = {}, vars = {}, descr = None):
+    """
+    Initialize Exper instance.
+
+    Args:
+      path: (str) path to dir containing experiment. Used to construct Exper dir.
+      name: (str) the name of this experiment. Generally derived from data file name
+      cstack: (list of Coord objectd) the coordinate stack of all Coord objects constructed for this experiment
+      params: (dictionary of name value pairs) collection of single value named parameters (e.g. co2 vs 280)
+      vars: (dictionary of name vs Field objects) contains the loaded Fields (e.g. a 3D dataset of temperature). Generally empty on init.
+      descr: (str) an optional description of this experiment.    
+
+    """
 
     self.path = os.path.join(path,name) 
     self.name = name
     self.cstack = cstack
-    self.parent = parent
       
-    if not(descr):
+    if descr is None:
       self.descr = name
     else:
       self.descr = descr  
@@ -61,31 +104,45 @@ class Exper(object):
 
           
 # The variables associated with this experiment. It is a dictionary of name vs struct    
-    self.vars = {}
+    self.vars = copy.deepcopy(vars)
 
     self.nbytes = reduce( lambda x,y: x + y, [e.nbytes for e in cstack]  )
     
 
-  def __call__(self, varnames ='*'):
-
-# --> belongs to Expers
-    return self.get(varnames)
-
   def __setitem__(self,varname, arr):
-
+    """Simple insertion of name vs Field into vars dictionary. Generally use insert method.
+    """
     self.vars[varname] = arr
 
-
-  def __getitem__(self, varnames ='*'):
-
 # --> belongs to Exper 
+  def __getitem__(self, varnames ='*'):
+    """Obtain Field from vars dictionary. Shortcut to get method. See get.
+    """
+
     return self.get(varnames)
 
 
 
   def get(self, varnames):
-  
+    """
+    Args:
+      varnames: (str or list) simple filter (or list of -) used by fnmatch.fnmatch 
+
+    Returns:
+      None if no match, or one Field if only one Field name matches varnames pattern, otherwise list of Field objects. 
+
+    Examples:
+    >>> E = P['DPO']
+    >>> P.load(['O_temp','O_sal'] )  
+    >>> E['O_*'] 
+    [O_temp, O_sal]
+
+    """
+
+
+    # fields is the list of Fields to be returned, whose names match the pattern
     fields = []
+    # The names of the matching fields:
     VN = sublist(self.vars.keys(), varnames)
     if VN:
       for vn in VN:
@@ -102,6 +159,9 @@ class Exper(object):
     return fields    	
 
   def list_vars(self):
+    """Show report of loaded variables in stdout.
+    """
+
     RP = Report()
     if len(self.vars) == 0:
       RP.echo('No variables.')
@@ -121,11 +181,28 @@ class Exper(object):
 
 
   def __delitem__(self,i):
-  
+    """
+    Delete an item from the vars Field dict attribute of Exper using del.
+
+    Args:
+      i: (int) index of item to be deleted.
+
+    Returns:
+      None
+
+    """
     del self.vars[i]
 
   def delvar(self, varnames, msg = ''):
-# this delvar is a method of  Exper
+    """
+    Delete items from the vars Field dict attribute of Exper using del.
+
+    Args:
+      varnames: (str or list) items to delete
+
+    Returns:
+      None
+    """
   
     if not(isinstance(varnames, types.ListType)):
       varnames = [ varnames ]
@@ -141,19 +218,29 @@ class Exper(object):
 
     self.update_nbytes()
 
-#  def cdf(self):
-# --> method of  Exper        
-#    print 'Netcdf variables available (loaded marked **):'
-#    _print_box(mark_sublist(self.var_names,self.vars.keys()))
-      
-
 
   def write(self, path = None, name = None , history = 'Created from Spacegrids ' , insert_dual = True ):
 
-    """
-    Write method of Exper .
+    """Write Exper to Netcdf file.
 
-    Creates Netcdf file and writes all loaded Field to it, along with their Coord objects.
+    Args:
+      path: (str) path to the directory where the file will go (e.g. 'data/' or '/home/me/', default pwd).
+      name: (str) file name (e.g. "foo.nc")
+      history: (str) Brief history or general description of the data.
+      insert_dual: (Boolean) Flag determining whether to include the duals of the Coord objects in the file.
+
+
+    Returns:
+      None
+
+    Creates Netcdf file and writes all loaded Field to it, along with their Coord objects (and their duals if requested).
+
+    Examples:
+    >>> E = P['DPO']
+    >>> E.write()  # yields DPO.nc in pwd
+
+    >>> E = P['DPO']
+    >>> E.write(path='TMP/',name='foo.nc')  # yields TMP/foo.nc with respect to pwd
 
     """
 
@@ -167,14 +254,15 @@ class Exper(object):
    
     
     if len(self.vars) > 0:
-      print 'Writing experiment %s to file %s'%(self.name, name)
+      print 'Attempting to write experiment %s to file %s'%(self.name, name),
 
       try:
         # using io_sg version of netcdf_file. May use ScientificIO or Scipy
         file_handle = netcdf_file(name , 'w')
 
-      except IOError:
-        warnings.warn('Cannot open%s'%name)
+      except (IOError, RuntimeError):
+        print '... FAIL'
+        warnings.warn('Cannot open %s. File not written.'%name)
       else:
 
         for fld in self.vars.values():
@@ -186,6 +274,7 @@ class Exper(object):
 #    var_cdf.units = self.units
 
         file_handle.close()
+        print '... OK'
 
     else:
       print 'No fields to write for experiment %s'%self.name
@@ -195,27 +284,29 @@ class Exper(object):
       
   def load(self,varnames, squeeze_field = True, ax=None, name_suffix='_cat', new_coord_name = 'gamma', new_coord= None ):
     """
-    Load a variable or list of variables contained in varnames. 
+    Load a variable or list of variables contained in varnames into Exper. 
 
     Takes either a single string or a list of strings. If multiple files inside a directory contain the same variable, this method will attempt to concatenate them (e.g. in the case where there are different time slices).
 
-    if self.path is to a file (likely to be an Experiment file), the variable will be loaded from that file.
-    if self.path is to a directory (likely to be an experiment dir), the variable will be loaded from Netcdf files inside that directory.
+    if self.path is to a file (an Experiment file), the variable will be loaded from that file.
+    if self.path is to a directory (an experiment dir), the variable will be loaded from Netcdf files inside that directory.
 
     Args:
-         varnames: list of the variable names to load
-         squeeze_field:	switch to squeeze Field on loading (default True)	
-         ax: passed on to the concatenate function			
-         name_suffix: passed on to the concatenate function
-         new_coord_name: passed on to the concatenate function
-         new_coord: passed on to the concatenate function
-
+      varnames: (str or list) var name or list of the var names to load
+      squeeze_field (boolean):	Flag to squeeze Field on loading (default True)	
+      ax (Ax): passed on to the concatenate function			
+      name_suffix (str): passed on to the concatenate function
+      new_coord_name (str): passed on to the concatenate function
+      new_coord (Coord): passed on to the concatenate function
 
     Returns:
-         None
+      None
+
+    Raises:
+      IOError: if path to Netcdf file not valid (very rare under automatic sg usage).
     """  
 
-# --> this load is a method of  Exper
+# --> this load is a method of Exper
 
     if not(isinstance(varnames, list)):
       varnames = [varnames ]
@@ -283,12 +374,17 @@ class Exper(object):
 
   def insert(self,what):
     """
-    Insert Field in Field list of this exper object under key varname.  If argument what is a number, it will be inserted as a parameter.
+    Insert Field in Field list (vars attribute), or into params att if argument is a number.
 
-    Input: what a 2 tuple (pair) of name and value: (name, value). Value can be a Field or a single value. Name must be a string, but can be None in the case of a Field, where the Field name will then be used. For example what = ('temp',TEMP), where TEMP is a Field. If value is a single value (e.g. int or float), a name must be provided.
+    The "what" argument is a 2 tuple (pair) of name and value: (name, value). Value can be a Field or a single value. Name must be a string, but can be None in the case of a Field, where the Field name will then be used. For example what = ('temp',TEMP), where TEMP is a Field. If value is a single value (e.g. int or float), a name must be provided.
 
     Argument what can also be a list of (name,value) pairs, in which case the entire collection of pairs will be inserted.   
 
+    Args:
+      what: (length 2 tuple or list thereof) name and value: (name, value).
+
+    Returns:
+      None
     """
 
     if what is None:
@@ -326,7 +422,21 @@ class Exper(object):
 
   def available(self):
     """
-    Method of Exper  that returns a list of all available Netcdf variable names (strings).
+    Obtain list of all available Netcdf variable names (strings) for this Exper.
+   
+    Args:
+      No args.
+
+    Returns:
+      List of strings of variable names in experiment Netcdf file(s).
+
+    Raises:
+      IOError: when Netcdf file cannot be opened.
+
+    Called by ls method.
+
+    See also:
+      ls method.
     """
   
     if os.path.isfile(self.path):
@@ -361,9 +471,25 @@ class Exper(object):
 
   def ls(self, width = 20):
     """
+    Show list of all available Netcdf variable names (strings) for this Exper to screen.
+   
+    Args:
+      width: (int) column width formatting for screen output.
+
+    Returns:
+      None
+
+    Raises:
+      IOError: when Netcdf file cannot be opened.
+
+    Calling available method.
+
+    See also:
+      available method.
+
+
     Variable list method of Exper .
     Examine which fields (Netcdf variables) are available of experiment object.
-
     """  
  
     RP = Report()
@@ -375,6 +501,9 @@ class Exper(object):
 
 
   def update_nbytes(self):
+     """Recalculate and update memory usage of this Exper.
+     """
+
      coord_bytes = reduce( lambda x,y: x + y, [e.nbytes for e in self.cstack]  )
      if len(self.vars) > 0:
        field_bytes = reduce( lambda x,y: x + y, [e.nbytes for e in self.vars.values()]  )    
@@ -394,12 +523,31 @@ class Exper(object):
 
 def isexpdir(path, file_extensions = cdf_file_extensions):
   """
- Tests whether the subdirectories in the path contain data files. 
+  Tests whether the subdirectories in the path contain data files. 
 
- Returns the list of those subdirectories (relative path to path argument) that 
- contain these known files. To be used by adexp functionality and such.
- file_extensions is the list of known filenames in the form of glob expressions, e.g.   
- ['*.nc','*.cdf'] (the default).   
+  Returns the list of those subdirectories (relative path to path argument) that 
+  contain these known files. To be used by adexp functionality and such.
+  file_extensions is the list of known filenames in the form of glob expressions, e.g.   
+  ['*.nc','*.cdf'] (the default).   
+
+   
+  Args:
+    path: (str) path to directory containing experiment directories or files (usually a project dir). Generally computed by sg
+    file_extensions: (str) file extensions to look for in path (default .cdf and .nc)
+
+  Returns:
+    List of directory and file names (not full paths) believed to correspond to experiments.
+
+  Raises:
+    RuntimeError: when path not valid.
+
+  path can be relative to pwd or full path.
+
+  Examples:
+  >>> sg.isexpdir('/home/me/PROJECTS/test_project/')
+  ['DPO', 'DPC', 'Lev.cdf']
+
+
   """
 
     # examine all subdirectories of path. Create copy for manipulation.
@@ -411,7 +559,7 @@ def isexpdir(path, file_extensions = cdf_file_extensions):
   elif os.path.isfile(path):
     return [path,]
   else:
-    raise Exception('No such file or directory %s.'%path)
+    raise RuntimeError('No such file or directory %s.'%path)
     
   # go through list L of subdirectories of path (e.g. /home/me/PROJECTS/test_project/) to see which ones are experiment directories (i.e. contain .nc and .cdf files).
   for it in L:

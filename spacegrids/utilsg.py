@@ -16,21 +16,11 @@ class Report():
   """
   Reporting class containing useful method for building a string containing messages.
 
-    **Attributes**
+  Attributes
     
     value : `str` The reporting string being built
  
-    **Methods**
-   
-    See online documentation
-
-    **Notes**
-    
-    see interactive help for a full listing of methods with doc
-
-    **See Also**
-
-    **Examples**
+  Examples:
  .. doctest::
 
   >>> import spacegrids as sg
@@ -333,7 +323,7 @@ def add_alias(L):
   same name apart.  Coord and Gr __repr__ methods will display alias attribute 
   instead of name if the alias attribute is available.
 
-  **Examples**
+  Examples:
  
   For example, we could apply add_alias to a list of 4 test Coord objects, two of which have the same name.
    
@@ -488,7 +478,7 @@ def round_order(value, order = None):
   Returns: 
        value rounded to the order 'order'
 
-  **Examples**
+  Examples:
 
 .. doctest::
 
@@ -515,7 +505,7 @@ def order_mag(val):
   Returns: 
        order of magnitude of val
 
-  **Examples**
+  Examples:
 
 .. doctest::
 

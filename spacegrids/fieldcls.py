@@ -28,58 +28,142 @@ warnings.formatwarning = warning_on_one_line
 
 class Coord(object):
   """
-  coordinate , represents single coordinate elements such as points along the x axis. 
-  Coord objects are defined by a name, value (generally a numpy array) and units.
+  Representing distrete coordinate collection. Corresponds to dimension variable in Netcdf.
+
+  Coord objects are defined by a name, value (generally a numpy array) and units. The value of a Coord is a 1D ndarray containing the locations of data points. Coord is the basic building block of Gr (grid) objects.
+  Examples of Coord objects are xt or yt, corresponding to the tracer grid cells in the x and y directions. Coord objects have a corresponding dual. For xt it is xt_edges and vice versa. The dual generally contains the edges of the grid cells. If no dual argument is given, the Coord object is its own dual.
+
   Coord objects c1 and c2 are considered equal, c1&c2 yields True, when the name, value (numpy array) and units attributes are equal.
+
+  An equivalence relationship is defined among Coord objects by adding them to each other's equiv attributes.
+
+  Attributes:
+    axis: (Ax) axis along which Coord is defined.
+    dual: (Coord) link to other Coord object, usually representing edges of cells.
+    direction: (str) name of direction in which Coord is defined.
+    equivs: (list of Coords) list of links to equivalent Coord objects. Usually coincides with all Coord's defined in same direction.
+    len: (int) length of the value attribute (ndarray)
+    long_name: (str) a longer description. Usually taken from identically named variable in Netcdf file.
+    metadata: (dict) name vs value dict of metadata to save into Netcdf. Usually obtained from Netcdf read.
+    name: (str) name of object (e.g. 'xt' or 'depth').
+    nbytes: (int) approximate memory usage of Coord object.
+    strings: (list of strings or None) str labels for coord points. If not None, needs to be of same length as value
+    units: (str) units (e.g. "meter")
+    value: (Numpy ndarray) 1D array corresponding to spatial points (e.g. 10 degrees S for a point).
+
+  Examples:    
+    >>> coord1 = sg.fieldcls.Coord(name = 'test1',value =np.array([1.,2.,3.]) ,axis =sg.fieldcls.Ax('X'),direction ='X', metadata = {'hi':5} )
+    >>> coord2 = sg.fieldcls.Coord(name = 'test2',value =np.array([1.,2.,3.,4.]),axis =sg.fieldcls.Ax('Y'),direction ='Y', metadata = {'hi':7})
+    >>> coord3 = sg.fieldcls.Coord(name = 'test3',value =np.array([1.5,2.5,3.5,4.5]),axis =sg.fieldcls.Ax('X'),direction ='X', metadata = {'hi':7})
+
   """
 
   def __repr__(self):
-
+    """Display alias if attribute present, name otherwise.
+    """
     if hasattr(self,'alias'):
       return self.alias
     else:
       return self.name
 
   def __getitem__(self,i):
+    """Obtain item from value atttribute.
+    """
     return self.value[i]
 
   def array_equal(self,other):
-    """ test whether Coord objects contain identical Coord values
+    """ test whether Coord objects contain identical values in value attributes.
+
+    Args:
+      other: (Coord object) the Coord to compare with
+
+    Returns:
+      True/ False (using np.array_equal)
+
+    Raises:
+      ValueError: when argument is not a Coord object
     """
 
     if not isinstance(other,Coord):
-      raise Exception('Error: provide Coord argument (%s provided).'%other)
+      raise TypeError('Error: provide Coord argument (%s provided).'%other)
 
     return np.array_equal(self.value,other.value) 
 
   def same(self,other):
     """
     Coord method to check whether this Coord has identical main attributes (except units) to argument other Coord.
+
+    The axis attributes may sometimes be a str. In this case, == is applied and a warning is issued.
+
+    Args:
+      other: (Coord) Coord to check against
+
+    Returns:
+      True/ False
+
+    Attributes checked:
+      value: via Coord array_equal method
+      name: via str ==
+      axis: same method if Ax object, str == otherwise (axis attribute can sometimes str by choice, although this is not great)
+      direction: via str == method
+
+    See also:
+      samein method
+      same_index method
     """
 
     # not checking for units
 
-    if isinstance(self.axis,str) or isinstance(self.axis,unicode):
+    if (isinstance(self.axis,str) or isinstance(self.axis,unicode)) and (isinstance(other.axis,str) or isinstance(other.axis,unicode)):
+      # Both of the axis attributes are a str. Comparing apples with apples.
 
-      warnings.warn(' %s Coord (self) has string/ unicode axis attribute %s'%(self.name,self.axis))
-
-      return self.array_equal(other) and (self.name == other.name) and (self.axis == other.axis ) and (self.direction == other.direction  )
-
-    elif isinstance(other.axis,str) or isinstance(other.axis,unicode):
-
-      warnings.warn(' %s Coord (other) has string/ unicode axis attribute %s'%(other.name,other.axis))
+      warnings.warn('Coords %s, %s have str axis attribute %s, %s'%(self.name, other.name,self.axis, other.axis))
 
       return self.array_equal(other) and (self.name == other.name) and (self.axis == other.axis ) and (self.direction == other.direction  )
+
+    elif (isinstance(self.axis,str) or isinstance(self.axis,unicode)) or (isinstance(other.axis,str) or isinstance(other.axis,unicode)):
+      # only one of the axis attributes is a str. The other would be an Ax. Apples and oranges: tricky, but should be uncommon.
+
+      warnings.warn('!! One of Coords %s, %s has str axis, not the other! Proceeding using str compare. (%s, %s)'%(self.name, other.name,self.axis, other.axis))
+
+
+      return self.array_equal(other) and (self.name == other.name) and (str(self.axis) == str(other.axis) ) and (self.direction == other.direction  )
 
 
     else:
+      # Both of the axis attributes are an Ax. Comparing apples with apples. Best case of 3.
       return self.array_equal(other) and (self.name == other.name) and (self.axis.same(other.axis) ) and (self.direction == other.direction  )
 
-  def samein(self,L):
 
+  def samein(self,L):
+    """Tests whether this Coord is the same as any element in list L, under 'same' method.
+
+    Args:
+      L: (list of Coord objects) to test against
+
+    returns:
+      True/ False
+
+    See also:
+      same method
+      same_index method
+    """
     return reduce(lambda x,y:x or y, [self.same(it) for it in L] )
 
   def sameindex(self,L):
+    """Find index of this Coord in list L of Coord objects, under 'same' method.
+
+    Args:
+      L: (list of Coord objects) to search
+
+    returns:
+      None or Integer, the index of the first item it in the list that satisfies self.same(it)
+
+    See also:
+      same method
+      samein method
+    """
+
     for i,it in enumerate(L):
       if self.same(it):
         return i
@@ -95,13 +179,16 @@ class Coord(object):
 
   def weaksame(self,other):
     """
-    self.weaksame(other)
-    Returns True/ False
+    tests whether Coord objects contain identical Coord values, name and direction. 
+
+    Args:
+      other: (Coord) object to compare against.
+
+    Returns: 
+      True/ False
 
     coord1.weaksame(coord2) tests whether Coord objects coord1, coord2 contain identical Coord values, name and direction. 
     """
-
-    # 
 
     return (self.name == other.name) and (self.direction == other.direction) and self.array_equal(other) 
 
@@ -121,9 +208,15 @@ class Coord(object):
   def copy(self,name = None,value = None, dual = None, axis = None,direction = None,units = None, long_name = None, metadata=None, strings = None, equiv = True):
 
     """
-    Copy function for Coord objects. If equiv = True, the copies will be equivalent. When no value is selected for an argument (i.e. it retains its default value of None), a copy of the self attribute will be used. Otherwise, the argument value will be used.
+    Copy function for Coord objects. See __init__ for arguments.
 
-    Returns a copy of the Coord object.
+    Args (in addition to __init__):
+      equivs: (Boolean) If True, the copies will be equivalent. 
+
+    Returns: 
+      a copy of the Coord object.
+
+    Copy methods in sg work as follows: when no value is selected for an argument (i.e. it retains its default value of None), a copy of the self attribute will be used. Otherwise, the argument value will be used.
     """
 
     frame = inspect.currentframe()
@@ -154,12 +247,21 @@ class Coord(object):
   def __init__(self,name='scalar',value = np.array([0]), dual = None,axis = '?',direction ='scalar', units = None,long_name ='?', metadata = {} , strings = None):  
 
     """
-    Initialisation of Coord object. This is the basic building block of grid objects.
-    E.g. xt or yt, corresponding to the tracer grid cells in the x and y directions.
-    
-    Coord objects have a corresponding dual. For xt it is xt_edges and vice versa.
-    The duality operation projects the centre of the grid cell onto the 2 adjacent edges and vice versa.
-    If no dual argument is given, the Coord object is its own dual.
+    Initialisation of Coord object. 
+
+    Args:
+      name: (str) name of object (e.g. 'xt' or 'depth').
+      value: (Numpy ndarray) 1D array corresponding to spatial points (e.g. 10 degrees S for a point).
+      dual: (Coord) link to other Coord object, usually representing edges of cells.
+      axis: (Ax) axis along which Coord is defined.
+      direction: (str) name of direction in which Coord is defined.
+      units: (str) units (e.g. "meter")
+      long_name: (str) a longer description. Usually taken from identically named variable in Netcdf file.
+      metadata: (dict) name vs value dict of metadata to save into Netcdf. Usually obtained from Netcdf read.
+      strings: (list of strings or None) str labels for coord points. If not None, needs to be of same length as value
+
+    Raises:
+      ValueError: if argument strings is not None and if len(strings) != len(value)
 
     """
   
@@ -199,23 +301,39 @@ class Coord(object):
 
 
   def __len__(self):
+    """Obtain length of value attribute (1D ndarray)
+    """
     return self.len
 
+# belongs to Coord 
   def __call__(self, other = None, index = 0):
-
-    # belongs to Coord 
+    """Shorthand for cast. See cast method.
     """
-    Calling a Coord object with a grid Gr object as argument yields an array A defined on that grid where A[:,i,...] = self.value for all i 
+    return self.cast(other=other, index = index)
 
+  def cast(self, other = None, index = 0):
+    """
+    Broadcasts Coord onto grid.
+
+    Calling a Coord object with a grid Gr object as argument yields an array A defined on that grid where A[:,i,...] = self.value for all i 
     In other words, this leads to an expansion of the Coord value useful for grid operations such as interpolation.
 
-    E.g. R=xt(xt*yt*zt) then R.shape = (len(xt),len(yt),len(zt)). Here, the value of R is constant in yt and zt, but equal to xt along the xt axis.
+    Args:
+      other: (Gr, Field, None) Gr to broadcast on or Field to slice.
+      index: (int) index at which to take a slice in case of Field argument.
 
-    If the argument is a Field object, then calling the Coord object on it yields a slice along that Coord axis of that Field. The index argument is the index of the slice.
+    Returns:
+       For Gr argument: Field with Coord broadcast onto that grid if Coord is in that Gr. If not, None is returned.
+       For Field argument: a slice along that Coord axis of that Field. The index argument is the index of the slice.
+       For None argument: a Field with the values of the Coord values and defined on a grid containing only the Coord.
 
-    If no argument is given, a Field is returned with the values of the Coord values and defined on a grid containing only the Coord.
-
-
+    Examples:
+      >>> R = xt(xt*yt*zt)   # obtain Field R
+      >>> R.shape == (len(xt),len(yt),len(zt))
+      True
+      >>> R.gr
+      (xt, yt, zt)
+      >>> # Here, the value of R is constant in yt and zt, but equal to xt along the xt axis.
     """
 
 #    print self
@@ -236,85 +354,175 @@ class Coord(object):
       elif isinstance(other,Field):
           return self.bigslice(other,index)
 
-
-
       return 
       
   def __neg__(self):
     """
-    version of Coord with negative values (e.g. -xt). Includes a negative dual (edges). 
+    Obtain version of Coord with negative values (e.g. -xt). Includes a negative dual (edges). 
+
+    Returns:
+      Coord copy with value is -self.value
+
+    The dual is also made negative.
     """
+
     neg_crd = Coord(name = self.name,value =-self.value,axis = self.axis, units = self.units)
     neg_dual = Coord(name = self.dual.name,value =-self.dual.value,dual = neg_crd,axis = self.axis, units = self.units)
     neg_crd.dual = neg_dual
     return neg_crd
 
 
+
+
   def __or__(self,other):
     """
-    Register equivalence. e.g. a = Gr(('xt',)) and b = Gr(('xu',))
-    a|b registers b in the equivalents of a and vice versa.
+    Shorthand to register equivalence with other Coord object (see make_equiv) or take vcumsum of a field. 
+
+    Args:
+      other: (Coord, Field or VField)
+
+    Returns:
+      None
+
+    Raises:
+      TypeError: when the argument is not a Coord, Field or VField
     """
+
     if isinstance(other,Coord):
-#      self.equivs.append(other)
-#      other.equivs.append(self)    
-
-
-      for e in set(self.equivs):
-        e.equivs.append(other)
-
-      for e in set(other.equivs):
-        e.equivs.append(self)        
-
-      self.equivs = list(set(self.equivs))
-      other.equivs = list(set(other.equivs))
-
-
-      return
+      self.make_equiv(other)
     elif isinstance(other,Field):
       return self.vcumsum(other)
     elif isinstance(other,VField):
-      """
-      this method works through on the individual members of a vector Field:
-      """
+
       return VField([self|e  for e in other] )
 
     else:
       raise Exception('Coord error in %s|%s with Coord %s: provide Coord or Field for right multiplicant (%s), or check staleness.' % (self,other,self,other)  )
 
+  def make_equiv(self,other):
+    """
+    Register equivalence of two Coord objects. 
+
+    Args:
+      other: (Coord)
+
+    Returns:
+      None
+
+    See also:
+      is_equiv
+      eq_index
+      eq_in
+
+    Examples:
+    >>> depth.is_equiv(longitude) # generally different directions.
+    False
+    >>> depth.make_equiv(longitude) # don't do this in real work
+    >>> depth.is_equiv(longitude) # uphysically:
+    True 
+    """  
+
+#      self.equivs.append(other)
+#      other.equivs.append(self)    
+
+    for e in set(self.equivs):
+      e.equivs.append(other)
+
+    for e in set(other.equivs):
+      e.equivs.append(self)        
+
+    self.equivs = list(set(self.equivs))
+    other.equivs = list(set(other.equivs))
+
+    return
+
+
+
 # Belongs to Coord   
 
   def __xor__(self,other):
     """
-    If argument is a Coord, this method tests for equivalence. e.g. xt equiv to xu
-    If argument is a Gr, this method yields the Coord element from the Gr object that is equivalent to self.
-    If argument is a Field, this method takes the derivative along self Coord axis.
-    """
-    
-#    global nodes_done
+    Shorthand for several methods depending on argument type. 
 
-    # This method works recursively to ensure associativity of the ^ relationship. E.g. a0^a1 is True and a1^a2 is True => a0^a3 is True
+    Becomes is_equiv if argument Coord, Gr.eq_in on self if argument is Gr and self.der on argument for Field argument.
+
+    Args:
+      other: (Coord, Gr or Field)
+
+    Returns
+      None unless other is Field
+
+    Raises: TypeError
+    """
+
 
     if isinstance(other,Coord) | isinstance(other,Ax):
-      if (other in self.equivs) | (self in other.equivs):
-
-        return True     
-      else:
-        if (self&other):
-          warnings.warn('Warning (severe) from %s^%s: objects not equivalent, but contain the same main attributes (name, value, units)! ' % (self,other) )
-        return False
+      return self.is_equiv(other)
       
     elif isinstance(other,Gr):
       if other.eq_in(self):
-        return other[other.eq_index(self)      ]
+        return other[other.eq_index(self)  ]
       else:   
         return
 
     elif isinstance(other,Field):
       return self.der(other)
     else:
-      raise Exception('Coord error in %s^%s with Coord %s. Provide Coord,Gr or Field object for right multiplicant (now %s).' % (self,other,self,other) )
+      raise TypeError('Coord error in %s^%s with Coord %s. Provide Coord,Gr or Field object for right multiplicant (now %s).' % (self,other,self,other) )
       return
+
+  def eq_index(grid):
+    if grid.eq_in(self):
+      return grid.eq_index(self)  
+    else:   
+      return
+
+  def eq_in(grid):
+
+    i = self.eq_index(grid)
+    if i:
+      return grid[i ]
+    else:   
+      return
+
+  def is_equiv(self,other):
+    """
+    Test for equivalence (under make_equiv). e.g. xt is equivalent to xu
+
+    Args:
+      other: (Coord or Ax)
+
+    Returns:
+      True when equivalent, False otherwise.
+
+    See also:
+      is_equiv
+
+    Examples:
+    >>> depth.is_equiv(longitude) # generally different directions.
+    False
+
+    See also:
+      make_equiv
+      eq_index
+      eq_in
+    """
+    
+    if (other in self.equivs) | (self in other.equivs):
+
+      return True     
+    else:
+      if (self&other):
+        warnings.warn('Warning (severe) from %s^%s: objects not equivalent, but contain the same main attributes (name, value, units)! ' % (self,other) )
+      return False
+
+
+
+
+
+
+
+
       
 
   def __pow__(self,n):
@@ -1234,7 +1442,7 @@ class AxGr(tuple):
 
     Multiplication can take other arguments than just Ax grids. If a Field is provided as right multiplicant, the Field is summed over the left multiplicant grid, weighted with grid cell widths (the equivalence of integration over the grid space). If the right multiplicant is a Coord object, it is converted to a single-element grid (gr) object before multiplication. 
 
-if right multiplicant is Gr object, operation picks elements from right multiplicant that are equivalent with Ax objects in AxGr object left multiplicant and yields a product in the order of the left multiplicant.
+    if right multiplicant is Gr object, operation picks elements from right multiplicant that are equivalent with Ax objects in AxGr object left multiplicant and yields a product in the order of the left multiplicant.
 
     """
 
@@ -1286,6 +1494,20 @@ if right multiplicant is Gr object, operation picks elements from right multipli
 
 
   def eq_in(self, crd):
+    """ Determines whether Coord crd is equivalent to any of the constituent Ax objects of this AxGr 
+
+    Gr and AxGr have an eq_in method that acts on a Coord or Ax.
+
+    Args:
+      crd: (Coord) object to be checked.
+
+    Returns:
+      True when crd is equivalent to one of the Ax objects, False otherwise.
+
+    See also:
+    eq_in method of Gr     
+    """
+
     for i in self:
       if crd^i: return True
     return False
@@ -1904,6 +2126,21 @@ class Gr(tuple):
 
 
   def eq_in(self, crd):
+    """ Determines whether Coord crd is equivalent to any of the constituent Coord objects of this Gr
+
+    Gr and AxGr have an eq_in method that acts on a Coord or Ax.
+
+    Args:
+      crd: (Coord or Ax) object to be checked.
+
+    Returns:
+      True when crd is equivalent to one of the Coord objects, False otherwise.
+
+    See also:
+    eq_in method of GrAx     
+    """
+
+
     for i in self:
       if crd^i: return True
     return False

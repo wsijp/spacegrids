@@ -129,6 +129,30 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     print 'Tearing down %s'%type(self).__name__
     del self.fixture
 
+  def test_init_method(self):
+    """Test the __init__ method of Coord
+    """
+    
+    self.assertRaises(ValueError, sg.fieldcls.Coord, **{'name' : 'test1','direction' :'X','value': np.array([1,2,3]) , 'metadata': {'hi':5}, 'strings': ['foo','bar'] })
+
+  def test_get_item_method(self):
+    """Test the __getitem__ method of Coord class for success, failure and raised error.
+    """
+    coord1 = self.fixture[0][0]
+
+    self.assertEqual(coord1[1], 2.)
+
+
+  def test_coord_array_equal_method(self):
+    """Test the array_equal method of Coord class for success, failure and raised error.
+    """
+    coord1 = self.fixture[0][0]
+    coord2 = self.fixture[0][1]
+    coord4 = self.fixture[1][0]
+
+    self.assertEqual(coord1.array_equal(coord2), False)
+    self.assertEqual(coord1.array_equal(coord4), True)
+    self.assertRaises(TypeError, coord1.array_equal, 5)
 
   def test_coord_init_attributes_assigned(self):
     """
@@ -207,15 +231,24 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
   def test_same_method_yields_same(self):
     """
-    Test whether making a copy with no arguments passed to .copy method yields a Coord object that is the same (with respect to .same method) as the original (although a different object in memory).
+    Test whether making a copy with no arguments passed to .copy method yields a Coord object that is the same (with respect to .same method) as the original (although a different object in memory). Also tested for other Coord objects from fixture and for hybrid axis attributes (one str, one Ax).
     """
 
     cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord4 = self.fixture[1][0]
     coord3 = cstack1[-1]
    
     coord3_copy = coord3.copy()
 
     self.assertEqual(coord3.same(coord3_copy),True  )
+    self.assertEqual(coord1.same(coord4),True  )
+
+    coord4.axis = sg.fieldcls.Ax(coord4.axis)
+    self.assertEqual(coord1.same(coord4),True  )
+    self.assertEqual(coord4.same(coord1),True  )
+    self.assertEqual(coord1.same(coord3),False  )
 
   def test_same_method_yields_not_same_for_case_array(self):
     """
@@ -937,19 +970,33 @@ class TestExper(unittest.TestCase):
     self.assertEqual(len(E.vars),2)
 
 
-  def test_get_function_of_exper_not_loaded(self):
+  def test_get_function_of_Exper_not_loaded(self):
     # try to get a Field that has not been loaded yet from the Exper object => None returned.
     E = self.fixture['DPO']
    
     self.assertEqual(E.get('O_temp'),None)
 
-  def test_get_of_exper(self):
-    # try to get a Field that has been loaded yet from the Exper object => Field object.
+  def test_get_of_Exper(self):
+    # try to get a Field that has been loaded from the Exper object => Field object.
     E = self.fixture['DPO']
     self.fixture.load('O_temp')
     self.assertEqual(str(E.get('O_temp')), 'O_temp')
 
-  
+  def test_delvar_method_of_Exper(self):  
+
+    # try to delete a Field that has been loaded from the Exper object 
+
+    E = self.fixture['DPO']
+    self.fixture.load(['O_temp','O_sal','A_sat','A_shum'])
+    E.delvar('O_temp')
+    self.assertEqual(E.get('O_temp') is None, True)
+
+    E.delvar(['O_sal','A_sat'])
+    self.assertEqual(E.get('O_sal') is None, True)
+    self.assertEqual(E.get('A_sat') is None, True)
+
+    del E['A_shum']
+    self.assertEqual(E.get('A_shum') is None, True)
 
 # tests around coord and grid aspects of fields
 

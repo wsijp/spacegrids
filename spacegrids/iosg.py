@@ -113,7 +113,7 @@ def msk_read(filepath='masks/msk', crop = 1):
   else:  
     return np.flipud(np.array(data))
 
-def read_masks(dir_path, msk_shape=0,grids = False, msk_val =2, parent = 'orphan'):
+def read_masks(dir_path, msk_shape=0,grids = False, msk_val =2):
   
       """
       Reads mask and returns a list of Field objects containing masks.
