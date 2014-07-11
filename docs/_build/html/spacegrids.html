@@ -189,6 +189,24 @@ file_extensions is the list of known filenames in the form of glob expressions, 
 <tt class="descname">sameindex</tt><big>(</big><em>L</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Ax.sameindex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Ax.sameindex" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="method">
+<dt id="spacegrids.fieldcls.Ax.weaksame">
+<tt class="descname">weaksame</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Ax.weaksame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Ax.weaksame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests if two Ax objects have the same name.</p>
+<p>Weak test to see if two Ax objects are similar.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>other: other Ax object to compare self with</dd>
+<dt>Returns: </dt>
+<dd>True/ False</dd>
+</dl>
+<p><strong>See also</strong>
+same method
+samein method
+sameindex method
+Coord weaksame method</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -749,7 +767,7 @@ A list of nparrays being slices of input A along the self Gr.</p>
 
 <dl class="method">
 <dt id="spacegrids.fieldcls.XCoord.copy">
-<tt class="descname">copy</tt><big>(</big><em>name=None</em>, <em>value=None</em>, <em>axis=None</em>, <em>direction=None</em>, <em>units=None</em>, <em>long_name=None</em>, <em>strings=None</em>, <em>equiv=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#XCoord.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.XCoord.copy" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">copy</tt><big>(</big><em>name=None</em>, <em>value=None</em>, <em>dual=None</em>, <em>axis=None</em>, <em>direction=None</em>, <em>units=None</em>, <em>long_name=None</em>, <em>metadata=None</em>, <em>strings=None</em>, <em>equiv=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#XCoord.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.XCoord.copy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Copy function for Coord objects. If equiv = True, the copies will be equivalent.
 Copies with identical key attributes that are not equivalent will yield a severe warning about this when equivalance is tested with the ^ operator.</p>
 </dd></dl>
@@ -802,7 +820,7 @@ Returns Field. Returns None if self not in grid.</p>
 <dd><p>Bases: <a class="reference internal" href="#spacegrids.fieldcls.Coord" title="spacegrids.fieldcls.Coord"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.fieldcls.Coord</span></tt></a></p>
 <dl class="method">
 <dt id="spacegrids.fieldcls.YCoord.copy">
-<tt class="descname">copy</tt><big>(</big><em>name=None</em>, <em>value=None</em>, <em>axis=None</em>, <em>direction=None</em>, <em>units=None</em>, <em>long_name=None</em>, <em>strings=None</em>, <em>equiv=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#YCoord.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.YCoord.copy" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">copy</tt><big>(</big><em>name=None</em>, <em>value=None</em>, <em>dual=None</em>, <em>axis=None</em>, <em>direction=None</em>, <em>units=None</em>, <em>long_name=None</em>, <em>metadata=None</em>, <em>strings=None</em>, <em>equiv=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#YCoord.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.YCoord.copy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Copy function for Coord objects. If equiv = True, the copies will be equivalent.</p>
 </dd></dl>
 
@@ -1035,7 +1053,7 @@ This is the lowest level mask read function in sg.</p>
 
 <dl class="class">
 <dt id="spacegrids.ops.If">
-<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">If</tt><big>(</big><em>Cond_Op</em>, <em>True_Op</em>, <em>Else_Op=&lt;spacegrids.ops.Identity object at 0xb7e642c&gt;</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#If"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.If" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">If</tt><big>(</big><em>Cond_Op</em>, <em>True_Op</em>, <em>Else_Op=&lt;spacegrids.ops.Identity object at 0xaa2332c&gt;</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#If"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.If" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
 </dd></dl>
 
@@ -1556,19 +1574,10 @@ instead of name if the alias attribute is available.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="spacegrids.utilsg.complete">
-<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">complete</tt><big>(</big><em>comp_sets</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#complete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.complete" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assigns attribute others to every element of a list of lists that is a list of all elements in the own group except the element itself.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>comp_sets: a list or tuple of tuples (or lists).</dd>
-<dt>Returns: </dt>
-<dd>None</dd>
-</dl>
-<p>E.g. 
-((xt,yt,zt),(xu,yu,zw))
-It then assigns an attribute others to every element xt,yt,...  that is a tuple containing all other elements in the subset except the element itself.</p>
-<p>i.e. xt.others = (yt,zt)</p>
+<dt id="spacegrids.utilsg.end_of_filepath">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">end_of_filepath</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#end_of_filepath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.end_of_filepath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Little function that finds the last element of a path, without using os module.
+e.g. /foo/bar yields bar, as does /foo/bar/</p>
 </dd></dl>
 
 <dl class="function">
@@ -1586,20 +1595,6 @@ right: a tuple (or list)</dd>
 </dd></dl>
 
 <dl class="function">
-<dt id="spacegrids.utilsg.flat_list">
-<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">flat_list</tt><big>(</big><em>L</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#flat_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.flat_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>Documentation to come.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.utilsg.float_html_row">
-<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">float_html_row</tt><big>(</big><em>row</em>, <em>cell_tag='td'</em>, <em>decimal='%.3f'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#float_html_row"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.float_html_row" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper function to construct a HTML table row from a list of string values.
-row: list of row values
-cell_tag = the HTML tag for a cell. Usually &#8216;td&#8217; or &#8216;th&#8217;</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="spacegrids.utilsg.fromcsv">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">fromcsv</tt><big>(</big><em>raw_string</em>, <em>row_header=0</em>, <em>col_dates=0</em>, <em>data_start_row=1</em>, <em>data_start_col=1</em>, <em>hor_desc_col=None</em>, <em>separator='</em>, <em>'</em>, <em>row_delin='\n'</em>, <em>nanval=-999999</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#fromcsv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.fromcsv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert csv string to list of lists of floats T, list of header strings H and (optional) list pf dates D.</p>
@@ -1608,7 +1603,7 @@ cell_tag = the HTML tag for a cell. Usually &#8216;td&#8217; or &#8216;th&#8217;
 <dl class="function">
 <dt id="spacegrids.utilsg.get_att">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">get_att</tt><big>(</big><em>obj</em>, <em>att_list</em>, <em>fail_val=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#get_att"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.get_att" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns attribute value corresponding to first element of list of names if it matches an attribute name of object, None otherwise.</p>
+<dd><p>Returns attribute value corresponding to first element of a list of name strings that matches any attribute name of object, None otherwise.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>obj: an object of which to examine the attributes
@@ -1618,7 +1613,7 @@ fail_val: value to return if att_list elements not in object attribute names</dd
 <dd>attribute value that gives firs match in list, fail_val otherwise</dd>
 </dl>
 <p><strong>See also</strong>
-which_att</p>
+_which_att</p>
 </dd></dl>
 
 <dl class="function">
@@ -1632,6 +1627,7 @@ e: an object of that same type.</dd>
 <dt>Returns: </dt>
 <dd>True or False depending on whether there is an element e2 of L such that e&amp;e2 is True</dd>
 </dl>
+<p>Used on Ax objects in code.</p>
 <p><strong>See also</strong>
 id_index
 rem_equivs
@@ -1649,39 +1645,27 @@ e: an object of that same type.</dd>
 <dt>Returns: </dt>
 <dd>None or integer representing the index of e in L.</dd>
 </dl>
+<p>Used on both Ax and Coord objects in code. In Coord case, the &amp; method is identical to the weaksame method.</p>
 <p><strong>See also</strong>
 id_in
 rem_equivs
+__and__ methods of Ax and Coord class
 List method &#8216;index&#8217;</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.utilsg.mark_sublist">
-<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">mark_sublist</tt><big>(</big><em>Lbig</em>, <em>Lsub</em>, <em>indicator='*'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#mark_sublist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.mark_sublist" title="Permalink to this definition">¶</a></dt>
-<dd><p>Marks all strings in a list of strings that also occur in a sublist by appending an indicator (*) at the end of those strings.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>Lbig:    The larger list, of which the contained strings will be marked.
-Lsub:    The list of strings that need to be marked
-indicator:       string containing the marker.</dd>
-<dt>Returns: </dt>
-<dd>cLbig &#8211; the list with marked strings</dd>
-</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="spacegrids.utilsg.merge">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">merge</tt><big>(</big><em>A1</em>, <em>A2</em>, <em>sort=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.merge" title="Permalink to this definition">¶</a></dt>
-<dd><p>Merge two ndarrays or iterables and order them.</p>
+<dd><p>_merge two ndarrays or iterables and order them.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>A1: first array
-A2: second array to be combined with first array
+<dd>A1: first ndarray
+A2: second ndarray to be combined with first array
 sort: flag. sort called on result if True.</dd>
 <dt>Returns:</dt>
 <dd>new_list: sorted list of combined values.</dd>
 </dl>
-<p>Used to merge Coord values.</p>
+<p>Used to _merge Coord values.</p>
 </dd></dl>
 
 <dl class="function">
@@ -1733,24 +1717,6 @@ rem_chars: characters to ignore in file (defaults recommended)</dd>
 </dd></dl>
 
 <dl class="function">
-<dt id="spacegrids.utilsg.print_box">
-<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">print_box</tt><big>(</big><em>L</em>, <em>cols=5</em>, <em>numspace=2</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#print_box"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.print_box" title="Permalink to this definition">¶</a></dt>
-<dd><p>Used for formatted output to stdout</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.utilsg.print_table">
-<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">print_table</tt><big>(</big><em>D</em>, <em>cols=4</em>, <em>numspace=2</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#print_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.print_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Used for formatted output to stdout</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.utilsg.rav_index">
-<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">rav_index</tt><big>(</big><em>L</em>, <em>sh</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#rav_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.rav_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Documentation to come.</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="spacegrids.utilsg.read">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">read</tt><big>(</big><em>fname</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.read" title="Permalink to this definition">¶</a></dt>
 <dd><p>Open fname (full path) for simple reading and return data.</p>
@@ -1796,9 +1762,19 @@ order:  (int) the order to which to round value (e.g. order=2 is 100)</dd>
 </dd></dl>
 
 <dl class="function">
-<dt id="spacegrids.utilsg.split_list">
-<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">split_list</tt><big>(</big><em>L</em>, <em>size=10</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#split_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.split_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>Very general function splitting a list L into a list of sublists of equal length (and a remainder).</p>
+<dt id="spacegrids.utilsg.simple_glob">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">simple_glob</tt><big>(</big><em>L</em>, <em>name_filter</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#simple_glob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.simple_glob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Very simple wildcard expansion on list of strings.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>L: list of strings       
+name_filter: the wildcard glob pattern (e.g. &#8216;<a href="#id1"><span class="problematic" id="id2">*</span></a>hello&#8217;)</dd>
+<dt>Returns: </dt>
+<dd>A list of strings that match.</dd>
+</dl>
+<p>Applies very simple shell wildcard * expansion-type matching of argument name_filter on a list of strings, argument L, without using re module.
+* can only appear at beginning or end of name_filter (e.g. &#8216;*foo*&#8217;).</p>
+<p>E.g. name_filter = &#8216;*oo&#8217; and L=[&#8216;foo&#8217;,&#8217;bar&#8217;] yields [&#8216;foo&#8217;]</p>
 </dd></dl>
 
 <dl class="function">
@@ -1840,39 +1816,6 @@ format: string indicating the text formatting (see default).</dd>
 <dt>Returns: </dt>
 <dd>A string containing the HTML table only.</dd>
 </dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.utilsg.transpose_list">
-<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">transpose_list</tt><big>(</big><em>L</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#transpose_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.transpose_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transpose a list of lists.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>L: list of lists to be transposed.</dd>
-<dt>Returns:</dt>
-<dd>A list of lists</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.utilsg.tryfloat">
-<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">tryfloat</tt><big>(</big><em>value</em>, <em>nanval</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#tryfloat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.tryfloat" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.utilsg.which_att">
-<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">which_att</tt><big>(</big><em>obj</em>, <em>att_list</em>, <em>fail_val=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#which_att"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.which_att" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns first element of list of names if it matches an attribute name of object, None otherwise.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>obj: an object of which to examine the attributes
-att_list: an iterable containing strings
-fail_val: value to return if att_list elements not in object attribute names</dd>
-<dt>Returns: </dt>
-<dd>attribute name that gives firs match in list, fail_val otherwise</dd>
-</dl>
-<p><strong>See also</strong>
-get_att</p>
 </dd></dl>
 
 </div>

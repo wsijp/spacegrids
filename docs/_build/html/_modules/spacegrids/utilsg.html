@@ -143,8 +143,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 
-    <span class="n">Ls</span> <span class="o">=</span> <span class="n">split_list</span><span class="p">(</span><span class="n">L</span> <span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">L</span><span class="p">)</span><span class="o">/</span><span class="n">cols</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">Ls</span> <span class="o">=</span> <span class="n">transpose_list</span><span class="p">(</span><span class="n">Ls</span><span class="p">)</span>
+    <span class="n">Ls</span> <span class="o">=</span> <span class="n">_split_list</span><span class="p">(</span><span class="n">L</span> <span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">L</span><span class="p">)</span><span class="o">/</span><span class="n">cols</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">Ls</span> <span class="o">=</span> <span class="n">_transpose_list</span><span class="p">(</span><span class="n">Ls</span><span class="p">)</span>
  
 
     <span class="k">for</span> <span class="n">LL</span> <span class="ow">in</span> <span class="n">Ls</span><span class="p">:</span>
@@ -232,26 +232,6 @@
 
     <span class="k">return</span> <span class="n">Report</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
- </div>
-<div class="viewcode-block" id="print_box"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.print_box">[docs]</a><span class="k">def</span> <span class="nf">print_box</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">numspace</span> <span class="o">=</span> <span class="mi">2</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Used for formatted output to stdout</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-
-  <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">i</span><span class="o">%</span><span class="n">cols</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-      <span class="k">print</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span> 
-    <span class="k">print</span> <span class="s">&#39;</span><span class="si">%-15s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">it</span><span class="p">)</span> <span class="p">,</span>
-</div>
-<div class="viewcode-block" id="print_table"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.print_table">[docs]</a><span class="k">def</span> <span class="nf">print_table</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">numspace</span> <span class="o">=</span> <span class="mi">2</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Used for formatted output to stdout</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-
-  <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
-    <span class="k">if</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="o">%</span><span class="n">cols</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-      <span class="k">print</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span> 
-    <span class="k">print</span> <span class="s">&#39;</span><span class="si">%-15s</span><span class="s"> </span><span class="si">%-15s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span> <span class="p">,</span> <span class="n">D</span><span class="p">[</span><span class="n">k</span><span class="p">]),</span>
 
 </div>
 <div class="viewcode-block" id="plural"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.plural">[docs]</a><span class="k">def</span> <span class="nf">plural</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
@@ -272,9 +252,9 @@
     <span class="k">return</span> <span class="s">&#39;s&#39;</span>
 
 </div>
-<div class="viewcode-block" id="split_list"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.split_list">[docs]</a><span class="k">def</span> <span class="nf">split_list</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">10</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_split_list</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">10</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Very general function splitting a list L into a list of sublists of equal length (and a remainder).</span>
+<span class="sd">  Very general function splitting a list L into a list of sublists of equal length (and a remainder). Used in text formatting functionality.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
@@ -286,10 +266,10 @@
     <span class="n">new_L</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">L</span><span class="p">[</span><span class="n">size</span><span class="o">*</span><span class="n">full_blocks</span><span class="p">:])</span>  
 
   <span class="k">return</span> <span class="n">new_L</span>
-</div>
-<div class="viewcode-block" id="transpose_list"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.transpose_list">[docs]</a><span class="k">def</span> <span class="nf">transpose_list</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
+
+<span class="k">def</span> <span class="nf">_transpose_list</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Transpose a list of lists.</span>
+<span class="sd">  Transpose a list of lists. Used in text formatting functionality.</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">      L: list of lists to be transposed.</span>
@@ -312,20 +292,20 @@
     <span class="k">return</span> <span class="n">L</span>
 
 
-</div>
+
 <div class="viewcode-block" id="merge"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.merge">[docs]</a><span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="n">A1</span><span class="p">,</span><span class="n">A2</span><span class="p">,</span> <span class="n">sort</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Merge two ndarrays or iterables and order them. </span>
+<span class="sd">  _merge two ndarrays or iterables and order them. </span>
 
 <span class="sd">  Args:</span>
-<span class="sd">       A1: first array</span>
-<span class="sd">       A2: second array to be combined with first array</span>
+<span class="sd">       A1: first ndarray</span>
+<span class="sd">       A2: second ndarray to be combined with first array</span>
 <span class="sd">       sort: flag. sort called on result if True.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">       new_list: sorted list of combined values.</span>
 
-<span class="sd">  Used to merge Coord values.</span>
+<span class="sd">  Used to _merge Coord values.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="n">L1</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">A1</span><span class="p">)</span>
@@ -381,28 +361,7 @@
 
   <span class="k">return</span> <span class="n">sL</span>	
 
-</div>
-<div class="viewcode-block" id="mark_sublist"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.mark_sublist">[docs]</a><span class="k">def</span> <span class="nf">mark_sublist</span><span class="p">(</span><span class="n">Lbig</span><span class="p">,</span><span class="n">Lsub</span><span class="p">,</span> <span class="n">indicator</span> <span class="o">=</span><span class="s">&#39;*&#39;</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Marks all strings in a list of strings that also occur in a sublist by appending an indicator (\*) at the end of those strings.</span>
 
-<span class="sd">  Args:</span>
-<span class="sd">       Lbig:	The larger list, of which the contained strings will be marked.</span>
-<span class="sd">       Lsub:	The list of strings that need to be marked</span>
-<span class="sd">       indicator:	string containing the marker.</span>
-<span class="sd">       </span>
-<span class="sd">  Returns: </span>
-<span class="sd">       cLbig -- the list with marked strings</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-
-  <span class="n">cLbig</span> <span class="o">=</span> <span class="p">[]</span>
-  <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">Lbig</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">Lsub</span><span class="p">:</span>
-      <span class="n">it</span> <span class="o">=</span>   <span class="n">it</span> <span class="o">+</span><span class="n">indicator</span>
-  
-    <span class="n">cLbig</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
-  
-  <span class="k">return</span> <span class="n">cLbig</span>    
 
 </div>
 <div class="viewcode-block" id="add_alias"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.add_alias">[docs]</a><span class="k">def</span> <span class="nf">add_alias</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
@@ -468,7 +427,7 @@
   <span class="k">return</span> <span class="n">L</span>
 
 </div>
-<div class="viewcode-block" id="complete"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.complete">[docs]</a><span class="k">def</span> <span class="nf">complete</span><span class="p">(</span><span class="n">comp_sets</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_complete</span><span class="p">(</span><span class="n">comp_sets</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  Assigns attribute others to every element of a list of lists that is a list of all elements in the own group except the element itself. </span>
 
@@ -491,8 +450,8 @@
       <span class="n">co</span><span class="o">.</span><span class="n">others</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">set</span> <span class="k">if</span> <span class="n">e</span> <span class="o">!=</span> <span class="n">co</span><span class="p">])</span>
 
   <span class="k">return</span>
-</div>
-<div class="viewcode-block" id="flat_list"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.flat_list">[docs]</a><span class="k">def</span> <span class="nf">flat_list</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
+
+<span class="k">def</span> <span class="nf">_flat_list</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Documentation to come.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">W</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">L</span><span class="p">))</span>
@@ -501,8 +460,8 @@
 
   <span class="k">return</span> <span class="n">W</span>
 
-</div>
-<div class="viewcode-block" id="rav_index"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.rav_index">[docs]</a><span class="k">def</span> <span class="nf">rav_index</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="n">sh</span><span class="p">):</span>
+
+<span class="k">def</span> <span class="nf">_rav_index</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="n">sh</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Documentation to come.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">lsh</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span>
@@ -534,7 +493,7 @@
 
 
 
-</div>
+
 <div class="viewcode-block" id="find_perm"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.find_perm">[docs]</a><span class="k">def</span> <span class="nf">find_perm</span><span class="p">(</span><span class="n">left</span><span class="p">,</span><span class="n">right</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  Find a permutation to obtain tuple (iterable) argument &quot;right&quot; from &quot;left&quot;.</span>
@@ -624,7 +583,7 @@
 
 
 </div>
-<div class="viewcode-block" id="which_att"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.which_att">[docs]</a><span class="k">def</span> <span class="nf">which_att</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span><span class="n">att_list</span><span class="p">,</span><span class="n">fail_val</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_which_att</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span><span class="n">att_list</span><span class="p">,</span><span class="n">fail_val</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  Returns first element of list of names if it matches an attribute name of object, None otherwise.</span>
 
@@ -647,10 +606,10 @@
   
   <span class="k">return</span> <span class="n">fail_val</span>
 
-</div>
+
 <div class="viewcode-block" id="get_att"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.get_att">[docs]</a><span class="k">def</span> <span class="nf">get_att</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">att_list</span><span class="p">,</span><span class="n">fail_val</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Returns attribute value corresponding to first element of list of names if it matches an attribute name of object, None otherwise.</span>
+<span class="sd">  Returns attribute value corresponding to first element of a list of name strings that matches any attribute name of object, None otherwise.</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">       obj: an object of which to examine the attributes</span>
@@ -661,10 +620,10 @@
 <span class="sd">       attribute value that gives firs match in list, fail_val otherwise</span>
 
 <span class="sd">  **See also**</span>
-<span class="sd">  which_att</span>
+<span class="sd">  _which_att</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-  <span class="n">this_att</span> <span class="o">=</span> <span class="n">which_att</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">att_list</span><span class="p">)</span>
+  <span class="n">this_att</span> <span class="o">=</span> <span class="n">_which_att</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">att_list</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">this_att</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">fail_val</span>
   <span class="k">else</span><span class="p">:</span>
@@ -683,11 +642,14 @@
 <span class="sd">  Returns: </span>
 <span class="sd">       None or integer representing the index of e in L.</span>
 
+<span class="sd">  Used on both Ax and Coord objects in code. In Coord case, the &amp; method is identical to the weaksame method.</span>
 
 <span class="sd">  **See also**</span>
 <span class="sd">  id_in</span>
 <span class="sd">  rem_equivs</span>
+<span class="sd">  __and__ methods of Ax and Coord class</span>
 <span class="sd">  List method &#39;index&#39;</span>
+<span class="sd">  </span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">it</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
@@ -711,6 +673,8 @@
 <span class="sd">  Returns: </span>
 <span class="sd">       True or False depending on whether there is an element e2 of L such that e&amp;e2 is True</span>
 
+
+<span class="sd">  Used on Ax objects in code.</span>
 
 <span class="sd">  **See also**</span>
 <span class="sd">  id_index</span>
@@ -859,7 +823,7 @@
     <span class="k">return</span> <span class="n">L_all</span><span class="p">,</span> <span class="n">L</span>
 
 </div>
-<span class="k">def</span> <span class="nf">_simple_glob</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">name_filter</span><span class="p">):</span>
+<div class="viewcode-block" id="simple_glob"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.simple_glob">[docs]</a><span class="k">def</span> <span class="nf">simple_glob</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">name_filter</span><span class="p">):</span>
 
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  Very simple wildcard expansion on list of strings.</span>
@@ -891,8 +855,8 @@
       <span class="n">L</span> <span class="o">=</span> <span class="p">[</span> <span class="n">it</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">L</span> <span class="k">if</span> <span class="n">name_filter</span> <span class="o">==</span> <span class="n">it</span>  <span class="p">]</span> 
   <span class="k">return</span> <span class="n">L</span>
 
-
-<span class="k">def</span> <span class="nf">_end_of_filepath</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="end_of_filepath"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.end_of_filepath">[docs]</a><span class="k">def</span> <span class="nf">end_of_filepath</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  Little function that finds the last element of a path, without using os module.</span>
 <span class="sd">  e.g. /foo/bar yields bar, as does /foo/bar/</span>
@@ -909,7 +873,7 @@
 
 <span class="c"># ------------- general time series related functions ----------------</span>
 
-
+</div>
 <span class="k">def</span> <span class="nf">_str_html_row</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">cell_tag</span><span class="o">=</span><span class="s">&#39;td&#39;</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  Helper function to construct a HTML table row from a list of string values.</span>
@@ -933,7 +897,7 @@
 
 
 
-<div class="viewcode-block" id="float_html_row"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.float_html_row">[docs]</a><span class="k">def</span> <span class="nf">float_html_row</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">cell_tag</span><span class="o">=</span><span class="s">&#39;td&#39;</span><span class="p">,</span> <span class="n">decimal</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%.3f</span><span class="s">&quot;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_float_html_row</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">cell_tag</span><span class="o">=</span><span class="s">&#39;td&#39;</span><span class="p">,</span> <span class="n">decimal</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%.3f</span><span class="s">&quot;</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  Helper function to construct a HTML table row from a list of string values.</span>
 <span class="sd">  row: list of row values</span>
@@ -952,13 +916,13 @@
   <span class="n">row_str</span> <span class="o">=</span> <span class="n">row_str</span> <span class="o">+</span> <span class="n">decimal</span><span class="o">%</span><span class="n">row</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">close_tag</span>
 
   <span class="k">return</span> <span class="n">row_str</span>
-</div>
+
 <span class="k">def</span> <span class="nf">_add_html_row</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">t_str</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">row_tag</span> <span class="o">=</span> <span class="s">&#39;tr&#39;</span><span class="p">,</span> <span class="n">cell_tag</span> <span class="o">=</span> <span class="s">&#39;td&#39;</span> <span class="p">,</span> <span class="n">decimal</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%.3f</span><span class="s">&quot;</span><span class="p">):</span>
 
   <span class="n">open_tag</span> <span class="o">=</span> <span class="s">&#39;&lt;&#39;</span> <span class="o">+</span> <span class="n">row_tag</span> <span class="o">+</span> <span class="s">&#39;&gt;&#39;</span>
   <span class="n">close_tag</span> <span class="o">=</span> <span class="s">&#39;&lt;/&#39;</span> <span class="o">+</span> <span class="n">row_tag</span> <span class="o">+</span> <span class="s">&#39;&gt;&#39;</span>
 
-  <span class="n">row_str</span> <span class="o">=</span> <span class="n">float_html_row</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">cell_tag</span> <span class="o">=</span> <span class="n">cell_tag</span><span class="p">,</span> <span class="n">decimal</span> <span class="o">=</span> <span class="n">decimal</span><span class="p">)</span>
+  <span class="n">row_str</span> <span class="o">=</span> <span class="n">_float_html_row</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">cell_tag</span> <span class="o">=</span> <span class="n">cell_tag</span><span class="p">,</span> <span class="n">decimal</span> <span class="o">=</span> <span class="n">decimal</span><span class="p">)</span>
 
   <span class="k">return</span> <span class="n">t_str</span> <span class="o">+</span> <span class="n">open_tag</span> <span class="o">+</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">row_str</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="n">close_tag</span>   
 
@@ -994,7 +958,7 @@
 
   <span class="k">return</span> <span class="n">t_str</span>
 
-<div class="viewcode-block" id="tryfloat"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.tryfloat">[docs]</a><span class="k">def</span> <span class="nf">tryfloat</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">nanval</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_tryfloat</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">nanval</span><span class="p">):</span>
 
   <span class="k">try</span><span class="p">:</span>
     <span class="n">ret_val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
@@ -1002,7 +966,7 @@
     <span class="n">ret_val</span> <span class="o">=</span> <span class="n">nanval</span>
 
   <span class="k">return</span> <span class="n">ret_val</span>
-</div>
+
 <div class="viewcode-block" id="tohtml"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.tohtml">[docs]</a><span class="k">def</span> <span class="nf">tohtml</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">H</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">D</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">topleft</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">table_tag</span> <span class="o">=</span> <span class="s">&#39;table&#39;</span><span class="p">,</span> <span class="n">format</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%.3f</span><span class="s">&quot;</span><span class="p">):</span>
 
   <span class="sd">&quot;&quot;&quot;</span>
@@ -1079,7 +1043,7 @@
   <span class="n">T</span> <span class="o">=</span> <span class="p">[]</span>
   <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">ROWS</span><span class="p">[</span><span class="n">data_start_row</span><span class="p">:]:</span>
     <span class="n">cols</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">separator</span><span class="p">)</span>
-    <span class="n">row_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">tryfloat</span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="n">nanval</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">[</span><span class="n">data_start_col</span><span class="p">:]]</span>
+    <span class="n">row_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">_tryfloat</span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="n">nanval</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">[</span><span class="n">data_start_col</span><span class="p">:]]</span>
 
     <span class="k">if</span> <span class="n">row_list</span><span class="p">:</span>
       <span class="n">T</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row_list</span><span class="p">)</span>

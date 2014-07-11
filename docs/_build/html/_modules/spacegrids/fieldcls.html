@@ -139,7 +139,8 @@
 
 </div>
   <span class="k">def</span> <span class="nf">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
-
+    <span class="sd">&quot;&quot;&quot;Shorthand for weaksame method. See weaksame.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weaksame</span><span class="p">(</span><span class="n">other</span> <span class="o">=</span> <span class="n">other</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Coord.weaksame"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Coord.weaksame">[docs]</a>  <span class="k">def</span> <span class="nf">weaksame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
@@ -186,7 +187,7 @@
     
     <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
       <span class="k">if</span> <span class="p">(</span><span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">):</span>
-
+     
           <span class="k">if</span> <span class="n">values</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">values</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span>
 
@@ -771,7 +772,7 @@
 <div class="viewcode-block" id="XCoord"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.XCoord">[docs]</a><span class="k">class</span> <span class="nc">XCoord</span><span class="p">(</span><span class="n">Coord</span><span class="p">):</span>
 
 
-<div class="viewcode-block" id="XCoord.copy"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.XCoord.copy">[docs]</a>  <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">direction</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">units</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">long_name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">strings</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">equiv</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="XCoord.copy"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.XCoord.copy">[docs]</a>  <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">dual</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">direction</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">units</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">long_name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">metadata</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">strings</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">equiv</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Copy function for Coord objects. If equiv = True, the copies will be equivalent.</span>
 <span class="sd">    Copies with identical key attributes that are not equivalent will yield a severe warning about this when equivalance is tested with the ^ operator.</span>
@@ -955,7 +956,7 @@
 </div></div>
 <div class="viewcode-block" id="YCoord"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.YCoord">[docs]</a><span class="k">class</span> <span class="nc">YCoord</span><span class="p">(</span><span class="n">Coord</span><span class="p">):</span>
 
-<div class="viewcode-block" id="YCoord.copy"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.YCoord.copy">[docs]</a>  <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">direction</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">units</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">long_name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">strings</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">equiv</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="YCoord.copy"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.YCoord.copy">[docs]</a>  <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">dual</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">direction</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">units</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">long_name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">metadata</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">strings</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">equiv</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Copy function for Coord objects. If equiv = True, the copies will be equivalent.</span>
@@ -1039,12 +1040,35 @@
 
 </div>
   <span class="k">def</span> <span class="nf">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Shorthand for weaksame method. See weaksame.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weaksame</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Ax.weaksame"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Ax.weaksame">[docs]</a>  <span class="k">def</span> <span class="nf">weaksame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Tests if two Ax objects have the same name.</span>
+
+<span class="sd">    Weak test to see if two Ax objects are similar.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">         other: other Ax object to compare self with</span>
+<span class="sd">       </span>
+<span class="sd">    Returns: </span>
+<span class="sd">         True/ False</span>
+
+<span class="sd">    **See also**</span>
+<span class="sd">    same method</span>
+<span class="sd">    samein method</span>
+<span class="sd">    sameindex method</span>
+<span class="sd">    Coord weaksame method</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
       <span class="k">return</span> <span class="bp">True</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="k">return</span> <span class="bp">False</span>
 
-
+</div>
 <div class="viewcode-block" id="Ax.copy"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Ax.copy">[docs]</a>  <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
