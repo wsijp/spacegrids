@@ -79,35 +79,35 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     # Note that some coord values are deliberately unordered.   
 
     # Coords ---    
-    coord1 = sg.fieldcls.Coord(name = 'test1',direction ='X',value =np.array([1,2,3]) , metadata = {'hi':5} )
-    coord2 = sg.fieldcls.Coord(name = 'test2',direction ='Y',value =np.array([1,2,3,4]), metadata = {'hi':7})
-    coord3 = sg.fieldcls.Coord(name = 'test',direction ='X',value =np.array([5,1,2,3,4]), metadata = {'hi':3})
+    coord1 = sg.fieldcls.Coord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]) , metadata = {'hi':5} )
+    coord2 = sg.fieldcls.Coord(name = 'test2',direction ='Y',value =np.array([1.,2.,3.,4.]), metadata = {'hi':7})
+    coord3 = sg.fieldcls.Coord(name = 'test',direction ='X',value =np.array([5.,1.,2.,3.,4.]), metadata = {'hi':3})
     # identical in main attributes to previous set (in order):
-    coord4 = sg.fieldcls.Coord(name = 'test1',direction ='X',value =np.array([1,2,3]), metadata = {'hi':8})
+    coord4 = sg.fieldcls.Coord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]), metadata = {'hi':8})
     coord5 = sg.fieldcls.Coord(name = 'test2',direction ='Y',value =np.array([1,2,3, 4]), metadata = {'hi':10})
     coord6 = sg.fieldcls.Coord(name = 'test',direction ='X',value =np.array([5,1,2,3, 4]), metadata = {'hi':12})
 
     # YCoords ---
 
-    ycoord1 = sg.fieldcls.YCoord(name = 'test1',direction ='X',value =np.array([1,2,3]) , metadata = {'hi':5} )
-    ycoord2 = sg.fieldcls.YCoord(name = 'test2',direction ='Y',value =np.array([1,2,3,4]), metadata = {'hi':7})
-    ycoord3 = sg.fieldcls.YCoord(name = 'test',direction ='X',value =np.array([5,1,2,3,4]), metadata = {'hi':3})
+    ycoord1 = sg.fieldcls.YCoord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]) , metadata = {'hi':5} )
+    ycoord2 = sg.fieldcls.YCoord(name = 'test2',direction ='Y',value =np.array([1.,2.,3.,4.]), metadata = {'hi':7})
+    ycoord3 = sg.fieldcls.YCoord(name = 'test',direction ='X',value =np.array([5.,1.,2.,3.,4.]), metadata = {'hi':3})
     # identical in main attributes to previous set (in order):
-    ycoord4 = sg.fieldcls.YCoord(name = 'test1',direction ='X',value =np.array([1,2,3]), metadata = {'hi':8})
-    ycoord5 = sg.fieldcls.YCoord(name = 'test2',direction ='Y',value =np.array([1,2,3, 4]), metadata = {'hi':10})
-    ycoord6 = sg.fieldcls.YCoord(name = 'test',direction ='X',value =np.array([5,1,2,3, 4]), metadata = {'hi':12})
+    ycoord4 = sg.fieldcls.YCoord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]), metadata = {'hi':8})
+    ycoord5 = sg.fieldcls.YCoord(name = 'test2',direction ='Y',value =np.array([1.,2.,3., 4.]), metadata = {'hi':10})
+    ycoord6 = sg.fieldcls.YCoord(name = 'test',direction ='X',value =np.array([5.,1.,2.,3., 4.]), metadata = {'hi':12})
 
 
 
     # XCoords ---
 
-    xcoord1 = sg.fieldcls.XCoord(name = 'test1',direction ='X',value =np.array([1,2,3]) , metadata = {'hi':5} )
-    xcoord2 = sg.fieldcls.XCoord(name = 'test2',direction ='Y',value =np.array([1,2,3,4]), metadata = {'hi':7})
-    xcoord3 = sg.fieldcls.XCoord(name = 'test',direction ='X',value =np.array([5,1,2,3,4]), metadata = {'hi':3})
+    xcoord1 = sg.fieldcls.XCoord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]) , metadata = {'hi':5} )
+    xcoord2 = sg.fieldcls.XCoord(name = 'test2',direction ='Y',value =np.array([1.,2.,3.,4.]), metadata = {'hi':7})
+    xcoord3 = sg.fieldcls.XCoord(name = 'test',direction ='X',value =np.array([5.,1.,2.,3.,4.]), metadata = {'hi':3})
     # identical in main attributes to previous set (in order):
-    xcoord4 = sg.fieldcls.XCoord(name = 'test1',direction ='X',value =np.array([1,2,3]), metadata = {'hi':8})
-    xcoord5 = sg.fieldcls.XCoord(name = 'test2',direction ='Y',value =np.array([1,2,3, 4]), metadata = {'hi':10})
-    xcoord6 = sg.fieldcls.XCoord(name = 'test',direction ='X',value =np.array([5,1,2,3, 4]), metadata = {'hi':12})
+    xcoord4 = sg.fieldcls.XCoord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]), metadata = {'hi':8})
+    xcoord5 = sg.fieldcls.XCoord(name = 'test2',direction ='Y',value =np.array([1.,2.,3., 4.]), metadata = {'hi':10})
+    xcoord6 = sg.fieldcls.XCoord(name = 'test',direction ='X',value =np.array([5.,1.,2.,3., 4.]), metadata = {'hi':12})
 
 
 
@@ -133,7 +133,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """Test the __init__ method of Coord
     """
     
-    self.assertRaises(ValueError, sg.fieldcls.Coord, **{'name' : 'test1','direction' :'X','value': np.array([1,2,3]) , 'metadata': {'hi':5}, 'strings': ['foo','bar'] })
+    self.assertRaises(ValueError, sg.fieldcls.Coord, **{'name' : 'test1','direction' :'X','value': np.array([1.,2.,3.]) , 'metadata': {'hi':5}, 'strings': ['foo','bar'] })
 
   def test_get_item_method(self):
     """Test the __getitem__ method of Coord class for success, failure and raised error.
@@ -212,7 +212,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
    
     coord3_copy = coord3.copy(dual = coord2)
 
-    test_args = {'name':'joep', 'value':np.array([1,2,3]),'dual':coord2,'axis':Z,'direction':'Z','units':'cm','long_name':'this is a coordinate in the x direction','metadata':{'hi':0},'strings':['five','one','two','three','four']}
+    test_args = {'name':'joep', 'value':np.array([1.,2.,3.]),'dual':coord2,'axis':Z,'direction':'Z','units':'cm','long_name':'this is a coordinate in the x direction','metadata':{'hi':0},'strings':['five','one','two','three','four']}
  
 
     for ta in test_args:
@@ -352,6 +352,243 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     self.assertEqual(coord3.same(coord3_copy), False  )
 
 
+  def test_cast_method_no_args(self):
+    """
+    Test Coord cast method.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+ 
+    F = coord1.cast()
+  
+    self.assertEqual(F.shape, (3,)  )
+
+  def test_cast_method_2D_grid(self):
+    """
+    Test Coord cast method.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]     
+    coord3 = cstack1[-1]
+
+    F = coord1.cast(coord1*coord2)
+  
+    self.assertEqual(F.shape, (3,4)  )
+    self.assertEqual( np.array_equal( F.value[1,:], np.array([2,2,2,2]) ), True  )
+    self.assertEqual( np.array_equal( F.value[:,1], np.array([1.,2.,3.]) ), True  )
+
+
+  def test_make_equiv_method(self):
+    """
+    Test Coord make_equiv method.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]     
+    coord3 = cstack1[-1]
+
+    coord1.make_equiv(coord2)
+  
+    self.assertEqual(coord2 in coord1.equivs, True  )
+
+  def test_is_equiv_method_false(self):
+    """
+    Test Coord is_equiv method.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]     
+    coord3 = cstack1[-1]
+  
+    self.assertEqual(coord1.is_equiv(coord2),  False  )
+ 
+
+  def test_is_equiv_method_true(self):
+    """
+    Test Coord is_equiv method.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]     
+    coord3 = cstack1[-1]
+
+    coord1.make_equiv(coord2)
+  
+    self.assertEqual(coord1.is_equiv(coord2),  True  )
+    self.assertEqual(coord2.is_equiv(coord1),  True  )
+
+
+  def test_eq_in_method_false(self):
+    """
+    Test Coord eq_in method.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]     
+    coord3 = cstack1[-1]
+ 
+    self.assertEqual(coord1.eq_in(coord2*coord3),  None  )
+
+  def test_eq_in_method_true(self):
+    """
+    Test Coord eq_in method.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]     
+    coord3 = cstack1[-1]
+
+    coord1.make_equiv(coord2)
+  
+    self.assertEqual(coord1.eq_in(coord2*coord3),  coord2  )
+
+
+  def test_pow_method(self):
+    """
+    Test Coord __pow__ method.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+  
+    self.assertEqual(coord1**2,  sg.Gr((coord1,))  )
+
+  def test_mul_method_non_equiv(self):
+    """
+    Test Coord __mul__ method.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+  
+    self.assertEqual((coord1*coord2).shape(),  (3,4)  )
+
+  def test_mul_method_equiv(self):
+    """
+    Test Coord __mul__ method.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+      
+    coord1.make_equiv(coord2)
+
+    self.assertEqual((coord1*coord2).shape(),  (3,)  )
+
+  def test_roll_function_non_masked(self):
+    """Test the sg roll function
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+
+    K = coord1(coord1*coord2)
+    R= sg.roll(K,coord=coord1,mask = False)
+    
+    self.assertEqual( np.array_equal( R[0,:],  np.array([3.,3.,3.,3.]) ), True  )
+    self.assertEqual( np.array_equal( R[1,:],  np.array([1.,1.,1.,1.]) ), True  )
+    # first coord in R.gr is replaced:
+    self.assertEqual( R.gr[0] is coord1, False  )
+    # second coord in R.gr is not replaced:
+    self.assertEqual( R.gr[1] is coord2, True  )
+
+    # test whether coord in R.gr is properly rolled:
+    self.assertEqual( np.array_equal(R.gr[0].value , np.array( [3., 1., 2.] )  ) , True  )
+
+
+  def test_roll_function_non_masked_keepgrid(self):
+    """Test the sg roll function
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+
+    K = coord1(coord1*coord2)
+    R= sg.roll(K,coord=coord1,mask = False, keepgrid = True)
+    
+    # first coord in R.gr is not replaced:
+    self.assertEqual( R.gr[0] is coord1, True  )
+    # second coord in R.gr is not replaced:
+    self.assertEqual( R.gr[1] is coord2, True  )
+
+
+  def test_roll_function_masked(self):
+    """Test the sg roll function
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+
+    K = coord1(coord1*coord2)
+    R= sg.roll(K,coord=coord1,mask = True)
+    
+    self.assertEqual( np.isnan( R[0,:] ).all() , True  )
+    self.assertEqual( np.array_equal( R[1,:],  np.array([1.,1.,1.,1.]) ), True  )
+
+
+  def test_coord_shift_method(self):
+    """
+    Test Coord coord_shift method.
+
+    Need to check the nan's that show up as numbers in the exposed area.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+     
+    K = coord1(coord1*coord2) 
+    R = coord1.coord_shift(K,1)
+
+    self.assertEqual( np.isnan( R[0,:] ).all() , True  )
+    self.assertEqual( np.array_equal( R[1,:],  np.array([1.,1.,1.,1.]) ), True  )
+
+  def test_trans_method(self):
+    """
+    Test Coord trans method.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+     
+    K = coord1(coord1*coord2) 
+    R = coord1.trans(K)
+
+    self.assertEqual( np.array_equal( R[1,:],  np.array([1.,1.,1.,1.]) ), True  )
+    self.assertEqual( np.array_equal( R[2,:],  np.array([1.,1.,1.,1.]) ), True  )
+
+    self.assertEqual( R.gr[0] is coord1   , True  )
+
+
 # -------- test block for YCoord class ---------------
 
   def testY_copy_method_yields_not_same_for_case_name(self):
@@ -382,7 +619,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
    
     coord3_copy = coord3.copy(dual = coord2)
 
-    test_args = {'name':'joep', 'value':np.array([1,2,3]),'dual':coord2,'axis':Z,'direction':'Z','units':'cm','long_name':'this is a coordinate in the x direction','metadata':{'hi':0},'strings':['five','one','two','three','four']}
+    test_args = {'name':'joep', 'value':np.array([1.,2.,3.]),'dual':coord2,'axis':Z,'direction':'Z','units':'cm','long_name':'this is a coordinate in the x direction','metadata':{'hi':0},'strings':['five','one','two','three','four']}
  
 
     for ta in test_args:
@@ -546,7 +783,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
    
     coord3_copy = coord3.copy(dual = coord2)
 
-    test_args = {'name':'joep', 'value':np.array([1,2,3]),'dual':coord2,'axis':Z,'direction':'Z','units':'cm','long_name':'this is a coordinate in the x direction','metadata':{'hi':0},'strings':['five','one','two','three','four']}
+    test_args = {'name':'joep', 'value':np.array([1.,2.,3.]),'dual':coord2,'axis':Z,'direction':'Z','units':'cm','long_name':'this is a coordinate in the x direction','metadata':{'hi':0},'strings':['five','one','two','three','four']}
  
 
     for ta in test_args:
@@ -845,12 +1082,12 @@ class TestUtilsg(unittest.TestCase):
     An alias attribute is assigned, which is the same as the name attribute unless the name appears more than once.
     Two names are the same in this example, and in the created alias, the second of those two names must receive a suffix "2". 
     """
-    coord1 = sg.fieldcls.Coord(name = 'test',direction ='X',value =np.array([1,2,3]) , metadata = {'hi':5} )
-    coord2 = sg.fieldcls.Coord(name = 'test',direction ='Y',value =np.array([1,2,3,4]), metadata = {'hi':7})
+    coord1 = sg.fieldcls.Coord(name = 'test',direction ='X',value =np.array([1.,2.,3.]) , metadata = {'hi':5} )
+    coord2 = sg.fieldcls.Coord(name = 'test',direction ='Y',value =np.array([1.,2.,3.,4.]), metadata = {'hi':7})
 
-    coord3 = sg.fieldcls.Coord(name = 'test3',direction ='X',value =np.array([5,1,2,3,4]), metadata = {'hi':3})
+    coord3 = sg.fieldcls.Coord(name = 'test3',direction ='X',value =np.array([5.,1.,2.,3.,4.]), metadata = {'hi':3})
 
-    coord4 = sg.fieldcls.Coord(name = 'test4',direction ='X',value =np.array([5,1,2,3,4]), metadata = {'hi':5})
+    coord4 = sg.fieldcls.Coord(name = 'test4',direction ='X',value =np.array([5.,1.,2.,3.,4.]), metadata = {'hi':5})
 
     L = sg.utilsg.add_alias([coord1, coord2, coord3, coord4])
 

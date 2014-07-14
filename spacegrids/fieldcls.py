@@ -35,7 +35,12 @@ class Coord(object):
 
   Coord objects c1 and c2 are considered equal, c1&c2 yields True, when the name, value (numpy array) and units attributes are equal.
 
-  An equivalence relationship is defined among Coord objects by adding them to each other's equiv attributes.
+  An abstract equivalence relationship is defined among Coord objects by adding them to each other's equiv attributes. This relationship is generally used to indicate whether two Coord objects have the same the direction (e.g. X,Y), but could be defined otherwise.
+
+  Being a container of Coord objects, the Gr object (grid) is closely related to Coord. A shorthand for Gr construction is via multiplication of Coord objects. If two Coord objects coord1 and coord2 are not equivalent (generally when they point in different directions, e.g. X and Y), their product is a shorthand for the creation of a 2D grid coord1*coord2 = Gr((coord1, coord2)). By induction, products containing n elements yield Gr objects of dimension <=n. See class documentation.
+
+
+
 
   Attributes:
     axis: (Ax) axis along which Coord is defined.
@@ -55,7 +60,6 @@ class Coord(object):
     >>> coord1 = sg.fieldcls.Coord(name = 'test1',value =np.array([1.,2.,3.]) ,axis =sg.fieldcls.Ax('X'),direction ='X', metadata = {'hi':5} )
     >>> coord2 = sg.fieldcls.Coord(name = 'test2',value =np.array([1.,2.,3.,4.]),axis =sg.fieldcls.Ax('Y'),direction ='Y', metadata = {'hi':7})
     >>> coord3 = sg.fieldcls.Coord(name = 'test3',value =np.array([1.5,2.5,3.5,4.5]),axis =sg.fieldcls.Ax('X'),direction ='X', metadata = {'hi':7})
-
   """
 
   def __repr__(self):
@@ -173,7 +177,7 @@ class Coord(object):
 
 
   def __and__(self,other):
-    """Shorthand for weaksame method. See weaksame.
+    """Shorthand for Coord weaksame method. See weaksame.
     """
     return self.weaksame(other = other)
 
@@ -352,9 +356,32 @@ class Coord(object):
         else:
           return 
       elif isinstance(other,Field):
-          return self.bigslice(other,index)
+          return self._bigslice(other,index)
 
       return 
+
+# ----- addition related --------- 
+
+  def __add__(self,other):
+
+    """
+    Coord method.
+    Refine Coord by combining grid points from both. Only implemented for self-dual Coord objects.
+    """
+    if ((self.dual == self) and (other.dual == other)):
+
+      result = self.copy()
+
+      result.value = merge(self.value,other.value)
+      
+      return result
+
+    else:
+
+      print '+ only implemented for self-dual Coord objects (e.g. time), returning None.'
+      return None  
+
+
       
   def __neg__(self):
     """
@@ -371,33 +398,7 @@ class Coord(object):
     neg_crd.dual = neg_dual
     return neg_crd
 
-
-
-
-  def __or__(self,other):
-    """
-    Shorthand to register equivalence with other Coord object (see make_equiv) or take vcumsum of a field. 
-
-    Args:
-      other: (Coord, Field or VField)
-
-    Returns:
-      None
-
-    Raises:
-      TypeError: when the argument is not a Coord, Field or VField
-    """
-
-    if isinstance(other,Coord):
-      self.make_equiv(other)
-    elif isinstance(other,Field):
-      return self.vcumsum(other)
-    elif isinstance(other,VField):
-
-      return VField([self|e  for e in other] )
-
-    else:
-      raise Exception('Coord error in %s|%s with Coord %s: provide Coord or Field for right multiplicant (%s), or check staleness.' % (self,other,self,other)  )
+# ----- equivalence related ---------  
 
   def make_equiv(self,other):
     """
@@ -437,8 +438,95 @@ class Coord(object):
     return
 
 
+  def is_equiv(self,other):
+    """
+    Test for equivalence (under make_equiv). e.g. xt is equivalent to xu
+
+    Args:
+      other: (Coord or Ax)
+
+    Returns:
+      True when equivalent, False otherwise.
+
+    See also:
+      is_equiv
+
+    Examples:
+    >>> depth.is_equiv(longitude) # generally different directions.
+    False
+
+    See also:
+      make_equiv
+      eq_index
+      eq_in
+    """
+    
+    if (other in self.equivs) | (self in other.equivs):
+
+      return True     
+    else:
+      if ( self.weaksame(other) ):
+        warnings.warn('Warning (severe) from %s^%s: objects not equivalent, but contain the same main attributes (name, value, units)! ' % (self,other) )
+      return False
+
+
+  def eq_in(self, grid):
+
+    """ Determines whether Coord (self) is equivalent to any of the constituent Coord objects of the argument Gr or GrAx, and returns equivalent object.
+
+    Args:
+      grid: (Gr or AxGr) object to be checked.
+
+    Returns:
+      The equivalent object  when crd is equivalent to one of the Coord objects in argument, None otherwise.
+
+    See also:
+      eq_in method of Ax, GrAx
+      is_equiv
+      make_equiv
+      eq_index
+      eq_in   
+    """
+
+
+    i = self.eq_index(grid)
+    if i is not None:
+      return grid[i ]
+    else:   
+      return
+
+
+
 
 # Belongs to Coord   
+
+
+  def __or__(self,other):
+    """
+    Shorthand to register equivalence with other Coord object (see make_equiv) or take vcumsum of a field. 
+
+    Args:
+      other: (Coord, Field or VField)
+
+    Returns:
+      None
+
+    Raises:
+      TypeError: when the argument is not a Coord, Field or VField
+    """
+
+    if isinstance(other,Coord):
+      self.make_equiv(other)
+    elif isinstance(other,Field):
+      return self.vcumsum(other)
+    elif isinstance(other,VField):
+
+      return VField([self|e  for e in other] )
+
+    else:
+      raise Exception('Coord error in %s|%s with Coord %s: provide Coord or Field for right multiplicant (%s), or check staleness.' % (self,other,self,other)  )
+
+
 
   def __xor__(self,other):
     """
@@ -471,128 +559,81 @@ class Coord(object):
       raise TypeError('Coord error in %s^%s with Coord %s. Provide Coord,Gr or Field object for right multiplicant (now %s).' % (self,other,self,other) )
       return
 
-  def eq_index(grid):
+  def eq_index(self,grid):
     if grid.eq_in(self):
       return grid.eq_index(self)  
     else:   
       return
 
-  def eq_in(grid):
-
-    i = self.eq_index(grid)
-    if i:
-      return grid[i ]
-    else:   
-      return
-
-  def is_equiv(self,other):
-    """
-    Test for equivalence (under make_equiv). e.g. xt is equivalent to xu
-
-    Args:
-      other: (Coord or Ax)
-
-    Returns:
-      True when equivalent, False otherwise.
-
-    See also:
-      is_equiv
-
-    Examples:
-    >>> depth.is_equiv(longitude) # generally different directions.
-    False
-
-    See also:
-      make_equiv
-      eq_index
-      eq_in
-    """
-    
-    if (other in self.equivs) | (self in other.equivs):
-
-      return True     
-    else:
-      if (self&other):
-        warnings.warn('Warning (severe) from %s^%s: objects not equivalent, but contain the same main attributes (name, value, units)! ' % (self,other) )
-      return False
 
 
 
-
-
-
-
-
-      
+# ----- multiplication related ---------      
 
   def __pow__(self,n):
-
+    """
+    Repeated multiplication of object with itself.
+    """
     return reduce(lambda x,y: x*y, n*[self])
 
 # --> belongs to Coord 
   def __mul__(self,other):
-    if self.direction == 'scalar':
-      return Gr((other,))
-    else:
-      if isinstance(other,Coord):   
-        if other.direction == 'scalar': 
-          return Gr((self,))
-        else:
-          if other^self:
-            return Gr((self,))
-          else:
-            return Gr((self,other))
+    """
+    Multiplication of Coord with Coord, Ax, Gr, (V)Field.
+    
+    A shorthand for grid (Gr object) construction is via multiplication of Coord objects. If two Coord objects coord1 and coord2 are not equivalent (generally when they point in different directions, e.g. X and Y), their product is a shorthand for the creation of a 2D grid coord1*coord2 = Gr((coord1, coord2)). If coord1 and coord2 are equivalent (point in the same direction), coord1*coord2 yields Gr((coord1,)). By induction, products containing n elements yield Gr objects of dimension <=n. See class documentation.
 
-      elif isinstance(other,Ax):
-        # Ax and Coord objects commute
-        return other*self
+    In case the right multiplicant (argument) is a (V)Field, the product yields the zonal integral of that (V)Field.
 
-      elif isinstance(other,Gr):   
-        if other.eq_in(self):
-          new_other = list(other)
-       
-          new_other[other.eq_index(self)] = self
-          return Gr(new_other)
-        else:
-          return Gr( [self] + list(other))
-      elif isinstance(other,Field):
-#        print 'Warning (benign): converting left multiplicant to Gr object from Coord object.'
-        return (self**2)*other
+    Args:
+      other: (Coord, Ax, Gr or (V)Field)
 
-      elif isinstance(other,VField):
-         # case whether vector Field is multiplied by Coord (yielding vsum).
-         # this commutes:
-         return other*self
+    Returns
+      Gr if argument Coord/ Gr 
+      None, Coord if argument Ax (so that Ax multiplication commutes)
+      (V)Field if argument field (zonal integral)
 
+    Raises: TypeError    
+    """
+
+    if isinstance(other,Coord):   
+      if other.is_equiv(self):
+        return Gr((self,))
       else:
-        raise Exception('Coord error in %s*%s with Coord %s: provide Coord, Gr or Field object as right multiplicant (now %s). If multiplicant appears to be a Coord of other multiplicant Field, check whether its definition is stale (reloaded sg since its creation). '% (self,other,self,other) )
+        return Gr((self,other))
 
+    elif isinstance(other,Ax):
+      # Ax and Coord objects commute
+      return other*self
 
+    elif isinstance(other,Gr):   
+      if other.eq_in(self):
+        new_other = list(other)
+       
+        new_other[other.eq_index(self)] = self
+        return Gr(new_other)
+      else:
+        return Gr( [self] + list(other))
+    elif isinstance(other,Field):
+#        print 'Warning (benign): converting left multiplicant to Gr object from Coord object.'
+      return (self**2)*other
 
-
-  def __add__(self,other):
-
-    """
-    Coord method.
-    Refine Coord by combining grid points from both. Only implemented for self-dual Coord objects.
-    """
-    if ((self.dual == self) and (other.dual == other)):
-
-      result = self.copy()
-
-      result.value = merge(self.value,other.value)
-      
-      return result
+    elif isinstance(other,VField):
+       # case whether vector Field is multiplied by Coord (yielding vsum).
+       # this commutes:
+       return other*self
 
     else:
+      raise TypeError('Coord error in %s*%s with Coord %s: provide Coord, Gr or Field object as right multiplicant (now %s). If multiplicant appears to be a Coord of other multiplicant Field, check whether its definition is stale (reloaded sg since its creation). '% (self,other,self,other) )
 
-      print '+ only implemented for self-dual Coord objects (e.g. time), returning None.'
-      return None  
+
 
 
   def start_zero(self):
     """
     Returns a copy of this Coord where the coordinate values start at 0.
+
+    This is achieved by subtraction of self.value[0] from self.value
     """
     return self.copy(name = self.name + '_zero'  , value = self.value - self.value[0])
  
@@ -603,6 +644,14 @@ class Coord(object):
 
     Input: file_handle file handle of opened Netcdf file.
 
+    Inserts Coord as variable into Netcdf file.
+
+    Args:
+      file_handle: (file object). Points to opened file.
+      miss_default: (float) value to use as default for missing values/ NaNs
+
+    Returns:
+      file_handle
     """
 
     # make a copy of self content and deal with missing values.
@@ -624,10 +673,6 @@ class Coord(object):
       except:
         warnings.warn('Could not set missing value for Coord %s.'%self.name)
 
-
-
-
-
     file_handle.createDimension(self.name,len(self))
 
 
@@ -643,10 +688,22 @@ class Coord(object):
 
   def write(self, path = None, name = None , history = 'Created from Spacegrids '  ):
     """
-    Write method of Coord .
     Writes Coord data to Netcdf file.
 
+
+    Args:
+      path: (str) path to the directory where the file will go (e.g. 'data/' or '/home/me/', default pwd).
+      name: (str) file name (e.g. "foo.nc")
+      history: (str) Brief history or general description of the data.
+      insert_dual: (Boolean) Flag determining whether to include the duals of the Coord objects in the file.
+
+
+    Returns:
+      None
+   
+    No error is raised in case of problems (only a message is displayed).
     """
+
     if name is None:
       name = self.name
 
@@ -676,7 +733,13 @@ class Coord(object):
 
   def finer(self,factor = 5.):
     """
-    Method of Coord. Refine the coordinate point interval with a given factor.
+    Method of Coord. Refine the coordinate point interval by a given factor.
+
+    Args:
+      factor: (float) factor by which to refined Coord value.
+
+    Returns:
+      Coord with value refined according to factor.
     """
 
     result = []
@@ -690,9 +753,17 @@ class Coord(object):
     return finer_coord
 
 
-  def bigslice(self, F = None, index = 0):
+  def _bigslice(self, F = None, index = 0):
     """
-    Method of Coord .    
+   Coord method that takes slice of field along Coord (self) at argument index.    
+
+    Args:
+      F: (Field) field to slice
+      index: (int) location of slice
+
+
+    Returns:
+      Field representing sliced object, with self no longer appearing in Gr.
     """
 
     if not(F):
@@ -715,22 +786,39 @@ class Coord(object):
       return F
 
 # belongs to  Coord
-  def coord_shift(self,F,shift, keepgrid = False):
-
+  def coord_shift(self,F,shift, keepgrid = False, nan_val = np.nan):
     """
-    Method of Coord .
-    This method shifts the coordinates by a number of indices, namely parameter shift. The shifted Coord in the grid of the Field argument is replaced with a (different) shifted Coord: disable this behaviour with argument keepgrid = True.
+    Coord method that shifts the coordinates and value of a field by a number of indices. 
 
-   calls roll function. 
+
+    Args:
+      F: (Field) field to shift
+      shift: (int) magnitude (corresponding to array index) of shift
+      keepgrid: (Boolean, default False) grid not updated if True
+
+    Returns:
+      The shifted Field.
+
+
+namely parameter shift. 
+
+The shifted Coord in the grid of the Field argument is replaced with a (different) shifted Coord: disable this behaviour with argument keepgrid = True. Calls roll function. 
     """
 
-    return roll(F,shift = shift,coord = self,mask=True, keepgrid = keepgrid)
+    return roll(F,shift = shift,coord = self,mask=True, keepgrid = keepgrid, nan_val = nan_val)
 
 # belongs to  Coord 
   def trans(self,F):
     """
-    Method of Coord .
-    Gives the change in Field F upon a Coord shift of 1 index in the direction of the self Coord
+    Gives the change in Field F upon a Coord shift of 1 index in the direction of the self Coord.
+
+    F - self.coord_shift(F,shift=1,keepgrid = True)
+
+    Args:
+      F: (Field) field to act on
+
+    Returns:
+      Field: the transformed Field.
     """
 
     # select keepgrid = True to avoid substraction errors relating to different grids
@@ -1576,9 +1664,6 @@ class Gr(tuple):
     
     For R=(zt*yt*xt)((xt*yt))(A) we get a list of lists and S.shape is (len(xt), len(yt), len(zt))
     Note that yt,xt appear in different order in self and other.
-    
-
-
     """
 
 # might expand other to other*self in future code.
@@ -3420,7 +3505,7 @@ def nugget(path = None, name = None,fields = [] , history = 'Created from Spaceg
 
 
 
-def roll(F,shift=1,coord=None,axis=None,mask=False,keepgrid = False):
+def roll(F,shift=1,coord=None,axis=None,mask=False,keepgrid = False, nan_val = np.nan):
 
   """
   Function that rolls a Field similar to np.roll on numpy arrays (sg roll actually calls np.roll). Axis can be picked via coord name. If mask is True, the elements that rolled from the other side of the array are set to nan (appropriate for non re-entrant domains). The rolled coord element of the grid belonging to Field F is replaced by a new Coord object reflecting the roll operation. To disable this Coord replacement, use argument keepgrid = True
@@ -3474,7 +3559,7 @@ def roll(F,shift=1,coord=None,axis=None,mask=False,keepgrid = False):
     for e in F.gr:
       L.append(sl)
     L[axis] = sl_exposed
-    Fr.value[L] = np.nan
+    Fr.value[L] = nan_val
 
   return Fr
 
