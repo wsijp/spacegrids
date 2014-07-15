@@ -253,6 +253,8 @@ class Coord(object):
     """
     Initialisation of Coord object. 
 
+    If argument dual is provided, the dual attribute of that Coord object is also set to self (the Coord objects become each other's dual).
+
     Args:
       name: (str) name of object (e.g. 'xt' or 'depth').
       value: (Numpy ndarray) 1D array corresponding to spatial points (e.g. 10 degrees S for a point).
@@ -266,7 +268,6 @@ class Coord(object):
 
     Raises:
       ValueError: if argument strings is not None and if len(strings) != len(value)
-
     """
   
 # choosing the name ID creates an identity object. ID*b = b for all Coord elements b.
@@ -822,13 +823,26 @@ The shifted Coord in the grid of the Field argument is replaced with a (differen
     """
 
     # select keepgrid = True to avoid substraction errors relating to different grids
-    return F-self.coord_shift(F,shift=1,keepgrid = True)
+    return F - self.coord_shift(F,shift=1,keepgrid = True)
 
   def sum(self,F, land_nan = True):
     """
     Method of Coord  that sums Field F along self Coord direction. Not weighted with grid cell width. Uses masked arrays to handle nan values. nan values can be used to eliminate areas from summing area.
 
+
+    Args:
+      F: (Field) field of certain dimension n to sum
+      land_nan: (Boolean)
+
+    Returns:
+      Field of dimension n-1 or float if n=1. 
+
+    Raises:
+      ValueError: when Coord (self) is not in F.gr (grid of Field).
     """
+
+    if not self in F.gr:
+      raise  ValueError('Coord sum method of %s: Coord must be in grid of argument Field. Make sure Coord object is identical to one of Coord objects in Field grid. (Also watch for stale objects.)'%self.name)   
 
     value = np.array(ma.sum(ma.masked_array(F[:],np.isnan(F[:])), axis = (F.gr).index(self) ))
     find_land = np.array(ma.sum(ma.masked_array(np.ones(F[:].shape),np.isnan(F[:])), axis = (F.gr).index(self) ))
@@ -837,37 +851,65 @@ The shifted Coord in the grid of the Field argument is replaced with a (differen
       if not value.ndim == 0:
         value[find_land == 0.] = np.nan
 
-    if self in F.gr:
-      if len(F.gr) == 1:
-        return float(value)
-      else: 
-        return F.copy(name = F.name,value = value, grid = F.gr/self )
-        
-    else:
-      raise  Exception('Coord sum method: Coord must be in grid of argument Field. Make sure Coord object is identical to Coord objects in Field grid.')   
+
+    if len(F.gr) == 1:
+      return float(value)
+    else: 
+      return F.copy(name = F.name,value = value, grid = F.gr/self )
+ 
+
+
 
   def roll(self,shift = 0):
-    
+    """Yields copy of Coord (self) with value shifted by (int) argument shift.
+    """
+
     return self.copy(name = self.name + '_rolled',value = np.roll(self.value,shift = shift))
 
   def flip(self,F):
     """
-    Reverse order of elements along axis of this Coord. Note that grid remains unchanged: strictly, this will lead to an inconsistency between the Field data and the grid.
+    Reverse order of elements along axis of this Coord (a mirror, or flip). 
+
+    Grid remains unchanged: strictly, this will lead to an inconsistency between the Field data and the grid, assuming this is what the user wants.
+
+
+    Args:
+      F: (Field) Field to mirror
+ 
+    Returns:
+      Field of equal dimension, mirrored along Coord.
     """
   
-    SI = self.slice_index(F, slice_obj = slice(None,None,-1))
+    SI = self._slice_index(F.gr, slice_obj = slice(None,None,-1))
 
     return F.copy(name = F.name,value = F[SI],grid = F.gr, units = F.units)
 
 
 
-  def slice_index(self,F , slice_obj = slice(1,None,None)):
+  def _slice_index(self,grid , slice_obj = slice(1,None,None)):
     """
-    Yields a list of slice objects that can be used to slice along the axis of this Coord.
+    Yields a list of slice objects that can be used to slice along the axis of this (self) Coord.
+
+
+    Args:
+      grid: (Gr) grid context of slicing
+      slice_obj: Slice object 
+
+    Returns:
+      List of slice objects of equal length to (argument) grid. These objects can be used to slice Field objects defined on that grid.
+
+
+    Examples:
+
+    >>> coord1 = sg.fieldcls.Coord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]) )
+    >>> coord2 = sg.fieldcls.Coord(name = 'test2',direction ='Y',value =np.array([1.,2.,3.,4.]) )
+    >>> K = coord1(coord1*coord2)
+    >>> coord1.slice_index(K)
+    [slice(1, None, None), slice(None, None, None)]
     """
     sl = slice(*(None,))
     L = []
-    for e in F.gr:
+    for e in grid:
       if self is e:
         L.append(slice_obj)
       else:
@@ -880,60 +922,144 @@ The shifted Coord in the grid of the Field argument is replaced with a (differen
   def cumsum(self,F, upward = False,land_nan = True):
     
     """
-    Method of Coord .
-    Compute cumulative sum (integral) of input Field F along axis of F corresponding to this Coord object. If argument upward is set to true, summing takes place with increasing array index. If it is set to False, summing takes place with decreasing array index starting at index -1. Values of nan are set to 0, and therefore not counted.
+    Compute cumulative sum (integral) of input Field F along axis of F corresponding to this Coord object.
 
+     If argument upward is set to true, summing takes place with increasing array index. If it is set to False, summing takes place with decreasing array index starting at index -1. Values of nan are set to 0, and therefore not counted.
+
+    Args:
+      F: (Field) Field to sum
+      upward: (Boolean) flag to set direction of cumsum
+      land_nan: (Boolean) flag to set land to nan in the resulting array
+
+    Returns:
+      Field on same grid containing the cumsum.
+
+    Raises:
+      ValueError: when Coord (self) is not in F.gr (grid of Field).
+
+    Examples:
+
+    >>> coord1 = sg.fieldcls.Coord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]) )
+    >>> coord2 = sg.fieldcls.Coord(name = 'test2',direction ='Y',value =np.array([1.,2.,3.,4.]) )
+    >>> R = coord1.cumsum(sg.ones(coord1*coord2)  );R.value
+    array([[ 3.,  3.,  3.,  3.],
+           [ 2.,  2.,  2.,  2.],
+           [ 1.,  1.,  1.,  1.]])
+
+    >>> R = coord1.cumsum(sg.ones(coord1*coord2) , upward = True );R.value
+    array([[ 1.,  1.,  1.,  1.],
+           [ 2.,  2.,  2.,  2.],
+           [ 3.,  3.,  3.,  3.]])
     """
 
 # nan values are set to 0. They are not counted.
-    if self in F.gr:
+    if not self in F.gr:
 
-      if upward:
-        # use the copy method of the Field to obtain a similar Field, but with some attributes different (namely, those set in the argument).
-        Fc = F.copy(name= F.name,value = F[:], grid = F.gr)
+      raise ValueError('Coord %s cum_sum method: Coord must be in grid of argument Field %s. Make sure Coord object is identical to Coord objects in Field grid.'%(self.name, F.name)  )
+
+
+    if upward:
+      # use the copy method of the Field to obtain a similar Field, but with some attributes different (namely, those set in the argument).
+      Fc = F.copy()
         
-      else:
-        Fc = self.flip(F.copy(name=F.name,value = F[:], grid = F.gr))
-      
-      land_i = np.isnan(Fc[:]) 
-      Fc[land_i] = 0.
-
-      result_array = np.array(np.cumsum(Fc[:], axis = (Fc.gr).index(self) ))
-
-      if land_nan == True:
-        result_array[land_i] = np.nan
-
-      if upward:
-        return F.copy(name = F.name,value = result_array, grid = Fc.gr )
-      else:
-   
-        return self.flip(F.copy(name = F.name,value = result_array, grid = Fc.gr ))
-
     else:
-      print 'Coord cum_sum method: Coord must be in grid of argument Field. Make sure Coord object is identical to Coord objects in Field grid.'  
+      Fc = self.flip(F.copy() )
+    
+    # do not count land in sums:  
+    land_i = np.isnan(Fc[:]) 
+    Fc[land_i] = 0.
+
+    result_array = np.array(np.cumsum(Fc[:], axis = (Fc.gr).index(self) ))
+
+    if land_nan == True:
+      # if desired, set land to nan in resulting array:
+      result_array[land_i] = np.nan
+
+    if upward:
+      return F.copy(value = result_array )
+    else:
+      # need to flip back:
+      return self.flip(F.copy(value = result_array))
+
 
 
   def vsum(self,F):
     """
     Method of Coord .
     Sums Field along self Coord, weighted with grid cell width (using self.d(), called by self.vol(F.gr)). Note: due to possible dependence of one Coord on the other, only use mean method of grid. There is no mean method for Coord objects.
+
+    Method of Coord  that sums Field F along self Coord direction, weighted with the grid cell width. Calls sum method. See sum method.
+
+    Calculation is self.sum(F*(self.vol(F.gr))). For grids with grid cell width depending on coordinates, use corresponding Gr methods.     
+
+    Args:
+      F: (Field) field of certain dimension n to sum
+      
+    Returns:
+      Field of dimension n-1 or float if n=1. 
+
+    Raises:
+      ValueError: when Coord (self) is not in F.gr (grid of Field).
     """
 
     return self.sum(F*(self.vol(F.gr)))     
 
+
+
   def vcumsum(self,F,upward =True):
     """
-    Method of Coord .
-    Calculates the cumulative sum weighted by width of grid cells along self direction.
+    Compute cumulative sum, weighted with grid cell width, of input Field F along axis of F corresponding to this Coord object.
+
+     If argument upward is set to true, summing takes place with increasing array index. If it is set to False, summing takes place with decreasing array index starting at index -1. Values of nan are set to 0, and therefore not counted. Calls cumsum method. See cumsum.  For grids with grid cell width depending on coordinates, use corresponding Gr methods.     
+
+    Calculation is self.cumsum(F*(self.vol(F.gr)) )   
+
+    Args:
+      F: (Field) Field to sum
+      upward: (Boolean) flag to set direction of cumsum
+      land_nan: (Boolean) flag to set land to nan in the resulting array
+
+    Returns:
+      Field on same grid containing the cumsum.
+
+    Raises:
+      ValueError: when Coord (self) is not in F.gr (grid of Field).
     """
+
     return self.cumsum(F*(self.vol(F.gr)) , upward = upward)   
 
+# belongs to  Coord
+  def s(self, fact = 1.):
+    """
+    Distance along Coord from a certain fixed point (e.g. ocean surface or from equator along y-direction).
 
-  def der(self, F,method = None):
+
+    Args:
+      fact: (float) magnification factor if required (e.g. radius of Earth).
+
+    Returns:
+      Field on rid self**2 containing factor*self.value as value. Represents distances of points from a certain point along Coord.
+    """
+
+    return Field(name='distance_'+self.name,value = fact*self[:],grid = (self**2), units = self.units) 
+
+
+  def der(self, F):
 
     """
-    Method of Coord .
-    Derivative method on Field F. If Coord non-cyclical, the first derivative element is nan and the second is the derivative at the first element of the original Coord. 
+    Coord derivative method on Field F. 
+
+    If Coord non-cyclical, the first derivative element is nan and the second is the derivative at the first element of the original Coord. 
+
+
+    Args:
+      F: (Field) Field to take derivative of
+
+    Returns:
+      Field on same grid containing the derivative.
+
+    Raises:
+      ValueError: when Coord (self) is not in F.gr (grid of Field).
     """
 
     if self in F.gr:
@@ -944,56 +1070,70 @@ The shifted Coord in the grid of the Field argument is replaced with a (differen
 
     else:
 
-      raise  Exception("derivative error: Field argument not defined on Coord.")
+      raise  ValueError("Field argument grid does not contain Coord %s."%self.name)
 
-# belongs to  Coord
-  def s(self, fact = 1.):
-
-    """
-    Yields the distance along Coord from a certain fixed point (e.g. ocean surface or from equator along y-direction).
-    """
-
-    return Field(name='distance_'+self.name,value = fact*self[:],grid = (self**2), units = self.units) 
 
 # belongs to  Coord  
   def dist(self, fact = 1.):
     """
-    Method to calculate the distance between elements of Coord.
+    Method to calculate the distance between adjacent elements of Coord.
     Appropriate to vertical direction.
     To be over-ridden for hor coords x,y => derive classes XCoord, YCoord
 
     Returns an array as len(result) == len(grid)-1
 
+    Calculates self.trans(self.s())*fact
+
+    Args:
+      fact: (float) magnification factor if required (e.g. radius of Earth).
+
+    Returns:
+      Field: containing the distances between the adjacent coord points (i.e. i and i+1).
+
+    Examples:
+
+
+    >>> coord1 = sg.fieldcls.Coord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]) )
+    >>> R = coord1.dist();R.value
+    array([ nan,   1.,   1.])
     """
        
     return self.trans(self.s())*fact
 
 # --> belongs to  Coord
-  def d(self,F=None):
+  def d(self):
+    """
+    Calculates width of grid cell in direction of Coord (self) using the dual of self. 
+
+    Yields grid cell widths. Can be used to compute volumes.
+
+    To be overriden by coord_edge derived objects to yield a function from fields to fields and yielding differentiation. Also overriden in x and y direction to accomodate for sphere.
+
+
+    Calculates self.dual.dist() where it is defined
+    Returns:
+      Field: containing the distances between the adjacent coord cell edges.
+
+    Examples:
+
+    >>> coord1 = sg.fieldcls.Coord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]))
+    >>> coord1_edges = sg.fieldcls.Coord(name = 'test1_edges',direction ='X',value =np.array([0.5,1.5,2.5,3.5]), dual = coord1 )
+    >>> coord1.d().value    # the distance between the cell edges
+    array([ 1.,  1.,  1.])
     """
 
-    Calculates changes of argument Field F in direction of self Coord and defined on the dual of the self Coord. If no Field is given, this yields the grid cell width, and then calculates width of grid cell in direction of self Coord object using the dual of self. Can be used to compute volumes.
+    # calculate distances between adjacent points in dual:
+    ret_Field = self.dual.dist()
+    if self != self.dual:
+      # for non-self dual Coord objects: truncate to achieve equal length to self:
+      ret_Field.value = ret_Field[1:]
 
-To be overriden by coord_edge derived objects to yield a function from fields to fields and yielding differentiation. Also overriden in x and y direction to accomodate for sphere.
- 
-    """
-
-#    if not(F):
-#      F = self.s()
-
-    if F:
-      gr_dual = self.dual*F.gr
-      ret_Field = F.copy(name = 'd'+F.name,value = self.dual.trans(F(gr_dual)).slice(sl_coord = self.dual,slice_obj = slice(1,None,None)), grid = F.gr, units = F.units)     
-
-    else:    
-      ret_Field = self.dual.dist()
-      if self != self.dual:
-        ret_Field.value = ret_Field[1:]
-
-      ret_Field.gr = self**2
-      ret_Field.shape = ret_Field.gr.shape()
+    # update these attributes, as the original copy was based on self.dual:
+    ret_Field.gr = self**2
+    ret_Field.shape = ret_Field.gr.shape()
 
     return ret_Field
+
 
   def vol(self, gr):
 

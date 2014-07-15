@@ -87,6 +87,14 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     coord5 = sg.fieldcls.Coord(name = 'test2',direction ='Y',value =np.array([1,2,3, 4]), metadata = {'hi':10})
     coord6 = sg.fieldcls.Coord(name = 'test',direction ='X',value =np.array([5,1,2,3, 4]), metadata = {'hi':12})
 
+    coord1_edges = sg.fieldcls.Coord(name = 'test1_edges',direction ='X',value =np.array([0.5,1.5,2.5,3.5]), dual = coord1 , metadata = {'hi':25} )
+    coord2_edges = sg.fieldcls.Coord(name = 'test2_edges',direction ='Y',value =np.array([0.5,1.5,2.5,3.5,4.5]), dual = coord2, metadata = {'hi':77})
+
+    # identical in main attributes to previous set (in order):
+    coord4_edges = sg.fieldcls.Coord(name = 'test1_edges',direction ='X',value =np.array([0.5,1.5,2.5,3.5]), dual = coord4 , metadata = {'hi':25} )
+    coord5_edges = sg.fieldcls.Coord(name = 'test2_edges',direction ='Y',value =np.array([0.5,1.5,2.5,3.5,4.5]), dual = coord5, metadata = {'hi':77})
+
+
     # YCoords ---
 
     ycoord1 = sg.fieldcls.YCoord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]) , metadata = {'hi':5} )
@@ -113,8 +121,8 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
 
     # we are testing for Coord, YCoord and XCoord 
-    cstack1 = provide_axis([coord1,coord2,coord3])
-    cstack2 = provide_axis([coord4,coord5,coord6])
+    cstack1 = provide_axis([coord1,coord2,coord3,coord1_edges,coord2_edges])
+    cstack2 = provide_axis([coord4,coord5,coord6,coord4_edges,coord5_edges])
 
     ycstack1 = provide_axis([ycoord1,ycoord2,ycoord3])
     ycstack2 = provide_axis([ycoord4,ycoord5,ycoord6])
@@ -191,8 +199,8 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[0]
-    coord2 = cstack1[-2]
-    coord3 = cstack1[-1]
+    coord2 = cstack1[1]
+    coord3 = cstack1[2]
    
     coord3_copy = coord3.copy(name = 'joep')
 
@@ -206,8 +214,8 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[0]
-    coord2 = cstack1[-2]
-    coord3 = cstack1[-1]
+    coord2 = cstack1[1]
+    coord3 = cstack1[2]
     Z = sg.Ax('Z')
    
     coord3_copy = coord3.copy(dual = coord2)
@@ -238,7 +246,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     coord1 = cstack1[0]
     coord4 = self.fixture[1][0]
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
    
     coord3_copy = coord3.copy()
 
@@ -264,7 +272,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[0]
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
    
     coord3_copy = coord3.copy(value = np.array([5,6,7]))
 
@@ -284,7 +292,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[0]
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
    
     coord3_copy = coord3.copy(name = 'joep')
 
@@ -304,7 +312,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[0]
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
    
     coord3_copy = coord3.copy(axis = 'Z')
 
@@ -324,7 +332,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[0]
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
    
     coord3_copy = coord3.copy(direction = 'Z')
 
@@ -345,7 +353,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[0]
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
    
     coord3_copy = coord3.copy(direction = 'Z')
 
@@ -374,7 +382,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     coord1 = cstack1[0]
     coord2 = cstack1[1]     
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
 
     F = coord1.cast(coord1*coord2)
   
@@ -392,7 +400,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     coord1 = cstack1[0]
     coord2 = cstack1[1]     
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
 
     coord1.make_equiv(coord2)
   
@@ -407,7 +415,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     coord1 = cstack1[0]
     coord2 = cstack1[1]     
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
   
     self.assertEqual(coord1.is_equiv(coord2),  False  )
  
@@ -421,7 +429,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     coord1 = cstack1[0]
     coord2 = cstack1[1]     
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
 
     coord1.make_equiv(coord2)
   
@@ -438,7 +446,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     coord1 = cstack1[0]
     coord2 = cstack1[1]     
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
  
     self.assertEqual(coord1.eq_in(coord2*coord3),  None  )
 
@@ -451,7 +459,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     coord1 = cstack1[0]
     coord2 = cstack1[1]     
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
 
     coord1.make_equiv(coord2)
   
@@ -589,6 +597,145 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     self.assertEqual( R.gr[0] is coord1   , True  )
 
 
+  def test_sum_method(self):
+    """
+    Test Coord sum method.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+    coord3 = cstack1[2]
+     
+    K = coord1(coord1*coord2) 
+    R = coord1.sum(K)
+
+    self.assertEqual( np.array_equal(R.value,  6*np.array([1.,1.,1.,1.]) ), True  )
+
+    self.assertEqual( coord1.sum(sg.ones(coord1**2)) , 3.0 )
+
+    # should error if coord1 not in gr of argument field:
+    self.assertRaises( ValueError, coord1.sum, sg.ones(coord2*coord3) )     
+
+  def test_roll_method(self):
+    """
+    Test Coord roll method.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    K = coord1.roll(1)
+
+    self.assertEqual( np.array_equal(coord1,  np.array([1.,2.,3.]) ), True  )
+    self.assertEqual( np.array_equal(K.value,  np.array([3.,1.,2.]) ), True  )
+
+  def test_flip_method(self):
+    """
+    Test Coord flip method.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+
+    K = coord1(coord1*coord2) 
+    R = coord1.flip(K)
+
+    self.assertEqual( np.array_equal(R.value[:,1],  np.array([3.,2.,1.]) ), True  )
+
+  def test_flip_method_transpose_of_previous(self):
+    """
+    Test Coord flip method.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+
+    # order of coord product reversed with respect to previous test:
+    K = coord1(coord2*coord1) 
+    R = coord1.flip(K)
+
+    self.assertEqual( np.array_equal(R.value[1,:],  np.array([3.,2.,1.]) ), True  )
+
+
+  def test_cumsum_method(self):
+    """
+    Test Coord cumsum method.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+    coord3 = cstack1[2]
+
+    # order of coord product reversed with respect to previous test:
+
+    ONES = sg.ones(coord1*coord2)
+
+    R = coord1.cumsum(ONES  )
+
+    self.assertEqual(R.gr,ONES.gr)
+    self.assertEqual( np.array_equal(R.value[0,:],  np.array([3.,3.,3.,3.]) ), True  )
+
+    R = coord1.cumsum(ONES , upward = True )
+
+    self.assertEqual( np.array_equal(R.value[-1,:],  np.array([3.,3.,3.,3.]) ), True  )
+
+    # should error if coord1 not in gr of argument field:
+    self.assertRaises( ValueError, coord1.cumsum, sg.ones(coord2*coord3) )     
+
+
+  def test_der_method(self):
+    """
+    Test Coord der method.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+  
+    K = coord1(coord1*coord2)
+    R=coord1.der(K)
+
+    self.assertEqual( np.array_equal(  R.value[1,:], np.array([1.,1., 1.,   1.]) ), True )
+
+    self.assertEqual( (np.isnan(  R.value )[0,:]).all(), True )
+
+  def test_dist_method(self):
+    """
+    Test Coord dist method.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+ 
+    self.assertEqual( np.array_equal(  coord1.dist()[1:], np.array([ 1.,   1.]) ), True )
+
+    self.assertEqual( np.isnan(  coord1.dist()[0] ), True )
+
+
+  def test_d_method(self):
+    """
+    Test Coord d method.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+ 
+    self.assertEqual( np.array_equal(  coord1.d().value, np.array([ 1., 1.,   1.]) ), True )
+
+
+
+
 # -------- test block for YCoord class ---------------
 
   def testY_copy_method_yields_not_same_for_case_name(self):
@@ -598,8 +745,8 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[2]
-    coord2 = cstack1[-2]
-    coord3 = cstack1[-1]
+    coord2 = cstack1[1]
+    coord3 = cstack1[2]
    
     coord3_copy = coord3.copy(name = 'joep')
 
@@ -613,8 +760,8 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[2]
-    coord2 = cstack1[-2]
-    coord3 = cstack1[-1]
+    coord2 = cstack1[1]
+    coord3 = cstack1[2]
     Z = sg.Ax('Z')
    
     coord3_copy = coord3.copy(dual = coord2)
@@ -642,7 +789,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[2]
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
    
     coord3_copy = coord3.copy()
 
@@ -662,7 +809,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[2]
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
    
     coord3_copy = coord3.copy(value = np.array([5,6,7]))
 
@@ -682,7 +829,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[2]
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
    
     coord3_copy = coord3.copy(name = 'joep')
 
@@ -702,7 +849,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[2]
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
    
     coord3_copy = coord3.copy(axis = 'Z')
 
@@ -722,7 +869,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[2]
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
    
     coord3_copy = coord3.copy(direction = 'Z')
 
@@ -743,7 +890,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[2]
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
    
     coord3_copy = coord3.copy(direction = 'Z')
 
@@ -762,8 +909,8 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[4]
-    coord2 = cstack1[-2]
-    coord3 = cstack1[-1]
+    coord2 = cstack1[1]
+    coord3 = cstack1[2]
    
     coord3_copy = coord3.copy(name = 'joep')
 
@@ -777,8 +924,8 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[4]
-    coord2 = cstack1[-2]
-    coord3 = cstack1[-1]
+    coord2 = cstack1[1]
+    coord3 = cstack1[2]
     Z = sg.Ax('Z')
    
     coord3_copy = coord3.copy(dual = coord2)
@@ -806,7 +953,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[4]
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
    
     coord3_copy = coord3.copy()
 
@@ -826,7 +973,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[4]
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
    
     coord3_copy = coord3.copy(value = np.array([5,6,7]))
 
@@ -846,7 +993,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[4]
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
    
     coord3_copy = coord3.copy(name = 'joep')
 
@@ -866,7 +1013,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[4]
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
    
     coord3_copy = coord3.copy(axis = 'Z')
 
@@ -886,7 +1033,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[4]
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
    
     coord3_copy = coord3.copy(direction = 'Z')
 
@@ -907,7 +1054,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     cstack1 = self.fixture[4]
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
    
     coord3_copy = coord3.copy(direction = 'Z')
 
@@ -930,7 +1077,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
   def test_sort(self):
     cstack1 = self.fixture[0]
-    coord3 = cstack1[-1]
+    coord3 = cstack1[2]
     coord3.sort()
     value = copy.deepcopy(coord3.value)
     value.sort()
