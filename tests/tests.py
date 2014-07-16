@@ -106,6 +106,15 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     ycoord6 = sg.fieldcls.YCoord(name = 'test',direction ='X',value =np.array([5.,1.,2.,3., 4.]), metadata = {'hi':12})
 
 
+    ycoord1_edges = sg.fieldcls.YCoord(name = 'test1_edges',direction ='X',value =np.array([0.5,1.5,2.5,3.5]), dual = ycoord1 , metadata = {'hi':25} )
+    ycoord2_edges = sg.fieldcls.YCoord(name = 'test2_edges',direction ='Y',value =np.array([0.5,1.5,2.5,3.5,4.5]), dual = ycoord2, metadata = {'hi':77})
+
+    # identical in main attributes to previous set (in order):
+    ycoord4_edges = sg.fieldcls.YCoord(name = 'test1_edges',direction ='X',value =np.array([0.5,1.5,2.5,3.5]), dual = ycoord4 , metadata = {'hi':25} )
+    ycoord5_edges = sg.fieldcls.YCoord(name = 'test2_edges',direction ='Y',value =np.array([0.5,1.5,2.5,3.5,4.5]), dual = ycoord5, metadata = {'hi':77})
+
+
+
 
     # XCoords ---
 
@@ -117,6 +126,13 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     xcoord5 = sg.fieldcls.XCoord(name = 'test2',direction ='Y',value =np.array([1.,2.,3., 4.]), metadata = {'hi':10})
     xcoord6 = sg.fieldcls.XCoord(name = 'test',direction ='X',value =np.array([5.,1.,2.,3., 4.]), metadata = {'hi':12})
 
+    xcoord1_edges = sg.fieldcls.XCoord(name = 'test1_edges',direction ='X',value =np.array([0.5,1.5,2.5,3.5]), dual = xcoord1 , metadata = {'hi':25} )
+    xcoord2_edges = sg.fieldcls.XCoord(name = 'test2_edges',direction ='Y',value =np.array([0.5,1.5,2.5,3.5,4.5]), dual = xcoord2, metadata = {'hi':77})
+
+    # identical in main attributes to previous set (in order):
+    xcoord4_edges = sg.fieldcls.XCoord(name = 'test1_edges',direction ='X',value =np.array([0.5,1.5,2.5,3.5]), dual = xcoord4 , metadata = {'hi':25} )
+    xcoord5_edges = sg.fieldcls.XCoord(name = 'test2_edges',direction ='Y',value =np.array([0.5,1.5,2.5,3.5,4.5]), dual = xcoord5, metadata = {'hi':77})
+
 
 
 
@@ -124,11 +140,11 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     cstack1 = provide_axis([coord1,coord2,coord3,coord1_edges,coord2_edges])
     cstack2 = provide_axis([coord4,coord5,coord6,coord4_edges,coord5_edges])
 
-    ycstack1 = provide_axis([ycoord1,ycoord2,ycoord3])
-    ycstack2 = provide_axis([ycoord4,ycoord5,ycoord6])
+    ycstack1 = provide_axis([ycoord1,ycoord2,ycoord3,ycoord1_edges,ycoord2_edges])
+    ycstack2 = provide_axis([ycoord4,ycoord5,ycoord6,ycoord4_edges,ycoord5_edges])
 
-    xcstack1 = provide_axis([xcoord1,xcoord2,xcoord3])
-    xcstack2 = provide_axis([xcoord4,xcoord5,xcoord6])
+    xcstack1 = provide_axis([xcoord1,xcoord2,xcoord3,xcoord1_edges,xcoord2_edges])
+    xcstack2 = provide_axis([xcoord4,xcoord5,xcoord6,xcoord4_edges,xcoord5_edges])
 
 
     self.fixture = [cstack1, cstack2, ycstack1, ycstack2,xcstack1, xcstack2,]
@@ -733,8 +749,20 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
  
     self.assertEqual( np.array_equal(  coord1.d().value, np.array([ 1., 1.,   1.]) ), True )
 
+  def test_vol_method(self):
+    """
+    Test Coord vol method.
+    """
 
+    cstack1 = self.fixture[0]
 
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+    coord3 = cstack1[2] 
+
+    self.assertEqual( np.array_equal(  coord1.vol(coord1*coord2).value, np.array([ 1., 1.,   1.]) ), True )
+
+    self.assertEqual( coord1.vol(coord2*coord3) , None )
 
 # -------- test block for YCoord class ---------------
 
@@ -945,9 +973,208 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
 
 
+  def testX_roll_method(self):
+    """
+    Test XCoord roll method.
+    """
+
+    cstack1 = self.fixture[4]
+
+    coord1 = cstack1[0]
+ 
+
+    # Check the shift is re-entrant:
+    self.assertEqual( np.array_equal(coord1.roll(1).value,  np.array([-357., 1., 2.])) , True  )
+    self.assertEqual( np.array_equal(coord1.roll(-1).value,  np.array([-358., -357., 1.])) , True  )
+
+  def testX_coord_shift_method(self):
+    """
+    Test XCoord coord_shift method.
+
+    Need to check no nan's show up in the exposed area.
+    """
+
+    cstack1 = self.fixture[4]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+     
+    K = coord1(coord1*coord2) 
+    R = coord1.coord_shift(K,1)
+
+    # Check the shift is re-entrant:
+    self.assertEqual( np.array_equal( R[0,:],  np.array([3.,3.,3.,3.]) ), True  )
+    self.assertEqual( np.array_equal( R[1,:],  np.array([1.,1.,1.,1.]) ), True  )
+
+    # check sum is preserved:
+    self.assertEqual( np.sum(K.value), np.sum(R.value)  )
 
 
-  def test_Ysame_method_yields_same(self):
+
+  def testX_dist_method(self):
+    """ Test the XCoord dist method 
+    """
+
+    y_step=30;
+
+    xcoord1 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
+    ycoord1 = sg.fieldcls.YCoord(name = 'testy',direction ='Y',value =np.arange(-90.,90.+y_step,y_step) )
+
+    K = xcoord1.dist(ycoord1)
+
+    # This must be a 2D Field:
+    self.assertEqual(K.shape, (7,4))
+
+    # test some values
+    self.assertAlmostEqual(K[1,0], 5002986.3008417469, places =3  )
+    self.assertAlmostEqual(K[3,0], 10005972.601683492, places =3  )
+
+    # kind of "checksum"
+    self.assertAlmostEqual(np.sum(K.value), 149371192.51449975, places =3  )
+
+
+    # distances between all consecutive points around circle must be same
+    # test whether constant in this direction, and no nan:
+    K2 = K - K[1,0]
+    idx = K2.value == 0
+
+    self.assertEqual( idx[1,:].all(), True )
+
+
+# I want more tests in this area. Also more tests to indicate that actual calculations (not just code logic) are correct.
+
+  def testX_der_method(self):
+    """ Test the XCoord der method 
+    """
+
+    y_step=30;
+
+    xcoord1 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
+    xcoord2 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
+    ycoord1 = sg.fieldcls.YCoord(name = 'testy',direction ='Y',value =np.arange(-90.,90.+y_step,y_step) )
+
+    K = xcoord1.dist(ycoord1)
+
+    R=xcoord1.der(K,ycoord1)
+
+    # This must be a 2D Field:
+    self.assertEqual(R.shape, (7,4))
+
+    Idx = R.value == 0.
+
+    # result must be all zero
+    self.assertEqual(Idx.all(),True)
+  
+    # note that xcoord2 is identical to xcoord1, but not the same object in memory, hence error:
+
+    self.assertRaises(ValueError, xcoord2.der, **{'F':K,'y_coord':ycoord1})
+
+
+
+  def testX_s_method(self):
+    """ Test the XCoord s method 
+    """
+
+    y_step=30;
+
+    xcoord1 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
+    ycoord1 = sg.fieldcls.YCoord(name = 'testy',direction ='Y',value =np.arange(-90.,90.+y_step,y_step) )
+
+    K = xcoord1.s(ycoord1)
+
+    # This must be a 2D Field:
+    self.assertEqual(K.shape, (7,4))
+
+    # test some value:
+    self.assertAlmostEqual(K[2,2], 17330852.925257955 , places =3  )
+
+    # kind of "checksum"
+    self.assertAlmostEqual(np.sum(K.value), 224056788.77174962 , places =3  )
+
+
+    R = xcoord1.der(K,ycoord1)
+    dR = R.value[:,1:] - 1.
+
+    # result must be all be ~zero
+    self.assertEqual(np.max(dR) < 1e-15,True)
+
+    dR = R.value[:,:1] -3.
+
+    # result must be all be ~zero
+    self.assertEqual(np.max(dR) < 1e-15,True)
+
+  
+    # note that xcoord2 is identical to xcoord1, but not the same object in memory, hence error:
+    xcoord2 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
+    self.assertRaises(ValueError, xcoord2.der, **{'F':K,'y_coord':ycoord1})
+
+
+
+  def testX_d_method(self):
+    """ Test the XCoord d method 
+    """
+
+    y_step=30;
+
+    xcoord1 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
+    ycoord1 = sg.fieldcls.YCoord(name = 'testy',direction ='Y',value =np.arange(-90.,90.+y_step,y_step) )
+
+    xcoord1_edges = sg.fieldcls.XCoord(name = 'testx_edges',direction ='X',value = np.arange(0.,360+45.,90.) -45. , dual = xcoord1  )
+#    ycoord1_edges = sg.fieldcls.YCoord(name = 'testy_edges',direction ='Y',value = np.arange(-90.+y_step/2,90.,y_step) , dual = ycoord1  )
+
+    K = xcoord1.d(ycoord1)
+
+    # This must be a 2D Field:
+    self.assertEqual(K.shape, (7,4))
+
+    self.assertAlmostEqual(np.sum(K.value), 149371192.51449975 , places =3  )
+
+  def testX_vol_method(self):
+    """ Test the XCoord vol method 
+    """
+
+    y_step=30;
+
+    xcoord1 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
+    ycoord1 = sg.fieldcls.YCoord(name = 'testy',direction ='Y',value =np.arange(-90.,90.+y_step,y_step) )
+
+    xcoord1_edges = sg.fieldcls.XCoord(name = 'testx_edges',direction ='X',value = np.arange(0.,360+45.,90.) -45. , dual = xcoord1  )
+#    ycoord1_edges = sg.fieldcls.YCoord(name = 'testy_edges',direction ='Y',value = np.arange(-90.+y_step/2,90.,y_step) , dual = ycoord1  )
+
+    # a YCoord must be in the grid:
+    self.assertRaises(RuntimeError, xcoord1.vol, xcoord1**2 )
+
+    # Now a YCoord is in the grid:
+    K = xcoord1.vol(ycoord1*xcoord1)
+
+    # This must be a 2D Field:
+    self.assertEqual(K.shape, (7,4))
+
+    self.assertEqual( np.array_equal( K.value, xcoord1.d(ycoord1).value ) , True)
+
+    xcoord2 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
+
+    # identically valued coord2 is a different object to those in the grid, hence no go:
+    self.assertEqual(xcoord2.vol(ycoord1*xcoord1) , None )
+
+
+  def testX_something_with_dual(self):
+    """ Test the XCoord angle_trans method 
+    """
+
+    y_step=30;
+
+    xcoord1 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
+    ycoord1 = sg.fieldcls.YCoord(name = 'testy',direction ='Y',value =np.arange(-90.,90.+y_step,y_step) )
+
+    xcoord1_edges = sg.fieldcls.XCoord(name = 'testx_edges',direction ='X',value = np.arange(0.,360+45.,90.) -45. , dual = xcoord1  )
+    ycoord1_edges = sg.fieldcls.YCoord(name = 'testy_edges',direction ='Y',value = np.arange(-90.+y_step/2,90.,y_step) , dual = ycoord1  )
+
+
+
+
+
+  def test_Xsame_method_yields_same(self):
     """
     Test whether making a copy with no arguments passed to .copy method yields a Coord object that is the same (with respect to .same method) as the original (although a different object in memory).
     """
@@ -1073,7 +1300,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
 # -----------------------
 
-
+# ------- further general Coord tests --------
 
   def test_sort(self):
     cstack1 = self.fixture[0]
@@ -1081,7 +1308,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     coord3.sort()
     value = copy.deepcopy(coord3.value)
     value.sort()
-    self.assertEqual(coord3.value.any() , value.any()  )
+    self.assertEqual( np.array_equal(coord3.value , value ) ,True )
 
   def test_equality_relation_weaksame(self):
     """"
@@ -1153,6 +1380,9 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
 
 
+# ------------- Test utilsg.py module --------------------
+
+
 class TestUtilsg(unittest.TestCase):
 
   def test_id_index_id_in_rem_equivs_functions(self):
@@ -1202,7 +1432,7 @@ class TestUtilsg(unittest.TestCase):
      A = np.array([1.,2.,3.,4.])
      B = np.array([-10.,1.5,2.5,3.5,4.5,11.])
 
-     self.assertEqual(sg.utilsg.merge(A,B).any(), np.array([-10. ,   1. ,   1.5,   2. ,   2.5,   3. ,   3.5,   4. ,   4.5,  11. ]).any()   )
+     self.assertEqual( np.array_equal(sg.utilsg.merge(A,B), np.array([-10. ,   1. ,   1.5,   2. ,   2.5,   3. ,   3.5,   4. ,   4.5,  11. ]) ), True  )
 
 
 # 3 tests for very simple function sublist in utilsg.py

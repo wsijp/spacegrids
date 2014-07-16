@@ -488,7 +488,7 @@ class Exper(object):
       available method.
 
 
-    Variable list method of Exper .
+    Variable list method of Exper.
     Examine which fields (Netcdf variables) are available of experiment object.
     """  
  

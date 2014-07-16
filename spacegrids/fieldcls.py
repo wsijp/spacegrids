@@ -212,7 +212,7 @@ class Coord(object):
   def copy(self,name = None,value = None, dual = None, axis = None,direction = None,units = None, long_name = None, metadata=None, strings = None, equiv = True):
 
     """
-    Copy function for Coord objects. See __init__ for arguments.
+    Copy method for Coord objects. See __init__ for arguments.
 
     Args (in addition to __init__):
       equivs: (Boolean) If True, the copies will be equivalent. 
@@ -791,6 +791,7 @@ class Coord(object):
     """
     Coord method that shifts the coordinates and value of a field by a number of indices. 
 
+    The shifted Coord in the grid of the Field argument is replaced with a (different) shifted Coord: disable this behaviour with argument keepgrid = True. Calls roll function. 
 
     Args:
       F: (Field) field to shift
@@ -799,11 +800,6 @@ class Coord(object):
 
     Returns:
       The shifted Field.
-
-
-namely parameter shift. 
-
-The shifted Coord in the grid of the Field argument is replaced with a (different) shifted Coord: disable this behaviour with argument keepgrid = True. Calls roll function. 
     """
 
     return roll(F,shift = shift,coord = self,mask=True, keepgrid = keepgrid, nan_val = nan_val)
@@ -858,10 +854,16 @@ The shifted Coord in the grid of the Field argument is replaced with a (differen
       return F.copy(name = F.name,value = value, grid = F.gr/self )
  
 
-
+# ---> belongs to Coord class
 
   def roll(self,shift = 0):
-    """Yields copy of Coord (self) with value shifted by (int) argument shift.
+    """Yields copy of Coord (self) with value shifted by (int) argument shift using numpy.roll().
+
+    Args:
+      shift: (int) number of array positions to shift by
+ 
+    Returns:
+      Coord: shifted Coord.
     """
 
     return self.copy(name = self.name + '_rolled',value = np.roll(self.value,shift = shift))
@@ -1031,7 +1033,7 @@ The shifted Coord in the grid of the Field argument is replaced with a (differen
 # belongs to  Coord
   def s(self, fact = 1.):
     """
-    Distance along Coord from a certain fixed point (e.g. ocean surface or from equator along y-direction).
+    Distance along Coord from a certain fixed point (e.g. from ocean surface or from equator along y-direction).
 
 
     Args:
@@ -1103,21 +1105,21 @@ The shifted Coord in the grid of the Field argument is replaced with a (differen
 # --> belongs to  Coord
   def d(self):
     """
-    Calculates width of grid cell in direction of Coord (self) using the dual of self. 
+    Calculates width of grid cell in direction of Coord (self) using the dual of self (e.g. zt_edges). 
 
     Yields grid cell widths. Can be used to compute volumes.
 
-    To be overriden by coord_edge derived objects to yield a function from fields to fields and yielding differentiation. Also overriden in x and y direction to accomodate for sphere.
-
+    To be overriden in x and y direction to accomodate for sphere.
 
     Calculates self.dual.dist() where it is defined
+
     Returns:
       Field: containing the distances between the adjacent coord cell edges.
 
     Examples:
 
     >>> coord1 = sg.fieldcls.Coord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]))
-    >>> coord1_edges = sg.fieldcls.Coord(name = 'test1_edges',direction ='X',value =np.array([0.5,1.5,2.5,3.5]), dual = coord1 )
+    >>> coord1_edges = sg.fieldcls.Coord(name = 'test1_edges',direction ='X',value =np.array([0.5,1.5,2.5,3.5]), dual = coord1 ) # specifying the dual here registers coord1_edges also as the dual attribute of coord1
     >>> coord1.d().value    # the distance between the cell edges
     array([ 1.,  1.,  1.])
     """
@@ -1138,8 +1140,19 @@ The shifted Coord in the grid of the Field argument is replaced with a (differen
   def vol(self, gr):
 
     """
-    Determines widths of cells along self Coord. grid argument acts as filter: aborts if self not in grid. The grid argument is more critical in derived classes (e.g. x_coord), where auxhiliary coordinates are picked from Gr and need to be present.
+    Generalized volume method related to .d() method: self.d() if self in gr, None otherwise.
+
+    Determines widths of cells along self Coord. grid argument acts as filter: aborts if self not in grid. The grid argument becomes much more critical in some derived classes (e.g. XCoord), where auxhiliary coordinates are picked from Gr and need to be present.
+
+    See .d() method.
+ 
+    Args:
+      gr: (Gr) grid to test against.
+
+    Returns:
+       Field or None: self.d() if self in gr, None otherwise.
     """
+
     if self not in gr:
       print 'Coord must be in grid argument, returning None.'
       return
@@ -1156,13 +1169,23 @@ The shifted Coord in the grid of the Field argument is replaced with a (differen
 # x is longitude and re-entrant and y is latitude.
 
 class XCoord(Coord):
-
+  """
+  Specialized Coord class for representing longitudinal direction in spherical coordinates. A re-entrant geometry is assumed.
+  """
 
   def copy(self,name = None,value = None, dual = None, axis = None,direction = None,units = None, long_name = None, metadata = None, strings = None, equiv = True):
     """
-    Copy function for Coord objects. If equiv = True, the copies will be equivalent.
-    Copies with identical key attributes that are not equivalent will yield a severe warning about this when equivalance is tested with the ^ operator.
+    Copy method for XCoord objects. See __init__ for arguments.
 
+    Overrides .copy method of Coord
+
+    Args (in addition to __init__):
+      equivs: (Boolean) If True, the copies will be equivalent. 
+
+    Returns: 
+      a copy of the XCoord object.
+
+    Copy methods in sg work as follows: when no value is selected for an argument (i.e. it retains its default value of None), a copy of the self attribute will be used. Otherwise, the argument value will be used.    
     """
 
     frame = inspect.currentframe()
@@ -1192,6 +1215,26 @@ class XCoord(Coord):
     return result
 
   def roll(self,shift = 0):
+    """Yields copy of XCoord (self) with value shifted by integer using numpy.roll().
+
+    Values are modulo 720 degrees from -360. 
+
+    Overrides .copy method of Coord
+
+    Args:
+      shift: (int) number of array positions to shift by
+ 
+    Returns:
+      Coord: shifted Coord.
+
+    Examples:
+
+    >>> xcoord1 = sg.fieldcls.XCoord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]) )
+    >>> xcoord1.roll(1).value
+    array([-357.,    1.,    2.])
+    """
+
+ 
     value = np.roll(self.value,shift = shift)
     if shift > 0:
       value[:shift] -= 360.
@@ -1204,77 +1247,133 @@ class XCoord(Coord):
 # belongs to XCoord 
   def coord_shift(self,F,shift, keepgrid = False):
     """
-    Overides Coord coord_shift method. Here, mask is False, so that the array is rotated.
+    XCoord method that shifts the coordinates and value of a field by a number of indices. 
+
+    Overides Coord coord_shift method. Here, mask is False, so that the array elements are (1D) rotated: this is the simple way in which this method differs from its Coord counterpart.
+
+    Note that because this method overrides, the trans method also behaves differently because it calls coord_shift, even though the trans method itself is not overriden! 
+
+    The shifted Coord in the grid of the Field argument is replaced with a (different) shifted Coord: disable this behaviour with argument keepgrid = True. Calls roll function. 
+
+    Args:
+      F: (Field) field to shift
+      shift: (int) magnitude (corresponding to array index) of shift
+      keepgrid: (Boolean, default False) grid not updated if True
+
+    Returns:
+      The shifted Field, where elements at the very beginning or end of the value array re-appear at the other side of the array (1D-rotation).
     """
 
-    return roll(F,shift = shift,coord = self, keepgrid = keepgrid)
+    return roll(F,shift = shift,coord = self, mask = False, keepgrid = keepgrid)
 
-  def der(self, F,y_coord,method = None):
+
+  def dist(self,y_coord,fact = R):
+    """
+    Computes distances between adjacent spherical longitudinal coordinate points of XCoord (self) taking into account latitudinal positions.
+
+    Overrides dist method of Coord class. 
+
+    Args:
+      y_coord: (YCoord) latitudinal coordinate positions (usually component in grid context).
+      fact: (float) factor by which to multiply result: this should be radius of sphere.
+
+    Returns:
+      Field: defined on grid y_coord*self (2D), containing the longitudinal distances.
+    """
+ 
+    # crdvals is in degrees longitude
+    crdvals = np.roll(self[:],1)
+    crdvals[0] -= 360.
+    crdvals -= self[:]
+
+    val = np.array([ -fact*np.cos(np.radians(y))*(np.pi/180.)*crdvals for y in y_coord  ])
+   
+    return Field(name='delta_'+self.name,value = val,grid = y_coord*self, units = self.units) 
+
+
+  def der(self, F,y_coord):
 
     """
-    Derivative method on Field F.
+    XCoord derivative method on Field F. 
+
+    XCoord is cyclical, the first derivative element is not nan. 
+
+    Overrides Coord der method. Differs in that this method takes an extra y_coord argument, which is required for the calculation of cell distances.
+
+    Args:
+      F: (Field) Field to take derivative of
+      y_coord: (YCoord) latitudinal Coord (usually component in grid context).
+
+    Returns:
+      Field on same grid containing the derivative.
+
+    Raises:
+      ValueError: when Coord (self) is not in F.gr (grid of Field).
     """
 
 
-# Cyclical coords uses different method for ds.
+# Cyclical coords uses different method for ds: it takes the y_coord arg.
 
     if self in F.gr:
       dF = self.trans(F)
-      ds = self.angle_trans(y_coord)
+      ds = self.dist(y_coord)
 
       return dF/ds
 
     else:
 
-      raise Exception("Derivative error: Field argument not defined on Coord.")
+      raise  ValueError("Field argument grid does not contain XCoord %s."%self.name)
 
-  def angle_trans(self,y_coord,fact = R):
- 
-    crdvals = np.roll(self[:],1)
-    crdvals[0] -= 360.
-    crdvals -= self[:]
-
-    val = np.array([ -fact*np.cos(np.radians(y))*crdvals for y in y_coord  ])
-
-    
-   
-    return Field(name='delta_'+self.name,value = val,grid = y_coord*self, units = self.units) 
 
 
   def s(self, y_coord, fact = R):
     """
-    Distance along self x-coord direction from a fixed point.
+    Distance along XCoord (self) in only one direction (increasing index) from a fixed point.
+
+    The fixed point is usually 0 longitude, but depends on the Coord.
+
+
+    Args:
+      y_coord: (YCoord) latitudinal Coord (usually component in grid context).
+      fact: (float) factor by which to multiply result: this should be radius of sphere.
+
+
+    Returns:
+      Field: of shape (len(yt_coord),len(self)), defined on grid y_coord*self, containing the distances.
     """
-
-
 
     crdvals = self[:]
     
     return Field(name='distance_'+self.name,value = np.array([ fact*np.cos(np.radians(y))*crdvals for y in y_coord  ])*np.pi/180.,grid = y_coord*self, units = self.units) 
 
-  def dist(self, y_coord, fact = R):
+
+
+
+  def d(self,y_coord):
     """
-    Method to calculate the distance between elements of Coord.
-    
+    Calculates width of grid cell in direction of XCoord (self) using the dual of self (e.g. xt_edges). 
 
-    """
-       
-    return self.angle_trans(y_coord, fact = fact)*np.pi/180.
+    Yields grid cell widths. Can be used to compute volumes.
 
+    Overides the d method of the Coord class.
 
+    Calculates self.dual.dist() where it is defined
 
-  def d(self,y_coord,F=None):
-    """
-
-    Grid cell width method". Calculates width of grid cell in direction of self Coord object (e.g. in the direction of xt) using the dual of self (e.g. xt_edges). 
-
-    Can be used to compute volumes.
-
-    Returns Field of shape (len(yt),len(xt)) containing the widths
-    For instance, xt.d(yt) yields a Field containing name attribute 'dxt'
-
-
+   Args:
+      y_coord: (YCoord) latitudinal coordinate positions (usually component in grid context).
  
+    Returns:
+      Field: of shape (len(yt_coord),len(self)), defined on grid y_coord*self, containing the distances between the adjacent coord cell edges.
+
+    Examples:
+
+    >>> y_step=30;
+    >>> xcoord1 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
+    >>> ycoord1 = sg.fieldcls.YCoord(name = 'testy',direction ='Y',value =np.arange(-90.,90.+y_step,y_step) )
+    >>> xcoord1_edges = sg.fieldcls.XCoord(name = 'testx_edges',direction ='X',value = np.arange(0.,360+45.,90.) -45. , dual = xcoord1  )
+    >>> K = xcoord1.d(ycoord1)
+    >>> K.shape
+    (7, 4)
     """
 
     # This d method overides the standard d method of the Coord class.
@@ -1284,15 +1383,11 @@ class XCoord(Coord):
     # {x,y,z}_coord to take {x,y,z}coord object. This can then be
     # used to determine volume elements in grid objects (using the inspect module).
 
-    if F:
-      gr_dual = self.dual*F.gr
-      ret_Field = Field(name = 'd'+F.name,value = self.dual.trans(F(gr_dual)).slice(sl_coord = self.dual,slice_obj = slice(1,None,None)), grid = F.gr, units = F.units)     
 
-    else:    
-      ret_Field = self.dual.dist(y_coord)
-      ret_Field.value = ret_Field[:,1:]
-      ret_Field.gr = y_coord*self
-      ret_Field.shape = ret_Field.gr.shape()
+    ret_Field = self.dual.dist(y_coord)
+    ret_Field.value = ret_Field[:,1:] # truncate field value
+    ret_Field.gr = y_coord*self
+    ret_Field.shape = ret_Field.gr.shape() # we have truncated the field value, so recalc
 
     return ret_Field
 
@@ -1301,10 +1396,28 @@ class XCoord(Coord):
 
   def vol(self,gr):
     """
-    1-D volume method of XCoord class (the lengths of the grid cells in the x-direction, dependent on y).
-    Determines widths of grid cells in self Coord, picking auxiliary coordinate (as when x-widths depend on y) from grid argument gr (y grid is chosen on the same grid as x-coord). 
+    Generalized volume method related to .d() method of XCoord: self.d() if self in gr, None otherwise.
+
+    Determines widths (1D "volumes") of cells along self Coord. grid argument acts as filter: aborts if self not in grid. The grid argument is more critical in derived classes (e.g. x_coord), where auxhiliary coordinates are picked from Gr and need to be present.
+
+    Overrides vol method of Coord.
+
+    Picks auxiliary coordinate (as when x-widths depend on y) from grid argument gr (y grid is chosen on the same grid as x-coord). 
     Returns Field. Returns None if self not in grid.
+
+
+    See d method.
+ 
+    Args:
+      gr: (Gr) grid to test against.
+
+    Returns:
+      Field or None: self.d() if self in gr, None otherwise.
+
+    Raises:
+      RuntimeError if no matching (e.g. y_coord) Coord can be found for d method argument.
     """
+
     # Depends on the use of {x,y,z}_coord convention in arguments to d() method of classes derived from Coord class (e.g. XCoord takes y_coord argument).
 
     if self not in gr:
@@ -1321,19 +1434,17 @@ class XCoord(Coord):
         if isinstance(r,coord_types[i]):
           coord_store[i] = r
 
-    # dV the identity initially
-#    dV = Coord('scalar')
    
       # get the Coord-derived objects that need to be passed to each d method of Coord (e.g. xt.d(yt))
 
     try:
       coords = [coord_store[c] for c in inspect.getargspec(self.d)[0] if c in ['x_coord','y_coord','z_coord']]
     except:
-      print 'Error in Coord argument matching. Required Coord likely absent in grid argument.'
-      raise
+      raise RuntimeError('Error in Coord argument matching for %s. Required Coord likely absent in grid argument %s.'%(self.name,gr))
+     
 
-      # Use splat operator * to pass coords list on as argument. Create Field dV.
-      
+    # Use splat operator * to pass coords list on as argument. Create Field dV.
+    # usually this is just the YCoord element of grid.  
     dV = self.d(*coords)
         
     return dV     
