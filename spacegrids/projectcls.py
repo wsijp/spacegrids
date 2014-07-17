@@ -139,7 +139,7 @@ class Project(object):
      
       for ax_elem in L:
         if ax_elem.name in ax_disp_names:
-          ax_elem.display_name = ax_disp_names[ax_elem.name]
+          ax_elem.long_name = ax_disp_names[ax_elem.name]
         
 
     if msk_grid:

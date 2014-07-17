@@ -76,14 +76,14 @@ def prep_axes(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=No
 # determine full label display names (e.g. 'Longitude')
   if hasattr(grid[0],'axis'):
   
-    ylbl = grid[0].axis.display_name
+    ylbl = grid[0].axis.long_name
   else:
     ylbl = grid[0].name
  
   if hasattr(grid[1],'axis'):
-    if hasattr(grid[1].axis, 'display_name'):
-      if isinstance(grid[1].axis.display_name,str) or isinstance(grid[1].axis.display_name,unicode):
-        xlbl = grid[1].axis.display_name
+    if hasattr(grid[1].axis, 'long_name'):
+      if isinstance(grid[1].axis.long_name,str) or isinstance(grid[1].axis.long_name,unicode):
+        xlbl = grid[1].axis.long_name
       else:
         warnings.warn('Label not added: not a string.')  
         xlbl = ''
@@ -381,9 +381,9 @@ def plot(fld0 = None,fld1=None, minus_z=True,xlbl='',ylbl='', grid = None,start_
    if not(xlbl == 'No'):
      if xlbl == '':
        if hasattr(xax,'axis'):
-         if hasattr(xax.axis, 'display_name'):
-           if isinstance(xax.axis.display_name, str) or isinstance(xax.axis.display_name, unicode):
-             xlbl = xax.axis.display_name
+         if hasattr(xax.axis, 'long_name'):
+           if isinstance(xax.axis.long_name, str) or isinstance(xax.axis.long_name, unicode):
+             xlbl = xax.axis.long_name
            else:
              xlbl = ''
              warnings.warn('Label not added: not a string.')
@@ -401,7 +401,7 @@ def plot(fld0 = None,fld1=None, minus_z=True,xlbl='',ylbl='', grid = None,start_
      if ylbl == '':
        if hasattr(yax,'axis'):
         
-         ylbl = yax.axis.display_name
+         ylbl = yax.axis.long_name
        elif isinstance(yax,Field):
          if isinstance(yax.name,str) or isinstance(yax.name,unicode):
            ylbl = yax.name

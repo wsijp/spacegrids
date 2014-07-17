@@ -185,27 +185,6 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     pass
 
-  def test_copy_arguments_are_same_to_init(self):
-    """
-    Test whether the Coord copy method takes the same arguments as the __init__ method, with the exception of the Boolean equiv, which is a switch to the copy method. Note that XCoord and YCoord define their own copy methods and need to be tested separately.
-    """
-
-    self.assertEqual(inspect.getargspec(sg.fieldcls.Coord.copy).args[:-1] , inspect.getargspec(sg.fieldcls.Coord.__init__).args  )
-
-  def test_copy_arguments_are_same_to_init_YCoord(self):
-    """
-    Test whether the YCoord copy method takes the same arguments as the __init__ method, with the exception of the Boolean equiv, which is a switch to the copy method. Note that XCoord and YCoord define their own copy methods and need to be tested separately.
-    """
-
-    self.assertEqual(inspect.getargspec(sg.YCoord.copy).args[:-1] , inspect.getargspec(sg.YCoord.__init__).args  )
-
-  def test_copy_arguments_are_same_to_init_XCoord(self):
-    """
-    Test whether the XCoord copy method takes the same arguments as the __init__ method, with the exception of the Boolean equiv, which is a switch to the copy method. Note that XCoord and YCoord define their own copy methods and need to be tested separately.
-    """
-
-    self.assertEqual(inspect.getargspec(sg.XCoord.copy).args[:-1] , inspect.getargspec(sg.XCoord.__init__).args  )
-
   # ---------- test block for Coord class ------
 
   def test_copy_method_yields_not_same_for_case_name(self):
@@ -724,18 +703,18 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     self.assertEqual( (np.isnan(  R.value )[0,:]).all(), True )
 
-  def test_dist_method(self):
+  def test_delta_dist_method(self):
     """
-    Test Coord dist method.
+    Test Coord delta_dist method.
     """
 
     cstack1 = self.fixture[0]
 
     coord1 = cstack1[0]
  
-    self.assertEqual( np.array_equal(  coord1.dist()[1:], np.array([ 1.,   1.]) ), True )
+    self.assertEqual( np.array_equal(  coord1.delta_dist()[1:], np.array([ 1.,   1.]) ), True )
 
-    self.assertEqual( np.isnan(  coord1.dist()[0] ), True )
+    self.assertEqual( np.isnan(  coord1.delta_dist()[0] ), True )
 
 
   def test_d_method(self):
@@ -1011,8 +990,8 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
 
 
-  def testX_dist_method(self):
-    """ Test the XCoord dist method 
+  def testX_delta_dist_method(self):
+    """ Test the XCoord delta_dist method 
     """
 
     y_step=30;
@@ -1020,7 +999,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     xcoord1 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
     ycoord1 = sg.fieldcls.YCoord(name = 'testy',direction ='Y',value =np.arange(-90.,90.+y_step,y_step) )
 
-    K = xcoord1.dist(ycoord1)
+    K = xcoord1.delta_dist(ycoord1)
 
     # This must be a 2D Field:
     self.assertEqual(K.shape, (7,4))
@@ -1053,7 +1032,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     xcoord2 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
     ycoord1 = sg.fieldcls.YCoord(name = 'testy',direction ='Y',value =np.arange(-90.,90.+y_step,y_step) )
 
-    K = xcoord1.dist(ycoord1)
+    K = xcoord1.delta_dist(ycoord1)
 
     R=xcoord1.der(K,ycoord1)
 
@@ -1071,8 +1050,8 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
 
 
-  def testX_s_method(self):
-    """ Test the XCoord s method 
+  def testX_dist_method(self):
+    """ Test the XCoord dist method 
     """
 
     y_step=30;
@@ -1080,7 +1059,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     xcoord1 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
     ycoord1 = sg.fieldcls.YCoord(name = 'testy',direction ='Y',value =np.arange(-90.,90.+y_step,y_step) )
 
-    K = xcoord1.s(ycoord1)
+    K = xcoord1.dist(ycoord1)
 
     # This must be a 2D Field:
     self.assertEqual(K.shape, (7,4))
@@ -1130,7 +1109,9 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     self.assertAlmostEqual(np.sum(K.value), 149371192.51449975 , places =3  )
 
   def testX_vol_method(self):
-    """ Test the XCoord vol method 
+    """ Test the XCoord vol method.
+
+        Might want to extend this with the introduction of new derived Coord classes.
     """
 
     y_step=30;
@@ -1156,21 +1137,6 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     # identically valued coord2 is a different object to those in the grid, hence no go:
     self.assertEqual(xcoord2.vol(ycoord1*xcoord1) , None )
-
-
-  def testX_something_with_dual(self):
-    """ Test the XCoord angle_trans method 
-    """
-
-    y_step=30;
-
-    xcoord1 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
-    ycoord1 = sg.fieldcls.YCoord(name = 'testy',direction ='Y',value =np.arange(-90.,90.+y_step,y_step) )
-
-    xcoord1_edges = sg.fieldcls.XCoord(name = 'testx_edges',direction ='X',value = np.arange(0.,360+45.,90.) -45. , dual = xcoord1  )
-    ycoord1_edges = sg.fieldcls.YCoord(name = 'testy_edges',direction ='Y',value = np.arange(-90.+y_step/2,90.,y_step) , dual = ycoord1  )
-
-
 
 
 
@@ -1396,8 +1362,8 @@ class TestUtilsg(unittest.TestCase):
     a4 = sg.fieldcls.Ax(name='a4')
 
     # b2 is equivalent to a2, b3 to none.
-    b2 = sg.fieldcls.Ax(name='a2', direction ='Q', display_name='Q')
-    b3 = sg.fieldcls.Ax(name='b3', direction ='Q', display_name='Q')
+    b2 = sg.fieldcls.Ax(name='a2', direction ='Q', long_name='Q')
+    b3 = sg.fieldcls.Ax(name='b3', direction ='Q', long_name='Q')
  
     # the tests
     self.assertEqual(sg.utilsg.id_in([a1,a2,a3,a4],b2  ) , True)

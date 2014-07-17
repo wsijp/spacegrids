@@ -24,9 +24,429 @@ from iosg import *
 
 warnings.formatwarning = warning_on_one_line
 
+
+
+class Named(object):
+  """
+  Base class for most other sg classes, representing objects with copy and same methods.
+
+  The "same" method indicates when Named objects are "the same", namely when their "name" attribute is the same. This method coincides with the "weaksame" method. "Weaksame" is generally a weaker condition in the derived classes. The "same" method allows the implementation of the "samein" and "sameindex" methods at this abstract level, with generally the "same" method overriden in derived classes.
+
+  This class provides a copy method that is used by the derived classes.
+
+  Attributes:
+      name: (str) name of Object
+  """
+
+
+
+  def __init__(self,name='scalar'):  
+    """
+    Initialisation of Name object. 
+
+    Args:
+      name: (str) name of Object
+
+    Returns:
+      Named object
+    """
+  
+    self.name = name
+
+
+  def copy(self, equiv = True, *args, **kwargs):
+    """
+    Copy method for Directional. See __init__ for arguments.
+
+    Args (in addition to __init__):
+      equivs: (Boolean) If True, the copies will be equivalent. 
+
+    Returns: 
+      a copy of the Directional object.
+
+    Copy methods in sg work as follows: when no value is selected for an argument, a copy of the self attribute will be used. Otherwise, the **kwargs argument value will be used.
+    """
+
+    # keys to exclude:    
+    forbid = ['self','frame']
+
+    # keys value dict to examine:
+    allow = {key:self.__dict__[key] for key in inspect.getargspec(self.__init__)[0] if key not in forbid  }
+
+    # new kwargs to use in new object .__init__ construction
+    new_kwargs = copy.deepcopy({})
+
+    for key in allow:
+      if key in kwargs:
+        # if given in kwargs, override
+        new_kwargs[key] = kwargs[key]
+      else:
+        # otherwise use value in self attribute
+        new_kwargs[key] = self.__dict__[key]  
+
+    result = self.__class__(**new_kwargs)
+
+    if equiv:
+      # decide whether to copy over the equivs list
+      result.equivs = self.equivs
+
+    return result
+
+
+
+  def weaksame(self,other):
+    """
+    Tests if two Directional objects have the same name.
+
+    Weak test to see if two Directional objects are similar.
+
+    Args:
+         other: other Directional object to compare self with
+       
+    Returns: 
+         True/ False
+
+    **See also**
+    same method
+    samein method
+    sameindex method
+    """
+
+    if (self.name == other.name):
+      return True
+    else:
+      return False
+
+
+  def same(self,other):
+    """Method to check whether this Named object has identical main attributes to argument other. 
+
+    Placeholder identical to weaksame: to be overriden in child classes.
+
+    Args:
+      other: (Named) to check against
+
+    Returns:
+      True/ False
+
+    Attributes checked:
+      name: via str ==
+ 
+    See also:
+      samein method
+      same_index method
+    """
+
+    return self.weaksame(other)
+
+
+
+
+  def samein(self,L):
+    """Tests whether this Directional is the same as any element in list L, under 'same' method.
+
+    Uses: same method.
+
+    Args:
+      L: (list of Directional objects) to test against
+
+    returns:
+      True/ False
+
+    See also:
+      same method
+      same_index method
+    """
+    return reduce(lambda x,y:x or y, [self.same(it) for it in L] )
+
+  def sameindex(self,L):
+    """Find index of this Directional in list L of Directional objects, under 'same' method.
+
+    Uses: same method.
+
+    Args:
+      L: (list of directional objects) to search
+
+    returns:
+      None or Integer, the index of the first item it in the list that satisfies self.same(it)
+
+    See also:
+      same method
+      samein method
+    """
+
+    for i,it in enumerate(L):
+      if self.same(it):
+        return i
+     
+    return None    
+
+
+
+  def __and__(self,other):
+    """Shorthand for Directional weaksame method. See weaksame.
+    """
+    return self.weaksame(other = other)
+
+
+
+
+
+
+
+class Directional(Named):
+  """
+  Base class for derived Coord and Ax classes, representing "direction" (e.g. "latitude" or "depth").
+
+  An abstract equivalence relationship is defined among directional objects by adding them to each other's equiv attribute (a list of equivalent Directionals). This relationship is generally used to indicate whether two Directional objects have the same direction (e.g. X,Y), but could represent other relationships depending on the user.
+
+  The same method is differentiated from the weaksame method (unlike the parent class), with the more strict additional condition that in addition to "name", the "direction" attribute also needs to be the same. therefore, two Directional objects are considered "same" when both "name" and "direction" match. They are "weaksame" when only the "name" matches.
+
+  This base class is closely related to the Ax class. The Coord class is also derived from it.
+
+
+  Attributes:
+      name: (str) name of Object
+      direction: (str) name of direction in which object points
+      long_name: (str) longer description (e.g. for display or in Netcdf)
+  """
+
+  def __repr__(self):
+    """Display alias if attribute present, name otherwise.
+    """
+    if hasattr(self,'alias'):
+      return self.alias
+    else:
+      return self.name
+
+  def __init__(self,name='scalar',direction ='scalar',long_name= '' ):  
+
+    """
+    Initialisation of Directional object. 
+
+    Args:
+      name: (str) name of Object
+      direction: (str) name of direction in which object points
+      long_name: (str) longer description (e.g. for display or in Netcdf)
+
+    Returns:
+      Directional object
+    """
+  
+# choosing the name ID creates an identity object. ID*b = b for all Coord elements b.
+# could implement the identity Field in __call__
+
+# Metric could be a class. Objects of this class could be constructed by a method of the Coord class (Coord objects then spawn metric objects).
+    self.equivs = [self]
+    self.name = name
+    self.direction = direction
+    self.long_name = long_name
+
+  def same(self,other):
+    """Method to check whether this Directional object has identical main attributes to argument other. 
+
+    Overrides Name class same method.    
+
+    Args:
+      other: (Directional) to check against
+
+    Returns:
+      True/ False
+
+    Attributes checked:
+      name: via str ==
+      direction: via str == 
+
+    See also:
+      samein method
+      same_index method
+    """
+
+    return (self.name == other.name) and (self.direction == other.direction)
+
+
+
+
+# ----- equivalence related ---------  
+
+  def make_equiv(self,other):
+    """
+    Register equivalence of two Coord objects. 
+
+    Args:
+      other: (Coord)
+
+    Returns:
+      None
+
+    See also:
+      is_equiv
+      eq_index
+      eq_in
+
+    Examples:
+    >>> depth.is_equiv(longitude) # generally different directions.
+    False
+    >>> depth.make_equiv(longitude) # don't do this in real work
+    >>> depth.is_equiv(longitude) # uphysically:
+    True 
+    """  
+
+#      self.equivs.append(other)
+#      other.equivs.append(self)    
+
+    for e in set(self.equivs):
+      e.equivs.append(other)
+
+    for e in set(other.equivs):
+      e.equivs.append(self)        
+
+    self.equivs = list(set(self.equivs))
+    other.equivs = list(set(other.equivs))
+
+    return
+
+
+  def is_equiv(self,other):
+    """
+    Test for equivalence (under make_equiv). e.g. xt is equivalent to xu
+
+    Args:
+      other: (Coord or Ax)
+
+    Returns:
+      True when equivalent, False otherwise.
+
+    Examples:
+    >>> depth.is_equiv(longitude) # generally different directions.
+    False
+
+    See also:
+      make_equiv
+      eq_index
+      eq_in
+    """
+    
+    if (other in self.equivs) | (self in other.equivs):
+
+      return True     
+    else:
+      # Warnings helpful for debugging and spotting potential problems:
+
+      if ( self.same(other) ):
+        warnings.warn('Warning (severe): %s.is_equiv(%s) is False, but %s.same(%s) is True! ' % (self,other,self,other) )
+      elif ( self.weaksame(other) ):
+        warnings.warn('Warning (severe): %s.is_equiv(%s) is False, but %s.weaksame(%s) is True! ' % (self,other,self,other) )
+
+      # then go about normal business:
+      return False
+
+
+
+  def eq_index(self, collection ):
+    """ Find index of first element in collection equivalent to self under is_equiv.
+
+    Args:
+      collection: (e.g. List) order collection of Directional objects
+
+    Returns:
+      Integer if equivalent found (index to equiv element), None otherwise.
+
+
+    See also:
+      make_equiv
+      is_equiv
+      eq_in
+    """
+
+    for i, e in enumerate(collection):
+      if self.is_equiv(e):
+        return i
+    return 
+
+
+  def eq_in(self, collection):
+
+    """ Determines whether Coord (self) is equivalent to any of the constituent Coord objects of the argument Gr or GrAx, and returns equivalent object.
+
+    Uses: eq_index
+
+    Args:
+      collection: (Gr or AxGr) object to be checked.
+
+    Returns:
+      The equivalent object  when crd is equivalent to one of the Coord objects in argument, None otherwise.
+
+    See also:
+      eq_in method of Ax, GrAx
+      is_equiv
+      make_equiv
+      eq_index
+      eq_in   
+    """
+
+
+    i = self.eq_index(collection)
+    if i is not None:
+      return collection[i ]
+    else:   
+      return
+
+
+
+
+# Belongs to Directional
+
+
+  def __or__(self,other):
+    """
+    Shorthand calling make_equiv (to register equivalence with other Directional object). 
+
+    Args:
+      other: (Directional)
+
+    Returns:
+      None
+    """
+
+    self.make_equiv(other)
+
+
+  def __xor__(self,other):
+    """
+    Shorthand calling is_equiv (to test equivalence with other Directional object). 
+
+    Args:
+      other: (Directional)
+
+    Returns:
+      None
+    """
+
+    return self.is_equiv(other)
+
+
+
+# ----- multiplication related ---------      
+
+  def __pow__(self,n):
+    """
+    Repeated multiplication of object with itself.
+    """
+    return reduce(lambda x,y: x*y, n*[self])
+
+
+
+
+
+
+
+
+
+
 # -------- Coord  ----------------
 
-class Coord(object):
+class Coord(Directional):
   """
   Representing distrete coordinate collection. Corresponds to dimension variable in Netcdf.
 
@@ -35,11 +455,9 @@ class Coord(object):
 
   Coord objects c1 and c2 are considered equal, c1&c2 yields True, when the name, value (numpy array) and units attributes are equal.
 
-  An abstract equivalence relationship is defined among Coord objects by adding them to each other's equiv attributes. This relationship is generally used to indicate whether two Coord objects have the same the direction (e.g. X,Y), but could be defined otherwise.
-
   Being a container of Coord objects, the Gr object (grid) is closely related to Coord. A shorthand for Gr construction is via multiplication of Coord objects. If two Coord objects coord1 and coord2 are not equivalent (generally when they point in different directions, e.g. X and Y), their product is a shorthand for the creation of a 2D grid coord1*coord2 = Gr((coord1, coord2)). By induction, products containing n elements yield Gr objects of dimension <=n. See class documentation.
 
-
+  The Coord class contains methods related to distances, with the following dependencies. dist is fundamental. delta_dist depends on dist. der depends on dist. d depends on dual Coord and delta_dist. vol depends on d.
 
 
   Attributes:
@@ -118,6 +536,12 @@ class Coord(object):
 
     # not checking for units
 
+    # the following test and warning is to do with little things that we don't want to trip over with errors:
+    # self is a Coord, so it has an axis attribute (this should be put into the specs!), but other might not:
+    if not hasattr(other, 'axis'):
+      warnings.warn('Coords method %s.same(%s) on argument without Ax attribute: returning False.'%(self.name, other.name))      
+      return False
+
     if (isinstance(self.axis,str) or isinstance(self.axis,unicode)) and (isinstance(other.axis,str) or isinstance(other.axis,unicode)):
       # Both of the axis attributes are a str. Comparing apples with apples.
 
@@ -139,60 +563,24 @@ class Coord(object):
       return self.array_equal(other) and (self.name == other.name) and (self.axis.same(other.axis) ) and (self.direction == other.direction  )
 
 
-  def samein(self,L):
-    """Tests whether this Coord is the same as any element in list L, under 'same' method.
-
-    Args:
-      L: (list of Coord objects) to test against
-
-    returns:
-      True/ False
-
-    See also:
-      same method
-      same_index method
-    """
-    return reduce(lambda x,y:x or y, [self.same(it) for it in L] )
-
-  def sameindex(self,L):
-    """Find index of this Coord in list L of Coord objects, under 'same' method.
-
-    Args:
-      L: (list of Coord objects) to search
-
-    returns:
-      None or Integer, the index of the first item it in the list that satisfies self.same(it)
-
-    See also:
-      same method
-      samein method
-    """
-
-    for i,it in enumerate(L):
-      if self.same(it):
-        return i
-     
-    return None    
-
-
-
-  def __and__(self,other):
-    """Shorthand for Coord weaksame method. See weaksame.
-    """
-    return self.weaksame(other = other)
-
   def weaksame(self,other):
     """
-    tests whether Coord objects contain identical Coord values, name and direction. 
+    Tests whether Coord objects contain identical Coord values, name and direction. 
+
+    Overrides Directional weaksame method and is a stronger condition.
 
     Args:
       other: (Coord) object to compare against.
 
     Returns: 
       True/ False
-
-    coord1.weaksame(coord2) tests whether Coord objects coord1, coord2 contain identical Coord values, name and direction. 
     """
+
+    # the following test and warning is to do with little things that we don't want to trip over with errors:
+    # self is a Coord, so it has a value attribute (this should be put into the specs!), but other might not:
+    if not hasattr(other, 'value'):
+      warnings.warn('Coords method %s.weaksame(%s) on argument without Ax attribute: returning False.'%(self.name, other.name))      
+      return False
 
     return (self.name == other.name) and (self.direction == other.direction) and self.array_equal(other) 
 
@@ -207,46 +595,6 @@ class Coord(object):
 
     self.value.sort(*args,**kwargs)
 
-
-
-  def copy(self,name = None,value = None, dual = None, axis = None,direction = None,units = None, long_name = None, metadata=None, strings = None, equiv = True):
-
-    """
-    Copy method for Coord objects. See __init__ for arguments.
-
-    Args (in addition to __init__):
-      equivs: (Boolean) If True, the copies will be equivalent. 
-
-    Returns: 
-      a copy of the Coord object.
-
-    Copy methods in sg work as follows: when no value is selected for an argument (i.e. it retains its default value of None), a copy of the self attribute will be used. Otherwise, the argument value will be used.
-    """
-
-    frame = inspect.currentframe()
-    args, _, _, values = inspect.getargvalues(frame)
-
-    del values['frame']
-    del values['equiv']   
-   
-    del values['self']    
-
-    
-    for arg in values:
-      if (arg in self.__dict__):
-     
-          if values[arg] is None:
-            values[arg] = self.__dict__[arg]
-
-      else:
-        warnings.warn('arg %s is not an object attribute.' %arg)
-
-    result = self.__class__(**values)
-
-    if equiv:
-      result.equivs = self.equivs
-
-    return result
 
   def __init__(self,name='scalar',value = np.array([0]), dual = None,axis = '?',direction ='scalar', units = None,long_name ='?', metadata = {} , strings = None):  
 
@@ -398,104 +746,6 @@ class Coord(object):
     neg_dual = Coord(name = self.dual.name,value =-self.dual.value,dual = neg_crd,axis = self.axis, units = self.units)
     neg_crd.dual = neg_dual
     return neg_crd
-
-# ----- equivalence related ---------  
-
-  def make_equiv(self,other):
-    """
-    Register equivalence of two Coord objects. 
-
-    Args:
-      other: (Coord)
-
-    Returns:
-      None
-
-    See also:
-      is_equiv
-      eq_index
-      eq_in
-
-    Examples:
-    >>> depth.is_equiv(longitude) # generally different directions.
-    False
-    >>> depth.make_equiv(longitude) # don't do this in real work
-    >>> depth.is_equiv(longitude) # uphysically:
-    True 
-    """  
-
-#      self.equivs.append(other)
-#      other.equivs.append(self)    
-
-    for e in set(self.equivs):
-      e.equivs.append(other)
-
-    for e in set(other.equivs):
-      e.equivs.append(self)        
-
-    self.equivs = list(set(self.equivs))
-    other.equivs = list(set(other.equivs))
-
-    return
-
-
-  def is_equiv(self,other):
-    """
-    Test for equivalence (under make_equiv). e.g. xt is equivalent to xu
-
-    Args:
-      other: (Coord or Ax)
-
-    Returns:
-      True when equivalent, False otherwise.
-
-    See also:
-      is_equiv
-
-    Examples:
-    >>> depth.is_equiv(longitude) # generally different directions.
-    False
-
-    See also:
-      make_equiv
-      eq_index
-      eq_in
-    """
-    
-    if (other in self.equivs) | (self in other.equivs):
-
-      return True     
-    else:
-      if ( self.weaksame(other) ):
-        warnings.warn('Warning (severe) from %s^%s: objects not equivalent, but contain the same main attributes (name, value, units)! ' % (self,other) )
-      return False
-
-
-  def eq_in(self, grid):
-
-    """ Determines whether Coord (self) is equivalent to any of the constituent Coord objects of the argument Gr or GrAx, and returns equivalent object.
-
-    Args:
-      grid: (Gr or AxGr) object to be checked.
-
-    Returns:
-      The equivalent object  when crd is equivalent to one of the Coord objects in argument, None otherwise.
-
-    See also:
-      eq_in method of Ax, GrAx
-      is_equiv
-      make_equiv
-      eq_index
-      eq_in   
-    """
-
-
-    i = self.eq_index(grid)
-    if i is not None:
-      return grid[i ]
-    else:   
-      return
-
 
 
 
@@ -1031,9 +1281,9 @@ class Coord(object):
     return self.cumsum(F*(self.vol(F.gr)) , upward = upward)   
 
 # belongs to  Coord
-  def s(self, fact = 1.):
+  def dist(self, fact = 1.):
     """
-    Distance along Coord from a certain fixed point (e.g. from ocean surface or from equator along y-direction).
+    Distance (signed) along Coord from a certain fixed point (e.g. from ocean surface or from equator along y-direction).
 
 
     Args:
@@ -1041,6 +1291,12 @@ class Coord(object):
 
     Returns:
       Field on rid self**2 containing factor*self.value as value. Represents distances of points from a certain point along Coord.
+
+    See also:
+      d method 
+      delta_dist method
+      der method
+      vol method      
     """
 
     return Field(name='distance_'+self.name,value = fact*self[:],grid = (self**2), units = self.units) 
@@ -1062,11 +1318,17 @@ class Coord(object):
 
     Raises:
       ValueError: when Coord (self) is not in F.gr (grid of Field).
+
+    See also:
+      d method 
+      delta_dist method
+      dist method 
+      vol method      
     """
 
     if self in F.gr:
       dF = self.trans(F)
-      ds = self.trans(self.s())
+      ds = self.trans(self.dist())
 
       return dF/ds
 
@@ -1076,15 +1338,17 @@ class Coord(object):
 
 
 # belongs to  Coord  
-  def dist(self, fact = 1.):
+  def delta_dist(self, fact = 1.):
     """
     Method to calculate the distance between adjacent elements of Coord.
     Appropriate to vertical direction.
     To be over-ridden for hor coords x,y => derive classes XCoord, YCoord
 
+    Calls dist method and applies trans method.
+
     Returns an array as len(result) == len(grid)-1
 
-    Calculates self.trans(self.s())*fact
+    Calculates self.trans(self.dist())*fact
 
     Args:
       fact: (float) magnification factor if required (e.g. radius of Earth).
@@ -1092,15 +1356,20 @@ class Coord(object):
     Returns:
       Field: containing the distances between the adjacent coord points (i.e. i and i+1).
 
+    See also:
+      d method 
+      der method
+      dist method 
+      vol method      
+
     Examples:
 
-
     >>> coord1 = sg.fieldcls.Coord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]) )
-    >>> R = coord1.dist();R.value
+    >>> R = coord1.delta_dist();R.value
     array([ nan,   1.,   1.])
     """
        
-    return self.trans(self.s())*fact
+    return self.trans(self.dist())*fact
 
 # --> belongs to  Coord
   def d(self):
@@ -1111,10 +1380,16 @@ class Coord(object):
 
     To be overriden in x and y direction to accomodate for sphere.
 
-    Calculates self.dual.dist() where it is defined
+    Calculates self.dual.delta_dist() where it is defined
 
     Returns:
       Field: containing the distances between the adjacent coord cell edges.
+
+    See also: 
+      delta_dist method
+      der method
+      dist method 
+      vol method      
 
     Examples:
 
@@ -1125,7 +1400,7 @@ class Coord(object):
     """
 
     # calculate distances between adjacent points in dual:
-    ret_Field = self.dual.dist()
+    ret_Field = self.dual.delta_dist()
     if self != self.dual:
       # for non-self dual Coord objects: truncate to achieve equal length to self:
       ret_Field.value = ret_Field[1:]
@@ -1151,6 +1426,12 @@ class Coord(object):
 
     Returns:
        Field or None: self.d() if self in gr, None otherwise.
+
+    See also: 
+      d method 
+      delta_dist method
+      der method
+      dist method 
     """
 
     if self not in gr:
@@ -1170,49 +1451,11 @@ class Coord(object):
 
 class XCoord(Coord):
   """
-  Specialized Coord class for representing longitudinal direction in spherical coordinates. A re-entrant geometry is assumed.
+  Specialized Coord class for representing longitudinal direction in spherical coordinates. A re-entrant geometry is assumed. See Coord.
+
+  The XCoord class contains methods related to distances, with the following dependencies. dist and delta_dist are fundamental (no link, in contrast to Coord). The rest is the same as Coord: der depends on dist. d depends on dual Coord and delta_dist. vol depends on d.
   """
 
-  def copy(self,name = None,value = None, dual = None, axis = None,direction = None,units = None, long_name = None, metadata = None, strings = None, equiv = True):
-    """
-    Copy method for XCoord objects. See __init__ for arguments.
-
-    Overrides .copy method of Coord
-
-    Args (in addition to __init__):
-      equivs: (Boolean) If True, the copies will be equivalent. 
-
-    Returns: 
-      a copy of the XCoord object.
-
-    Copy methods in sg work as follows: when no value is selected for an argument (i.e. it retains its default value of None), a copy of the self attribute will be used. Otherwise, the argument value will be used.    
-    """
-
-    frame = inspect.currentframe()
-    args, _, _, values = inspect.getargvalues(frame)
-
-    del values['frame']
-    del values['equiv']   
-   
-    del values['self']     
-    
-    for arg in values:
-      if (arg in self.__dict__):
-
-          if values[arg] is None:
-            values[arg] = self.__dict__[arg]
-
-      else:
-        warnings.warn('Warning: arg %s is not an object attribute.' %arg)
-   
-  
-    result = self.__class__(**values)
-
-    if equiv:
-      result.equivs = self.equivs
-
-
-    return result
 
   def roll(self,shift = 0):
     """Yields copy of XCoord (self) with value shifted by integer using numpy.roll().
@@ -1267,11 +1510,11 @@ class XCoord(Coord):
     return roll(F,shift = shift,coord = self, mask = False, keepgrid = keepgrid)
 
 
-  def dist(self,y_coord,fact = R):
+  def delta_dist(self,y_coord,fact = R):
     """
     Computes distances between adjacent spherical longitudinal coordinate points of XCoord (self) taking into account latitudinal positions.
 
-    Overrides dist method of Coord class. 
+    Overrides delta_dist method of Coord class. Does not call dist method (unlike Coord method), but assumes self.value to be an array of longitudinal polar coord values in degrees.
 
     Args:
       y_coord: (YCoord) latitudinal coordinate positions (usually component in grid context).
@@ -1279,6 +1522,12 @@ class XCoord(Coord):
 
     Returns:
       Field: defined on grid y_coord*self (2D), containing the longitudinal distances.
+
+    See also: 
+      d method 
+      der method
+      dist method 
+      vol method      
     """
  
     # crdvals is in degrees longitude
@@ -1309,6 +1558,12 @@ class XCoord(Coord):
 
     Raises:
       ValueError: when Coord (self) is not in F.gr (grid of Field).
+
+    See also: 
+      d method 
+      delta_dist method
+      dist method 
+      vol method      
     """
 
 
@@ -1316,7 +1571,7 @@ class XCoord(Coord):
 
     if self in F.gr:
       dF = self.trans(F)
-      ds = self.dist(y_coord)
+      ds = self.delta_dist(y_coord)
 
       return dF/ds
 
@@ -1326,11 +1581,13 @@ class XCoord(Coord):
 
 
 
-  def s(self, y_coord, fact = R):
+  def dist(self, y_coord, fact = R):
     """
-    Distance along XCoord (self) in only one direction (increasing index) from a fixed point.
+    Distance (signed) along XCoord (self) in only one direction (increasing index) from a fixed point.
 
     The fixed point is usually 0 longitude, but depends on the Coord.
+
+    Overrides dist method of Coord class. Assumes self.value to be an array of longitudinal polar coord values in degrees.
 
 
     Args:
@@ -1340,6 +1597,12 @@ class XCoord(Coord):
 
     Returns:
       Field: of shape (len(yt_coord),len(self)), defined on grid y_coord*self, containing the distances.
+
+    See also: 
+      d method 
+      delta_dist method
+      der method
+      vol method      
     """
 
     crdvals = self[:]
@@ -1357,13 +1620,19 @@ class XCoord(Coord):
 
     Overides the d method of the Coord class.
 
-    Calculates self.dual.dist() where it is defined
+    Calculates self.dual.delta_dist() where it is defined
 
    Args:
       y_coord: (YCoord) latitudinal coordinate positions (usually component in grid context).
  
     Returns:
       Field: of shape (len(yt_coord),len(self)), defined on grid y_coord*self, containing the distances between the adjacent coord cell edges.
+
+    See also:
+      delta_dist method
+      der method
+      dist method 
+      vol method      
 
     Examples:
 
@@ -1384,7 +1653,7 @@ class XCoord(Coord):
     # used to determine volume elements in grid objects (using the inspect module).
 
 
-    ret_Field = self.dual.dist(y_coord)
+    ret_Field = self.dual.delta_dist(y_coord)
     ret_Field.value = ret_Field[:,1:] # truncate field value
     ret_Field.gr = y_coord*self
     ret_Field.shape = ret_Field.gr.shape() # we have truncated the field value, so recalc
@@ -1396,18 +1665,15 @@ class XCoord(Coord):
 
   def vol(self,gr):
     """
-    Generalized volume method related to .d() method of XCoord: self.d() if self in gr, None otherwise.
+    Generalized volume method related to d method of XCoord: yields self.d(y_coord) if self and a y-coord y_coord in gr, None otherwise.
 
     Determines widths (1D "volumes") of cells along self Coord. grid argument acts as filter: aborts if self not in grid. The grid argument is more critical in derived classes (e.g. x_coord), where auxhiliary coordinates are picked from Gr and need to be present.
 
     Overrides vol method of Coord.
 
-    Picks auxiliary coordinate (as when x-widths depend on y) from grid argument gr (y grid is chosen on the same grid as x-coord). 
-    Returns Field. Returns None if self not in grid.
+    Picks auxiliary coordinate (as when x-widths depend on y) from grid argument gr (y grid is chosen on the same grid as x-coord) depending on what inspect module finds in d method interface
+.
 
-
-    See d method.
- 
     Args:
       gr: (Gr) grid to test against.
 
@@ -1416,6 +1682,12 @@ class XCoord(Coord):
 
     Raises:
       RuntimeError if no matching (e.g. y_coord) Coord can be found for d method argument.
+
+    See also:
+      d method 
+      delta_dist method
+      der method
+      dist method 
     """
 
     # Depends on the use of {x,y,z}_coord convention in arguments to d() method of classes derived from Coord class (e.g. XCoord takes y_coord argument).
@@ -1452,56 +1724,36 @@ class XCoord(Coord):
 
 
 class YCoord(Coord):
+  """
+  Specialized Coord class for representing latitudinal direction in spherical coordinates. See Coord.
 
-  def copy(self,name = None,value = None, dual = None, axis = None,direction = None,units = None, long_name = None, metadata = None, strings = None, equiv = True):
+  The YCoord class contains methods related to distances, with dependencies identical to Coord (as opposed to XCoord). dist is overriden, working through into der, delta_dist, d and vol (even though these affected methods are inherited from Coord).  """
 
+  def dist(self, fact = R):
     """
-    Copy function for Coord objects. If equiv = True, the copies will be equivalent.
-    """
+    Distance (signed) along YCoord (self) in only one direction (increasing index) from a fixed point.
 
-    frame = inspect.currentframe()
-    args, _, _, values = inspect.getargvalues(frame)
+    That fixed point is usually 0 latitude (yielding positive and negative distances), but depends on the Coord.
 
-    del values['frame']
-    del values['equiv']   
-   
-    del values['self']    
-
-    
-    for arg in values:
-      if (arg in self.__dict__):
-
-          if values[arg] is None:
-            values[arg] = self.__dict__[arg]
-
-      else:
-        warnings.warn('Warning: arg %s is not an object attribute.' %arg )
-   
- 
-    result = self.__class__(**values)
-
-    if equiv:
-      result.equivs = self.equivs
+    Overrides dist method of Coord class. Assumes self.value to be an array of latitudinal polar coord values in degrees. This affects the Coord (parent) methods that depend on it: der, delta_dist, d and vol.
 
 
-    return result
+    Args:
+      fact: (float) factor by which to multiply result: this should be radius of sphere.
 
 
-  def s(self, fact = R):
+    Returns:
+      Field: of shape (len(self),), defined on 1D grid self**2, containing the distances.
 
-    return Field(name='distance_'+self.name,value = fact*self[:],grid = (self**2), units = self.units) 
-
-  def s(self, fact = R):
-
-    """
-    Yields the distance along Coord from a certain fixed point (e.g. ocean surface or from equator along y-direction).
+    See also: 
+      d method 
+      delta_dist method
+      der method
+      dist method 
+      vol method      
     """
 
     return Field(name='distance_'+self.name,value = fact*self[:]*np.pi/180.,grid = (self**2), units = self.units) 
-
-
-
-#------------------------- Ax and AxGr  -------------------------------
 
 
 
@@ -1509,66 +1761,10 @@ class YCoord(Coord):
 
 
 
-class Ax(object):
+class Ax(Directional):
   """
   axis .
   """
-
-  def __repr__(self):
-    return self.name
-
-
-  def __getitem__(self,i):
-    return 
-
-  def same(self,other):
-    return (self.name == other.name) and (self.direction == other.direction)
-
-  def samein(self,L):
-
-    return reduce(lambda x,y:x or y, [self.same(it) for it in L] )
-
-  def sameindex(self,L):
-    for i,it in enumerate(L):
-      if self.same(it):
-        return i
-     
-    return None    
-
-
-  def __and__(self,other):
-    """ Shorthand for weaksame method. See weaksame.
-    """
-    return self.weaksame(other)
-
-  def weaksame(self,other):
-    """
-    Tests if two Ax objects have the same name.
-
-    Weak test to see if two Ax objects are similar.
-
-    Args:
-         other: other Ax object to compare self with
-       
-    Returns: 
-         True/ False
-
-    **See also**
-    same method
-    samein method
-    sameindex method
-    Coord weaksame method
-    """
-
-    if (self.name == other.name):
-      return True
-    else:
-      return False
-
-
-  def copy(self):
-
-    return self.__class__(name = self.name)
 
   def __call__(self,other):
 
@@ -1577,21 +1773,7 @@ class Ax(object):
     else:
       return 0
 
-  def __init__(self,name='scalar',direction ='scalar',display_name= '' ):  
 
-    """
-    Initialisation of Ax object. 
-
-    """
-  
-# choosing the name ID creates an identity object. ID*b = b for all Coord elements b.
-# could implement the identity Field in __call__
-
-# Metric could be a class. Objects of this class could be constructed by a method of the Coord class (Coord objects then spawn metric objects).
-    self.equivs = [self]
-    self.name = name
-    self.direction = direction
-    self.display_name = display_name
  
 # --> belongs to Ax 
   def __or__(self,other):
@@ -1661,9 +1843,6 @@ class Ax(object):
 
     return (F.gr).der(crd = self*F.gr, F = F)      
 
-  def __pow__(self,n):
-
-    return reduce(lambda x,y: x*y, n*[self])
 
 # --> belongs to Ax 
   def __mul__(self,other):
@@ -2673,7 +2852,7 @@ Takes Field argument and returns a Field with grid made up of remaining Coord ob
 
 
   
-class Field(object):
+class Field(Named):
   """
   Field  to represent a scalar valued function, also dataset, defined on a grid.
 
