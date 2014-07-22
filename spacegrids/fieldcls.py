@@ -18,13 +18,55 @@ from config import *
 import os
 import copy
 
+#from spacegrids.decorators import field2cumsum
 
 from utilsg import *
 from iosg import *
 
 warnings.formatwarning = warning_on_one_line
 
+# ---- decorators -----
 
+def field2cumsum(func):
+  """
+  Decorator to dispatch argument to other methods depending on argument.
+
+  Args:
+    context: (dict) data type vs method name dictionary used in decorator construction.
+
+  Returns:
+    Function: the decorator.
+  """
+  
+  def dispatcher(*args,**kwargs):
+    """
+    Decorator function. Expect args rather than kwargs. 
+
+    args will (calling object, other, some_more_args_maybe)
+
+    """
+
+    caller = args[0]
+    other = args[1]
+      
+
+    if isinstance(other,Field) or isinstance(other,VField):
+      return other.vcumsum(coord = caller)
+
+    # otherwise go about normal business:
+    return func(*args, **kwargs )
+
+  return dispatcher
+
+
+
+
+
+
+
+
+
+# ----- most general classes ------------
 
 class Named(object):
   """
@@ -40,23 +82,28 @@ class Named(object):
 
 
 
-  def __init__(self,name='scalar'):  
+  def __init__(self,name='scalar' ,long_name= ''):  
     """
     Initialisation of Name object. 
 
     Args:
       name: (str) name of Object
+      long_name: (str) longer description (e.g. for display)
+
 
     Returns:
       Named object
     """
   
     self.name = name
+    self.long_name = long_name
 
 
   def copy(self, equiv = True, *args, **kwargs):
     """
-    Copy method for Directional. See __init__ for arguments.
+    Copy method for Named. See __init__ for arguments.
+
+    Most child classes should inherit this method.
 
     Args (in addition to __init__):
       equivs: (Boolean) If True, the copies will be equivalent. 
@@ -84,13 +131,30 @@ class Named(object):
         # otherwise use value in self attribute
         new_kwargs[key] = self.__dict__[key]  
 
+    new_kwargs = self._copy_cleanup(**new_kwargs)
+
+    # initialize new object:
     result = self.__class__(**new_kwargs)
 
     if equiv:
       # decide whether to copy over the equivs list
-      result.equivs = self.equivs
+      if hasattr(self,'equivs'):
+        result.equivs = self.equivs
 
     return result
+
+  def _copy_cleanup(self, **new_kwargs):
+    """
+    Override this method for specific work to be done before new object init in copy method (e.g. duals in Coord).
+    """
+    return new_kwargs
+
+
+
+  def __and__(self,other):
+    """Shorthand for weaksame method. See weaksame.
+    """
+    return self.weaksame(other = other)
 
 
 
@@ -181,12 +245,6 @@ class Named(object):
      
     return None    
 
-
-
-  def __and__(self,other):
-    """Shorthand for Directional weaksame method. See weaksame.
-    """
-    return self.weaksame(other = other)
 
 
 
@@ -397,7 +455,7 @@ class Directional(Named):
 
 # Belongs to Directional
 
-
+  @field2cumsum
   def __or__(self,other):
     """
     Shorthand calling make_equiv (to register equivalence with other Directional object). 
@@ -436,17 +494,147 @@ class Directional(Named):
     return reduce(lambda x,y: x*y, n*[self])
 
 
+class Membered(Named):
+  """
+
+  """
+
+
+  def weaksame(self,other):
+    """
+    Member-wise weaksame comparison.
+    """
+
+    if len(self) == len(other):
+      for i,c in enumerate(self):
+        if not(c.weaksame(other[i]) ):    
+          return False
+
+      return True
+
+    else:
+
+      return False
 
 
 
 
+class Valued(Named):
+  """
+  Base class for classes that contain a ndarray value attribute. 
+  """
 
+  def __init__(self,name='scalar',value = np.array([0]),long_name =''):  
+
+    """
+    Initialisation of Valued object. 
+
+    Args:
+      name: (str) name of object.
+      value: (Numpy ndarray) 
+      long_name: (str) a longer description. 
+    """
+  
+    self.name = name
+    self.value = value
+    self.long_name = long_name
+    self.shape = value.shape
+
+
+  def __repr__(self):
+    """Display alias if attribute present, name otherwise.
+    """
+    if hasattr(self,'alias'):
+      return self.alias
+    else:
+      return self.name
+
+  def __getitem__(self,i):
+    """Obtain item from value atttribute.
+    """
+    return self.value[i]
+
+  def array_equal(self,other):
+    """ test whether Valued objects contain identically valued ndarrays in value attributes.
+
+    This is a common method that should be inherited by child classes. 
+
+    Args:
+      other: (Valued object) the Valued to compare with
+
+    Returns:
+      True/ False (using np.array_equal)
+
+    Raises:
+      ValueError: when argument is not a Coord object
+    """
+
+    if not isinstance(other,Valued):
+      raise TypeError('Error: provide Valued argument (%s provided).'%other)
+
+    return np.array_equal(self.value,other.value) 
+
+
+  def same(self,other):
+    """
+    Tests whether this Valued object contains identical name and value to argument object. 
+
+    Overrides Named same method and is a stronger condition. Generally to be overriden in child classes.
+
+    Args:
+      other: (Valued) object to compare against.
+
+    Returns: 
+      True/ False
+    """
+
+    # the following test and warning is to do with little things that we don't want to trip over with errors:
+    # self is a Coord, so it has a value attribute (this should be put into the specs!), but other might not:
+    if not hasattr(other, 'value'):
+      warnings.warn('Valued method %s.same(%s) on argument without Ax attribute: returning False.'%(self.name, other.name))      
+      return False
+
+    return (self.name == other.name) and self.array_equal(other) 
+
+
+
+  def __neg__(self):
+    """
+    Obtain version of Valued with negative values (e.g. -xt). 
+
+    Returns:
+      Valued copy with value is -self.value
+    """
+
+    return self.copy(value =-self.value)
+
+
+  def __add__(self, other):
+    """ Addition of value attributes
+    """
+    return self.copy(value = self.value + other.value)
+
+  def __sub__(self, other):
+    """ Substraction of value attributes
+    """
+    return self.copy(value = self.value - other.value)
+
+
+  def __mul__(self, other):
+    """ Multiplication of value attributes
+    """
+    return self.copy(value = self.value*other.value)
+
+  def __div__(self, other):
+    """ Division of value attributes
+    """
+    return self.copy(value = self.value/other.value)
 
 
 
 # -------- Coord  ----------------
 
-class Coord(Directional):
+class Coord(Directional, Valued):
   """
   Representing distrete coordinate collection. Corresponds to dimension variable in Netcdf.
 
@@ -480,36 +668,6 @@ class Coord(Directional):
     >>> coord3 = sg.fieldcls.Coord(name = 'test3',value =np.array([1.5,2.5,3.5,4.5]),axis =sg.fieldcls.Ax('X'),direction ='X', metadata = {'hi':7})
   """
 
-  def __repr__(self):
-    """Display alias if attribute present, name otherwise.
-    """
-    if hasattr(self,'alias'):
-      return self.alias
-    else:
-      return self.name
-
-  def __getitem__(self,i):
-    """Obtain item from value atttribute.
-    """
-    return self.value[i]
-
-  def array_equal(self,other):
-    """ test whether Coord objects contain identical values in value attributes.
-
-    Args:
-      other: (Coord object) the Coord to compare with
-
-    Returns:
-      True/ False (using np.array_equal)
-
-    Raises:
-      ValueError: when argument is not a Coord object
-    """
-
-    if not isinstance(other,Coord):
-      raise TypeError('Error: provide Coord argument (%s provided).'%other)
-
-    return np.array_equal(self.value,other.value) 
 
   def same(self,other):
     """
@@ -631,14 +789,6 @@ class Coord(Directional):
     self.direction = direction
     self.long_name = long_name
 
-
-    if dual:
-      self.dual = dual
-      dual.dual = self
-    else:
-      # if no dual is selected, the Coord object is its own dual
-      self.dual = self   
- 
     self.fld = None
     self.len = len(value)
     self.metadata = metadata
@@ -651,6 +801,52 @@ class Coord(Directional):
       if len(value) != len(strings):
         raise ValueError('Provide strings argument of equal length to value argument for Coord %s if providing strings argument. %s vs %s'%(name, len(value) , len(strings)))
     self.strings = strings
+
+    self.give_dual(dual)
+ 
+
+  def _copy_cleanup(self,**new_kwargs):
+    """
+    When a Coord is copied and is self-dual, the new copy must be dual to itself, not the original calling Coord that is being copied. 
+
+    This method is called by the copy method of the parent class. If this method were not called, the copy of a self-dual Coord would be dual to its original calling Coord rather than itself.
+
+    Note that this method works only on self-dual coords: copies of other-dual Coord objects remain dual to that existing dual Coord.
+    """
+
+    if 'dual' in new_kwargs:
+
+      if new_kwargs['dual'] is self:
+        new_kwargs['dual'] = None
+
+    return new_kwargs
+
+  def give_axis(self, axis):
+    """
+    Give axis attribute value and set equivalence to axis.
+
+    Args:
+      axis: (Ax) the axis to provide
+    """
+    self.axis = axis
+    self.make_equiv(axis)
+
+
+  def give_dual(self,dual = None):
+    """
+    Provide Coord with dual Coord (e.g. latitude vs latitude_edges). 
+
+    If Coord is provided, dual attribute will be set to that Coord and vice versa. Called upon initialization, and therefore by copy method.
+
+    Args:
+      dual: (Coord or None) Coord to make dual 
+    """
+
+    if dual is None:
+      self.dual = self
+    else:
+      self.dual =dual
+      dual.dual = self
 
 
   def __len__(self):
@@ -668,55 +864,50 @@ class Coord(Directional):
     """
     Broadcasts Coord onto grid.
 
-    Calling a Coord object with a grid Gr object as argument yields an array A defined on that grid where A[:,i,...] = self.value for all i 
-    In other words, this leads to an expansion of the Coord value useful for grid operations such as interpolation.
+    Calling a Coord object with a grid Gr object as argument yields an array with the coord values broadcast onto that grid.
+
+    In other words, the resulting array A is defined on that grid where A[:,i,...] = self.value[i] for all i. This leads to an expansion of the Coord value useful for grid operations such as interpolation.
 
     Args:
       other: (Gr, Field, None) Gr to broadcast on or Field to slice.
       index: (int) index at which to take a slice in case of Field argument.
 
     Returns:
-       For Gr argument: Field with Coord broadcast onto that grid if Coord is in that Gr. If not, None is returned.
-       For Field argument: a slice along that Coord axis of that Field. The index argument is the index of the slice.
-       For None argument: a Field with the values of the Coord values and defined on a grid containing only the Coord.
-
+       Field with Coord broadcast onto that grid if Coord is in that Gr. If not, None is returned.
+       
     Examples:
       >>> R = xt(xt*yt*zt)   # obtain Field R
       >>> R.shape == (len(xt),len(yt),len(zt))
       True
-      >>> R.gr
+      >>> R.grid
       (xt, yt, zt)
       >>> # Here, the value of R is constant in yt and zt, but equal to xt along the xt axis.
     """
 
-#    print self
-#    print other
-
-    if not(other) or (other is self):
-      if not(self.fld):
-        self.fld = Field(name = self.name, value = self.value, grid = self**2, units = self.units)
+#    if not(other) or (other is self):
+#      if not(self.fld):
+#        self.fld = Field(name = self.name, value = self.value, grid = self**2, units = self.units)
     
-      return self.fld
-    else:
+#      return self.fld
+#    else:
 
-      if isinstance(other,Gr):
-        if self in other:
-          return Field(name = self.name, value = (self**2)(other)(self.value), grid = other)
-        else:
-          return 
-      elif isinstance(other,Field):
-          return self._bigslice(other,index)
+    if isinstance(other,Gr):
+      if self in other:
+        return Field(name = self.name, value = (self**2)(other)(self.value), grid = other)
+      else:
+        return 
+#      elif isinstance(other,Field):
+#          return self._bigslice(other,index)
 
-      return 
 
 # ----- addition related --------- 
 
   def __add__(self,other):
 
     """
-    Coord method.
     Refine Coord by combining grid points from both. Only implemented for self-dual Coord objects.
     """
+
     if ((self.dual == self) and (other.dual == other)):
 
       result = self.copy()
@@ -742,42 +933,17 @@ class Coord(Directional):
     The dual is also made negative.
     """
 
-    neg_crd = Coord(name = self.name,value =-self.value,axis = self.axis, units = self.units)
-    neg_dual = Coord(name = self.dual.name,value =-self.dual.value,dual = neg_crd,axis = self.axis, units = self.units)
-    neg_crd.dual = neg_dual
-    return neg_crd
+    neg_crd = self.copy(value =-self.value)
 
-
-
-# Belongs to Coord   
-
-
-  def __or__(self,other):
-    """
-    Shorthand to register equivalence with other Coord object (see make_equiv) or take vcumsum of a field. 
-
-    Args:
-      other: (Coord, Field or VField)
-
-    Returns:
-      None
-
-    Raises:
-      TypeError: when the argument is not a Coord, Field or VField
-    """
-
-    if isinstance(other,Coord):
-      self.make_equiv(other)
-    elif isinstance(other,Field):
-      return self.vcumsum(other)
-    elif isinstance(other,VField):
-
-      return VField([self|e  for e in other] )
-
+    if self.dual is self:
+      neg_crd.give_dual()
+   
     else:
-      raise Exception('Coord error in %s|%s with Coord %s: provide Coord or Field for right multiplicant (%s), or check staleness.' % (self,other,self,other)  )
+     
+      neg_dual = self.dual.copy(value =-self.dual.value)
+      neg_crd.give_dual(neg_dual)
 
-
+    return neg_crd
 
   def __xor__(self,other):
     """
@@ -821,11 +987,6 @@ class Coord(Directional):
 
 # ----- multiplication related ---------      
 
-  def __pow__(self,n):
-    """
-    Repeated multiplication of object with itself.
-    """
-    return reduce(lambda x,y: x*y, n*[self])
 
 # --> belongs to Coord 
   def __mul__(self,other):
@@ -1020,17 +1181,17 @@ class Coord(Directional):
     if not(F):
       warnings.warn('Warning Coord part: Provide Field.')
 
-    if self in F.gr:
+    if self in F.grid:
       sl = slice(None,None,None)
       sl2 = slice(index,index+1,1)
       L = []
-      for e in F.gr:
+      for e in F.grid:
         if self is e:
           L.append(sl2)
         else:
           L.append(sl)
 
-      return F.copy(name = F.name , value = np.squeeze(F.value[L]), grid = F.gr/self, units = F.units)
+      return F.copy(name = F.name , value = np.squeeze(F.value[L]), grid = F.grid/self, units = F.units)
    
     else:
       warnings.warn('Warning Coord slice: Coord not in Field grid. Returning Field.' )   
@@ -1084,24 +1245,24 @@ class Coord(Directional):
       Field of dimension n-1 or float if n=1. 
 
     Raises:
-      ValueError: when Coord (self) is not in F.gr (grid of Field).
+      ValueError: when Coord (self) is not in F.grid (grid of Field).
     """
 
-    if not self in F.gr:
+    if not self in F.grid:
       raise  ValueError('Coord sum method of %s: Coord must be in grid of argument Field. Make sure Coord object is identical to one of Coord objects in Field grid. (Also watch for stale objects.)'%self.name)   
 
-    value = np.array(ma.sum(ma.masked_array(F[:],np.isnan(F[:])), axis = (F.gr).index(self) ))
-    find_land = np.array(ma.sum(ma.masked_array(np.ones(F[:].shape),np.isnan(F[:])), axis = (F.gr).index(self) ))
+    value = np.array(ma.sum(ma.masked_array(F[:],np.isnan(F[:])), axis = (F.grid).index(self) ))
+    find_land = np.array(ma.sum(ma.masked_array(np.ones(F[:].shape),np.isnan(F[:])), axis = (F.grid).index(self) ))
 
     if land_nan:
       if not value.ndim == 0:
         value[find_land == 0.] = np.nan
 
 
-    if len(F.gr) == 1:
+    if len(F.grid) == 1:
       return float(value)
     else: 
-      return F.copy(name = F.name,value = value, grid = F.gr/self )
+      return F.copy(name = F.name,value = value, grid = F.grid/self )
  
 
 # ---> belongs to Coord class
@@ -1132,9 +1293,9 @@ class Coord(Directional):
       Field of equal dimension, mirrored along Coord.
     """
   
-    SI = self._slice_index(F.gr, slice_obj = slice(None,None,-1))
+    SI = self._slice_index(F.grid, slice_obj = slice(None,None,-1))
 
-    return F.copy(name = F.name,value = F[SI],grid = F.gr, units = F.units)
+    return F.copy(name = F.name,value = F[SI],grid = F.grid, units = F.units)
 
 
 
@@ -1187,7 +1348,7 @@ class Coord(Directional):
       Field on same grid containing the cumsum.
 
     Raises:
-      ValueError: when Coord (self) is not in F.gr (grid of Field).
+      ValueError: when Coord (self) is not in F.grid (grid of Field).
 
     Examples:
 
@@ -1205,7 +1366,7 @@ class Coord(Directional):
     """
 
 # nan values are set to 0. They are not counted.
-    if not self in F.gr:
+    if not self in F.grid:
 
       raise ValueError('Coord %s cum_sum method: Coord must be in grid of argument Field %s. Make sure Coord object is identical to Coord objects in Field grid.'%(self.name, F.name)  )
 
@@ -1221,7 +1382,7 @@ class Coord(Directional):
     land_i = np.isnan(Fc[:]) 
     Fc[land_i] = 0.
 
-    result_array = np.array(np.cumsum(Fc[:], axis = (Fc.gr).index(self) ))
+    result_array = np.array(np.cumsum(Fc[:], axis = (Fc.grid).index(self) ))
 
     if land_nan == True:
       # if desired, set land to nan in resulting array:
@@ -1238,11 +1399,11 @@ class Coord(Directional):
   def vsum(self,F):
     """
     Method of Coord .
-    Sums Field along self Coord, weighted with grid cell width (using self.d(), called by self.vol(F.gr)). Note: due to possible dependence of one Coord on the other, only use mean method of grid. There is no mean method for Coord objects.
+    Sums Field along self Coord, weighted with grid cell width (using self.d(), called by self.vol(F.grid)). Note: due to possible dependence of one Coord on the other, only use mean method of grid. There is no mean method for Coord objects.
 
     Method of Coord  that sums Field F along self Coord direction, weighted with the grid cell width. Calls sum method. See sum method.
 
-    Calculation is self.sum(F*(self.vol(F.gr))). For grids with grid cell width depending on coordinates, use corresponding Gr methods.     
+    Calculation is self.sum(F*(self.vol(F.grid))). For grids with grid cell width depending on coordinates, use corresponding Gr methods.     
 
     Args:
       F: (Field) field of certain dimension n to sum
@@ -1251,10 +1412,10 @@ class Coord(Directional):
       Field of dimension n-1 or float if n=1. 
 
     Raises:
-      ValueError: when Coord (self) is not in F.gr (grid of Field).
+      ValueError: when Coord (self) is not in F.grid (grid of Field).
     """
 
-    return self.sum(F*(self.vol(F.gr)))     
+    return self.sum(F*(self.vol(F.grid)))     
 
 
 
@@ -1264,7 +1425,7 @@ class Coord(Directional):
 
      If argument upward is set to true, summing takes place with increasing array index. If it is set to False, summing takes place with decreasing array index starting at index -1. Values of nan are set to 0, and therefore not counted. Calls cumsum method. See cumsum.  For grids with grid cell width depending on coordinates, use corresponding Gr methods.     
 
-    Calculation is self.cumsum(F*(self.vol(F.gr)) )   
+    Calculation is self.cumsum(F*(self.vol(F.grid)) )   
 
     Args:
       F: (Field) Field to sum
@@ -1275,10 +1436,10 @@ class Coord(Directional):
       Field on same grid containing the cumsum.
 
     Raises:
-      ValueError: when Coord (self) is not in F.gr (grid of Field).
+      ValueError: when Coord (self) is not in F.grid (grid of Field).
     """
 
-    return self.cumsum(F*(self.vol(F.gr)) , upward = upward)   
+    return self.cumsum(F*(self.vol(F.grid)) , upward = upward)   
 
 # belongs to  Coord
   def dist(self, fact = 1.):
@@ -1317,7 +1478,7 @@ class Coord(Directional):
       Field on same grid containing the derivative.
 
     Raises:
-      ValueError: when Coord (self) is not in F.gr (grid of Field).
+      ValueError: when Coord (self) is not in F.grid (grid of Field).
 
     See also:
       d method 
@@ -1326,7 +1487,7 @@ class Coord(Directional):
       vol method      
     """
 
-    if self in F.gr:
+    if self in F.grid:
       dF = self.trans(F)
       ds = self.trans(self.dist())
 
@@ -1406,8 +1567,8 @@ class Coord(Directional):
       ret_Field.value = ret_Field[1:]
 
     # update these attributes, as the original copy was based on self.dual:
-    ret_Field.gr = self**2
-    ret_Field.shape = ret_Field.gr.shape()
+    ret_Field.grid = self**2
+    ret_Field.shape = ret_Field.grid.shape()
 
     return ret_Field
 
@@ -1557,7 +1718,7 @@ class XCoord(Coord):
       Field on same grid containing the derivative.
 
     Raises:
-      ValueError: when Coord (self) is not in F.gr (grid of Field).
+      ValueError: when Coord (self) is not in F.grid (grid of Field).
 
     See also: 
       d method 
@@ -1569,7 +1730,7 @@ class XCoord(Coord):
 
 # Cyclical coords uses different method for ds: it takes the y_coord arg.
 
-    if self in F.gr:
+    if self in F.grid:
       dF = self.trans(F)
       ds = self.delta_dist(y_coord)
 
@@ -1655,8 +1816,8 @@ class XCoord(Coord):
 
     ret_Field = self.dual.delta_dist(y_coord)
     ret_Field.value = ret_Field[:,1:] # truncate field value
-    ret_Field.gr = y_coord*self
-    ret_Field.shape = ret_Field.gr.shape() # we have truncated the field value, so recalc
+    ret_Field.grid = y_coord*self
+    ret_Field.shape = ret_Field.grid.shape() # we have truncated the field value, so recalc
 
     return ret_Field
 
@@ -1763,49 +1924,29 @@ class YCoord(Coord):
 
 class Ax(Directional):
   """
-  axis .
+  Axis. Represents direction: e.g. the longitudinal direction, X, or the vertical, Z.
+
+  Coord objects have an attribute that points to an Ax object, representing its direction.
+
+  Attributes: (identical to Directional parent class)
+      name: (str) name of Object
+      direction: (str) name of direction in which object points
+      long_name: (str) longer description (e.g. for display or in Netcdf)
   """
-
-  def __call__(self,other):
-
-    if self == other:
-      return 1
-    else:
-      return 0
-
-
  
-# --> belongs to Ax 
-  def __or__(self,other):
+
+
+  def vcumsum(self,other, upward=True):
     """
-    Register equivalence. e.g. a = Gr(('xt',)) and b = Ax(('X',))
-    a|b registers b in the equivalents of a and vice versa.
+    Calls the Coord cumsum method by picking the right Coord from other.grid.
+
+    Fails if Ax not in other.grid Ax objects.
+
+    See Coord.cumsum
     """
-    if isinstance(other,Coord) | isinstance(other,Ax):
-      # argument is Coord/ Ax: equivalence check functionality
-      for e in set(self.equivs):
-        e.equivs.append(other)
 
-      for e in set(other.equivs):
-        e.equivs.append(self)        
-
-      self.equivs = list(set(self.equivs))
-      other.equivs = list(set(other.equivs))
-      return
-
-# ---end equivalence check functionality.
-
-    elif isinstance(other,Field):
-      # argument is Field: cumsum functionality.
-      # reduce to Coord method on other via multiplication:
-      return (self*other.gr)|other
- 
-    elif isinstance(other,VField):
-      return VField([self|e for e in other])
-    else:
-      raise Exception('Ax error in %s|%s with Coord %s: provide Coord, Ax or Field object for right member (now %s).' % (self,other,self,other) )
-
-
+    # The product picks the Coord. e.g. X*(xt, yt) is xt 
+    return (self*other.grid).vcumsum(other, upward=upward)
 
 # --> belongs to Ax    
 
@@ -1827,7 +1968,7 @@ class Ax(Directional):
         return False
 
     elif isinstance(other,Field):
-#      return (self*(other.gr)).der(other)
+#      return (self*(other.grid)).der(other)
       return self.der(other)
 
     elif isinstance(other, VField):
@@ -1841,64 +1982,59 @@ class Ax(Directional):
     Derivative method of Ax . Uses entire grid, in case some coords depend on other coords. e.g. x-differentiation requires knowledge of y-position due to nature of polar coords.
     """
 
-    return (F.gr).der(crd = self*F.gr, F = F)      
+    return (F.grid).der(crd = self*F.grid, F = F)      
 
 
 # --> belongs to Ax 
   def __mul__(self,other):
-    if self.name == 'scalar':
-      return AxGr((other,))
-    else:
-      if isinstance(other,Coord):   
-        # --> multiplication with Coord: yields right multiplicant if equivalent, none otherwise.
-        if other.name == 'scalar': 
-          return AxGr((self,))
-        else:
-          if other^self:
-            return AxGr((other,))
-          else:
-            return 
+    """
+    Ax multiplication method.
+
+    Yields for arg.:
+      Ax/ AxGr: AxGr according to same is_equiv-based rules as Coord 
+      Gr: Coord if it is in Gr object and has attribute equal to self, None otherwise.
+      Field: calls the Gr.vsum method.
+ 
+    Examples:
+
+    >>> X*(X*Y) 
+    X*Y
+    >>> X*(latitude*longitude)
+    longitude
+    """
 
 
-      elif isinstance(other,Ax):   
-        # --> multiplication with Ax object: behaves as Coord multiplication.
-        if other.name == 'scalar': 
-          return AxGr((self,))
-        else:
-          if other^self:
-            return AxGr((self,))
-          else:
-            return AxGr((self,other))
+    if isinstance(other,Ax):   
+      # --> multiplication with Ax object: behaves as Coord multiplication.
+      if other.is_equiv(self):
+        return AxGr((self,))
+      else:
+        return AxGr((self,other))
 
-      elif isinstance(other,Gr):   
-        # --> multiplication with Gr object: yields equivalent Coord in Gr or raises error.
-        if other.eq_in(self):
+    elif isinstance(other,Gr):   
+      # --> multiplication with Gr object: yields equivalent Coord in Gr or None.
+      if other.eq_in(self):
 
-          return other[other.eq_index(self)]
-
-        else:
-#          raise Exception('Axis not in Coord grid.')
-          return None 
-        
-      elif isinstance(other,AxGr):
-        if self in other:
-          return other
-        else:
-          return AxGr([self] + list(other) )
-
-
-      elif isinstance(other,Field):
-        # --> multiplication with Field object: yields grid method on Field, which is cumsum
-        # reduce to Coord via multiplication and then to grid method via power:
-        return ((self*other.gr)**2)*other
-
-      elif isinstance(other,VField):
-
-        return VField([self*e for e in other])
-
+        return other[other.eq_index(self)]
 
       else:
-        raise Exception('Ax error in %s*%s with Ax %s: provide Coord, Gr or Field object as right multiplicant (now %s). If multiplicant appears to be a Coord of other multiplicant Field, check whether it is stale --> update from Exper Coord stack to be synchronous with the grid of that Field. ' % (self,other,self,other))
+#        raise Exception('Axis not in Coord grid.')
+        return None 
+        
+    elif isinstance(other,AxGr):
+      if self in other:
+        return other
+      else:
+        return AxGr([self] + list(other) )
+
+
+    elif isinstance(other,Field) or isinstance(other,VField):
+      # --> multiplication with Field object: yields grid method on Field, which is vsum
+      # reduce to Coord via multiplication and then to grid method via power of 2:
+      return ((self*other.grid)**2).vsum(other)
+
+    else:
+      raise Exception('Ax error in %s*%s with Ax %s: provide Coord, Gr or Field object as right multiplicant (now %s). If multiplicant appears to be a Coord of other multiplicant Field, check whether it is stale --> update from Exper Coord stack to be synchronous with the grid of that Field. ' % (self,other,self,other))
 
 
 
@@ -1906,8 +2042,10 @@ class Ax(Directional):
 # -------- End Ax  definition ----------
 
 
-class AxGr(tuple):
-
+class AxGr(tuple, Membered):
+  """
+  Same as Gr, but containing Ax objects instead of Coord.
+  """
 
   def __repr__(self):    
     rp = '('
@@ -1918,10 +2056,21 @@ class AxGr(tuple):
 
 
   def __and__(self,other):
+    """
+    Shorthand to element-wise weaksame comparison.
+    """
+
+    return self.weaksame(other)
+
+
+  def weaksame(self,other):
+    """
+    Member-wise weaksame comparison.
+    """
 
     if len(self) == len(other):
       for i,c in enumerate(self):
-        if not(c&other[i]):    
+        if not(c.weaksame(other[i]) ):    
           return False
 
       return True
@@ -1930,13 +2079,25 @@ class AxGr(tuple):
 
       return False
 
+
+
   def copy(self):
+    """
+    Create new AxGr object via element-wise copy calls.
+    """
 
     return AxGr( [ e.copy() for e in self  ] )
 
   def __div__(self,other):
     """
-    Division of grids. E.g. xt*yt*zt/yt = xt*zt
+    Division of AxGr. Same rules as Gr: E.g. xt*yt*zt/yt yields xt*zt
+
+    Examples:
+
+    >>> (X*Y)/Z
+    (X,Y,)
+    >>> (X*Y)/X
+    (Y,)
     """
 
     if isinstance(other,Ax):
@@ -1956,31 +2117,29 @@ class AxGr(tuple):
   def __mul__(self,other):
     """
     Multiplication of Ax grids.
-    (X*Z)*(zt*yt*xu) = xu*zt
+
 
     Multiplication can take other arguments than just Ax grids. If a Field is provided as right multiplicant, the Field is summed over the left multiplicant grid, weighted with grid cell widths (the equivalence of integration over the grid space). If the right multiplicant is a Coord object, it is converted to a single-element grid (gr) object before multiplication. 
 
     if right multiplicant is Gr object, operation picks elements from right multiplicant that are equivalent with Ax objects in AxGr object left multiplicant and yields a product in the order of the left multiplicant.
 
+    Raises:
+      TypeError: when inapparopriate type is used.
+  
+
+    Examples:
+
+    >>> (X*Z)*(zt*yt*xu)   # note the order of the output elements
+    (xu, zt)
     """
 
-    if isinstance(other,Field):
 
-      return (self*other.gr)*(other)
+    if isinstance(other,Coord):
 
-    elif isinstance(other,VField):
-
-      return VField([self*e for e in other])
-
-
-    elif isinstance(other,Coord):
-      if other.name == 'scalar':
-        return self
+      if self.eq_in(other):
+        return other
       else:
-        if self.eq_in(other):
-          return other
-        else:
-          return 
+        return 
 
     elif isinstance(other,Ax):
       # multiplication between Gr Ax and Ax objects
@@ -2006,9 +2165,12 @@ class AxGr(tuple):
 
       return Gr(L)    
 
+    elif isinstance(other,Field) or isinstance(other,VField):
+     
+      return (self*other.grid).vsum(other)
 
     else:
-      raise Exception('gr type error %s*%s with Gr %s (grid): provide Field, Gr or Coord object or np array as right multiplicant (now %s).' % (self,other,self,other) )
+      raise TypeError('gr type error %s*%s with Gr %s (grid): provide Field, Gr or Coord object or np array as right multiplicant (now %s).' % (self,other,self,other) )
 
 
   def eq_in(self, crd):
@@ -2027,7 +2189,7 @@ class AxGr(tuple):
     """
 
     for i in self:
-      if crd^i: return True
+      if crd.is_equiv(i): return True
     return False
 
 
@@ -2042,7 +2204,7 @@ class AxGr(tuple):
 class Gr(tuple):
 
   """
-  Gr . consists of a tuple of Coord objects, with additional methods. Gr objects g1 and g2 are considered equal, g1&g2 yields True, when the individual Coord elements are equal.
+  Represents Coord grids. Consists of a tuple of Coord objects, with additional methods. Gr objects g1 and g2 are considered weaksame, g1.weaksame(g2) yields True, when the individual Coord elements are weaksame.
   """
 
 
@@ -2073,19 +2235,23 @@ class Gr(tuple):
 
   def regrid(self,other, method = 'linear'):
     """
-    Input: other Gr object (grid). 
+    Takes another Gr object argument and yields a function F from ndarray to ndarray.
 
     The regrid method of a Gr object takes another Gr object, other, and yields a function F. This function F takes an array A and re-arranges the order of   the indices to match the input Gr object (other). If the length of the input object exceeds that of the calling object, F(A) also expands the array along the additional axes by creating copies of it along those axes (using the expand method). Note that the coords of the calling Gr object need to be a subset of the argument Gr object.
+
+
+    Args: 
+      Other Gr object (grid). 
     
 
-    Yields a transformation on fields going from self grid to other grid.
+    Returns: 
+      A transformation on fields going from self grid to other grid.
 
     E.g. xt*yt(yt*xt) yields a tranpose operation on an array
     xt*yt(xu*yu) yields an interpolation acting on fields.
 
     yt*xt(zt*yt*xt) yields a functions transforming a 2D array corresponding to the values of a Field defined on yt*xt to a 3D array constant in the zt direction.
     
-
     If self is longer than other, calling will lead to a reduction. E.g.
 
     R=(zt*yt*xt)((yt**2))(A) where A.shape = (len(zt),len(yt),len(xt))
@@ -2208,8 +2374,15 @@ class Gr(tuple):
 
   def function(self,func):
     """
-    Returns a Field containing the values of function argument func on the grid points defined in this grid. The Field name is the name of the function.
+    Returns a Field containing the values of function argument func on the grid points defined in this grid. 
+
+    Args:
+      func: (function) function defined on domain of same dimension as grid (self).
+
+    Returns:
+      Field: Evaulated function. The Field name is the name of the function.
     """
+
     vfunc = np.vectorize(func)
     value = vfunc(*self.inflate())
  
@@ -2217,11 +2390,20 @@ class Gr(tuple):
 
   def array_equal(self,other):
     """
-    grid component-wise test whether the Coord objects contain the same grid point location values. Input another grid.
+    Grid component-wise test whether the Coord objects contain the same grid point location values. Input another grid.
+
+    Args:
+      other: (Gr) grid to compare with.
+
+    Returns:
+      List. List element corresponds to Coord in Gr and is True if Coord.array_equal True, False otherwise.
+
+    Raises:
+      ValueError if Gr objects not defined along same axes. E.g. (X,Y ) vs (Y,Z )
     """
 
     if not self.axis() == other.axis():
-      raise Exception('Error: provide grids defined along same axes.')
+      raise ValueError('Provide grids defined along same axes.')
 
     return [e.array_equal(other[i]) for i,e in enumerate(self)   ]
         
@@ -2234,6 +2416,16 @@ class Gr(tuple):
 
 
   def reverse(self):
+    """
+    Reverse the order of the grid elements.
+
+    Examples:
+
+    >>> coord1 = sg.fieldcls.Coord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]) )
+    >>> coord2 = sg.fieldcls.Coord(name = 'test2',direction ='Y',value =np.array([1.,2.,3.,4.]) )
+    >>> (coord1*coord2).reverse()
+    (test2, test1)
+    """
 
     return Gr([ self[len(self) -i -1 ] for i in range(len(self))  ])
 
@@ -2243,17 +2435,32 @@ class Gr(tuple):
 
   def __and__(self,other):
     """
-    self&other
-    Tests whether Gr object contains same values (in attributes) as argument grid. A&B = True when Gr objects A,B contain the same values (but need not be same objects). Corresponds to copy method.
+    Shorthand to weaksame
+    """
+
+    return self.weaksame(other)
+
+
+  def weaksame(self,other):
+    """
+    Application of component-wise weaksame method of Gr members.
+
+    Args:
+      other: (Gr) grid to compare with
+
+    Returns:
+      True if self and other of equal length and weaksame yields true for each self-other member pair.
     """
 
 
     if len(self) == len(other):
-      L = [e&other[i] for i,e in enumerate(self)]
+      L = [e.weaksame(other[i]) for i,e in enumerate(self)]
       return reduce(lambda x,y: x and y, L)
   
     else:
       return False 
+
+
 
   def copy(self):
     """
@@ -2351,7 +2558,7 @@ class Gr(tuple):
 
     SAT = P['DPO']['A_sat']
     SAT.shape is (100,100)
-    W=SAT.gr.expand(SAT[:],depth**2)
+    W=SAT.grid.expand(SAT[:],depth**2)
     W.shape is (19,100,100)
     W contains 19 identical copies (slices) of SAT[:] 
 
@@ -2744,7 +2951,7 @@ class Gr(tuple):
     """
     Method of Gr object. Sum weighted with Coord grid cell widths (integration) over self grid. 
 
-Takes Field argument and returns a Field with grid made up of remaining Coord objects or a float. E.g. if F.gr == ('zt','yt','xt'), (xt*yt).vsum(F) yields a Field defined on grid ('zt',).
+Takes Field argument and returns a Field with grid made up of remaining Coord objects or a float. E.g. if F.grid == ('zt','yt','xt'), (xt*yt).vsum(F) yields a Field defined on grid ('zt',).
 
     
     Note that when Coord elements with direction attribute 'X' and 'Y' both appear in the Gr object, vsum will check whether the 'X' Coord appears after the 'Y' Coord. If so, they will be interchanged when performing the calculation as otherwise no y-coord is available when the x grid cell width is required. This is a small detail.
@@ -2901,10 +3108,12 @@ class Field(Named):
     if isinstance(value,np.ndarray):
       if isinstance(grid,Gr):
         shape = grid.shape()
+
+        # Check for shape consistency between grid and value to avoid creation of inconsistent Field objects:
         if shape == value.shape:
           self.name = name
           self.value = value
-          self.gr = grid
+          self.grid = grid
           self.shape = shape
           self.units = units 
           self.direction = direction 
@@ -2931,37 +3140,10 @@ class Field(Named):
     self&other
     Tests whether fields contain equal values. At the moment, if the value contains nan, this function will return false.
     """
-    if (self.name == other.name) and np.array_equal(self.value,other.value) and self.gr&other.gr:
+    if (self.name == other.name) and np.array_equal(self.value,other.value) and self.grid&other.grid:
       return True
     else:
       return False
-
-  def copy(self, name = None, value = None, grid = None, units = None, direction = None, long_name = None, metadata=None, squeezed_dims = None):
-
-    frame = inspect.currentframe()
-    args, _, _, values = inspect.getargvalues(frame)
-
-    # aliases used when arguments do not all match class attribute names
-    aliases = {'grid':'gr'}
-
-    del values['frame']
-    del values['self']    
-
-    
-    for arg in values:
-      if (arg in self.__dict__):
-         
-          if values[arg] is None:
-            values[arg] = self.__dict__[arg]
-      elif (arg in aliases):
-          if values[arg] is None:
-            values[arg] = self.__dict__[aliases[arg]]
-
-      else:
-        warnings.warn( 'Warning: arg %s is not an object attribute.' %arg )
-   
-    # In case class are derived from the Field class (as opposed to return Field(**values) here):
-    return self.__class__(**values)
 
 
   def cdf_insert(self,file_handle, insert_dual = True, force_squeeze = False, miss_default = 9.96921e+36):
@@ -2978,7 +3160,7 @@ class Field(Named):
       return unsqueeze(self).cdf_insert(file_handle = file_handle, insert_dual = insert_dual)    
 
     # insert the coords in own grid
-    for crd in self.gr:
+    for crd in self.grid:
       if not crd.name in file_handle.variables:
         crd.cdf_insert(file_handle)
     
@@ -3008,7 +3190,7 @@ class Field(Named):
 
 
     # Create the actual variable corresponding to Field.value
-    var_cdf = file_handle.createVariable(self.name, value.dtype.char, tuple( [crd.name for crd in self.gr] )   )
+    var_cdf = file_handle.createVariable(self.name, value.dtype.char, tuple( [crd.name for crd in self.grid] )   )
     var_cdf[:] = value
 
 
@@ -3070,25 +3252,25 @@ class Field(Named):
 
     # if no Ax object is given, an Ax is chosen where the grid Coord elements are not array equal.
 
-#    if len(self.gr) != len(other.gr):
+#    if len(self.grid) != len(other.grid):
 #      raise Exception('Error: provide grids of equal dimension.')
 
     if isinstance(ax,Coord):
       ax = ax.axis
 
-    self_axis = self.gr.axis()
+    self_axis = self.grid.axis()
 
 #    if not reduce(lambda x,y:x and y, [e^other[i] for i,e in enumerate(other)]):
-    if self_axis != other.gr.axis():
+    if self_axis != other.grid.axis():
       raise Exception('Error: provide fields defined on the same grid directions.')
 
 
     if ax is None:
       
-      i_ax = (self.gr.array_equal(other.gr)).index(False)
+      i_ax = (self.grid.array_equal(other.grid)).index(False)
       ax = self_axis[i_ax]
     
-    cat_coord_self = ax*self.gr
+    cat_coord_self = ax*self.grid
     
     if cat_coord_self is None:
       # in this case concat is done along an axis not in the self grid
@@ -3096,19 +3278,19 @@ class Field(Named):
       raise Exception('Axis not in grid.')
 
 
-    if (self.gr/ax).shape() != (other.gr/ax).shape():
+    if (self.grid/ax).shape() != (other.grid/ax).shape():
 
-      raise Exception('Field concat error %s and %s. Provide pieces of right dimensions. (now %s and %s)'%(self.name,other.name, str((self.gr/ax).shape())  , str( (other.gr/ax).shape())   ) )
+      raise Exception('Field concat error %s and %s. Provide pieces of right dimensions. (now %s and %s)'%(self.name,other.name, str((self.grid/ax).shape())  , str( (other.grid/ax).shape())   ) )
 
       # obtain the index of the axis in the grid along which to concatenate.
       # why do we need eq_index here instead of index? because it can be an Ax object.
-    ax_index = self.gr.eq_index(ax)
+    ax_index = self.grid.eq_index(ax)
 
     # combine the two halves as dictionaries of slices of what is to be the new Coord first
  
     # pick the Coord specified by the ax argument by multiplying the grids: 
-    left_coord = (ax*self.gr)
-    right_coord = (ax*other.gr)
+    left_coord = (ax*self.grid)
+    right_coord = (ax*other.grid)
     # e here is a point in the relevant Coord: 
     Dleft = {e:self[ax,i] for i, e in enumerate( left_coord[:] ) }
     Dright = {e:other[ax,i] for i, e in  enumerate( right_coord[:] ) }
@@ -3150,7 +3332,7 @@ class Field(Named):
     new_value = np.concatenate(values,axis=ax_index)
 
       # construct the grid of the combined object by replacing the old partial Coord with the new combined Coord in the self grid. Recall that replacement is done with left multiplication.
-    new_grid = new_coord*self.gr
+    new_grid = new_coord*self.grid
        
 #      new_value = new_value.reshape(new_grid.shape())
 
@@ -3159,7 +3341,16 @@ class Field(Named):
 
 
   def roll(shift, crd):
+    """
+    Call roll function on self.
 
+    Args:
+      shift: (int) number of index points to roll by
+      crd: (Coord) coord to shift on
+
+    Returns:
+      Field: containing the shifted value and grid.
+    """
     return roll(self, shift = shift,coord = crd)
 
 
@@ -3168,23 +3359,23 @@ class Field(Named):
     """
     Tests the equivalence of the grids of two fields.
     """
-    return self.gr^other.gr
+    return self.grid^other.grid
 
 
   def __pow__(self,n):
     if isinstance(n,int):
-      return Field(name = self.name + '**' + str(n),value = self.value**n,grid = self.gr,units = self.units + '^' + str(n))
+      return Field(name = self.name + '**' + str(n),value = self.value**n,grid = self.grid,units = self.units + '^' + str(n))
     else:
       print 'Power error: provide integer.'
 
   def __neg__(self):
-    return Field(name = self.name,value = -self.value,grid = self.gr, units = self.units, direction = self.direction)
+    return Field(name = self.name,value = -self.value,grid = self.grid, units = self.units, direction = self.direction)
 
   
 
   def __add__(self,other):
     """
-    Field addition F + G. Proceeds only when fields are defined on the same grid. To add fields defined on different grids, use something like F + G(F.gr) or other, depending on the space spanned by the grids.
+    Field addition F + G. Proceeds only when fields are defined on the same grid. To add fields defined on different grids, use something like F + G(F.grid) or other, depending on the space spanned by the grids.
     If the strict_v attribute of F is set to True (a default), and the direction attributes of F,G differ and are not scalar, addition leads to the formation of a vector Field F*G = (F,G).
     
 
@@ -3195,30 +3386,30 @@ class Field(Named):
     if isinstance(other,Field):
       R = other.value
       if L.shape == R.shape:
-        if (self.gr == other.gr):
-          if not self.gr.same(other.gr):
+        if (self.grid == other.grid):
+          if not self.grid.same(other.grid):
             warnings.warn('grids contain same data points but different other attributes (e.g. name). Proceeding.')
 
           if self.strict_v:
             if self.direction == other.direction:
-              return Field(name=self.name, value = L+R,grid = self.gr, units = self.units, direction = self.direction)
+              return Field(name=self.name, value = L+R,grid = self.grid, units = self.units, direction = self.direction)
             else: 
               return self*other
 
           else:
 
-            return Field(name=self.name, value = L+R,grid = self.gr, units = self.units, direction = self.direction)
+            return Field(name=self.name, value = L+R,grid = self.grid, units = self.units, direction = self.direction)
         else:
-          raise Exception('Field grid error in %s + %s with Field %s: Field grids must be equal. Try F + G(F.gr).' % (self,other,self) )
+          raise Exception('Field grid error in %s + %s with Field %s: Field grids must be equal. Try F + G(F.grid).' % (self,other,self) )
           
       else:  
-        raise Exception('Field shape error in %s + %s with Field %s: shapes must match. Try F + G(F.gr).' % (self,other,self) )
+        raise Exception('Field shape error in %s + %s with Field %s: shapes must match. Try F + G(F.grid).' % (self,other,self) )
        
 
     elif isinstance(other,int):
       return self+float(other)
     elif isinstance(other,float):
-      return Field(name = self.name,value = self.value + other,grid = self.gr, units = self.units, direction = self.direction)
+      return Field(name = self.name,value = self.value + other,grid = self.grid, units = self.units, direction = self.direction)
 
     else:
         raise Exception('Field type error %s + %s with Field %s: right factor must be Field, int or float.' % (self,other,self) )
@@ -3232,9 +3423,9 @@ class Field(Named):
     if isinstance(other,Field):
       R = other.value
       if L.shape == R.shape:
-        if (self.gr == other.gr):
+        if (self.grid == other.grid):
 
-          if not self.gr.same(other.gr):
+          if not self.grid.same(other.grid):
             warnings.warn('grids contain same data points but different other attributes (e.g. name). Proceeding.')
 
           if self.strict_v:
@@ -3242,26 +3433,26 @@ class Field(Named):
 
 # should these Field creation statements be replaced with self.copy?
 
-              return Field(name=self.name, value = L - R,grid = self.gr, units = self.units, direction = self.direction)
+              return Field(name=self.name, value = L - R,grid = self.grid, units = self.units, direction = self.direction)
             else: 
               return self*other
 
           else:
 
-            return Field(name=self.name, value = L - R,grid = self.gr, units = self.units, direction = self.direction)
+            return Field(name=self.name, value = L - R,grid = self.grid, units = self.units, direction = self.direction)
 
 
         else:
-          raise Exception('Field grid error in %s-%s with Field %s: grids must be equal. Try F - G(F.gr) or F(G.gr) - G.' % (self,other,self) )
+          raise Exception('Field grid error in %s-%s with Field %s: grids must be equal. Try F - G(F.grid) or F(G.grid) - G.' % (self,other,self) )
           
       else:  
-        raise Exception('Field shape error in %s-%s with Field %s: shapes must match. Try F - G(F.gr) or F(G.gr) - G.' % (self,other,self)  )
+        raise Exception('Field shape error in %s-%s with Field %s: shapes must match. Try F - G(F.grid) or F(G.grid) - G.' % (self,other,self)  )
       
 
     elif isinstance(other,int):
       return self - float(other)
     elif isinstance(other,float):
-      return Field(name = self.name,value = self.value - other,grid = self.gr, units = self.units, direction = self.direction)
+      return Field(name = self.name,value = self.value - other,grid = self.grid, units = self.units, direction = self.direction)
 
     else:
         raise Exception('Field type error in %s - %s with Field %s: right factor must be Field, int or float.' % (self,other,self)  )
@@ -3281,7 +3472,7 @@ class Field(Named):
     # returns a numpy array containing the sliced content of self if argument consists only of slice objects.
     # If argument is of form: (crd0,1,crd2,1:) etc for crd0,crd1 Coord objects, slicing will take place along each Coord using the slice object or integer following each crd argument as the slice object. A new Field will be returned and new associated Coord objects and a corresponding grid will be produced for the return Field.
 
-    # The argument may also contain Ax objects X,Y,Z,T. In this case, the argument will be converted to the corresponding Coord object from the Field grid self.gr via multiplication.
+    # The argument may also contain Ax objects X,Y,Z,T. In this case, the argument will be converted to the corresponding Coord object from the Field grid self.grid via multiplication.
     
     if isinstance(L,tuple):
       # In this case, the argument is expected to be multiple slice objects only or slice objects interspersed with Coord objects.
@@ -3291,16 +3482,16 @@ class Field(Named):
       
       for i in L:
         if isinstance(i,Coord):
-          if i not in self.gr:
-            raise Exception('Slice Coord argument %s not in Field %s grid %s.'%(i,self,self.gr))
+          if i not in self.grid:
+            raise Exception('Slice Coord argument %s not in Field %s grid %s.'%(i,self,self.grid))
 
           crds.append(i)
         elif isinstance(i,Ax):
        
-          if i*self.gr is None:
-            raise Exception('Slice axis argument %s not in Field %s grid %s.' % (i,self,self.gr))
+          if i*self.grid is None:
+            raise Exception('Slice axis argument %s not in Field %s grid %s.' % (i,self,self.grid))
           else:
-            crds.append(i*self.gr) 
+            crds.append(i*self.grid) 
         elif isinstance(i,int)  | isinstance(i,slice):
           slices.append(i)
         else:
@@ -3330,7 +3521,7 @@ class Field(Named):
           if isinstance(slc,int):
              # Simple slice case at a certain point along an axis.
             
-             return self.copy(value = new_value, grid = self.gr/crd)
+             return self.copy(value = new_value, grid = self.grid/crd)
 
           elif isinstance(slc,slice):
             # a subset along an axis is taken. New Coord object(s) with the correct value needs to be created.
@@ -3353,7 +3544,7 @@ class Field(Named):
               new_crd.dual = new_crd_dual
               new_crd_dual.dual = new_crd
 
-            return self.copy(value = new_value, grid = new_crd*self.gr)
+            return self.copy(value = new_value, grid = new_crd*self.grid)
 
           else:
             # Input is neither slice object nor int
@@ -3386,13 +3577,13 @@ class Field(Named):
 # this method is very important. 
 # If Field T is naturally defined on grid yt*xt, then T(zt*yt*xt) yields a Field with value a 3D array b such that b[k,:,:] = T(yt*xt) for all possible k.
 
-    value = (self.gr(grid, method = method))(self.value)
+    value = (self.grid(grid, method = method))(self.value)
 
     if isinstance(value,list):
-# in this case the grid argument is a subspace of self.gr so that the grid of the elements is self.gr/grid due to the way self.gr(grid) has been constructed (see call method for grid objects).
+# in this case the grid argument is a subspace of self.grid so that the grid of the elements is self.grid/grid due to the way self.grid(grid) has been constructed (see call method for grid objects).
       result = []
       for i,e in enumerate(value):
-        result.append(Field(name = 'slice_'+str(grid.reverse() )+'_'+str(i) ,value = e, grid =self.gr/grid))
+        result.append(Field(name = 'slice_'+str(grid.reverse() )+'_'+str(i) ,value = e, grid =self.grid/grid))
       return result
      
     else:
@@ -3409,7 +3600,7 @@ class Field(Named):
       return self*float(other)
     
     elif isinstance(other,float):
-      return Field(name = self.name ,value = self.value*other,grid = self.gr, units = self.units ,direction = self.direction)
+      return Field(name = self.name ,value = self.value*other,grid = self.grid, units = self.units ,direction = self.direction)
 
     elif isinstance(other,Gr):
       # fields commute with Gr objects
@@ -3431,7 +3622,7 @@ class Field(Named):
         # in this case, at least one of the multiplicants is a scalar (interacting with all directions), or both multiplicants are along the same direction.
 
     # Note that this multiplication yields precedence for the order of the left multiplicant (self). E.g. (zt*yt*xt)*(xt*yt) = zt*yt*xt
-        common_gr = self.gr*other.gr
+        common_gr = self.grid*other.grid
  
     # This multiplication inflates the values of self and other (arrays) onto the common grid. 
     # In case the grids contain Coord elements that are equivalent but not equal, grid multiplication dictates that common_gr will contain the elements of the left multiplicant (i.e. again a precedence for the left multiplicant). This implies that the right Field will then be interpolated on the left latice
@@ -3448,16 +3639,16 @@ class Field(Named):
         if isinstance(new_direction,AxGr):
           new_direction = new_direction[0]
 
-        return Field(name = new_name ,value = self.gr(common_gr)(self.value)*other.gr(common_gr)(other.value),grid = common_gr, units = self.units + other.units, direction = new_direction)
+        return Field(name = new_name ,value = self.grid(common_gr)(self.value)*other.grid(common_gr)(other.value),grid = common_gr, units = self.units + other.units, direction = new_direction)
 
       else:
-        if self.gr != other.gr:
-          if self.gr&other.gr:
+        if self.grid != other.grid:
+          if self.grid&other.grid:
 
             # If multiplicants are defined on grids that have the same values but are different objects, a duplicate grid is discovered and housekeeping is done. Duplicate grids commonly arise from earlier slicing.
             print 'Duplicate grids. FYI: replacing right gr.'
-            del other.gr
-            other.gr = self.gr
+            del other.grid
+            other.grid = self.grid
           else:
             # if grids are different and not duplicates, the resulting vectorfield is likely to be ill defined. Creation proceeds nonetheless, but with a warning.
             warnings.warn( '(severe) VField components defined on different grids.', RuntimeWarning)
@@ -3484,7 +3675,7 @@ class Field(Named):
 
 
     else:
-      raise Exception('Field error in %s*%s with Field %s. Provide Field,Gr or Coord objects or int or double for right multiplicant. Hint: common mistake is when multiplying a Field F and a Coord c, and c appears to be in F.gr, c may be stale: check whether they are identical. If not, update c from Exper Coord stack. ' % (self,other,self) )
+      raise Exception('Field error in %s*%s with Field %s. Provide Field,Gr or Coord objects or int or double for right multiplicant. Hint: common mistake is when multiplying a Field F and a Coord c, and c appears to be in F.grid, c may be stale: check whether they are identical. If not, update c from Exper Coord stack. ' % (self,other,self) )
      
 
 # --> belongs to  Field.
@@ -3498,12 +3689,12 @@ class Field(Named):
       return self/float(other)
     
     elif isinstance(other,float):
-      return Field(name =self.name ,value = self.value/other,grid = self.gr, direction = self.direction)
+      return Field(name =self.name ,value = self.value/other,grid = self.grid, direction = self.direction)
 
     elif isinstance(other,Gr):
       return other.mean(self)
     elif isinstance(other,AxGr) | isinstance(other,Ax):
-      return self/(other*self.gr)
+      return self/(other*self.grid)
  
     elif isinstance(other,Coord):
 #      print 'Warning: (benign) converting right multiplicant to Gr from Coord object.'
@@ -3519,34 +3710,43 @@ class Field(Named):
 
 
     # Note that this multiplication yields precedence for the order of the left multiplicant (self). E.g. (zt*yt*xt)*(xt*yt) = zt*yt*xt
-      common_gr = self.gr*other.gr
+      common_gr = self.grid*other.grid
  
     # This multiplication inflates the values of self and other (arrays) onto the common grid. 
     # In case the grids contain Coord elements that are equivalent but not equal, grid multiplication dictates that common_gr will contain the elements of the left multiplicant (i.e. again a precedence for the left multiplicant). This implies that the right Field will then be interpolated on the left latice
 
-      return Field(name = new_name ,value = (self.gr(common_gr)(self.value))/(other.gr(common_gr)(other.value)),grid = common_gr, direction = self.direction)
+      return Field(name = new_name ,value = (self.grid(common_gr)(self.value))/(other.grid(common_gr)(other.value)),grid = common_gr, direction = self.direction)
 
 
     else:
       raise Exception('Field error in %s/%s with Field %s. Provide Field,gr or Coord objects or int or double for denominator. (Or check staleness of objects.)' % (self,other,self) )
      
 
+  def vcumsum(self,coord, upward=True):
+    """
+    Apply vcumsum method of coord on Field.
+    """
+
+    return coord.vcumsum(self,upward=upward) 
+
+
+# IS THIS SUM METHOD BEING CALLED??? IF NOT, REMOVE AND REPLACE WITH COORD BASED METHODS:
 # --> method belongs to Field.
   def sum(self,grid=None):
 
     """
-    Computes sum of Field over grid using masked array (nan is not counted). Outputs a float if grid is entire grid of the Field, and a Field on remaining grid (self.gr/grid) if grid argument is a subgrid.
+    Computes sum of Field over grid using masked array (nan is not counted). Outputs a float if grid is entire grid of the Field, and a Field on remaining grid (self.grid/grid) if grid argument is a subgrid.
     """
 
-    if not(grid) or self.gr.perm(grid):
+    if not(grid) or self.grid.perm(grid):
 # in this case no grid argument is given, or the full grid is given (up to a permutation).
       R = ma.masked_array(self.value,np.isnan(self.value))
       return ma.sum(R)
     else:
-# in this case, it is assumed the user wants to take sums along a certain set of axes, where that grid object is a subspace of self.gr  
+# in this case, it is assumed the user wants to take sums along a certain set of axes, where that grid object is a subspace of self.grid  
 
 # obtain the dual vectorspace axes of grid argument, due to the way the call method of grid objects works.   
-      F = self(self.gr/grid)
+      F = self(self.grid/grid)
       
 # we assume that F is now a list of fields.
 # each element has to be summed.
@@ -3555,7 +3755,7 @@ class Field(Named):
       for e in F:
         result.append(e.sum())
 
-      new_grid = self.gr/grid 
+      new_grid = self.grid/grid 
            
       return Field(name = self.name, value = (np.array(result)).reshape(new_grid.shape()) ,grid = new_grid)
 
@@ -3567,7 +3767,7 @@ class Field(Named):
     Returns Field containing domain of this Field: values are 1 in grid locations where Field is defined, nan otherwise.
     """
 
-    new_fld = self.gr.ones()
+    new_fld = self.grid.ones()
     new_fld.value[np.isnan(self[:])] = nan_val
 
     return new_fld
@@ -3575,7 +3775,7 @@ class Field(Named):
 # --> method belongs to Field.
   def dV(self):
 
-    return self.ones()*self.gr.vol()
+    return self.ones()*self.grid.vol()
 
   def vol(self, grid = None):
     """
@@ -3589,6 +3789,9 @@ class Field(Named):
   def mean(self,grid = None):
     return (self.dV()*self).sum(grid)/(self.dV()).sum(grid)
 
+  
+
+
 
   def slice(self, sl_coord = None,slice_obj = slice(1,None,None)):
     """
@@ -3600,7 +3803,7 @@ class Field(Named):
       sl = slice(*(None,))
       
       L = []
-      for e in self.gr:
+      for e in self.grid:
         
         if sl_coord is e:
           L.append(slice_obj)
@@ -3611,23 +3814,23 @@ class Field(Named):
 
   def draw(self, colorbar = True,**kwargs):
 
-    if len(self.gr) == 1:
+    if len(self.grid) == 1:
       h= plot(self,**kwargs)
       cb = None
 
-    elif len(self.gr) == 2:
+    elif len(self.grid) == 2:
    
       h = contourf(self,**kwargs)
       cb = plt.colorbar()
       cb.set_label(self.units)
 
-    elif len(self.gr) == 3:
-      for e in self.gr:
+    elif len(self.grid) == 3:
+      for e in self.grid:
         if hasattr(e,'axis'):
           if e.axis.name == 'Z':
             break       
       if e.axis.name != 'Z':
-        e = self.gr[0]
+        e = self.grid[0]
 
       h = contourf(e(self))
       cb = plt.colorbar()
@@ -3635,6 +3838,8 @@ class Field(Named):
 
     
     return h, cb
+
+
 
 
 # ------------------ end Field  definition ----------------
@@ -3663,7 +3868,7 @@ class VField(tuple):
         else:
           
           new_vfield = list(self)
-          if new_vfield[-1].gr != other.gr:
+          if new_vfield[-1].grid != other.grid:
             warnings.warn('VField components defined on different grids.',RuntimeWarning) 
 
         return VField(new_vfield + [other])
@@ -3754,9 +3959,32 @@ class VField(tuple):
     return
 
 
-  def sum(self):
+  def vcumsum(self,coord, upward=True):
+    """
+    Apply vcumsum method of coord on Field elements of self.
+    """
+    return VField([coord.vcumsum(e,upward=upward)  for e in self] )
+
+
+  def vsum(self,coord):
+    """
+    Apply vsum method of coord on Field elements of self.
+    """
+    return VField([coord.vsum(e,upward=upward)  for e in self] )
+
+
+
+
+
+
+
+
+
+
+  def innersum(self):
 
     return reduce(lambda x,y: x+y, self)
+
 
   def copy(self):
 
@@ -3772,11 +4000,11 @@ class VField(tuple):
   def draw(self, **kwargs):
 
     if len(self.direction()) == 2:
-      if len(self[0].gr) == 2:
+      if len(self[0].grid) == 2:
 
         # insert quiver plot here.
         quiver(self)
-      elif len(self[0].gr) == 3:
+      elif len(self[0].grid) == 3:
 
         pass
     else:
@@ -3824,11 +4052,11 @@ def concatenate(fields, ax=None, name_suffix='_cat', new_coord_name = 'gamma', n
       raise ValueError('Provide fields and new_coord arguments of equal length if providing new_coord argument.')
 
     # EXIT POINT
-    return fields[0].copy( name = fields[0].name +name_suffix, value = np.array( [ F[:] for F in fields ] ) , grid = new_coord*fields[0].gr )
+    return fields[0].copy( name = fields[0].name +name_suffix, value = np.array( [ F[:] for F in fields ] ) , grid = new_coord*fields[0].grid )
 
 
 
-  if ax and (ax*fields[0].gr is None):
+  if ax and (ax*fields[0].grid is None):
 
 
     # the axis is not in the grid of the first Field
@@ -3837,11 +4065,11 @@ def concatenate(fields, ax=None, name_suffix='_cat', new_coord_name = 'gamma', n
     if strings is not None:    
       for i, F in enumerate(fields):
         new_coord = Coord(name = new_coord_name,value = np.array([i]), direction = ax.name , axis = ax , strings = [strings[i],] )
-        expanded_fields.append( F(new_coord*F.gr) )
+        expanded_fields.append( F(new_coord*F.grid) )
     else:
       for i, F in enumerate(fields):
         new_coord = Coord(name = new_coord_name,value = np.array([i]), direction = ax.name , axis = ax  )
-        expanded_fields.append( F(new_coord*F.gr) )
+        expanded_fields.append( F(new_coord*F.grid) )
 
     fields = expanded_fields    
     name_suffix = ''
@@ -3854,7 +4082,7 @@ def squeeze(F, hard = False):
   Equivalent to Numpy squeeze method. Remove dimensions and associated coords in grid of length 1. Reversible operation as squeezed dimensions are recorded. Setting argument hard to True yields an irreversible squeeze where the squeezed dims are not recorded (and cannot be unsqueezed later). 
   """
 
-  dims = list(F.gr)
+  dims = list(F.grid)
   body = F.value
   
   squeezed_dims = []
@@ -3884,7 +4112,7 @@ def unsqueeze(F ):
   
   """
 
-  gr_unsqueezed = F.squeezed_dims*F.gr
+  gr_unsqueezed = F.squeezed_dims*F.grid
 
   return F.copy( value = F.value.reshape(gr_unsqueezed.shape() ) , grid = gr_unsqueezed, squeezed_dims =  Gr( () )  )
 
@@ -3947,12 +4175,12 @@ def roll(F,shift=1,coord=None,axis=None,mask=False,keepgrid = False, nan_val = n
   """
 
   if isinstance(coord,Ax):
-    coord = coord*F.gr
+    coord = coord*F.grid
 
   if not(axis):
-    if coord in F.gr:
+    if coord in F.grid:
       
-      axis = F.gr.index(coord)
+      axis = F.grid.index(coord)
     else:
       print 'coord not in Field grid'
       return 
@@ -3962,10 +4190,10 @@ def roll(F,shift=1,coord=None,axis=None,mask=False,keepgrid = False, nan_val = n
 
   if keepgrid is True:
     # keep the original grid of Field F
-    newgr = F.gr 
+    newgr = F.grid 
   elif keepgrid is False:
     # replace the grid with one with rolled coord
-    newgr = coord.roll(shift = shift)*F.gr 
+    newgr = coord.roll(shift = shift)*F.grid 
   else:
     raise Exception('Argument error in roll of Field %s. Provide True or False for keepgrid argument. ') % F
 
@@ -3986,7 +4214,7 @@ def roll(F,shift=1,coord=None,axis=None,mask=False,keepgrid = False, nan_val = n
 
 
     L = []
-    for e in F.gr:
+    for e in F.grid:
       L.append(sl)
     L[axis] = sl_exposed
     Fr.value[L] = nan_val
@@ -4005,7 +4233,7 @@ def finer_Field(F,factor =5.):
   This is a more UVic specific function to prepare a Field containing the outline of the continents for horizontal plots.
   """
   
-  return F(finer_grid(grid = F.gr,factor = factor),method ='nearest')
+  return F(finer_grid(grid = F.grid,factor = factor),method ='nearest')
 
 
 

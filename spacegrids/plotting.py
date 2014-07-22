@@ -59,7 +59,7 @@ def prep_axes(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=No
   ylbl = '' 
  
   if grid is None:
-    grid = fld.gr
+    grid = fld.grid
 
 
   X, Y, x_name, y_name = grid[1], grid[0],grid[1].name, grid[0].name
@@ -153,7 +153,7 @@ def quiver(vfld, showland=True, xlabel = True,ylabel = True, minus_z=True,xl=Non
   greyshade = float(greyshade)
 
   if len(vfld.direction()) == 2:
-    if len(vfld[0].gr) == 2:
+    if len(vfld[0].grid) == 2:
 
  # obtain prepared arrays and names from Field object. mbody is a masked array containing the Field data. mbody will be used in plotting. Some of the output will not be needed.
           
@@ -350,7 +350,7 @@ def plot(fld0 = None,fld1=None, minus_z=True,xlbl='',ylbl='', grid = None,start_
 
 
      if grid is None:
-       crd = fld0.gr[0]
+       crd = fld0.grid[0]
      else:
        crd = grid[0]
 

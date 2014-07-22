@@ -135,7 +135,7 @@ class Innprod(Operator):
     elif len(left) == len(right):
 
       if find_perm(left.direction(),right.direction()):
-        return (left*right).sum()
+        return (left*right).innersum()
       else:
         raise Exception('Error in inner product %s * %s, must be in same space. ' % (left,right))
 
@@ -266,7 +266,7 @@ class If(Operator):
 
   def __init__(self, Cond_Op, True_Op, Else_Op = nop):
 
-    # The state of the system is defined by the Field(s) vF. Therefore, the condition can be internal to the call function and must be defined in terms of vF (e.g. 'len(vF.gr) == 3'). 
+    # The state of the system is defined by the Field(s) vF. Therefore, the condition can be internal to the call function and must be defined in terms of vF (e.g. 'len(vF.grid) == 3'). 
     self.Cond_Op = Cond_Op
     self.True_Op = True_Op
     self.Else_Op = Else_Op

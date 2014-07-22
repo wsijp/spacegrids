@@ -87,6 +87,8 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     coord5 = sg.fieldcls.Coord(name = 'test2',direction ='Y',value =np.array([1,2,3, 4]), metadata = {'hi':10})
     coord6 = sg.fieldcls.Coord(name = 'test',direction ='X',value =np.array([5,1,2,3, 4]), metadata = {'hi':12})
 
+    # providing coord1 and coord2 with duals. coord3 is self-dual
+
     coord1_edges = sg.fieldcls.Coord(name = 'test1_edges',direction ='X',value =np.array([0.5,1.5,2.5,3.5]), dual = coord1 , metadata = {'hi':25} )
     coord2_edges = sg.fieldcls.Coord(name = 'test2_edges',direction ='Y',value =np.array([0.5,1.5,2.5,3.5,4.5]), dual = coord2, metadata = {'hi':77})
 
@@ -187,6 +189,69 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
   # ---------- test block for Coord class ------
 
+
+
+  def test_coord_mult_with_AxGr(self):
+    """
+    Test copy method of Coord. 
+    """
+
+    cstack1 = self.fixture[0]
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+    coord3 = cstack1[2]
+ 
+    X = sg.fieldcls.Ax('X')
+    Y = sg.fieldcls.Ax('Y')
+    Z = sg.fieldcls.Ax('Z')
+
+
+    coord1.give_axis(X)
+    coord2.give_axis(Y)
+    coord3.give_axis(Z)
+
+    coord3.direction = 'Z'
+
+
+    self.assertEqual( (X*Y)*(coord1*coord2*coord3) , coord1*coord2  )
+    self.assertEqual( (Y*X)*(coord1*coord2*coord3) , coord2*coord1  )
+
+
+  def test_coord_axis_method(self):
+    """
+    Test axis method of Coord. 
+    """
+
+    cstack1 = self.fixture[0]
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+ 
+    X = sg.fieldcls.Ax('X')
+    Y = sg.fieldcls.Ax('Y')
+
+
+    coord1.give_axis(X)
+    coord2.give_axis(Y)
+
+    self.assertEqual( (coord1*coord2).axis() , X*Y  )
+ 
+
+
+  def test_coord_reverse_method(self):
+    """
+    Test reverse method of Coord. 
+    """
+
+    cstack1 = self.fixture[0]
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+ 
+    self.assertEqual( (coord1*coord2).reverse() , coord2*coord1  )
+
+
+
+
+
   def test_copy_method_yields_not_same_for_case_name(self):
     """
     Test whether making a copy with 1 argument passed to .copy method yields a Coord object that is the same as the original (although a different object in memory) and differs in that specific attribute.
@@ -227,6 +292,78 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
         self.assertEqual(np.array_equal(coord_att, value), True  )
       else:
         self.assertEqual(coord_att, value  )
+
+
+
+  def test_coord_copy_self_dual(self):
+    """
+    Test copy method of Coord. 
+    """
+
+    cstack1 = self.fixture[0]
+    coord2 = cstack1[1]
+    coord3 = cstack1[2]
+ 
+    # coord1 and coord2 have non-self duals, coord3 is self-dual. 
+
+    copy_coord3 = coord3.copy()
+
+    # test whether coord3 remains self-dual under operation:
+    self.assertEqual(copy_coord3.dual is copy_coord3.dual , True )
+
+
+
+  def test_coord_copy_other_dual(self):
+    """
+    Test copy method of Coord. 
+    """
+
+    cstack1 = self.fixture[0]
+    coord2 = cstack1[1]
+    coord3 = cstack1[2]
+ 
+    # coord1 and coord2 have non-self duals, coord3 is self-dual. 
+
+    copy_coord2 = coord2.copy()
+
+ 
+    self.assertEqual(copy_coord2.dual is coord2.dual , True )
+
+
+
+
+  def test_coord_neg_self_dual(self):
+    """
+    Test __neg__ method of Coord. 
+    """
+
+    cstack1 = self.fixture[0]
+    coord2 = cstack1[1]
+    coord3 = cstack1[2]
+ 
+    # coord1 and coord2 have non-self duals, coord3 is self-dual. 
+
+    minus_coord3 = -coord3
+
+    # test whether coord3 remains self-dual under operation:
+    self.assertEqual(minus_coord3.dual, minus_coord3 )
+
+
+
+  def test_coord_neg_other_dual(self):
+    """
+    Test __neg__ method of Coord. 
+    """
+
+    cstack1 = self.fixture[0]
+    coord2 = cstack1[1]
+    coord3 = cstack1[2]
+ 
+    # coord1 and coord2 have non-self duals:
+
+    minus_coord2 = -coord2
+
+    self.assertEqual( np.array_equal(minus_coord2.dual.value, -coord2.dual.value), True )
 
 
 
@@ -355,18 +492,6 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     self.assertEqual(coord3.same(coord3_copy), False  )
 
 
-  def test_cast_method_no_args(self):
-    """
-    Test Coord cast method.
-    """
-
-    cstack1 = self.fixture[0]
-
-    coord1 = cstack1[0]
- 
-    F = coord1.cast()
-  
-    self.assertEqual(F.shape, (3,)  )
 
   def test_cast_method_2D_grid(self):
     """
@@ -512,13 +637,13 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     
     self.assertEqual( np.array_equal( R[0,:],  np.array([3.,3.,3.,3.]) ), True  )
     self.assertEqual( np.array_equal( R[1,:],  np.array([1.,1.,1.,1.]) ), True  )
-    # first coord in R.gr is replaced:
-    self.assertEqual( R.gr[0] is coord1, False  )
-    # second coord in R.gr is not replaced:
-    self.assertEqual( R.gr[1] is coord2, True  )
+    # first coord in R.grid is replaced:
+    self.assertEqual( R.grid[0] is coord1, False  )
+    # second coord in R.grid is not replaced:
+    self.assertEqual( R.grid[1] is coord2, True  )
 
-    # test whether coord in R.gr is properly rolled:
-    self.assertEqual( np.array_equal(R.gr[0].value , np.array( [3., 1., 2.] )  ) , True  )
+    # test whether coord in R.grid is properly rolled:
+    self.assertEqual( np.array_equal(R.grid[0].value , np.array( [3., 1., 2.] )  ) , True  )
 
 
   def test_roll_function_non_masked_keepgrid(self):
@@ -533,10 +658,10 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     K = coord1(coord1*coord2)
     R= sg.roll(K,coord=coord1,mask = False, keepgrid = True)
     
-    # first coord in R.gr is not replaced:
-    self.assertEqual( R.gr[0] is coord1, True  )
-    # second coord in R.gr is not replaced:
-    self.assertEqual( R.gr[1] is coord2, True  )
+    # first coord in R.grid is not replaced:
+    self.assertEqual( R.grid[0] is coord1, True  )
+    # second coord in R.grid is not replaced:
+    self.assertEqual( R.grid[1] is coord2, True  )
 
 
   def test_roll_function_masked(self):
@@ -589,7 +714,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     self.assertEqual( np.array_equal( R[1,:],  np.array([1.,1.,1.,1.]) ), True  )
     self.assertEqual( np.array_equal( R[2,:],  np.array([1.,1.,1.,1.]) ), True  )
 
-    self.assertEqual( R.gr[0] is coord1   , True  )
+    self.assertEqual( R.grid[0] is coord1   , True  )
 
 
   def test_sum_method(self):
@@ -675,7 +800,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     R = coord1.cumsum(ONES  )
 
-    self.assertEqual(R.gr,ONES.gr)
+    self.assertEqual(R.grid,ONES.grid)
     self.assertEqual( np.array_equal(R.value[0,:],  np.array([3.,3.,3.,3.]) ), True  )
 
     R = coord1.cumsum(ONES , upward = True )
@@ -902,6 +1027,9 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     coord3_copy = coord3.copy(direction = 'Z')
 
     self.assertEqual(coord3.same(coord3_copy), False  )
+
+
+
 
 
 
@@ -1299,6 +1427,40 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     self.assertEqual(cstack1[0].weaksame(cstack2[1]), False)
 
+  
+  def test_equality_relation_weaksame_grid(self):
+    """"
+    Does the weaksame-relationship yield equality for multiple-member object?
+    """
+    cstack1 = self.fixture[0]
+    cstack2 = self.fixture[1]
+
+    # First two coord objects should have same content
+
+    self.assertEqual( (cstack1[0]*cstack1[1]).weaksame(cstack2[0]*cstack2[1]), True)
+
+
+
+  def test_inequality_relation_weaksame_grid(self):
+    """"
+    Does the weaksame-relationship yield inequality for multiple-member object?
+    """
+    cstack1 = self.fixture[0]
+    cstack2 = self.fixture[1]
+
+    # First two coord objects should have same content
+
+    self.assertEqual( (cstack1[0]*cstack1[1]).weaksame(cstack2[1]*cstack2[0]), False)
+
+    self.assertEqual( (cstack1[0]*cstack1[1]).weaksame(cstack2[1]*cstack2[2]), False)
+
+
+
+
+
+# ----- some make_axes related tests:
+
+
   def test_equality_relation_find_equal_axes(self):
     """"
     Does the function find_equal_axes recognise equivalent coord objects in the two cstacks and replace the elements of the 2nd stack accordingly?
@@ -1343,6 +1505,191 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     cstack2 = self.fixture[1]
     sg.make_axes(cstack1 + cstack2) 
     self.assertEqual(str( sg.make_axes(cstack1 + cstack2) ) , '[]'  )
+
+
+class TestAxAndAxGr(unittest.TestCase):
+
+# ----- for Ax and AxGr objects (not using fixture)
+
+  def test_equality_relation_weaksame_grid(self):
+    """"
+    Does the weaksame-relationship yield equality for multiple-member object?
+    """
+    X = sg.fieldcls.Ax('X')
+    Y = sg.fieldcls.Ax('Y')
+
+    X2 = sg.fieldcls.Ax('X')
+    Y2 = sg.fieldcls.Ax('Y')
+
+
+    # First two coord objects should have same content
+
+    self.assertEqual( (X*Y).weaksame(Y*X), False)
+    self.assertEqual( (Y*X).weaksame(Y2*X2), True)
+
+# ----- for Ax and AxGr objects (not using fixture)
+
+  def test_copy_AxGr(self):
+    """"
+    Test copy method of AxGr
+    """
+    X = sg.fieldcls.Ax('X')
+    Y = sg.fieldcls.Ax('Y')
+
+    ag_copy = (X*Y).copy()
+
+
+    self.assertEqual( ag_copy.__repr__(), '(X,Y,)')
+
+
+
+
+  def test_ax_div_mult(self):
+
+    # set up some independent axes to test on:
+    a1 = sg.fieldcls.Ax(name='a1')
+    a2 = sg.fieldcls.Ax(name='a2')
+    a3 = sg.fieldcls.Ax(name='a3')
+    a4 = sg.fieldcls.Ax(name='a4')
+
+    self.assertEqual(len(a1*a2*a3),3)
+    self.assertEqual((a1*a2*a3)/a2 , a1*a3  )
+    self.assertEqual((a1*a3)/a2 , a1*a3  )
+  
+
+class TestGr(unittest.TestCase):
+
+
+
+  def setUp(self):
+    print 'Setting up %s'%type(self).__name__
+
+    def provide_axis(cstack):
+      for i, c in enumerate(cstack):
+        cstack[i].axis = cstack[i].direction 
+
+      return cstack
+  
+    # Note that some coord values are deliberately unordered.   
+
+    # Coords ---    
+    coord1 = sg.fieldcls.Coord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]) , metadata = {'hi':5} )
+    coord2 = sg.fieldcls.Coord(name = 'test2',direction ='Y',value =np.array([1.,2.,3.,4.]), metadata = {'hi':7})
+    coord3 = sg.fieldcls.Coord(name = 'test',direction ='X',value =np.array([5.,1.,2.,3.,4.]), metadata = {'hi':3})
+    # identical in main attributes to previous set (in order):
+    coord4 = sg.fieldcls.Coord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]), metadata = {'hi':8})
+    coord5 = sg.fieldcls.Coord(name = 'test2',direction ='Y',value =np.array([1,2,3, 4]), metadata = {'hi':10})
+    coord6 = sg.fieldcls.Coord(name = 'test',direction ='X',value =np.array([5,1,2,3, 4]), metadata = {'hi':12})
+
+    # providing coord1 and coord2 with duals. coord3 is self-dual
+
+    coord1_edges = sg.fieldcls.Coord(name = 'test1_edges',direction ='X',value =np.array([0.5,1.5,2.5,3.5]), dual = coord1 , metadata = {'hi':25} )
+    coord2_edges = sg.fieldcls.Coord(name = 'test2_edges',direction ='Y',value =np.array([0.5,1.5,2.5,3.5,4.5]), dual = coord2, metadata = {'hi':77})
+
+    # identical in main attributes to previous set (in order):
+    coord4_edges = sg.fieldcls.Coord(name = 'test1_edges',direction ='X',value =np.array([0.5,1.5,2.5,3.5]), dual = coord4 , metadata = {'hi':25} )
+    coord5_edges = sg.fieldcls.Coord(name = 'test2_edges',direction ='Y',value =np.array([0.5,1.5,2.5,3.5,4.5]), dual = coord5, metadata = {'hi':77})
+
+
+    # YCoords ---
+
+    ycoord1 = sg.fieldcls.YCoord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]) , metadata = {'hi':5} )
+    ycoord2 = sg.fieldcls.YCoord(name = 'test2',direction ='Y',value =np.array([1.,2.,3.,4.]), metadata = {'hi':7})
+    ycoord3 = sg.fieldcls.YCoord(name = 'test',direction ='X',value =np.array([5.,1.,2.,3.,4.]), metadata = {'hi':3})
+    # identical in main attributes to previous set (in order):
+    ycoord4 = sg.fieldcls.YCoord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]), metadata = {'hi':8})
+    ycoord5 = sg.fieldcls.YCoord(name = 'test2',direction ='Y',value =np.array([1.,2.,3., 4.]), metadata = {'hi':10})
+    ycoord6 = sg.fieldcls.YCoord(name = 'test',direction ='X',value =np.array([5.,1.,2.,3., 4.]), metadata = {'hi':12})
+
+
+    ycoord1_edges = sg.fieldcls.YCoord(name = 'test1_edges',direction ='X',value =np.array([0.5,1.5,2.5,3.5]), dual = ycoord1 , metadata = {'hi':25} )
+    ycoord2_edges = sg.fieldcls.YCoord(name = 'test2_edges',direction ='Y',value =np.array([0.5,1.5,2.5,3.5,4.5]), dual = ycoord2, metadata = {'hi':77})
+
+    # identical in main attributes to previous set (in order):
+    ycoord4_edges = sg.fieldcls.YCoord(name = 'test1_edges',direction ='X',value =np.array([0.5,1.5,2.5,3.5]), dual = ycoord4 , metadata = {'hi':25} )
+    ycoord5_edges = sg.fieldcls.YCoord(name = 'test2_edges',direction ='Y',value =np.array([0.5,1.5,2.5,3.5,4.5]), dual = ycoord5, metadata = {'hi':77})
+
+
+
+
+    # XCoords ---
+
+    xcoord1 = sg.fieldcls.XCoord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]) , metadata = {'hi':5} )
+    xcoord2 = sg.fieldcls.XCoord(name = 'test2',direction ='Y',value =np.array([1.,2.,3.,4.]), metadata = {'hi':7})
+    xcoord3 = sg.fieldcls.XCoord(name = 'test',direction ='X',value =np.array([5.,1.,2.,3.,4.]), metadata = {'hi':3})
+    # identical in main attributes to previous set (in order):
+    xcoord4 = sg.fieldcls.XCoord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]), metadata = {'hi':8})
+    xcoord5 = sg.fieldcls.XCoord(name = 'test2',direction ='Y',value =np.array([1.,2.,3., 4.]), metadata = {'hi':10})
+    xcoord6 = sg.fieldcls.XCoord(name = 'test',direction ='X',value =np.array([5.,1.,2.,3., 4.]), metadata = {'hi':12})
+
+    xcoord1_edges = sg.fieldcls.XCoord(name = 'test1_edges',direction ='X',value =np.array([0.5,1.5,2.5,3.5]), dual = xcoord1 , metadata = {'hi':25} )
+    xcoord2_edges = sg.fieldcls.XCoord(name = 'test2_edges',direction ='Y',value =np.array([0.5,1.5,2.5,3.5,4.5]), dual = xcoord2, metadata = {'hi':77})
+
+    # identical in main attributes to previous set (in order):
+    xcoord4_edges = sg.fieldcls.XCoord(name = 'test1_edges',direction ='X',value =np.array([0.5,1.5,2.5,3.5]), dual = xcoord4 , metadata = {'hi':25} )
+    xcoord5_edges = sg.fieldcls.XCoord(name = 'test2_edges',direction ='Y',value =np.array([0.5,1.5,2.5,3.5,4.5]), dual = xcoord5, metadata = {'hi':77})
+
+
+
+
+    # we are testing for Coord, YCoord and XCoord 
+    cstack1 = provide_axis([coord1,coord2,coord3,coord1_edges,coord2_edges])
+    cstack2 = provide_axis([coord4,coord5,coord6,coord4_edges,coord5_edges])
+
+    ycstack1 = provide_axis([ycoord1,ycoord2,ycoord3,ycoord1_edges,ycoord2_edges])
+    ycstack2 = provide_axis([ycoord4,ycoord5,ycoord6,ycoord4_edges,ycoord5_edges])
+
+    xcstack1 = provide_axis([xcoord1,xcoord2,xcoord3,xcoord1_edges,xcoord2_edges])
+    xcstack2 = provide_axis([xcoord4,xcoord5,xcoord6,xcoord4_edges,xcoord5_edges])
+
+
+    self.fixture = [cstack1, cstack2, ycstack1, ycstack2,xcstack1, xcstack2,]
+
+  def tearDown(self):
+    print 'Tearing down %s'%type(self).__name__
+    del self.fixture
+
+
+  def test_copy_Gr(self):
+    """"
+    Test copy method of Gr
+    """
+ 
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+
+    gr_copy = (coord1*coord2).copy()
+
+    self.assertEqual( gr_copy.__repr__(), '(test1, test2)')
+
+  def test_Gr_array_equal_method(self):
+    """"
+    Test array_equal method of Gr
+    """
+ 
+    X = sg.fieldcls.Ax('X')
+    Y = sg.fieldcls.Ax('Y')
+
+
+    cstack1 = self.fixture[0]
+    cstack2 = self.fixture[1]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+
+    coord4 = cstack2[0]
+    coord5 = cstack2[1]
+
+    coord1.axis = X
+    coord2.axis = Y
+    
+    coord4.axis = X
+    coord5.axis = Y
+
+    self.assertEqual( (coord1*coord2).array_equal(coord4*coord5), [True ,True] )
+
 
 
 
@@ -1595,11 +1942,11 @@ class TestCoordField(unittest.TestCase):
 
   def test_field_grid_len(self):
 
-    self.assertEqual(len(self.fixture['DPO']['O_temp'].gr),3)
+    self.assertEqual(len(self.fixture['DPO']['O_temp'].grid),3)
 
   def test_field_shape(self):
 
-    self.assertEqual(self.fixture['DPO']['O_temp'].shape,self.fixture['DPO']['O_temp'].gr.shape())
+    self.assertEqual(self.fixture['DPO']['O_temp'].shape,self.fixture['DPO']['O_temp'].grid.shape())
 
   def test_coord(self):
 
@@ -1694,7 +2041,7 @@ class TestCoordField(unittest.TestCase):
     # load velocity to get the velocity grid
     self.fixture.load('O_velX')
 
-    TEMP_regrid = self.fixture['DPO']['O_temp'].regrid(self.fixture['DPO']['O_velX'].gr)
+    TEMP_regrid = self.fixture['DPO']['O_temp'].regrid(self.fixture['DPO']['O_velX'].grid)
 
     self.assertAlmostEqual( TEMP_regrid/ (X*Y*Z) , 4.092108709111132  , places =2)
 
@@ -1706,7 +2053,7 @@ class TestCoordField(unittest.TestCase):
 
   def test_if_unsqueezing_adds_dims(self):
 
-    self.assertEqual( len( (sg.unsqueeze(self.fixture['DPO']['O_temp']) ).gr ) , 4   )
+    self.assertEqual( len( (sg.unsqueeze(self.fixture['DPO']['O_temp']) ).grid ) , 4   )
 
   def test_if_unsqueezing_removes_squeezed_dims(self):
 
@@ -1837,7 +2184,7 @@ class TestGrid(unittest.TestCase):
 
     SAT = P['DPO']['A_sat']
     SAT.shape is (100,100)
-    W=SAT.gr.expand(SAT[:],depth**2)
+    W=SAT.grid.expand(SAT[:],depth**2)
     W.shape is (19,100,100)
     W contains 19 identical copies (slices) of SAT[:] 
 
@@ -1848,7 +2195,7 @@ class TestGrid(unittest.TestCase):
     for c in self.fixture['DPO'].cstack:
       exec c.name + ' = c'   
     
-    W=SAT.gr.expand(SAT[:],depth**2)
+    W=SAT.grid.expand(SAT[:],depth**2)
 
 #    W has been expanded, and the other grid (depth**2) should be appended on the left side.         
 
@@ -1864,7 +2211,7 @@ class TestGrid(unittest.TestCase):
     for c in self.fixture['DPO'].cstack:
       exec c.name + ' = c'   
     
-    W=SAT.gr.expand(SAT[:],depth**2)
+    W=SAT.grid.expand(SAT[:],depth**2)
 
 #    W contains 19 identical copies (slices) of SAT[:]          
 
@@ -1884,8 +2231,8 @@ class TestGrid(unittest.TestCase):
     # need to do slice test earlier.
     SAT2 = SAT[Y,:50]
 
-    gr1 = SAT2.gr
-    gr2 = depth*SAT2.gr
+    gr1 = SAT2.grid
+    gr2 = depth*SAT2.grid
 
     A = SAT2[:]
     B = gr1(gr2)(A)
@@ -1909,9 +2256,9 @@ class TestGrid(unittest.TestCase):
     # need to do slice test earlier.
     SAT2 = SAT[Y,:50]
 
-    gr1 = SAT2.gr
+    gr1 = SAT2.grid
     # note that this does something different for a single coord left multiplicant:
-    gr2 = (depth*longitude)*SAT2.gr   
+    gr2 = (depth*longitude)*SAT2.grid   
 
     A = SAT2[:]
     B = gr1(gr2)(A)
@@ -1936,9 +2283,9 @@ class TestGrid(unittest.TestCase):
     # need to do slice test earlier.
     SAT2 = SAT[Y,:50]
 
-    gr1 = SAT2.gr
+    gr1 = SAT2.grid
     # note that this does something different for a single coord left multiplicant:
-    gr2 = (depth*longitude_V)*SAT2.gr   
+    gr2 = (depth*longitude_V)*SAT2.grid   
 
     A = SAT2[:]
     B = gr1(gr2)(A)
@@ -2112,6 +2459,41 @@ class TestGrid(unittest.TestCase):
     W = gr1.vol()
     # should have the shape of longitude**2
     self.assertAlmostEqual( W.value.sum()   , 121672626836.47124 , places = 2 )
+
+
+class TesHigherFieldFunctionality(unittest.TestCase):
+
+  def setUp(self):
+    print 'Setting up %s'%type(self).__name__
+    D = sg.info_dict()
+    P = sg.Project(D['my_project']);P.load('F_heat')
+    self.fixture = P
+
+  def tearDown(self):
+    print 'Tearing down %s'%type(self).__name__
+    del self.fixture
+
+
+  def test_meridional_heat_transport(self):
+
+    P = self.fixture
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'   
+
+
+    # obtain oceanic heat flux as sg field object HF from project.
+    HF = P['DPO']['F_heat']
+    HF2 = P['DPC']['F_heat']
+
+    PHT = Y|(HF*X)*1e-15
+    PHT2 = Y|(HF2*X)*1e-15
+
+    self.assertEqual(PHT.shape, (100,))
+    self.assertEqual(PHT2.shape, (100,))
+
+
+
 
 
 

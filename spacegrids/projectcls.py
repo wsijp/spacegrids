@@ -695,7 +695,7 @@ def overview():
   RP.echoln("U = P['some_experiment']['u']   ")
   RP.echoln("TEMP_sliced = TEMP[Y,:50]     ")
   RP.echoln("m_TEMP = TEMP_sliced/(X*Y)   ")
-  RP.echoln("TEMP_regridded = TEMP(U.gr)	   ")
+  RP.echoln("TEMP_regridded = TEMP(U.grid)	   ")
   RP.echoln("   ")
 
   print RP.value
