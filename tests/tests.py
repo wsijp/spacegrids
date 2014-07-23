@@ -217,38 +217,6 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     self.assertEqual( (Y*X)*(coord1*coord2*coord3) , coord2*coord1  )
 
 
-  def test_coord_axis_method(self):
-    """
-    Test axis method of Coord. 
-    """
-
-    cstack1 = self.fixture[0]
-    coord1 = cstack1[0]
-    coord2 = cstack1[1]
- 
-    X = sg.fieldcls.Ax('X')
-    Y = sg.fieldcls.Ax('Y')
-
-
-    coord1.give_axis(X)
-    coord2.give_axis(Y)
-
-    self.assertEqual( (coord1*coord2).axis() , X*Y  )
- 
-
-
-  def test_coord_reverse_method(self):
-    """
-    Test reverse method of Coord. 
-    """
-
-    cstack1 = self.fixture[0]
-    coord1 = cstack1[0]
-    coord2 = cstack1[1]
- 
-    self.assertEqual( (coord1*coord2).reverse() , coord2*coord1  )
-
-
 
 
 
@@ -1630,8 +1598,6 @@ class TestGr(unittest.TestCase):
     xcoord5_edges = sg.fieldcls.XCoord(name = 'test2_edges',direction ='Y',value =np.array([0.5,1.5,2.5,3.5,4.5]), dual = xcoord5, metadata = {'hi':77})
 
 
-
-
     # we are testing for Coord, YCoord and XCoord 
     cstack1 = provide_axis([coord1,coord2,coord3,coord1_edges,coord2_edges])
     cstack2 = provide_axis([coord4,coord5,coord6,coord4_edges,coord5_edges])
@@ -1641,6 +1607,16 @@ class TestGr(unittest.TestCase):
 
     xcstack1 = provide_axis([xcoord1,xcoord2,xcoord3,xcoord1_edges,xcoord2_edges])
     xcstack2 = provide_axis([xcoord4,xcoord5,xcoord6,xcoord4_edges,xcoord5_edges])
+
+    X = sg.fieldcls.Ax('X')
+    Y = sg.fieldcls.Ax('Y')
+
+    coord1.axis = X
+    coord2.axis = Y
+    
+    coord4.axis = X
+    coord5.axis = Y
+
 
 
     self.fixture = [cstack1, cstack2, ycstack1, ycstack2,xcstack1, xcstack2,]
@@ -1668,10 +1644,6 @@ class TestGr(unittest.TestCase):
     """"
     Test array_equal method of Gr
     """
- 
-    X = sg.fieldcls.Ax('X')
-    Y = sg.fieldcls.Ax('Y')
-
 
     cstack1 = self.fixture[0]
     cstack2 = self.fixture[1]
@@ -1682,16 +1654,192 @@ class TestGr(unittest.TestCase):
     coord4 = cstack2[0]
     coord5 = cstack2[1]
 
-    coord1.axis = X
-    coord2.axis = Y
-    
-    coord4.axis = X
-    coord5.axis = Y
-
     self.assertEqual( (coord1*coord2).array_equal(coord4*coord5), [True ,True] )
 
 
+  def test_Gr_axis_method(self):
+    """"
+    Test axis method of Gr
+    """
+ 
+    cstack1 = self.fixture[0]
 
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+
+    self.assertEqual( (coord1*coord2).axis().__repr__(), '(X,Y,)')
+
+
+  def test_Gr_axis_method(self):
+    """
+    Test axis method of Coord. 
+    """
+
+    cstack1 = self.fixture[0]
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+ 
+    X = sg.fieldcls.Ax('X')
+    Y = sg.fieldcls.Ax('Y')
+
+
+    coord1.give_axis(X)
+    coord2.give_axis(Y)
+
+    self.assertEqual( (coord1*coord2).axis() , X*Y  )
+ 
+
+
+  def test_Gr_reverse_method(self):
+    """
+    Test reverse method of Coord. 
+    """
+
+    cstack1 = self.fixture[0]
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+ 
+    self.assertEqual( (coord1*coord2).reverse() , coord2*coord1  )
+
+
+
+
+  def test_Gr_is_equiv_method(self):
+    """
+    Test is_equiv method. 
+    """
+
+    cstack1 = self.fixture[0]
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+
+    cstack2 = self.fixture[1]
+    coord4 = cstack2[0]
+    coord5 = cstack2[1]
+
+ 
+    self.assertEqual( (coord1*coord2).is_equiv(coord5*coord4) , False  )
+
+    coord1.make_equiv(coord4)
+    coord2.make_equiv(coord5)
+ 
+    self.assertEqual( (coord1*coord2).is_equiv(coord5*coord4) , True  )
+
+
+
+  def test_Gr_eq_in_method(self):
+    """
+    Test Gr.eq_in method. 
+    """
+
+    cstack1 = self.fixture[0]
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+
+    cstack2 = self.fixture[1]
+    coord4 = cstack2[0]
+    coord5 = cstack2[1]
+
+ 
+    self.assertEqual( (coord1*coord2).eq_in(coord4) , False  )
+
+    coord1.make_equiv(coord4)
+#    coord2.make_equiv(coord5)
+ 
+    self.assertEqual( (coord1*coord2).eq_in(coord4) , True  )
+
+
+  def test_Gr_rearrange_method(self):
+    """
+    Test Gr.rearrange method. 
+    """
+
+    cstack1 = self.fixture[0]
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+
+    self.assertEqual( (coord1*coord2).rearrange([1,0]) , coord2*coord1  )
+
+
+
+  def test_Gr_perm_method(self):
+    """
+    Test perm method of Gr. 
+    """
+
+    cstack1 = self.fixture[0]
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+
+    cstack2 = self.fixture[1]
+    coord4 = cstack2[0]
+    coord5 = cstack2[1]
+
+
+    self.assertEqual( (coord1*coord2).perm(coord2*coord1) , (1,0)  )
+ 
+    self.assertEqual( (coord1*coord2).perm(coord5*coord4) is None , True  )
+
+    coord1.make_equiv(coord4)
+    coord2.make_equiv(coord5)
+ 
+    self.assertEqual( (coord1*coord2).perm(coord5*coord4) , None  )
+
+
+  def test_Gr_eq_perm_method(self):
+    """
+    Test eq_perm method of Gr. 
+    """
+
+    cstack1 = self.fixture[0]
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+
+    cstack2 = self.fixture[1]
+    coord4 = cstack2[0]
+    coord5 = cstack2[1]
+
+
+    self.assertEqual( (coord1*coord2).eq_perm(coord2*coord1) , (1,0)  )
+ 
+    self.assertEqual( (coord1*coord2).eq_perm(coord5*coord4) is None , True  )
+
+    coord1.make_equiv(coord4)
+    coord2.make_equiv(coord5)
+ 
+    self.assertEqual( (coord1*coord2).eq_perm(coord5*coord4) , (1,0)  )
+
+
+  def test_Gr_shape_method(self):
+    """
+    Test Gr.shape method. 
+    """
+
+    cstack1 = self.fixture[0]
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+
+
+    self.assertEqual( (coord1*coord2).shape() , (3,4)  )
+ 
+
+  def test_Gr_ones_method(self):
+    """
+    Test Gr.ones method. 
+    """
+
+    cstack1 = self.fixture[0]
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+
+    cstack2 = self.fixture[1]
+    coord4 = cstack2[0]
+    coord5 = cstack2[1]
+
+    K = (coord1*coord2).ones()
+
+    self.assertEqual( K.value.shape , (3,4)  )
+ 
 
 # ------------- Test utilsg.py module --------------------
 

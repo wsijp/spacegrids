@@ -496,8 +496,24 @@ class Directional(Named):
 
 class Membered(Named):
   """
-
+  Base class for classes containing members such as Coord or Ax objects.
   """
+
+
+  def same(self,other):
+    """
+    Member-wise same comparison.
+    """
+
+    if len(self) == len(other):
+      for i,c in enumerate(self):
+        if not(c.same(other[i]) ):    
+          return False
+
+      return True
+    else:
+      return False
+
 
 
   def weaksame(self,other):
@@ -511,10 +527,161 @@ class Membered(Named):
           return False
 
       return True
+    else:
+      return False
+
+
+  def reverse(self):
+    """
+    Reverse the order of the grid elements.
+
+    Examples:
+
+    >>> coord1 = sg.fieldcls.Coord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]) )
+    >>> coord2 = sg.fieldcls.Coord(name = 'test2',direction ='Y',value =np.array([1.,2.,3.,4.]) )
+    >>> (coord1*coord2).reverse()
+    (test2, test1)
+    """
+
+    return Gr([ self[len(self) -i -1 ] for i in range(len(self))  ])
+
+
+  def copy(self):
+    """
+    Creates object with same values. A = B.copy() yields A&B = True, see __and__ method.
+    """
+
+    return self.__class__([e.copy() for e in self])
+
+
+
+  def strict_equiv(self, other):
+    """
+    Tests whether two Gr objects have equivalent Coord elements at each position.
+    This is a stricter test than grid (Gr object) equivalence testing via gr1^gr2, which only tests whether both grids describe the same space (elements equivalent up to a permutation).
+
+    """
+    if len(self) == len(other):
+      
+      RO = True      
+      for i,it in enumerate(self):
+        RO *= (it.is_equiv(other[i] ) )
+      return bool(RO)
+    else:
+      return False
+
+
+  def __xor__(self, other):
+    """
+    Shorthand for is_equiv.
+    """
+
+    if len(self) == len(other):
+      
+      return self.is_equiv(other)
+
+
+  def is_equiv(self, other):
+    """
+    Checks equivalence between grids, where grids are equivalent if they define the same physical subspace, based on the equivalence definition for Coord classes. In other words, checks whether the individual Coord elements of the two grid (Gr object) arguments are equivalent up to a permutation. A stricter version of this test is strict_equiv, which allows no permutation.
+    """
+
+    if len(self) == len(other):
+      
+      if self.eq_perm(other):
+        return True
+      return False
 
     else:
-
       return False
+
+
+
+  def eq_in(self, crd):
+    """ Determines whether Coord crd is equivalent to any of the constituent Coord objects of this Gr
+
+    Gr and AxGr have an eq_in method that acts on a Coord or Ax.
+
+    Args:
+      crd: (Coord or Ax) object to be checked.
+
+    Returns:
+      True when crd is equivalent to one of the Coord objects, False otherwise.
+
+    See also:
+    eq_in method of Coord 
+    """
+
+
+    for i in self:
+      if crd.is_equiv(i): return True
+    return False
+
+  def eq_index(self,crd):
+    """
+    Returns index of argument in members.
+    """
+
+    for i,v in enumerate(self):
+      if crd.is_equiv(v): return i
+    return -1
+
+  def rearrange(self,permutation):
+    """
+    Gr method that rearranges the order of the elements of this grid Gr object via permutation arrgument. 
+
+    Args:
+      permutation: (List or Tuple) permutation to rearrange by
+
+    Returns:
+      object of same type as self with member rearranged.
+  
+    Examples: 
+
+    >>> g1 = latitude*depth
+    >>> g1.rearrange( (1,0) ) 
+    (depth, latitude)
+
+    See also Gr.perm method    
+    """
+    return self.__class__((self[i] for i in permutation))
+    
+    
+
+
+  def perm(self, other,verbose = False):     
+    """
+    yields permutation of axes going from grid self to grid other.
+    E.g. for grids gr1 and gr2, g2 = g1.rearrange( g1.perm(g2) )
+
+    Returns None if no permutation exists.
+
+    See also rearrange.
+
+    """  
+    return find_perm(self,other,verbose = verbose)
+
+  def eq_perm(self, other, verbose = True):      
+    """
+    yields permutation of axes going from grid self to grid other, where equivalent axes are treated as identical. 
+
+    See also perm.
+    """  
+
+    if len(self) == len(other):
+      perm = []
+      for r in other:
+        if self.eq_in(r):
+          perm.append(self.eq_index(r))
+        else:
+          warnings.warn( 'Warning from eq_perm (often benign): inputs not permutable, returning None.')
+          return
+
+    else:
+      if verbose:
+        print "Message from eq_perm: inputs must be of equal length."
+      return 
+    return tuple(perm)
 
 
 
@@ -2201,7 +2368,7 @@ class AxGr(tuple, Membered):
 # -------------- grid  --------------------------
 
 
-class Gr(tuple):
+class Gr(tuple, Membered):
 
   """
   Represents Coord grids. Consists of a tuple of Coord objects, with additional methods. Gr objects g1 and g2 are considered weaksame, g1.weaksame(g2) yields True, when the individual Coord elements are weaksame.
@@ -2214,17 +2381,6 @@ class Gr(tuple):
     if len(self) == len(other):
 
       return reduce(lambda x,y: x and y, [ np.array_equal(e[:], other[i][:]) for i,e in enumerate(self)  ] )
-
-    else:
-      return False
-
-  def same(self, other):
-    """    
-    Coord-wise comparison of elements using Coord same method. 
-    """
-    if len(self) == len(other):
-
-      return reduce(lambda x,y: x and y, [ e.same( other[i] ) for i,e in enumerate(self)  ] )
 
     else:
       return False
@@ -2287,7 +2443,7 @@ class Gr(tuple):
 
         if pm:
           # CASE 1b ***
-          return lambda A: (self.shuffle(pm))._smart_interp(np.transpose(A,pm),other, method = method)
+          return lambda A: (self.rearrange(pm))._smart_interp(np.transpose(A,pm),other, method = method)
         else:
           # CASE 1c ***
           # No luck.
@@ -2330,7 +2486,7 @@ class Gr(tuple):
           # case 2b
 
           # line up the equivalent Coord elements in the same order for interpolation.
-          return lambda A: (self_expanded.shuffle(pm))._smart_interp(np.transpose(self.expand(A,self_expanded),pm),other, method = method)
+          return lambda A: (self_expanded.rearrange(pm))._smart_interp(np.transpose(self.expand(A,self_expanded),pm),other, method = method)
         else:
           # case 2c
           print "grids not equivalent"
@@ -2363,7 +2519,7 @@ class Gr(tuple):
         pm = self.eq_perm(target_grid, verbose = False) 
         if pm:
           # case 3b
-          return lambda A: other.to_slices((self.shuffle(pm))._smart_interp(np.transpose(A,pm),target_grid, method = method),target_grid)
+          return lambda A: other.to_slices((self.rearrange(pm))._smart_interp(np.transpose(A,pm),target_grid, method = method),target_grid)
 
         else:
           # case 3c
@@ -2415,20 +2571,6 @@ class Gr(tuple):
     return reduce(lambda x,y:x*y,[e.axis for e in self])
 
 
-  def reverse(self):
-    """
-    Reverse the order of the grid elements.
-
-    Examples:
-
-    >>> coord1 = sg.fieldcls.Coord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]) )
-    >>> coord2 = sg.fieldcls.Coord(name = 'test2',direction ='Y',value =np.array([1.,2.,3.,4.]) )
-    >>> (coord1*coord2).reverse()
-    (test2, test1)
-    """
-
-    return Gr([ self[len(self) -i -1 ] for i in range(len(self))  ])
-
 
   def nbytes(self):
     return reduce(lambda x,y:x.nbytes+y.nbytes, self)
@@ -2441,41 +2583,15 @@ class Gr(tuple):
     return self.weaksame(other)
 
 
-  def weaksame(self,other):
-    """
-    Application of component-wise weaksame method of Gr members.
-
-    Args:
-      other: (Gr) grid to compare with
-
-    Returns:
-      True if self and other of equal length and weaksame yields true for each self-other member pair.
-    """
-
-
-    if len(self) == len(other):
-      L = [e.weaksame(other[i]) for i,e in enumerate(self)]
-      return reduce(lambda x,y: x and y, L)
-  
-    else:
-      return False 
-
-
-
-  def copy(self):
-    """
-    Creates object with same values. A = B.copy() yields A&B = True, see __and__ method.
-    """
-
-    return Gr([e.copy() for e in self])
-
 
 # ------------------------------------------
 # Lower level methods:
 
   def to_slices(self,A,other):        
     """
-    yields a list of slices along the coords defined in self. e.g.
+    yields a list of slices along the coords defined in self. 
+
+    E.g.
     zt(zt*yt*xt) = [A[0,:,:],A[1,:,:],...] where A.shape is (zt*yt*xt).shape()
 
     Expects self coords to be subset of other, and appearing in same order in both.
@@ -2816,110 +2932,6 @@ class Gr(tuple):
 
 
 # belongs to grid 
-  def strict_equiv(self, other):
-    """
-    Tests whether two Gr objects have equivalent Coord elements at each position.
-    This is a stricter test than grid (Gr object) equivalence testing via gr1^gr2, which only tests whether both grids describe the same space (elements equivalent up to a permutation).
-
-    """
-    if len(self) == len(other):
-      
-      RO = True      
-      for i,it in enumerate(self):
-        RO *= (it^other[i])
-      return bool(RO)
-    else:
-      return False
-
-
-  def __xor__(self, other):
-    """
-    Checks equivalence between grids, where grids are equivalent if they define the same physical subspace, based on the equivalence definition for Coord classes. In other words, checks whether the individual Coord elements of the two grid (Gr object) arguments are equivalent up to a permutation. A stricter version of this test is strict_equiv, which allows no permutation.
-    """
-
-    if len(self) == len(other):
-      
-      if self.eq_perm(other):
-        return True
-      return False
-
-    else:
-      return False
-
-
-  def eq_in(self, crd):
-    """ Determines whether Coord crd is equivalent to any of the constituent Coord objects of this Gr
-
-    Gr and AxGr have an eq_in method that acts on a Coord or Ax.
-
-    Args:
-      crd: (Coord or Ax) object to be checked.
-
-    Returns:
-      True when crd is equivalent to one of the Coord objects, False otherwise.
-
-    See also:
-    eq_in method of GrAx     
-    """
-
-
-    for i in self:
-      if crd^i: return True
-    return False
-
-  def eq_index(self,crd):
-    for i,v in enumerate(self):
-      if crd^v: return i
-    return -1
-
-  def shuffle(self,permutation):
-    """
-    Gr method that rearranges the order of the elements of this grid Gr object via permutation arrgument. E.g.
-
-    g1 = latitude*depth
-    g1.shuffle( (1,0) ) is (depth, latitude)
-
-    See also perm method of Gr.
-    
-    """
-    return Gr((self[i] for i in permutation))
-    
-    
-
-
-  def perm(self, other,verbose = False):     
-    """
-    yields permutation of axes going from grid self to grid other.
-    E.g. for grids gr1 and gr2, g2 = g1.shuffle( g1.perm(g2) )
-
-    Returns None if no permutation exists.
-
-    See also shuffle.
-
-    """  
-    return find_perm(self,other,verbose = verbose)
-
-  def eq_perm(self, other, verbose = True):      
-    """
-    yields permutation of axes going from grid self to grid other, where equivalent axes are treated as identical. 
-
-    See also perm.
-    """  
-
-    if len(self) == len(other):
-      perm = []
-      for r in other:
-        if self.eq_in(r):
-          perm.append(self.eq_index(r))
-        else:
-          warnings.warn( 'Warning from eq_perm (often benign): inputs not permutable, returning None.')
-          return
-
-    else:
-      if verbose:
-        print "Message from eq_perm: inputs must be of equal length."
-      return 
-    return tuple(perm)
 
   def shape(self):
     sh = [];
@@ -2937,13 +2949,13 @@ class Gr(tuple):
       """
       Method of Gr object that returns a grid made up of the dual Coord elements of this Gr object.
       """
-      gr_dual = Coord('scalar')
-      for e in self:
-        gr_dual *= e.dual
-      return gr_dual
+ 
+      return Gr([e.dual for e in self])
 
   def ones(self):
-
+    """
+    Returns Field with value np.nones of shape self.shape. 
+    """
     return Field(name = 'ones', value = np.ones(self.shape() ) ,grid = self )
 
 
