@@ -3745,7 +3745,6 @@ class Field(Named):
 # IS THIS SUM METHOD BEING CALLED??? IF NOT, REMOVE AND REPLACE WITH COORD BASED METHODS:
 # --> method belongs to Field.
   def sum(self,grid=None):
-
     """
     Computes sum of Field over grid using masked array (nan is not counted). Outputs a float if grid is entire grid of the Field, and a Field on remaining grid (self.grid/grid) if grid argument is a subgrid.
     """
@@ -3858,8 +3857,7 @@ class Field(Named):
 
 
 
-class VField(tuple):
-
+class VField(tuple, Membered):
   """
   vector Field. A tuple of fields with extra rules. Allows multiplication.
   """
@@ -3954,7 +3952,7 @@ class VField(tuple):
           L.append(sum_fld)
         return VField(L)
       else:
-        raise Exception('Error in VField addition %s + %s. Provide equal length' % (self,other))
+        raise ValueError('Error in VField addition %s + %s. Provide equal length' % (self,other))
 
     elif isinstance(other,Field):
       # sum a Field to a VField. the Field is added to all members.  
