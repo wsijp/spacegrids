@@ -1510,6 +1510,60 @@ class TestAxAndAxGr(unittest.TestCase):
     self.assertEqual( ag_copy.__repr__(), '(X,Y,)')
 
 
+  def test_eq_in_AxGr(self):
+    """"
+    Test eq_in method of AxGr
+    """
+    X = sg.fieldcls.Ax('X')
+    Y = sg.fieldcls.Ax('Y')
+    Z = sg.fieldcls.Ax('Z')
+  
+    self.assertEqual( (X*Y).eq_in(X), True )
+    self.assertEqual( (X*Y).eq_in(Z), False )
+
+    X2 = sg.fieldcls.Ax('X2')
+
+    self.assertEqual( (X*Y).eq_in(X2), False )
+    X2.make_equiv(X)
+    self.assertEqual( (X*Y).eq_in(X2), True )
+
+
+  def test_eq_index_AxGr(self):
+    """"
+    Test eq_index method of AxGr
+    """
+    X = sg.fieldcls.Ax('X')
+    Y = sg.fieldcls.Ax('Y')
+    Z = sg.fieldcls.Ax('Z')
+  
+    self.assertEqual( (X*Y).eq_index(Y), 1 )
+    self.assertEqual( (X*Y).eq_index(Z), -1 )
+
+    X2 = sg.fieldcls.Ax('X2')
+
+    self.assertEqual( (X*Y).eq_index(X2), -1 )
+    X2.make_equiv(X)
+    self.assertEqual( (X*Y).eq_index(X2), 0 )
+
+
+  def test_eq_perm_AxGr(self):
+    """"
+    Test eq_perm method of AxGr
+    """
+    X = sg.fieldcls.Ax('X')
+    Y = sg.fieldcls.Ax('Y')
+    Z = sg.fieldcls.Ax('Z')
+  
+    self.assertEqual( (X*Y).eq_perm(Y*X), (1,0) )
+    self.assertEqual( (X*Y).eq_perm(Y*Z), None )
+
+    X2 = sg.fieldcls.Ax('X2')
+
+    self.assertEqual( (X*Y).eq_perm(Y*X2), None )
+    X2.make_equiv(X)
+    self.assertEqual( (X*Y).eq_perm(Y*X2), (1,0) )
+
+
 
 
   def test_ax_div_mult(self):
@@ -1840,6 +1894,121 @@ class TestGr(unittest.TestCase):
 
     self.assertEqual( K.value.shape , (3,4)  )
  
+
+
+  def test_Gr_der_method(self):
+    """
+    Test Gr.der method. 
+    """
+
+
+    y_step=30;
+
+    xcoord1 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
+    xcoord2 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
+    ycoord1 = sg.fieldcls.YCoord(name = 'testy',direction ='Y',value =np.arange(-90.,90.+y_step,y_step) )
+
+    # construct simple test Field:
+    K = xcoord1.delta_dist(ycoord1)
+
+    # take derivative:
+    R= (ycoord1*xcoord1).der(xcoord1, K)
+
+    # This must be a 2D Field:
+    self.assertEqual(R.shape, (7,4))
+
+    Idx = R.value == 0.
+
+    # Few tests to distinguish between possible problem causes:
+    self.assertEqual(Idx.all(),True)
+    self.assertEqual( np.array_equal( R.value, xcoord1.der(K,ycoord1).value ) , True )
+
+
+
+  def test_vol_method(self):
+    """
+    Test Coord vol method.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+    coord3 = cstack1[2] 
+
+    self.assertEqual( np.array_equal(  coord1.vol(coord1*coord2).value, np.array([ 1., 1.,   1.]) ), True )
+
+    self.assertEqual( coord1.vol(coord2*coord3) , None )
+
+
+
+
+  def test__find_args_coord_method(self):
+    """
+    Test Coord _find_args_coord method.
+    """
+
+
+    y_step=30;
+
+    xcoord1 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
+    xcoord2 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
+    ycoord1 = sg.fieldcls.YCoord(name = 'testy',direction ='Y',value =np.arange(-90.,90.+y_step,y_step) )
+
+    # construct simple test Field:
+    K = xcoord1.delta_dist(ycoord1)
+
+    # take derivative:
+    R= (ycoord1*xcoord1).der(xcoord1, K)
+
+    # This must be a 2D Field:
+    self.assertEqual(R.shape, (7,4))
+
+    Idx = R.value == 0.
+
+    # Few tests to distinguish between possible problem causes:
+    self.assertEqual(Idx.all(),True)
+    self.assertEqual( np.array_equal( R.value, xcoord1.der(K,ycoord1).value ) , True )
+
+
+    A = (ycoord1*xcoord1)._find_args_coord({'x_coord':sg.fieldcls.XCoord,'y_coord':sg.fieldcls.YCoord,'z_coord':sg.fieldcls.Coord})
+
+    self.assertEqual(A,[[], [ycoord1]] )
+
+
+    A = (xcoord1*ycoord1)._find_args_coord({'x_coord':sg.fieldcls.XCoord,'y_coord':sg.fieldcls.YCoord,'z_coord':sg.fieldcls.Coord})
+
+    self.assertEqual(A,[ [ycoord1] , []  ] )
+
+
+
+
+
+  def test__call_on_members_Gr_method(self):
+    """
+    Test Coord _find_args_coord method.
+    """
+
+
+    y_step=30;
+
+    xcoord1 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
+    xcoord2 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
+    ycoord1 = sg.fieldcls.YCoord(name = 'testy',direction ='Y',value =np.arange(-90.,90.+y_step,y_step) )
+
+    grid = ycoord1*xcoord1
+
+    R= grid.call_on_members('__neg__')
+
+    # This must be a 2D Field:
+    self.assertEqual(R.shape(), (7,4))
+
+
+    self.assertEqual( np.array_equal( R[0].value
+ , -grid[0].value )  ,True)
+
+    self.assertEqual( np.array_equal( R[1].value
+ , -grid[1].value )  ,True)
 
 # ------------- Test utilsg.py module --------------------
 
@@ -2518,7 +2687,6 @@ class TestGrid(unittest.TestCase):
     self.assertEqual( gr1.to_slices(A,gr2)[0].shape  ,  (100,) )
 
   def test_gr_method_vsum(self):
-
     """
     Test vsum method of gr class
     """
@@ -2532,14 +2700,14 @@ class TestGrid(unittest.TestCase):
     self.assertAlmostEqual( gr1.vsum(gr1.ones() )  , 121672626836.47124 , places =2 )
 
 
-  def test_gr_method_find_args_coord(self):
+  def test_gr_method__find_args_coord(self):
 
     for c in self.fixture['DPO'].cstack:
       exec c.name + ' = c'   
 
     ctypes = {'x_coord':sg.XCoord,'y_coord':sg.YCoord,'z_coord':sg.fieldcls.Coord}
   
-    self.assertEqual((latitude*longitude).find_args_coord(coord_types = ctypes) , 
+    self.assertEqual((latitude*longitude)._find_args_coord(coord_types = ctypes) , 
     [[], [latitude]] )
 
     
