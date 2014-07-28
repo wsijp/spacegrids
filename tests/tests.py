@@ -602,6 +602,9 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     K = coord1(coord1*coord2)
     R= sg.roll(K,coord=coord1,mask = False)
+
+    # test whether Field.roll method compatible with sg.roll.
+    self.assertEqual( np.array_equal(R.value, K.roll(shift=1 , crd=coord1).value),True)
     
     self.assertEqual( np.array_equal( R[0,:],  np.array([3.,3.,3.,3.]) ), True  )
     self.assertEqual( np.array_equal( R[1,:],  np.array([1.,1.,1.,1.]) ), True  )
@@ -612,7 +615,6 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     # test whether coord in R.grid is properly rolled:
     self.assertEqual( np.array_equal(R.grid[0].value , np.array( [3., 1., 2.] )  ) , True  )
-
 
   def test_roll_function_non_masked_keepgrid(self):
     """Test the sg roll function
@@ -789,8 +791,31 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     coord1 = cstack1[0]
     coord2 = cstack1[1]
   
+    # make up Ax to use for coord1:
+    W = sg.fieldcls.Ax('W', direction='W')
+    coord1.give_axis(W)
+
+    W2 = sg.fieldcls.Ax('W2', direction='W2')
+    coord1.give_axis(W2)
+
     K = coord1(coord1*coord2)
     R=coord1.der(K)
+    R_with_Ax_method = W.der(K)
+    R_with_Field_method = K.der(W)
+
+    value_R = copy.deepcopy(R.value)
+    value_R_wam = copy.deepcopy(R_with_Ax_method.value)
+    value_R_wfm = copy.deepcopy(R_with_Field_method.value)
+
+    value_R[np.isnan(value_R)] = 0. # to be able to do np.array_equal
+    value_R_wam[np.isnan(value_R_wam)] = 0.
+    value_R_wfm[np.isnan(value_R_wfm)] = 0.
+
+    # test whether Ax.der calls coord1.der properly:
+    self.assertEqual(np.array_equal(value_R, value_R_wam), True)
+
+    # test whether Field.der calls Ax.der properly:
+    self.assertEqual(np.array_equal(value_R, value_R_wfm), True)
 
     self.assertEqual( np.array_equal(  R.value[1,:], np.array([1.,1., 1.,   1.]) ), True )
 
@@ -834,7 +859,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     self.assertEqual( np.array_equal(  coord1.vol(coord1*coord2).value, np.array([ 1., 1.,   1.]) ), True )
 
-    self.assertEqual( coord1.vol(coord2*coord3) , None )
+    self.assertRaises(ValueError, coord1.vol , coord2*coord3 )
 
 # -------- test block for YCoord class ---------------
 
@@ -1938,7 +1963,7 @@ class TestGr(unittest.TestCase):
 
     self.assertEqual( np.array_equal(  coord1.vol(coord1*coord2).value, np.array([ 1., 1.,   1.]) ), True )
 
-    self.assertEqual( coord1.vol(coord2*coord3) , None )
+    self.assertRaises(ValueError, coord1.vol , coord2*coord3 )
 
 
 
@@ -2401,8 +2426,10 @@ class TestFieldBasic(unittest.TestCase):
 
     self.assertEqual( SAT_sliced.shape ,  (50,100)  )
 
-  def test_cat(self):
-
+  def test_concatenate_arg_ax_None(self):
+    """
+    Test the sg.concatenate function with ax argument None.
+    """
     SAT = self.fixture['DPO']['A_sat']
 
     for c in self.fixture['DPO'].axes:
@@ -2416,6 +2443,110 @@ class TestFieldBasic(unittest.TestCase):
 
     self.assertEqual( SAT_combined.shape ,  (100,100)  )
 
+
+
+  def test_concatenate_arg_ax_not_in_grid(self):
+    """
+    Test the sg.concatenate function with ax argument that points in a different axis direction from the grid. This should lead to a new Coord object that is added to the result grid and that we can examine.   
+    """
+
+    SAT = self.fixture['DPO']['A_sat']
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'       
+
+    SAT1 = SAT[Y,:50]
+    SAT2 = SAT[Y,50:]
+
+    # Create test Coord to concatenate along.
+    W = sg.Ax('W')
+ 
+    SAT_combined = sg.concatenate([SAT1,SAT2 ], ax = W )
+
+    self.assertEqual( SAT_combined.shape ,  (2,50,100)  )
+    # concatenate has created a new Coord:
+    self.assertEqual( np.array_equal(SAT_combined.grid[0].value, np.array([0.,1.]) ),  True  )
+
+
+  def test_concatenate_arg_new_coord_given(self):
+    """
+    Test the sg.concatenate function with new_coord argument an indpendendent Coord.    
+    """
+
+    SAT = self.fixture['DPO']['A_sat']
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'       
+
+    SAT1 = SAT[Y,:50]
+    SAT2 = SAT[Y,50:]
+
+    # Create test Coord to concatenate along.
+    W = sg.Ax('W')
+    w = sg.Coord('w' , axis = W, direction = 'W', value = np.array([0,1]))
+
+    SAT_combined = sg.concatenate([SAT1,SAT2 ], new_coord = w )
+
+    self.assertEqual( SAT_combined.shape ,  (2,50,100)  )
+
+
+
+
+class TestVectorField(unittest.TestCase):
+
+  def setUp(self):
+    print 'Setting up %s'%type(self).__name__
+    D = sg.info_dict()
+    P = sg.Project(D['my_project']);
+    P.load(['O_velX','O_velY','O_temp'])
+    self.fixture = P
+
+  def tearDown(self):
+    print 'Tearing down %s'%type(self).__name__
+    del self.fixture
+
+  def test_slice(self):
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'       
+
+    U = self.fixture['DPO']['O_velX']
+    V = self.fixture['DPO']['O_velY']
+    TEMP = self.fixture['DPO']['O_temp']
+
+    # just to speed up multiplication (otherwise regridding takes place): 
+    TEMP.grid = U.grid
+
+    UV = U*V
+
+    # Did multiplication yield a 2D vectorfield?
+    self.assertEqual(len(UV),2)
+
+    # scalar field with vector component should yield Field
+    self.assertEqual(isinstance(TEMP*V, sg.fieldcls.Field),True)
+
+    # check that vcumsum and vsum propagate to the Field members of VField:
+    Ucs = U.vcumsum(coord = latitude_V)
+
+    UVcs = UV.vcumsum(coord = latitude_V)
+
+    R1 = Ucs.value
+    R2 = UVcs[0].value
+    
+    R1[np.isnan(R1)] = 0
+    R2[np.isnan(R2)] = 0
+
+    self.assertEqual(np.array_equal(R1,R2) ,True )
+
+
+    Ucs = U.vsum( )
+
+    UVcs = UV.vsum( )
+
+    R1 = Ucs
+    R2 = UVcs[0]
+ 
+    self.assertEqual(R1,R2)
 
 
 
@@ -2433,6 +2564,15 @@ class TestGrid(unittest.TestCase):
     del self.fixture
 
 
+  def test_division(self):
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'   
+
+    self.assertEqual((latitude*longitude)/X,latitude**2)
 
   def test_inflate(self):
 
@@ -2685,6 +2825,17 @@ class TestGrid(unittest.TestCase):
 
     # should have the shape of longitude**2
     self.assertEqual( gr1.to_slices(A,gr2)[0].shape  ,  (100,) )
+
+  def test_Gr_method_dual(self):
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+
+    gr1 = depth*latitude
+
+    gr1_dual = gr1.dual()
+
+    self.assertEqual(np.array_equal(gr1_dual[0].value , depth_edges.value  ) , True )
 
   def test_gr_method_vsum(self):
     """

@@ -114,7 +114,6 @@ def msk_read(filepath='masks/msk', crop = 1):
     return np.flipud(np.array(data))
 
 def read_masks(dir_path, msk_shape=0,grids = False, msk_val =2):
-  
       """
       Reads mask and returns a list of Field objects containing masks.
       """
@@ -170,12 +169,12 @@ def locate(top = '/home/',fname = projnickfile):
   """
   Locates all files with filename fname. Helper function to info function.
   
-  Inputs: 
-  top		(default '/home/') the start dir
-  fname		(default projname) the filename to look for. 
+  Args: 
+    top: (str) the start dir (e.g. '/home/')
+    fname: (str) the filename to look for
   
-  Outputs:
-  paths		all paths to dirs containing fname
+  Returns:
+    paths: (list of strings) all paths to dirs containing fname
   
   
   """

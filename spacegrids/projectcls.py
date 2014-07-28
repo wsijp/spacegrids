@@ -16,6 +16,8 @@ from expercls import *
 # ---- temporary classes for old code warnings -----
 
 class project(object):
+  """Legacy class to generate error when initialized by depricated code.
+  """
 
   def __init__(self,path=home_path, expnames = ['*'], varnames = [],msk_grid = 'UVic2.8_t', name = None, nonick = False, descr = None, verbose = False):
     """
@@ -28,6 +30,23 @@ class project(object):
 # ---------------- Class definition for projects -----------
 
 class Project(object):
+  """Represents experiment data organized in project directories.
+
+  Data directory tree:
+
+  Before using projects, Netcdf data must be organised in a projects directory tree. Create a directory named PROJECTS inside your home directory (name default), to contain all the data for all the projects. Then create a subdirectory for each of your projects, say one is called test_project. When using sg.info() and sg.Project with the nonick = True argument (see documentation), this is all that is needed to allow the sg module to recognise these subdirectories as representing projects. 
+  This will allow the sg Python code to regard all Netcdf files placed directly inside test_project as belonging to individual experiments. Alternatively, instead of a single file, a subdirectory may represent an experiment. So directories inside the test_project directory are associated with output from a single experiment each, where all Netcdf files contained within are interpreted as belonging to that same experiment.   
+
+  To get started in ipython (bring up with sg.overview() ):
+
+  >>> import spacegrids as sg		
+  >>> D = sg.info(nonick = True)  
+  >>> P = sgPproject(D['my_project'] , nonick = True)  
+  >>> P.load(['temperature','u'])  
+  >>> # obtain the axes under their names T, X, Y, Z in namespace:
+  >>> for c in P['some_experiment'].axes:
+  >>>   exec c.name + ' = c'	
+  """
 
   def __repr__(self):
     return self.name
@@ -39,21 +58,33 @@ class Project(object):
   def __init__(self,path=home_path, expnames = ['*'], varnames = [],msk_grid = 'UVic2.8_t', name = None, nonick = False, descr = None, verbose = False):
 
     """
-    Initialize Project object.
+    Initialize Project object to query Netcdf experiment files belonging to project.
 
-    Inputs:
+    Args:
+      path: (str) path to the Project directory (e.g. /home/me/PROJECTS/test_project/). 
+      expnames: (str or list of str) filters on experiment names to load
+      varnames: (list of str) usually empty, variable list (better to do after init)
+      msk_grid: (str) grid to use for masks
+      name: (str) project name. Filled using projname content (or dir name) if None.
+      nonick: (Boolean) Switch whether to look for a projname text file inside the Project directory to obtain Project nickname. True/ False
+      descr: (str) longer description of project.
 
-    path	path to the Project directory (e.g. /home/me/PROJECTS/test_project/). Default is sg.home_path
-    expnames	filter on experiment names to load
-    varnames    list of variables to be loaded (can also be done later after init)
-    nonick 	Switch whether to look for a projname text file inside the Project directory to obtain Project nickname. True/ False
+    Returns:
+      Project object to be used to query and load Netcdf files.
 
+    Examples:
 
-    Example use:
-    D = sg.info()	# obtain dictionary of nicknames vs full paths
-    P = sg.Project(D['my_project'])
+    >>> D = sg.info()	# obtain dictionary of nicknames vs full paths
+    >>> P = sg.Project(D['my_project'])
     
     
+    Or with hard coded path:
+
+    >>> P = sg.Project('/home/me/PROJECTS/test_project/')
+
+    Or when ignoring the projname file inside the project directory: 
+
+    >>> P = sg.Project('/home/me/PROJECTS/test_project/', nonick=True)
     """
 
     global ax_disp_names
@@ -164,7 +195,7 @@ class Project(object):
 
   def ls(self):
     """
-    Method of Project  to display experiments in columns.
+    Display experiments belonging to Project in columns.
     """
     RP = Report()
 
@@ -174,12 +205,21 @@ class Project(object):
 
   def get(self, expnames, varnames):
     """
-    Project method to fetch fields from a Project.
+    Fetch fields from a Project.
+
+    expnames will be matched against the available project experiment names using fnmatch, allowing patterns such as wild cards. The same with varnames.
+
+    Args:
+      expnames: (str or list of str) containing experiment name patterns to load from. 
+      varnames: (list of str) of variable name patterns to match against 
+
+    Returns:
+      List of Field objects from Project with matching attributes.
     """
     
     fields = []
   
- # Search in masks first
+    # Search in masks first
 
     VN = sublist(self.masks.keys(), varnames)
 	
@@ -187,7 +227,7 @@ class Project(object):
       for vn in VN:
 	fields.append( self.masks[vn]  )
 
-# and then in fields	    
+    # and then in fields	    
     if not(fields): 
       EN = sublist(self.expers.keys() , expnames)    
       if EN:
@@ -203,21 +243,22 @@ class Project(object):
       print "No fields found. Try P.load(%s)"%varnames
     else:
       if len(fields) == 1:
-# if only single Field found, return that Field and not a list of fields.
+        # if only single Field found, return that Field and not a list of fields.
         fields =fields[0]
 
     return fields    
 
   # --> method belongs to Project	    
   def ad_mask(self,sub_dir = mask_dir,grid = False, msk_val = 2):
-
+    """Read text file masks from file and add to project.
+    """
 #    print read_masks(self.path + sub_dir, grid = grid, msk_val = msk_val)
     self.masks = read_masks(self.path + sub_dir, grid = grid, msk_val = msk_val)
 
     
   def __getitem__(self,val):
     """
-    Returns an exper object by the name of key k
+    Returns an exper object by the name of argument 'val'.
     """
 # --> method belongs to Project
  
@@ -256,14 +297,13 @@ class Project(object):
     
   def incdf(self, varname, expname = ''):
     """
-    Check whether variable name is in the netcdf database.
+    Check whether variable name is in the Netcdf files.
 
-    Input:
-    varname	variable name to check
+    Args:
+      varname: (str) variable name to check
     
-    Output:
-    True/ False depending on whether the variable name is in the netcdf database.
-
+    Returns:
+      True/ False depending on whether the variable name is in the netcdf database.
     """
 
  # --> belongs to Project
@@ -315,8 +355,13 @@ class Project(object):
 # --> belongs to Project
 
   def adexp(self, expnames=['*'], descr = 'An experiment.'):
-    """
-    Adds an experiment  to this Project. Also looks for a sub-directory "masks" for masks. If it can't find that, it will use the mask inherited from the Project.
+    """Adds an experiment to this Project. 
+
+    Also looks for a sub-directory "masks" for masks. If it can't find that, it will use the mask inherited from the Project.
+
+    Args:
+      expnames: (str or list of str) of experiment name patterns to match
+      descr: (str) optional description of experiment    
     """
 
     # Convert argument expnames to list if it is not yet a list, e.g. 'flx_BL' to ['flx_BL']
@@ -349,17 +394,26 @@ class Project(object):
 # -->This load belongs to Project. It calls the load method of the Exper. 
 # slices argument value is just an example
     """
-    Method of Project. E.g. P.load('salinity') for Project P.
-    Loads a variable (or list of variables) for all experiments belonging to the Project instance.
-    E.g. 
+    Load Field into Project from Netcdf files.
     
-    P.load('salinity')
-    E = P['CNTRL_2200p']	# pick this particular experiment
-    S = E['salinity']		# create Field object and assign it to S
-    
+    Loads a variable (or list of variables) for all experiments belonging to the Project instance. E.g. P.load('salinity').
+
+    Attempts to concatenate if the same variable name is found in multiple files.
+ 
+    Args:
+      varnames: (str or list of str) of variable names to load
+      descr: (str) optional description     
+      chk_loaded: (Boolean)  if True (default False), makes load method check whether the Field is already loaded. If so, it is not loaded.
+      ax (Ax): passed on to the concatenate function from Exper.load
+      name_suffix: (str) suffix to apply to name
+      new_coord_name (str): passed on to the concatenate function
+      new_coord (Coord): passed on to the concatenate function
+	
+    Examples:
    
-    chk_loaded = True (default False) makes load method check whether the Field is already loaded. If so, it is not loaded.
-    
+    >>> P.load('salinity')
+    >>> E = P['CNTRL_2200p']	# pick this particular experiment
+    >>> S = E['salinity']		# create Field object and assign it to S
     """
 
 # errno is returned by this method and gives information about errors encountered in this method.    
@@ -429,7 +483,8 @@ class Project(object):
 
 
   def loaded(self,varname):
-  
+    """Checks whether variable by name of (str) varname is loaded.
+    """
     flag = False
     
     if (self.expers):
@@ -438,21 +493,7 @@ class Project(object):
 	flag = True
 	
     return flag	
-    
-  def Report(self, varname):
-    
-    if not(self.expers):
-      print "No experiments." 
-    else:    
-
-      for expname in self.expers.keys():
-        if varname in self.expers[expname].vars:   
-
-          print expname + ' ' +  varname + ' of len ' + str(len(self.expers[expname].getbody(varname)))
-    
-        else:
-	  print varname +' not in experiment ' + expname
-
+ 
   def update_nbytes(self):
     """
     Update estimate of number of Mb used by Project.
@@ -474,6 +515,12 @@ class Project(object):
 
     if no new_coord argument is given, a new Coord will be constructed.
  
+    Args:
+      fld_name: (str) name of Field objects to concatenate
+      new_ax_name: (str) name of new Ax object to create to concat along if desired
+ 
+      new_coord_name: (str) name to be used for creation of new Coord in case ax not in Field grid
+      new_coord: (Coord) overrides default behaviour if set by concatenating along that new Coord.
     """
 
     e_loaded = [e for e in self.expers.keys() if fld_name in self.expers[e].vars]
@@ -516,6 +563,18 @@ class Project(object):
     func is a function that must yield a Field and take an Exper object as argument.
     it should return None for elements that are not desired. This method is somewhat different from its near-opposite method insert, where the function argument is allowed to yield fields or single values (float/ int).
 
+    The idea is: a parameter belongs to an Exper, so any function taking an Exper argument and returning a Field of certain dimensions allows us to concatenate these Field objects along a new Coord constructed from the parameters. 
+
+    Args:
+      param_name: (str) parameter name
+      func: (function) that must yield a Field and take Exper object as argument
+      name_filter: (str) pattern to filter only certain Exper names.
+      sort: (Boolean) if True, sorts the Coord
+      new_Ax_name: (str) name for new Ax object corresponding to new param-based Coord, can be None (it will then be constructed)
+      add2cstack: (Boolean) determines whether new Coord will be added to the Exper coordinate stacks.
+
+    Returns:
+      The concatenated Field.
     """
 
     if name_filter is None:
@@ -572,11 +631,14 @@ class Project(object):
 
     return concatenate(fields = [e[1] for e in pairs], new_coord = new_coord)
 
-  def insert(self, func, param_name= None):
+  def insert(self, func):
     """
-    Apply function func to each Exper object in self and insert the result. The result must be a tuple (name, value) or a list of such tuples (as taken by the Exper insert method). Conform the Exper insert method, name must be a string, and value a Field or ordinary float/ int kind of datatype.
+    Apply function func to each Exper object in self and insert the result into Project. 
 
-   
+    The result of func must be a tuple (name, value) or a list of such tuples (as taken by the Exper insert method). Conform the Exper insert method, name must be a string, and value a Field or ordinary float/ int kind of datatype.
+
+    Args:
+      func: (function) taking Exper argument and returning list of (name,value) pairs.  
     """
     for E in self.expers.values():
       if E is not None:  
@@ -584,7 +646,22 @@ class Project(object):
 
 
   def pattern2gr(self,fld_name,pattern, parname = None, name_filter = None,nomatch_fill = None):
+    """Use rexexp patterns on experiment file names to extract parameters and apply param2gr.
+ 
+    The first grouping in the regexp will be used to yield the parameter.
 
+    Args: (as in param2gr, except one)
+      pattern: (str) regular expression to apply to file names.
+      
+    Returns:
+      The concatenated Field.
+
+    Examples:
+
+    >>> regexp = '[\w_]+_(\d+)ppm[\w]+' # the grouping between brackets yields the value
+    >>> bigfield_DP=P.pattern2gr(fld_name = 'temp',pattern = regexp,parname='co2', name_filter = 'DP*', nomatch_fill = 280.)
+    >>> # this is for filenames with co2 values in their file name.
+    """
 # expect [(parname, value),]  or None
 
     self.insert(parse_fname_func(pattern,parname=parname, nomatch_fill = nomatch_fill))
@@ -605,8 +682,6 @@ def read_control_func(filename):
   For example: P.insert(sg.read_control_func('control.in')) goes through all experiment directories and looks for, and parses, the file control.in, and then inserts the result as Exper parameters.
 
   The user could construct similar functions for their own use: the function must take an experiment as argument, and return None or a list of (name, value) pairs (2 tuples).
-
-
   """
 
   def get_controls(E):
@@ -623,7 +698,21 @@ def read_control_func(filename):
 
 def parse_fname_func(pattern, parname = None,value_type = float, nomatch_fill = None):
   prog = re.compile(pattern)  
+  """Takes a regular expression, and the intended parameter name, to use it to yield another function that extracts the parameter from experiment (file) names.
 
+  Args:
+    pattern: (str) regular expression to match names against
+    parname: (str) parameter name
+    value_type: (float or int etc)
+    nomatch_fill: value to fill points that don't match with.
+
+  Returns:
+    List of (name, value) pairs to be used by insert method.
+
+  Examples:
+
+  >>> P.insert(sg.parse_fname_func('[\w_]+_(\d+)ppm[\w]+',parname='co2'))
+  """
 
   if parname is None:
     def get_fname(E):
@@ -662,7 +751,8 @@ def parse_fname_func(pattern, parname = None,value_type = float, nomatch_fill = 
 # functions to be used for creating new coords
 
 def avg_temp(P, varname = 'O_temp'):
-
+  """Example function to create avg ocean temperature from expers 
+  """
   for c in P.expers.values()[0].axes:
     exec c.name + ' = c'
 
@@ -677,6 +767,8 @@ def avg_temp(P, varname = 'O_temp'):
 # ------- general functions -----------
 
 def overview():
+  """Prints quick overview of sg to screen.
+  """
   RP = Report()
   RP.echoln("Quick start instructions.")
   RP.line()
@@ -702,17 +794,11 @@ def overview():
 
 def ls(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = projnickfile, nonick = False):
   """
-  Simple function to display all Project directories so that no specific paths need to be used, and projects can be referred to by their nicknames defined in a file called projname in each directory containing the experiment directories.
- 
-  Inputs: 
-  top		(default '~/PROJECTS/') the start dir
-  fname		(default projname) the filename to look for and read the content of
-  
-  displays all Project (nick)names
-    
-  If nonick is False: finds all dir paths with file called fname in them, reads that file for each dir to find the nickname of that Project. Otherwise just lists the subdirectories of projects dir (~/PROJECTS)
+  Simple function to display all Project directories vs their projname nicknames.
 
-  
+  See info method for details.
+
+  Calls info_dict.  
   """
 
   D = info_dict(rootdir = rootdir, projdirname = projdirname,fname = fname, nonick = nonick)
@@ -730,29 +816,29 @@ def ls(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = projnickfi
 
 def info(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = projnickfile, nonick = False, verbose = True):
   """
-  Simple function to take inventory of all Project directories so that no specific paths need to be used, and projects can be referred to by their nicknames defined in a file called projname in each directory containing the experiment directories.
+  Simple function to take inventory of all Project directories based on contents of projname text files inside project directories.  
+
+  This way, no specific paths need to be used, and projects can be referred to by their nicknames defined in a file called projname in each directory containing the experiment directories.
  
-  Inputs: 
-  rootdir 	dir in which to look for main PROJECTS dir
-  projdirname   dir in which to look for specific Project directories. Default is 'PROJECTS'. So by default, projects are expected in '~/PROJECTS/').
-  fname		(default projname) the filename to look for and read the content of to determine nickname of specific Project. Disabled with nonick = True
+  Args: 
+    rootdir: (str) dir in which to look for main PROJECTS dir
+    projdirname: (str) dir in which to look for specific Project directories. Default is 'PROJECTS'. So by default, projects are expected in '~/PROJECTS/').
+    fname: (str) the filename to look for and read the content of to determine nickname of specific Project. Disabled with nonick = True
   
-  Outputs:
-  D, dictionary of Project nicknames vs full paths		
+  Returns:
+    D, dictionary of Project nicknames vs full paths		
     
   If nonick is False:  finds all dir paths with file called fname in them, reads that file for each dir to find the nickname of that Project and builds a dictionary of nicknames vs paths. Otherwise, just takes inventory of all sub directories of projects (~/PROJECTS)
   
   Example of use when projects are in default location ~/PROJECTS/ (spacegrids loaded as sg):
   
-  D=sg.info()
+  >>> D=sg.info()
   
   Say this gives keys 'test' and 'TKE'. To open the Project with nickname test:
 
-  P = sg.Project(D['test'])
+  >>> P = sg.Project(D['test'])
   
   and start working with P. No specific path had to be identified, only a sufficiently specific top.
-
-  
   """
 
   D = info_dict(rootdir = rootdir, projdirname = projdirname,fname = fname, nonick = nonick)
@@ -765,28 +851,7 @@ def info(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = projnick
 
 def info_dict(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = projnickfile, nonick = False):
   """
-  Simple function to take inventory of all Project directories so that no specific paths need to be used, and projects can be referred to by their nicknames defined in a file called projname in each directory containing the experiment directories.
- 
-  Inputs: 
-  top		(default '~/PROJECTS/') the start dir
-  fname		(default projname) the filename to look for and read the content of
-  
-  Outputs:
-  D, dictionary of Project nicknames vs paths		
-    
-  If nonick is False:  finds all dir paths with file called fname in them, reads that file for each dir to find the nickname of that Project and builds a dictionary of nicknames vs paths. Otherwise, just takes inventory of all sub directories of projects (~/PROJECTS)
-  
-  Example of use when projects are in default location ~/PROJECTS/ (spacegrids loaded as sg):
-  
-  D=sg.info_dict()
-  
-  Say this gives keys 'test' and 'TKE'. To open the Project with nickname test:
-
-  P = sg.Project(D['test'])
-  
-  and start working with P. No specific path had to be identified, only a sufficiently specific top.
-
-  
+  See info method.
   """
 
 
@@ -837,7 +902,8 @@ def info_dict(rootdir = os.environ['HOME'], projdirname = 'PROJECTS',fname = pro
 
     
 def read_projnick(f):
-  
+  """Reads project nickname file (usually "projname") in project directory.
+  """  
   return f.readline().rstrip()
 
 
