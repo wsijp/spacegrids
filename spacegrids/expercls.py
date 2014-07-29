@@ -48,7 +48,6 @@ class Exper(object):
   DPO
   ----------
   Exper using 0.01 Mb. 0 fields loaded.  
-
   """
    
   def __repr__(self):
@@ -58,7 +57,6 @@ class Exper(object):
     """Shows summary of key Exper specifics.
 
     Shows the experiment name, its memory usage and the number of Field objects loaded.
-
     """
     loaded_fields = self.vars.keys()
     length = len(loaded_fields)
@@ -86,7 +84,6 @@ class Exper(object):
       params: (dictionary of name value pairs) collection of single value named parameters (e.g. co2 vs 280)
       vars: (dictionary of name vs Field objects) contains the loaded Fields (e.g. a 3D dataset of temperature). Generally empty on init.
       descr: (str) an optional description of this experiment.    
-
     """
 
     self.path = os.path.join(path,name) 
@@ -136,7 +133,6 @@ class Exper(object):
     >>> P.load(['O_temp','O_sal'] )  
     >>> E['O_*'] 
     [O_temp, O_sal]
-
     """
 
 
@@ -189,7 +185,6 @@ class Exper(object):
 
     Returns:
       None
-
     """
     del self.vars[i]
 
@@ -220,7 +215,6 @@ class Exper(object):
 
 
   def write(self, path = None, name = None , history = 'Created from Spacegrids ' , insert_dual = True ):
-
     """Write Exper to Netcdf file.
 
     Args:
@@ -241,7 +235,6 @@ class Exper(object):
 
     >>> E = P['DPO']
     >>> E.write(path='TMP/',name='foo.nc')  # yields TMP/foo.nc with respect to pwd
-
     """
 
     if name is None:
@@ -546,8 +539,6 @@ def isexpdir(path, file_extensions = cdf_file_extensions):
   Examples:
   >>> sg.isexpdir('/home/me/PROJECTS/test_project/')
   ['DPO', 'DPC', 'Lev.cdf']
-
-
   """
 
     # examine all subdirectories of path. Create copy for manipulation.

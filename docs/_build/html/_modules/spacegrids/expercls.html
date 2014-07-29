@@ -71,12 +71,43 @@
 <span class="c"># ---------------- Class definition for experiments -----------</span>
 
 <div class="viewcode-block" id="Exper"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper">[docs]</a><span class="k">class</span> <span class="nc">Exper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-  
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Represents experiment data sets. Corresponds to (collections of) Netcdf File(s).</span>
+
+<span class="sd">  Attributes:</span>
+<span class="sd">    axes: (list of Ax objects) link to axes list belonging to project (same list for all Exper objects). Generally constructed from Netcdf data</span>
+<span class="sd">    coords: (dictionary of name vs Coord objects) for easy reference, see cstack</span>
+<span class="sd">    cstack: (list of Coord objectd) the coordinate stack of all Coord objects constructed for this experiment</span>
+<span class="sd">    descr: (str) an optional description of this experiment.</span>
+<span class="sd">    name: (str) the name of this experiment. Generally derived from data file name</span>
+<span class="sd">    nbytes: (int) approximate memory usage of experiment in bytes</span>
+<span class="sd">    params: (dictionary of name value pairs) collection of single value named parameters (e.g. co2 vs 280)</span>
+<span class="sd">    path: (str) full path on filesystem to experiment directory or file </span>
+<span class="sd">    vars: (dictionary of name vs Field objects) contains the loaded Fields (e.g. a 3D dataset of temperature)  </span>
+
+
+<span class="sd">  The general workflow starts with the creation of a Project object (providing a path to a project directory). This will lead sg to look through the project directory for subdirectories and Netcdf files (based on the file suffix). An Exper object is created for each subdir and Netcdf file found, and added to the project. So an Exper object may represent either a subdirectory of a project directory or a specific Netcdf file inside that project directory (recorded in the &#39;path&#39; attribute). Each Exper with name attribute &#39;foo&#39; can then be accessed via P[&#39;foo&#39;]. This procedure provides groundwork by interpreting axis and coordinate date found in the Netcdf files (inside the subdirectories in the case where the Exper object represents a subdirectory) and adding this information to the Exper objects (see Attributes). Once this structure is established, specific data sets can be loaded across experiments using P.load.</span>
+
+<span class="sd">  Examples:</span>
+
+<span class="sd">  &gt;&gt;&gt; import spacegrids as sg</span>
+<span class="sd">  &gt;&gt;&gt; D = sg.info_dict()</span>
+<span class="sd">  &gt;&gt;&gt; P = sg.Project(D[&#39;my_project&#39;])</span>
+<span class="sd">  &gt;&gt;&gt; E = P[&#39;DPO&#39;]</span>
+<span class="sd">  &gt;&gt;&gt; E.show()</span>
+<span class="sd">  DPO</span>
+<span class="sd">  ----------</span>
+<span class="sd">  Exper using 0.01 Mb. 0 fields loaded.  </span>
+<span class="sd">  &quot;&quot;&quot;</span>
+   
   <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 
 <div class="viewcode-block" id="Exper.show"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.show">[docs]</a>  <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Shows summary of key Exper specifics.</span>
 
+<span class="sd">    Shows the experiment name, its memory usage and the number of Field objects loaded.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">loaded_fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
     <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">loaded_fields</span><span class="p">)</span>
 
@@ -91,16 +122,25 @@
 
     <span class="k">print</span> <span class="n">REP</span><span class="o">.</span><span class="n">value</span>
     
-</div>
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">path</span><span class="o">=</span><span class="n">home_path</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;test&#39;</span><span class="p">,</span><span class="n">cstack</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">params</span> <span class="o">=</span> <span class="p">{},</span> <span class="n">descr</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="s">&#39;orphan&#39;</span><span class="p">):</span>
-<span class="c"># --&gt; belongs to  Exper</span>
+<span class="c"># --&gt; belongs to  Exper</span></div>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">path</span><span class="o">=</span><span class="n">home_path</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;test&#39;</span><span class="p">,</span><span class="n">cstack</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">params</span> <span class="o">=</span> <span class="p">{},</span> <span class="nb">vars</span> <span class="o">=</span> <span class="p">{},</span> <span class="n">descr</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initialize Exper instance.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      path: (str) path to dir containing experiment. Used to construct Exper dir.</span>
+<span class="sd">      name: (str) the name of this experiment. Generally derived from data file name</span>
+<span class="sd">      cstack: (list of Coord objectd) the coordinate stack of all Coord objects constructed for this experiment</span>
+<span class="sd">      params: (dictionary of name value pairs) collection of single value named parameters (e.g. co2 vs 280)</span>
+<span class="sd">      vars: (dictionary of name vs Field objects) contains the loaded Fields (e.g. a 3D dataset of temperature). Generally empty on init.</span>
+<span class="sd">      descr: (str) an optional description of this experiment.    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="n">name</span><span class="p">)</span> 
     <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">cstack</span> <span class="o">=</span> <span class="n">cstack</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
       
-    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">descr</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">descr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">descr</span> <span class="o">=</span> <span class="n">name</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">descr</span> <span class="o">=</span> <span class="n">descr</span>  
@@ -111,31 +151,44 @@
 
           
 <span class="c"># The variables associated with this experiment. It is a dictionary of name vs struct    </span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">vars</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">vars</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="nb">vars</span><span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">nbytes</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">nbytes</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">cstack</span><span class="p">]</span>  <span class="p">)</span>
     
 
-  <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varnames</span> <span class="o">=</span><span class="s">&#39;*&#39;</span><span class="p">):</span>
-
-<span class="c"># --&gt; belongs to Expers</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">varnames</span><span class="p">)</span>
-
   <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">varname</span><span class="p">,</span> <span class="n">arr</span><span class="p">):</span>
-
+    <span class="sd">&quot;&quot;&quot;Simple insertion of name vs Field into vars dictionary. Generally use insert method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span>
 
-
-  <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varnames</span> <span class="o">=</span><span class="s">&#39;*&#39;</span><span class="p">):</span>
-
 <span class="c"># --&gt; belongs to Exper </span>
+  <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varnames</span> <span class="o">=</span><span class="s">&#39;*&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Obtain Field from vars dictionary. Shortcut to get method. See get.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">varnames</span><span class="p">)</span>
 
 
 
 <div class="viewcode-block" id="Exper.get"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.get">[docs]</a>  <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varnames</span><span class="p">):</span>
-  
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">      varnames: (str or list) simple filter (or list of -) used by fnmatch.fnmatch </span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      None if no match, or one Field if only one Field name matches varnames pattern, otherwise list of Field objects. </span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">    &gt;&gt;&gt; E = P[&#39;DPO&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; P.load([&#39;O_temp&#39;,&#39;O_sal&#39;] )  </span>
+<span class="sd">    &gt;&gt;&gt; E[&#39;O_*&#39;] </span>
+<span class="sd">    [O_temp, O_sal]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="c"># fields is the list of Fields to be returned, whose names match the pattern</span>
     <span class="n">fields</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c"># The names of the matching fields:</span>
     <span class="n">VN</span> <span class="o">=</span> <span class="n">sublist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">varnames</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">VN</span><span class="p">:</span>
       <span class="k">for</span> <span class="n">vn</span> <span class="ow">in</span> <span class="n">VN</span><span class="p">:</span>
@@ -152,6 +205,9 @@
     <span class="k">return</span> <span class="n">fields</span>    	
 </div>
 <div class="viewcode-block" id="Exper.list_vars"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.list_vars">[docs]</a>  <span class="k">def</span> <span class="nf">list_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Show report of loaded variables in stdout.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">RP</span> <span class="o">=</span> <span class="n">Report</span><span class="p">()</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
       <span class="n">RP</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s">&#39;No variables.&#39;</span><span class="p">)</span>
@@ -171,11 +227,27 @@
 
 </div>
   <span class="k">def</span> <span class="nf">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i</span><span class="p">):</span>
-  
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Delete an item from the vars Field dict attribute of Exper using del.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      i: (int) index of item to be deleted.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 
 <div class="viewcode-block" id="Exper.delvar"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.delvar">[docs]</a>  <span class="k">def</span> <span class="nf">delvar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varnames</span><span class="p">,</span> <span class="n">msg</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">):</span>
-<span class="c"># this delvar is a method of  Exper</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Delete items from the vars Field dict attribute of Exper using del.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      varnames: (str or list) items to delete</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
   
     <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">varnames</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">ListType</span><span class="p">)):</span>
       <span class="n">varnames</span> <span class="o">=</span> <span class="p">[</span> <span class="n">varnames</span> <span class="p">]</span>
@@ -191,20 +263,28 @@
 
     <span class="bp">self</span><span class="o">.</span><span class="n">update_nbytes</span><span class="p">()</span>
 
-<span class="c">#  def cdf(self):</span>
-<span class="c"># --&gt; method of  Exper        </span>
-<span class="c">#    print &#39;Netcdf variables available (loaded marked **):&#39;</span>
-<span class="c">#    _print_box(mark_sublist(self.var_names,self.vars.keys()))</span>
-      
-
 </div>
 <div class="viewcode-block" id="Exper.write"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.write">[docs]</a>  <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span> <span class="p">,</span> <span class="n">history</span> <span class="o">=</span> <span class="s">&#39;Created from Spacegrids &#39;</span> <span class="p">,</span> <span class="n">insert_dual</span> <span class="o">=</span> <span class="bp">True</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write Exper to Netcdf file.</span>
 
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Write method of Exper .</span>
+<span class="sd">    Args:</span>
+<span class="sd">      path: (str) path to the directory where the file will go (e.g. &#39;data/&#39; or &#39;/home/me/&#39;, default pwd).</span>
+<span class="sd">      name: (str) file name (e.g. &quot;foo.nc&quot;)</span>
+<span class="sd">      history: (str) Brief history or general description of the data.</span>
+<span class="sd">      insert_dual: (Boolean) Flag determining whether to include the duals of the Coord objects in the file.</span>
 
-<span class="sd">    Creates Netcdf file and writes all loaded Field to it, along with their Coord objects.</span>
 
+<span class="sd">    Returns:</span>
+<span class="sd">      None</span>
+
+<span class="sd">    Creates Netcdf file and writes all loaded Field to it, along with their Coord objects (and their duals if requested).</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">    &gt;&gt;&gt; E = P[&#39;DPO&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; E.write()  # yields DPO.nc in pwd</span>
+
+<span class="sd">    &gt;&gt;&gt; E = P[&#39;DPO&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; E.write(path=&#39;TMP/&#39;,name=&#39;foo.nc&#39;)  # yields TMP/foo.nc with respect to pwd</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -217,14 +297,15 @@
    
     
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-      <span class="k">print</span> <span class="s">&#39;Writing experiment </span><span class="si">%s</span><span class="s"> to file </span><span class="si">%s</span><span class="s">&#39;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+      <span class="k">print</span> <span class="s">&#39;Attempting to write experiment </span><span class="si">%s</span><span class="s"> to file </span><span class="si">%s</span><span class="s">&#39;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span>
 
       <span class="k">try</span><span class="p">:</span>
         <span class="c"># using io_sg version of netcdf_file. May use ScientificIO or Scipy</span>
         <span class="n">file_handle</span> <span class="o">=</span> <span class="n">netcdf_file</span><span class="p">(</span><span class="n">name</span> <span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span>
 
-      <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Cannot open</span><span class="si">%s</span><span class="s">&#39;</span><span class="o">%</span><span class="n">name</span><span class="p">)</span>
+      <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">RuntimeError</span><span class="p">):</span>
+        <span class="k">print</span> <span class="s">&#39;... FAIL&#39;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Cannot open </span><span class="si">%s</span><span class="s">. File not written.&#39;</span><span class="o">%</span><span class="n">name</span><span class="p">)</span>
       <span class="k">else</span><span class="p">:</span>
 
         <span class="k">for</span> <span class="n">fld</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
@@ -236,6 +317,7 @@
 <span class="c">#    var_cdf.units = self.units</span>
 
         <span class="n">file_handle</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">print</span> <span class="s">&#39;... OK&#39;</span>
 
     <span class="k">else</span><span class="p">:</span>
       <span class="k">print</span> <span class="s">&#39;No fields to write for experiment </span><span class="si">%s</span><span class="s">&#39;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span>
@@ -245,27 +327,29 @@
       </div>
 <div class="viewcode-block" id="Exper.load"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.load">[docs]</a>  <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">varnames</span><span class="p">,</span> <span class="n">squeeze_field</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name_suffix</span><span class="o">=</span><span class="s">&#39;_cat&#39;</span><span class="p">,</span> <span class="n">new_coord_name</span> <span class="o">=</span> <span class="s">&#39;gamma&#39;</span><span class="p">,</span> <span class="n">new_coord</span><span class="o">=</span> <span class="bp">None</span> <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Load a variable or list of variables contained in varnames. </span>
+<span class="sd">    Load a variable or list of variables contained in varnames into Exper. </span>
 
 <span class="sd">    Takes either a single string or a list of strings. If multiple files inside a directory contain the same variable, this method will attempt to concatenate them (e.g. in the case where there are different time slices).</span>
 
-<span class="sd">    if self.path is to a file (likely to be an Experiment file), the variable will be loaded from that file.</span>
-<span class="sd">    if self.path is to a directory (likely to be an experiment dir), the variable will be loaded from Netcdf files inside that directory.</span>
+<span class="sd">    if self.path is to a file (an Experiment file), the variable will be loaded from that file.</span>
+<span class="sd">    if self.path is to a directory (an experiment dir), the variable will be loaded from Netcdf files inside that directory.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">         varnames: list of the variable names to load</span>
-<span class="sd">         squeeze_field:	switch to squeeze Field on loading (default True)	</span>
-<span class="sd">         ax: passed on to the concatenate function			</span>
-<span class="sd">         name_suffix: passed on to the concatenate function</span>
-<span class="sd">         new_coord_name: passed on to the concatenate function</span>
-<span class="sd">         new_coord: passed on to the concatenate function</span>
-
+<span class="sd">      varnames: (str or list) var name or list of the var names to load</span>
+<span class="sd">      squeeze_field (boolean):	Flag to squeeze Field on loading (default True)	</span>
+<span class="sd">      ax (Ax): passed on to the concatenate function			</span>
+<span class="sd">      name_suffix (str): passed on to the concatenate function</span>
+<span class="sd">      new_coord_name (str): passed on to the concatenate function</span>
+<span class="sd">      new_coord (Coord): passed on to the concatenate function</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">         None</span>
+<span class="sd">      None</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      IOError: if path to Netcdf file not valid (very rare under automatic sg usage).</span>
 <span class="sd">    &quot;&quot;&quot;</span>  
 
-<span class="c"># --&gt; this load is a method of  Exper</span>
+<span class="c"># --&gt; this load is a method of Exper</span>
 
     <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">varnames</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
       <span class="n">varnames</span> <span class="o">=</span> <span class="p">[</span><span class="n">varnames</span> <span class="p">]</span>
@@ -333,12 +417,17 @@
 </div>
 <div class="viewcode-block" id="Exper.insert"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.insert">[docs]</a>  <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">what</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Insert Field in Field list of this exper object under key varname.  If argument what is a number, it will be inserted as a parameter.</span>
+<span class="sd">    Insert Field in Field list (vars attribute), or into params att if argument is a number.</span>
 
-<span class="sd">    Input: what a 2 tuple (pair) of name and value: (name, value). Value can be a Field or a single value. Name must be a string, but can be None in the case of a Field, where the Field name will then be used. For example what = (&#39;temp&#39;,TEMP), where TEMP is a Field. If value is a single value (e.g. int or float), a name must be provided.</span>
+<span class="sd">    The &quot;what&quot; argument is a 2 tuple (pair) of name and value: (name, value). Value can be a Field or a single value. Name must be a string, but can be None in the case of a Field, where the Field name will then be used. For example what = (&#39;temp&#39;,TEMP), where TEMP is a Field. If value is a single value (e.g. int or float), a name must be provided.</span>
 
 <span class="sd">    Argument what can also be a list of (name,value) pairs, in which case the entire collection of pairs will be inserted.   </span>
 
+<span class="sd">    Args:</span>
+<span class="sd">      what: (length 2 tuple or list thereof) name and value: (name, value).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">what</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -376,7 +465,21 @@
 </div>
 <div class="viewcode-block" id="Exper.available"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.available">[docs]</a>  <span class="k">def</span> <span class="nf">available</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Method of Exper  that returns a list of all available Netcdf variable names (strings).</span>
+<span class="sd">    Obtain list of all available Netcdf variable names (strings) for this Exper.</span>
+<span class="sd">   </span>
+<span class="sd">    Args:</span>
+<span class="sd">      No args.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      List of strings of variable names in experiment Netcdf file(s).</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      IOError: when Netcdf file cannot be opened.</span>
+
+<span class="sd">    Called by ls method.</span>
+
+<span class="sd">    See also:</span>
+<span class="sd">      ls method.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
   
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
@@ -411,9 +514,25 @@
 </div>
 <div class="viewcode-block" id="Exper.ls"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.ls">[docs]</a>  <span class="k">def</span> <span class="nf">ls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">20</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Variable list method of Exper .</span>
-<span class="sd">    Examine which fields (Netcdf variables) are available of experiment object.</span>
+<span class="sd">    Show list of all available Netcdf variable names (strings) for this Exper to screen.</span>
+<span class="sd">   </span>
+<span class="sd">    Args:</span>
+<span class="sd">      width: (int) column width formatting for screen output.</span>
 
+<span class="sd">    Returns:</span>
+<span class="sd">      None</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      IOError: when Netcdf file cannot be opened.</span>
+
+<span class="sd">    Calling available method.</span>
+
+<span class="sd">    See also:</span>
+<span class="sd">      available method.</span>
+
+
+<span class="sd">    Variable list method of Exper.</span>
+<span class="sd">    Examine which fields (Netcdf variables) are available of experiment object.</span>
 <span class="sd">    &quot;&quot;&quot;</span>  
  
     <span class="n">RP</span> <span class="o">=</span> <span class="n">Report</span><span class="p">()</span>
@@ -425,6 +544,9 @@
 
 </div>
 <div class="viewcode-block" id="Exper.update_nbytes"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.update_nbytes">[docs]</a>  <span class="k">def</span> <span class="nf">update_nbytes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+     <span class="sd">&quot;&quot;&quot;Recalculate and update memory usage of this Exper.</span>
+<span class="sd">     &quot;&quot;&quot;</span>
+
      <span class="n">coord_bytes</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">nbytes</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cstack</span><span class="p">]</span>  <span class="p">)</span>
      <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
        <span class="n">field_bytes</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">nbytes</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>  <span class="p">)</span>    
@@ -444,12 +566,29 @@
 </div></div>
 <div class="viewcode-block" id="isexpdir"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.isexpdir">[docs]</a><span class="k">def</span> <span class="nf">isexpdir</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">file_extensions</span> <span class="o">=</span> <span class="n">cdf_file_extensions</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd"> Tests whether the subdirectories in the path contain data files. </span>
+<span class="sd">  Tests whether the subdirectories in the path contain data files. </span>
 
-<span class="sd"> Returns the list of those subdirectories (relative path to path argument) that </span>
-<span class="sd"> contain these known files. To be used by adexp functionality and such.</span>
-<span class="sd"> file_extensions is the list of known filenames in the form of glob expressions, e.g.   </span>
-<span class="sd"> [&#39;*.nc&#39;,&#39;*.cdf&#39;] (the default).   </span>
+<span class="sd">  Returns the list of those subdirectories (relative path to path argument) that </span>
+<span class="sd">  contain these known files. To be used by adexp functionality and such.</span>
+<span class="sd">  file_extensions is the list of known filenames in the form of glob expressions, e.g.   </span>
+<span class="sd">  [&#39;*.nc&#39;,&#39;*.cdf&#39;] (the default).   </span>
+
+<span class="sd">   </span>
+<span class="sd">  Args:</span>
+<span class="sd">    path: (str) path to directory containing experiment directories or files (usually a project dir). Generally computed by sg</span>
+<span class="sd">    file_extensions: (str) file extensions to look for in path (default .cdf and .nc)</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    List of directory and file names (not full paths) believed to correspond to experiments.</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    RuntimeError: when path not valid.</span>
+
+<span class="sd">  path can be relative to pwd or full path.</span>
+
+<span class="sd">  Examples:</span>
+<span class="sd">  &gt;&gt;&gt; sg.isexpdir(&#39;/home/me/PROJECTS/test_project/&#39;)</span>
+<span class="sd">  [&#39;DPO&#39;, &#39;DPC&#39;, &#39;Lev.cdf&#39;]</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
     <span class="c"># examine all subdirectories of path. Create copy for manipulation.</span>
@@ -461,7 +600,7 @@
   <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">path</span><span class="p">,]</span>
   <span class="k">else</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;No such file or directory </span><span class="si">%s</span><span class="s">.&#39;</span><span class="o">%</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&#39;No such file or directory </span><span class="si">%s</span><span class="s">.&#39;</span><span class="o">%</span><span class="n">path</span><span class="p">)</span>
     
   <span class="c"># go through list L of subdirectories of path (e.g. /home/me/PROJECTS/test_project/) to see which ones are experiment directories (i.e. contain .nc and .cdf files).</span>
   <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">L</span><span class="p">:</span>

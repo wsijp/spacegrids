@@ -148,7 +148,7 @@ class Project(object):
         # make a handy dictionary for easy reference
         self.expers[e].coords = {c.name:c for c in self.expers[e].cstack}
 
-      # at this stage of the loading process, the Coord elements in the experiment cstack attributes (lists) have an axis attribute, but they are only the strings (e.g. 'X','Y','Z') obtained from the netcdf file. Next, we will replace these string instances with axis objects (defined as a class in sg) with their name attributes being the original strings (e.g. 'X'). Here, as with coords above, we need to be carefully to make those objects the same objects (in memory) if they are equal according to the & method criteria (equal name, values etc, but possibly different objects in memory). So: if a&b True, then b is replaced with a in the list). 
+      # at this stage of the loading process, the Coord elements in the experiment cstack attributes (lists) have an axis attribute, but they are only the strings (e.g. 'X','Y','Z') obtained from the netcdf file. Next, we will replace these string instances with axis objects (defined as a class in sg) with their name attributes being the original strings (e.g. 'X'). Here, as with coords above, we need to be carefully to make those objects the same objects (in memory) if they are equal according to the weaksame method criteria (equal name, values etc, but possibly different objects in memory). So: if a.weaksame(b) True, then b is replaced with a in the list). 
       # So, replace axis string attribute with object attribute and obtain corresponding accumulated list of axis objects. We do this using the make_axis function:
        
       L = make_axes([ c for e in self.expers for c in self.expers[e].cstack ])

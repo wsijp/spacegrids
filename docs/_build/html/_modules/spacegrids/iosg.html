@@ -95,7 +95,26 @@
 
 <div class="viewcode-block" id="netcdf_file"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.iosg.netcdf_file">[docs]</a><span class="k">def</span> <span class="nf">netcdf_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span><span class="n">mode</span> <span class="o">=</span> <span class="s">&#39;r&#39;</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Wrapper for open Netcdf functions from ScientificIO or Scipy</span>
+<span class="sd">  Wrapper for opening Netcdf functions from NETCDF4, ScientificIO or Scipy</span>
+
+<span class="sd">  Depends on cdf_lib_used variable.</span>
+
+<span class="sd">  For &#39;netcdf4&#39;: </span>
+<span class="sd">  file = Dataset(filepath,mode, format=&#39;NETCDF4&#39;)</span>
+<span class="sd">  For &#39;scientificio&#39;: </span>
+<span class="sd">  file = Scientific.IO.NetCDF.NetCDFFile(filename = filepath, mode = mode)</span>
+<span class="sd">  Otherwise: </span>
+<span class="sd">  file = netcdf.netcdf_file(filename = filepath, mode = mode)</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    filepath: (str) full path to file</span>
+<span class="sd">    mode: (str) mode to use as mode argument to file opening function</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    file handle if successful.</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    IOError if there are problems opening the file.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="k">if</span> <span class="n">cdf_lib_used</span> <span class="o">==</span><span class="s">&#39;netcdf4&#39;</span><span class="p">:</span>  
@@ -133,13 +152,18 @@
 
 </div>
 <div class="viewcode-block" id="msk_read"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.iosg.msk_read">[docs]</a><span class="k">def</span> <span class="nf">msk_read</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="s">&#39;masks/msk&#39;</span><span class="p">,</span> <span class="n">crop</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
-
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  Reads a text file containing a mask pointed to by filepath and returns a corresponding array.</span>
-<span class="sd">  Due to the way these masks are stored for the UVic model, cropping is needed, as indicated </span>
-<span class="sd">  by the crop flag in the arguments.</span>
-<span class="sd">  This is the lowest level mask read function in sg.</span>
 
+<span class="sd">  Due to the way these masks are stored for the UVic model, cropping is needed, as indicated </span>
+<span class="sd">  by the crop flag in the arguments.  This is the lowest level mask read function in sg.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    filepath: (str) path to the file</span>
+<span class="sd">    crop: (int) amount of points to crop at the margins.</span>
+
+<span class="sd">  Return:</span>
+<span class="sd">    ndarray containing mask.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="n">str_data</span> <span class="o">=</span> <span class="p">[]</span>
@@ -163,10 +187,20 @@
   <span class="k">else</span><span class="p">:</span>  
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
 </div>
-<div class="viewcode-block" id="read_masks"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.iosg.read_masks">[docs]</a><span class="k">def</span> <span class="nf">read_masks</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">msk_shape</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">grids</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">msk_val</span> <span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="s">&#39;orphan&#39;</span><span class="p">):</span>
-  
+<div class="viewcode-block" id="read_masks"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.iosg.read_masks">[docs]</a><span class="k">def</span> <span class="nf">read_masks</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">msk_shape</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="n">grids</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">msk_val</span> <span class="o">=</span><span class="mi">2</span><span class="p">):</span>
       <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">      Reads mask and returns a list of Field objects containing masks.</span>
+
+<span class="sd">      Calls msk_read, see msk_read.</span>
+
+<span class="sd">      Args:</span>
+<span class="sd">        dir_path: (str) path to directory</span>
+<span class="sd">        msk_shape: (None or tuple of int) describing supposed shape of mask</span>
+<span class="sd">        grids: (Gr) grid to use for masks</span>
+<span class="sd">        msk_val: (int) value that will not be nan in mask</span>
+
+<span class="sd">      Returns:</span>
+<span class="sd">        Dictionary of masks and their names</span>
 <span class="sd">      &quot;&quot;&quot;</span>
 
       <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">grids</span><span class="p">):</span>
@@ -188,8 +222,8 @@
           <span class="n">fpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span><span class="n">it</span><span class="p">)</span>
 	  <span class="n">msk</span> <span class="o">=</span> <span class="n">msk_read</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span>
 
-          <span class="k">if</span> <span class="n">msk_shape</span><span class="p">:</span>
-<span class="c"># only test shape if msk_shape not default value of 0</span>
+          <span class="k">if</span> <span class="n">msk_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+<span class="c"># only test shape if msk_shape not default value of None</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">msk</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">msk_shape</span><span class="p">)):</span>
               <span class="k">print</span> <span class="s">&quot;Warning: mask shape does not agree: &quot;</span> <span class="o">+</span> <span class="n">it</span><span class="p">,</span>
               <span class="k">print</span> <span class="n">msk</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
@@ -220,14 +254,13 @@
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  Locates all files with filename fname. Helper function to info function.</span>
 <span class="sd">  </span>
-<span class="sd">  Inputs: </span>
-<span class="sd">  top		(default &#39;/home/&#39;) the start dir</span>
-<span class="sd">  fname		(default projname) the filename to look for. </span>
+<span class="sd">  Args: </span>
+<span class="sd">    top: (str) the start dir</span>
+<span class="sd">    fname: (str)the filename to look for. </span>
+
 <span class="sd">  </span>
-<span class="sd">  Outputs:</span>
-<span class="sd">  paths		all paths to dirs containing fname</span>
-<span class="sd">  </span>
-<span class="sd">  </span>
+<span class="sd">  Returns:</span>
+<span class="sd">    List of all paths to dirs containing fname.  </span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
  

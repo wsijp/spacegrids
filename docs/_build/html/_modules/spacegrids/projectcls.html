@@ -66,6 +66,8 @@
 <span class="c"># ---- temporary classes for old code warnings -----</span>
 
 <div class="viewcode-block" id="project"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.project">[docs]</a><span class="k">class</span> <span class="nc">project</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Legacy class to generate error when initialized by depricated code.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">path</span><span class="o">=</span><span class="n">home_path</span><span class="p">,</span> <span class="n">expnames</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;*&#39;</span><span class="p">],</span> <span class="n">varnames</span> <span class="o">=</span> <span class="p">[],</span><span class="n">msk_grid</span> <span class="o">=</span> <span class="s">&#39;UVic2.8_t&#39;</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">nonick</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">descr</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -78,6 +80,23 @@
 <span class="c"># ---------------- Class definition for projects -----------</span>
 </div>
 <div class="viewcode-block" id="Project"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project">[docs]</a><span class="k">class</span> <span class="nc">Project</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Represents experiment data organized in project directories.</span>
+
+<span class="sd">  Data directory tree:</span>
+
+<span class="sd">  Before using projects, Netcdf data must be organised in a projects directory tree. Create a directory named PROJECTS inside your home directory (name default), to contain all the data for all the projects. Then create a subdirectory for each of your projects, say one is called test_project. When using sg.info() and sg.Project with the nonick = True argument (see documentation), this is all that is needed to allow the sg module to recognise these subdirectories as representing projects. </span>
+<span class="sd">  This will allow the sg Python code to regard all Netcdf files placed directly inside test_project as belonging to individual experiments. Alternatively, instead of a single file, a subdirectory may represent an experiment. So directories inside the test_project directory are associated with output from a single experiment each, where all Netcdf files contained within are interpreted as belonging to that same experiment.   </span>
+
+<span class="sd">  To get started in ipython (bring up with sg.overview() ):</span>
+
+<span class="sd">  &gt;&gt;&gt; import spacegrids as sg		</span>
+<span class="sd">  &gt;&gt;&gt; D = sg.info(nonick = True)  </span>
+<span class="sd">  &gt;&gt;&gt; P = sgPproject(D[&#39;my_project&#39;] , nonick = True)  </span>
+<span class="sd">  &gt;&gt;&gt; P.load([&#39;temperature&#39;,&#39;u&#39;])  </span>
+<span class="sd">  &gt;&gt;&gt; # obtain the axes under their names T, X, Y, Z in namespace:</span>
+<span class="sd">  &gt;&gt;&gt; for c in P[&#39;some_experiment&#39;].axes:</span>
+<span class="sd">  &gt;&gt;&gt;   exec c.name + &#39; = c&#39;	</span>
+<span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
@@ -89,21 +108,33 @@
   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">path</span><span class="o">=</span><span class="n">home_path</span><span class="p">,</span> <span class="n">expnames</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;*&#39;</span><span class="p">],</span> <span class="n">varnames</span> <span class="o">=</span> <span class="p">[],</span><span class="n">msk_grid</span> <span class="o">=</span> <span class="s">&#39;UVic2.8_t&#39;</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">nonick</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">descr</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Initialize Project object.</span>
+<span class="sd">    Initialize Project object to query Netcdf experiment files belonging to project.</span>
 
-<span class="sd">    Inputs:</span>
+<span class="sd">    Args:</span>
+<span class="sd">      path: (str) path to the Project directory (e.g. /home/me/PROJECTS/test_project/). </span>
+<span class="sd">      expnames: (str or list of str) filters on experiment names to load</span>
+<span class="sd">      varnames: (list of str) usually empty, variable list (better to do after init)</span>
+<span class="sd">      msk_grid: (str) grid to use for masks</span>
+<span class="sd">      name: (str) project name. Filled using projname content (or dir name) if None.</span>
+<span class="sd">      nonick: (Boolean) Switch whether to look for a projname text file inside the Project directory to obtain Project nickname. True/ False</span>
+<span class="sd">      descr: (str) longer description of project.</span>
 
-<span class="sd">    path	path to the Project directory (e.g. /home/me/PROJECTS/test_project/). Default is sg.home_path</span>
-<span class="sd">    expnames	filter on experiment names to load</span>
-<span class="sd">    varnames    list of variables to be loaded (can also be done later after init)</span>
-<span class="sd">    nonick 	Switch whether to look for a projname text file inside the Project directory to obtain Project nickname. True/ False</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      Project object to be used to query and load Netcdf files.</span>
 
+<span class="sd">    Examples:</span>
 
-<span class="sd">    Example use:</span>
-<span class="sd">    D = sg.info()	# obtain dictionary of nicknames vs full paths</span>
-<span class="sd">    P = sg.Project(D[&#39;my_project&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; D = sg.info()	# obtain dictionary of nicknames vs full paths</span>
+<span class="sd">    &gt;&gt;&gt; P = sg.Project(D[&#39;my_project&#39;])</span>
 <span class="sd">    </span>
 <span class="sd">    </span>
+<span class="sd">    Or with hard coded path:</span>
+
+<span class="sd">    &gt;&gt;&gt; P = sg.Project(&#39;/home/me/PROJECTS/test_project/&#39;)</span>
+
+<span class="sd">    Or when ignoring the projname file inside the project directory: </span>
+
+<span class="sd">    &gt;&gt;&gt; P = sg.Project(&#39;/home/me/PROJECTS/test_project/&#39;, nonick=True)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">global</span> <span class="n">ax_disp_names</span>
@@ -189,7 +220,7 @@
      
       <span class="k">for</span> <span class="n">ax_elem</span> <span class="ow">in</span> <span class="n">L</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">ax_elem</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">ax_disp_names</span><span class="p">:</span>
-          <span class="n">ax_elem</span><span class="o">.</span><span class="n">display_name</span> <span class="o">=</span> <span class="n">ax_disp_names</span><span class="p">[</span><span class="n">ax_elem</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+          <span class="n">ax_elem</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="n">ax_disp_names</span><span class="p">[</span><span class="n">ax_elem</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
         
 
     <span class="k">if</span> <span class="n">msk_grid</span><span class="p">:</span>
@@ -214,7 +245,7 @@
 
 <div class="viewcode-block" id="Project.ls"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.ls">[docs]</a>  <span class="k">def</span> <span class="nf">ls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Method of Project  to display experiments in columns.</span>
+<span class="sd">    Display experiments belonging to Project in columns.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">RP</span> <span class="o">=</span> <span class="n">Report</span><span class="p">()</span>
 
@@ -224,12 +255,21 @@
 </div>
 <div class="viewcode-block" id="Project.get"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.get">[docs]</a>  <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expnames</span><span class="p">,</span> <span class="n">varnames</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Project method to fetch fields from a Project.</span>
+<span class="sd">    Fetch fields from a Project.</span>
+
+<span class="sd">    expnames will be matched against the available project experiment names using fnmatch, allowing patterns such as wild cards. The same with varnames.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      expnames: (str or list of str) containing experiment name patterns to load from. </span>
+<span class="sd">      varnames: (list of str) of variable name patterns to match against </span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      List of Field objects from Project with matching attributes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="n">fields</span> <span class="o">=</span> <span class="p">[]</span>
   
- <span class="c"># Search in masks first</span>
+    <span class="c"># Search in masks first</span>
 
     <span class="n">VN</span> <span class="o">=</span> <span class="n">sublist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">masks</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">varnames</span><span class="p">)</span>
 	
@@ -237,7 +277,7 @@
       <span class="k">for</span> <span class="n">vn</span> <span class="ow">in</span> <span class="n">VN</span><span class="p">:</span>
 	<span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">masks</span><span class="p">[</span><span class="n">vn</span><span class="p">]</span>  <span class="p">)</span>
 
-<span class="c"># and then in fields	    </span>
+    <span class="c"># and then in fields	    </span>
     <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">fields</span><span class="p">):</span> 
       <span class="n">EN</span> <span class="o">=</span> <span class="n">sublist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">,</span> <span class="n">expnames</span><span class="p">)</span>    
       <span class="k">if</span> <span class="n">EN</span><span class="p">:</span>
@@ -253,21 +293,22 @@
       <span class="k">print</span> <span class="s">&quot;No fields found. Try P.load(</span><span class="si">%s</span><span class="s">)&quot;</span><span class="o">%</span><span class="n">varnames</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-<span class="c"># if only single Field found, return that Field and not a list of fields.</span>
+        <span class="c"># if only single Field found, return that Field and not a list of fields.</span>
         <span class="n">fields</span> <span class="o">=</span><span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">fields</span>    
 
   <span class="c"># --&gt; method belongs to Project	    </span></div>
 <div class="viewcode-block" id="Project.ad_mask"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.ad_mask">[docs]</a>  <span class="k">def</span> <span class="nf">ad_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">sub_dir</span> <span class="o">=</span> <span class="n">mask_dir</span><span class="p">,</span><span class="n">grid</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">msk_val</span> <span class="o">=</span> <span class="mi">2</span><span class="p">):</span>
-
-<span class="c">#    print read_masks(self.path + sub_dir, grid = grid, msk_val = msk_val, parent = self)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">masks</span> <span class="o">=</span> <span class="n">read_masks</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">+</span> <span class="n">sub_dir</span><span class="p">,</span> <span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span><span class="p">,</span> <span class="n">msk_val</span> <span class="o">=</span> <span class="n">msk_val</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;Read text file masks from file and add to project.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<span class="c">#    print read_masks(self.path + sub_dir, grid = grid, msk_val = msk_val)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">masks</span> <span class="o">=</span> <span class="n">read_masks</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">+</span> <span class="n">sub_dir</span><span class="p">,</span> <span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span><span class="p">,</span> <span class="n">msk_val</span> <span class="o">=</span> <span class="n">msk_val</span><span class="p">)</span>
 
     </div>
   <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">val</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns an exper object by the name of key k</span>
+<span class="sd">    Returns an exper object by the name of argument &#39;val&#39;.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <span class="c"># --&gt; method belongs to Project</span>
  
@@ -306,14 +347,13 @@
     </div>
 <div class="viewcode-block" id="Project.incdf"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.incdf">[docs]</a>  <span class="k">def</span> <span class="nf">incdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varname</span><span class="p">,</span> <span class="n">expname</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Check whether variable name is in the netcdf database.</span>
+<span class="sd">    Check whether variable name is in the Netcdf files.</span>
 
-<span class="sd">    Input:</span>
-<span class="sd">    varname	variable name to check</span>
+<span class="sd">    Args:</span>
+<span class="sd">      varname: (str) variable name to check</span>
 <span class="sd">    </span>
-<span class="sd">    Output:</span>
-<span class="sd">    True/ False depending on whether the variable name is in the netcdf database.</span>
-
+<span class="sd">    Returns:</span>
+<span class="sd">      True/ False depending on whether the variable name is in the netcdf database.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
  <span class="c"># --&gt; belongs to Project</span>
@@ -365,8 +405,13 @@
 <span class="c"># --&gt; belongs to Project</span>
 </div>
 <div class="viewcode-block" id="Project.adexp"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.adexp">[docs]</a>  <span class="k">def</span> <span class="nf">adexp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expnames</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;*&#39;</span><span class="p">],</span> <span class="n">descr</span> <span class="o">=</span> <span class="s">&#39;An experiment.&#39;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Adds an experiment  to this Project. Also looks for a sub-directory &quot;masks&quot; for masks. If it can&#39;t find that, it will use the mask inherited from the Project.</span>
+    <span class="sd">&quot;&quot;&quot;Adds an experiment to this Project. </span>
+
+<span class="sd">    Also looks for a sub-directory &quot;masks&quot; for masks. If it can&#39;t find that, it will use the mask inherited from the Project.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      expnames: (str or list of str) of experiment name patterns to match</span>
+<span class="sd">      descr: (str) optional description of experiment    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c"># Convert argument expnames to list if it is not yet a list, e.g. &#39;flx_BL&#39; to [&#39;flx_BL&#39;]</span>
@@ -390,7 +435,7 @@
 
       <span class="n">cstack</span> <span class="o">=</span> <span class="n">cdfsniff</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">expname</span><span class="p">)</span> <span class="p">)</span>
 
-      <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">expname</span><span class="p">]</span> <span class="o">=</span> <span class="n">Exper</span><span class="p">(</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="n">expname</span><span class="p">,</span> <span class="n">cstack</span> <span class="o">=</span> <span class="n">cstack</span><span class="p">,</span> <span class="n">descr</span> <span class="o">=</span> <span class="n">descr</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">expname</span><span class="p">]</span> <span class="o">=</span> <span class="n">Exper</span><span class="p">(</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="n">expname</span><span class="p">,</span> <span class="n">cstack</span> <span class="o">=</span> <span class="n">cstack</span><span class="p">,</span> <span class="n">descr</span> <span class="o">=</span> <span class="n">descr</span><span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">update_nbytes</span><span class="p">()</span>
     <span class="k">return</span> 
@@ -399,17 +444,26 @@
 <span class="c"># --&gt;This load belongs to Project. It calls the load method of the Exper. </span>
 <span class="c"># slices argument value is just an example</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Method of Project. E.g. P.load(&#39;salinity&#39;) for Project P.</span>
-<span class="sd">    Loads a variable (or list of variables) for all experiments belonging to the Project instance.</span>
-<span class="sd">    E.g. </span>
+<span class="sd">    Load Field into Project from Netcdf files.</span>
 <span class="sd">    </span>
-<span class="sd">    P.load(&#39;salinity&#39;)</span>
-<span class="sd">    E = P[&#39;CNTRL_2200p&#39;]	# pick this particular experiment</span>
-<span class="sd">    S = E[&#39;salinity&#39;]		# create Field object and assign it to S</span>
-<span class="sd">    </span>
+<span class="sd">    Loads a variable (or list of variables) for all experiments belonging to the Project instance. E.g. P.load(&#39;salinity&#39;).</span>
+
+<span class="sd">    Attempts to concatenate if the same variable name is found in multiple files.</span>
+<span class="sd"> </span>
+<span class="sd">    Args:</span>
+<span class="sd">      varnames: (str or list of str) of variable names to load</span>
+<span class="sd">      descr: (str) optional description     </span>
+<span class="sd">      chk_loaded: (Boolean)  if True (default False), makes load method check whether the Field is already loaded. If so, it is not loaded.</span>
+<span class="sd">      ax (Ax): passed on to the concatenate function from Exper.load</span>
+<span class="sd">      name_suffix: (str) suffix to apply to name</span>
+<span class="sd">      new_coord_name (str): passed on to the concatenate function</span>
+<span class="sd">      new_coord (Coord): passed on to the concatenate function</span>
+<span class="sd">	</span>
+<span class="sd">    Examples:</span>
 <span class="sd">   </span>
-<span class="sd">    chk_loaded = True (default False) makes load method check whether the Field is already loaded. If so, it is not loaded.</span>
-<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; P.load(&#39;salinity&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; E = P[&#39;CNTRL_2200p&#39;]	# pick this particular experiment</span>
+<span class="sd">    &gt;&gt;&gt; S = E[&#39;salinity&#39;]		# create Field object and assign it to S</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <span class="c"># errno is returned by this method and gives information about errors encountered in this method.    </span>
@@ -479,7 +533,8 @@
 
 </div>
 <div class="viewcode-block" id="Project.loaded"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.loaded">[docs]</a>  <span class="k">def</span> <span class="nf">loaded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">varname</span><span class="p">):</span>
-  
+    <span class="sd">&quot;&quot;&quot;Checks whether variable by name of (str) varname is loaded.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">flag</span> <span class="o">=</span> <span class="bp">False</span>
     
     <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">):</span>
@@ -488,21 +543,7 @@
 	<span class="n">flag</span> <span class="o">=</span> <span class="bp">True</span>
 	
     <span class="k">return</span> <span class="n">flag</span>	
-    </div>
-<div class="viewcode-block" id="Project.Report"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.Report">[docs]</a>  <span class="k">def</span> <span class="nf">Report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varname</span><span class="p">):</span>
-    
-    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">):</span>
-      <span class="k">print</span> <span class="s">&quot;No experiments.&quot;</span> 
-    <span class="k">else</span><span class="p">:</span>    
-
-      <span class="k">for</span> <span class="n">expname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">varname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">expname</span><span class="p">]</span><span class="o">.</span><span class="n">vars</span><span class="p">:</span>   
-
-          <span class="k">print</span> <span class="n">expname</span> <span class="o">+</span> <span class="s">&#39; &#39;</span> <span class="o">+</span>  <span class="n">varname</span> <span class="o">+</span> <span class="s">&#39; of len &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">expname</span><span class="p">]</span><span class="o">.</span><span class="n">getbody</span><span class="p">(</span><span class="n">varname</span><span class="p">)))</span>
-    
-        <span class="k">else</span><span class="p">:</span>
-	  <span class="k">print</span> <span class="n">varname</span> <span class="o">+</span><span class="s">&#39; not in experiment &#39;</span> <span class="o">+</span> <span class="n">expname</span>
-</div>
+ </div>
 <div class="viewcode-block" id="Project.update_nbytes"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.update_nbytes">[docs]</a>  <span class="k">def</span> <span class="nf">update_nbytes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update estimate of number of Mb used by Project.</span>
@@ -524,6 +565,12 @@
 
 <span class="sd">    if no new_coord argument is given, a new Coord will be constructed.</span>
 <span class="sd"> </span>
+<span class="sd">    Args:</span>
+<span class="sd">      fld_name: (str) name of Field objects to concatenate</span>
+<span class="sd">      new_ax_name: (str) name of new Ax object to create to concat along if desired</span>
+<span class="sd"> </span>
+<span class="sd">      new_coord_name: (str) name to be used for creation of new Coord in case ax not in Field grid</span>
+<span class="sd">      new_coord: (Coord) overrides default behaviour if set by concatenating along that new Coord.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">e_loaded</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">fld_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">e</span><span class="p">]</span><span class="o">.</span><span class="n">vars</span><span class="p">]</span>
@@ -566,6 +613,18 @@
 <span class="sd">    func is a function that must yield a Field and take an Exper object as argument.</span>
 <span class="sd">    it should return None for elements that are not desired. This method is somewhat different from its near-opposite method insert, where the function argument is allowed to yield fields or single values (float/ int).</span>
 
+<span class="sd">    The idea is: a parameter belongs to an Exper, so any function taking an Exper argument and returning a Field of certain dimensions allows us to concatenate these Field objects along a new Coord constructed from the parameters. </span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      param_name: (str) parameter name</span>
+<span class="sd">      func: (function) that must yield a Field and take Exper object as argument</span>
+<span class="sd">      name_filter: (str) pattern to filter only certain Exper names.</span>
+<span class="sd">      sort: (Boolean) if True, sorts the Coord</span>
+<span class="sd">      new_Ax_name: (str) name for new Ax object corresponding to new param-based Coord, can be None (it will then be constructed)</span>
+<span class="sd">      add2cstack: (Boolean) determines whether new Coord will be added to the Exper coordinate stacks.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The concatenated Field.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">name_filter</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -622,11 +681,14 @@
 
     <span class="k">return</span> <span class="n">concatenate</span><span class="p">(</span><span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">],</span> <span class="n">new_coord</span> <span class="o">=</span> <span class="n">new_coord</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Project.insert"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.insert">[docs]</a>  <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">param_name</span><span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Project.insert"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.insert">[docs]</a>  <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Apply function func to each Exper object in self and insert the result. The result must be a tuple (name, value) or a list of such tuples (as taken by the Exper insert method). Conform the Exper insert method, name must be a string, and value a Field or ordinary float/ int kind of datatype.</span>
+<span class="sd">    Apply function func to each Exper object in self and insert the result into Project. </span>
 
-<span class="sd">   </span>
+<span class="sd">    The result of func must be a tuple (name, value) or a list of such tuples (as taken by the Exper insert method). Conform the Exper insert method, name must be a string, and value a Field or ordinary float/ int kind of datatype.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      func: (function) taking Exper argument and returning list of (name,value) pairs.  </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">E</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
       <span class="k">if</span> <span class="n">E</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>  
@@ -634,7 +696,22 @@
 
 </div>
 <div class="viewcode-block" id="Project.pattern2gr"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.pattern2gr">[docs]</a>  <span class="k">def</span> <span class="nf">pattern2gr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">fld_name</span><span class="p">,</span><span class="n">pattern</span><span class="p">,</span> <span class="n">parname</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">name_filter</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">nomatch_fill</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Use rexexp patterns on experiment file names to extract parameters and apply param2gr.</span>
+<span class="sd"> </span>
+<span class="sd">    The first grouping in the regexp will be used to yield the parameter.</span>
 
+<span class="sd">    Args: (as in param2gr, except one)</span>
+<span class="sd">      pattern: (str) regular expression to apply to file names.</span>
+<span class="sd">      </span>
+<span class="sd">    Returns:</span>
+<span class="sd">      The concatenated Field.</span>
+
+<span class="sd">    Examples:</span>
+
+<span class="sd">    &gt;&gt;&gt; regexp = &#39;[\w_]+_(\d+)ppm[\w]+&#39; # the grouping between brackets yields the value</span>
+<span class="sd">    &gt;&gt;&gt; bigfield_DP=P.pattern2gr(fld_name = &#39;temp&#39;,pattern = regexp,parname=&#39;co2&#39;, name_filter = &#39;DP*&#39;, nomatch_fill = 280.)</span>
+<span class="sd">    &gt;&gt;&gt; # this is for filenames with co2 values in their file name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 <span class="c"># expect [(parname, value),]  or None</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">parse_fname_func</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span><span class="n">parname</span><span class="o">=</span><span class="n">parname</span><span class="p">,</span> <span class="n">nomatch_fill</span> <span class="o">=</span> <span class="n">nomatch_fill</span><span class="p">))</span>
@@ -655,8 +732,6 @@
 <span class="sd">  For example: P.insert(sg.read_control_func(&#39;control.in&#39;)) goes through all experiment directories and looks for, and parses, the file control.in, and then inserts the result as Exper parameters.</span>
 
 <span class="sd">  The user could construct similar functions for their own use: the function must take an experiment as argument, and return None or a list of (name, value) pairs (2 tuples).</span>
-
-
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="k">def</span> <span class="nf">get_controls</span><span class="p">(</span><span class="n">E</span><span class="p">):</span>
@@ -673,7 +748,21 @@
 </div>
 <div class="viewcode-block" id="parse_fname_func"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.parse_fname_func">[docs]</a><span class="k">def</span> <span class="nf">parse_fname_func</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">parname</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">value_type</span> <span class="o">=</span> <span class="nb">float</span><span class="p">,</span> <span class="n">nomatch_fill</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
   <span class="n">prog</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>  
+  <span class="sd">&quot;&quot;&quot;Takes a regular expression, and the intended parameter name, to use it to yield another function that extracts the parameter from experiment (file) names.</span>
 
+<span class="sd">  Args:</span>
+<span class="sd">    pattern: (str) regular expression to match names against</span>
+<span class="sd">    parname: (str) parameter name</span>
+<span class="sd">    value_type: (float or int etc)</span>
+<span class="sd">    nomatch_fill: value to fill points that don&#39;t match with.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    List of (name, value) pairs to be used by insert method.</span>
+
+<span class="sd">  Examples:</span>
+
+<span class="sd">  &gt;&gt;&gt; P.insert(sg.parse_fname_func(&#39;[\w_]+_(\d+)ppm[\w]+&#39;,parname=&#39;co2&#39;))</span>
+<span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="k">if</span> <span class="n">parname</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
     <span class="k">def</span> <span class="nf">get_fname</span><span class="p">(</span><span class="n">E</span><span class="p">):</span>
@@ -712,7 +801,8 @@
 <span class="c"># functions to be used for creating new coords</span>
 </div>
 <div class="viewcode-block" id="avg_temp"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.avg_temp">[docs]</a><span class="k">def</span> <span class="nf">avg_temp</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">varname</span> <span class="o">=</span> <span class="s">&#39;O_temp&#39;</span><span class="p">):</span>
-
+  <span class="sd">&quot;&quot;&quot;Example function to create avg ocean temperature from expers </span>
+<span class="sd">  &quot;&quot;&quot;</span>
   <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">P</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
     <span class="k">exec</span> <span class="n">c</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39; = c&#39;</span>
 
@@ -727,6 +817,8 @@
 <span class="c"># ------- general functions -----------</span>
 </div>
 <div class="viewcode-block" id="overview"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.overview">[docs]</a><span class="k">def</span> <span class="nf">overview</span><span class="p">():</span>
+  <span class="sd">&quot;&quot;&quot;Prints quick overview of sg to screen.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">RP</span> <span class="o">=</span> <span class="n">Report</span><span class="p">()</span>
   <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;Quick start instructions.&quot;</span><span class="p">)</span>
   <span class="n">RP</span><span class="o">.</span><span class="n">line</span><span class="p">()</span>
@@ -745,24 +837,18 @@
   <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;U = P[&#39;some_experiment&#39;][&#39;u&#39;]   &quot;</span><span class="p">)</span>
   <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;TEMP_sliced = TEMP[Y,:50]     &quot;</span><span class="p">)</span>
   <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;m_TEMP = TEMP_sliced/(X*Y)   &quot;</span><span class="p">)</span>
-  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;TEMP_regridded = TEMP(U.gr)	   &quot;</span><span class="p">)</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;TEMP_regridded = TEMP(U.grid)	   &quot;</span><span class="p">)</span>
   <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;   &quot;</span><span class="p">)</span>
 
   <span class="k">print</span> <span class="n">RP</span><span class="o">.</span><span class="n">value</span>
 </div>
 <div class="viewcode-block" id="ls"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.ls">[docs]</a><span class="k">def</span> <span class="nf">ls</span><span class="p">(</span><span class="n">rootdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;HOME&#39;</span><span class="p">],</span> <span class="n">projdirname</span> <span class="o">=</span> <span class="s">&#39;PROJECTS&#39;</span><span class="p">,</span><span class="n">fname</span> <span class="o">=</span> <span class="n">projnickfile</span><span class="p">,</span> <span class="n">nonick</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Simple function to display all Project directories so that no specific paths need to be used, and projects can be referred to by their nicknames defined in a file called projname in each directory containing the experiment directories.</span>
-<span class="sd"> </span>
-<span class="sd">  Inputs: </span>
-<span class="sd">  top		(default &#39;~/PROJECTS/&#39;) the start dir</span>
-<span class="sd">  fname		(default projname) the filename to look for and read the content of</span>
-<span class="sd">  </span>
-<span class="sd">  displays all Project (nick)names</span>
-<span class="sd">    </span>
-<span class="sd">  If nonick is False: finds all dir paths with file called fname in them, reads that file for each dir to find the nickname of that Project. Otherwise just lists the subdirectories of projects dir (~/PROJECTS)</span>
+<span class="sd">  Simple function to display all Project directories vs their projname nicknames.</span>
 
-<span class="sd">  </span>
+<span class="sd">  See info method for details.</span>
+
+<span class="sd">  Calls info_dict.  </span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="n">D</span> <span class="o">=</span> <span class="n">info_dict</span><span class="p">(</span><span class="n">rootdir</span> <span class="o">=</span> <span class="n">rootdir</span><span class="p">,</span> <span class="n">projdirname</span> <span class="o">=</span> <span class="n">projdirname</span><span class="p">,</span><span class="n">fname</span> <span class="o">=</span> <span class="n">fname</span><span class="p">,</span> <span class="n">nonick</span> <span class="o">=</span> <span class="n">nonick</span><span class="p">)</span>
@@ -780,29 +866,29 @@
 </div>
 <div class="viewcode-block" id="info"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.info">[docs]</a><span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="n">rootdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;HOME&#39;</span><span class="p">],</span> <span class="n">projdirname</span> <span class="o">=</span> <span class="s">&#39;PROJECTS&#39;</span><span class="p">,</span><span class="n">fname</span> <span class="o">=</span> <span class="n">projnickfile</span><span class="p">,</span> <span class="n">nonick</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Simple function to take inventory of all Project directories so that no specific paths need to be used, and projects can be referred to by their nicknames defined in a file called projname in each directory containing the experiment directories.</span>
+<span class="sd">  Simple function to take inventory of all Project directories based on contents of projname text files inside project directories.  </span>
+
+<span class="sd">  This way, no specific paths need to be used, and projects can be referred to by their nicknames defined in a file called projname in each directory containing the experiment directories.</span>
 <span class="sd"> </span>
-<span class="sd">  Inputs: </span>
-<span class="sd">  rootdir 	dir in which to look for main PROJECTS dir</span>
-<span class="sd">  projdirname   dir in which to look for specific Project directories. Default is &#39;PROJECTS&#39;. So by default, projects are expected in &#39;~/PROJECTS/&#39;).</span>
-<span class="sd">  fname		(default projname) the filename to look for and read the content of to determine nickname of specific Project. Disabled with nonick = True</span>
+<span class="sd">  Args: </span>
+<span class="sd">    rootdir: (str) dir in which to look for main PROJECTS dir</span>
+<span class="sd">    projdirname: (str) dir in which to look for specific Project directories. Default is &#39;PROJECTS&#39;. So by default, projects are expected in &#39;~/PROJECTS/&#39;).</span>
+<span class="sd">    fname: (str) the filename to look for and read the content of to determine nickname of specific Project. Disabled with nonick = True</span>
 <span class="sd">  </span>
-<span class="sd">  Outputs:</span>
-<span class="sd">  D, dictionary of Project nicknames vs full paths		</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    D, dictionary of Project nicknames vs full paths		</span>
 <span class="sd">    </span>
 <span class="sd">  If nonick is False:  finds all dir paths with file called fname in them, reads that file for each dir to find the nickname of that Project and builds a dictionary of nicknames vs paths. Otherwise, just takes inventory of all sub directories of projects (~/PROJECTS)</span>
 <span class="sd">  </span>
 <span class="sd">  Example of use when projects are in default location ~/PROJECTS/ (spacegrids loaded as sg):</span>
 <span class="sd">  </span>
-<span class="sd">  D=sg.info()</span>
+<span class="sd">  &gt;&gt;&gt; D=sg.info()</span>
 <span class="sd">  </span>
 <span class="sd">  Say this gives keys &#39;test&#39; and &#39;TKE&#39;. To open the Project with nickname test:</span>
 
-<span class="sd">  P = sg.Project(D[&#39;test&#39;])</span>
+<span class="sd">  &gt;&gt;&gt; P = sg.Project(D[&#39;test&#39;])</span>
 <span class="sd">  </span>
 <span class="sd">  and start working with P. No specific path had to be identified, only a sufficiently specific top.</span>
-
-<span class="sd">  </span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="n">D</span> <span class="o">=</span> <span class="n">info_dict</span><span class="p">(</span><span class="n">rootdir</span> <span class="o">=</span> <span class="n">rootdir</span><span class="p">,</span> <span class="n">projdirname</span> <span class="o">=</span> <span class="n">projdirname</span><span class="p">,</span><span class="n">fname</span> <span class="o">=</span> <span class="n">fname</span><span class="p">,</span> <span class="n">nonick</span> <span class="o">=</span> <span class="n">nonick</span><span class="p">)</span>
@@ -815,28 +901,7 @@
 </div>
 <div class="viewcode-block" id="info_dict"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.info_dict">[docs]</a><span class="k">def</span> <span class="nf">info_dict</span><span class="p">(</span><span class="n">rootdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;HOME&#39;</span><span class="p">],</span> <span class="n">projdirname</span> <span class="o">=</span> <span class="s">&#39;PROJECTS&#39;</span><span class="p">,</span><span class="n">fname</span> <span class="o">=</span> <span class="n">projnickfile</span><span class="p">,</span> <span class="n">nonick</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Simple function to take inventory of all Project directories so that no specific paths need to be used, and projects can be referred to by their nicknames defined in a file called projname in each directory containing the experiment directories.</span>
-<span class="sd"> </span>
-<span class="sd">  Inputs: </span>
-<span class="sd">  top		(default &#39;~/PROJECTS/&#39;) the start dir</span>
-<span class="sd">  fname		(default projname) the filename to look for and read the content of</span>
-<span class="sd">  </span>
-<span class="sd">  Outputs:</span>
-<span class="sd">  D, dictionary of Project nicknames vs paths		</span>
-<span class="sd">    </span>
-<span class="sd">  If nonick is False:  finds all dir paths with file called fname in them, reads that file for each dir to find the nickname of that Project and builds a dictionary of nicknames vs paths. Otherwise, just takes inventory of all sub directories of projects (~/PROJECTS)</span>
-<span class="sd">  </span>
-<span class="sd">  Example of use when projects are in default location ~/PROJECTS/ (spacegrids loaded as sg):</span>
-<span class="sd">  </span>
-<span class="sd">  D=sg.info_dict()</span>
-<span class="sd">  </span>
-<span class="sd">  Say this gives keys &#39;test&#39; and &#39;TKE&#39;. To open the Project with nickname test:</span>
-
-<span class="sd">  P = sg.Project(D[&#39;test&#39;])</span>
-<span class="sd">  </span>
-<span class="sd">  and start working with P. No specific path had to be identified, only a sufficiently specific top.</span>
-
-<span class="sd">  </span>
+<span class="sd">  See info method.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
 
@@ -887,7 +952,8 @@
 
     </div>
 <div class="viewcode-block" id="read_projnick"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.read_projnick">[docs]</a><span class="k">def</span> <span class="nf">read_projnick</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
-  
+  <span class="sd">&quot;&quot;&quot;Reads project nickname file (usually &quot;projname&quot;) in project directory.</span>
+<span class="sd">  &quot;&quot;&quot;</span>  
   <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
 </pre></div></div>
 

@@ -340,7 +340,6 @@ class Directional(Named):
       return self.name
 
   def __init__(self,name='scalar',direction ='scalar',long_name= '' ):  
-
     """
     Initialisation of Directional object. 
 
@@ -497,7 +496,6 @@ class Directional(Named):
 
 
   def eq_in(self, collection):
-
     """ Determines whether Coord (self) is equivalent to any of the constituent Coord objects of the argument Gr or GrAx, and returns equivalent object.
 
     Uses: eq_index
@@ -700,7 +698,6 @@ class Membered(Named):
 
     Returns:
       True if all (self) members are equivalent to a member of other and vice versa and both have equal length. False otherwise
-
     """
 
     if len(self) == len(other):
@@ -934,7 +931,7 @@ class Coord(Directional, Valued):
   Coord objects are defined by a name, value (generally a numpy array) and units. The value of a Coord is a 1D ndarray containing the locations of data points. Coord is the basic building block of Gr (grid) objects.
   Examples of Coord objects are xt or yt, corresponding to the tracer grid cells in the x and y directions. Coord objects have a corresponding dual. For xt it is xt_edges and vice versa. The dual generally contains the edges of the grid cells. If no dual argument is given, the Coord object is its own dual.
 
-  Coord objects c1 and c2 are considered equal, c1&c2 yields True, when the name, value (numpy array) and units attributes are equal.
+  Coord objects c1 and c2 are considered weakly the same, c1.weaksame(c2) yields True, when the name, value (numpy array) and units attributes are equal.
 
   Being a container of Coord objects, the Gr object (grid) is closely related to Coord. A shorthand for Gr construction is via multiplication of Coord objects. If two Coord objects coord1 and coord2 are not equivalent (generally when they point in different directions, e.g. X and Y), their product is a shorthand for the creation of a 2D grid coord1*coord2 = Gr((coord1, coord2)). By induction, products containing n elements yield Gr objects of dimension <=n. See class documentation.
 
@@ -1048,7 +1045,6 @@ class Coord(Directional, Valued):
 
 
   def __init__(self,name='scalar',value = np.array([0]), dual = None,axis = '?',direction ='scalar', units = None,long_name ='?', metadata = {} , strings = None):  
-
     """
     Initialisation of Coord object. 
 
@@ -1456,7 +1452,7 @@ class Coord(Directional, Valued):
 
 
     finer_coord = self.copy(name = self.name + '_fine',value = np.array(result))  
-    finer_coord|self
+    finer_coord.make_equiv(self)
     return finer_coord
 
 
@@ -2254,9 +2250,6 @@ class Ax(Directional):
     If argument is a Field, this method takes the derivative along self Coord axis.
     """
     
-  
-    # This method works recursively to ensure associativity of the ^ relationship. E.g. a0^a1 is True and a1^a2 is True => a0^a3 is True
-
     if isinstance(other,Coord) | isinstance(other,Ax):
       if (other in self.equivs) | (self in other.equivs):
 
@@ -3234,14 +3227,15 @@ class Field(Valued):
   If Field T is naturally defined on grid yt*xt, then T(zt*yt*xt) yields a 3D array b such that b[k,:,:] = T(yt*xt) for all possible k.
 
 
-   If g is a Gr (grid) or Coord object, left or right multiplication of a Field  object F with Gr Coord results in the grid-cell width weighted summing of the Field over the coords in the multiplicant g (integration, via g.vsum method), resulting in a smaller dimension Field.
+  If g is a Gr (grid) or Coord object, left or right multiplication of a Field  object F with Gr Coord results in the grid-cell width weighted summing of the Field over the coords in the multiplicant g (integration, via g.vsum method), resulting in a smaller dimension Field.
 
-  If g is a Coord object, g^F yields the derivative of F along g (via g.der method). g|F yields the grid cell width-weight cumulative sum of F over g (primitive, via g.vcumsum).
+  If g is a Coord object, g.der(F) yields the derivative of F along g. g.vcumsum(F) yields the grid cell width-weight cumulative sum of F over g.
 
-  two fields F1, F2 are considered equal, F1&F2 yields True, when their name, value (an numpy array) and Gr (grid) attribute are equal, unless they contain nan values.
+  Shortcuts: if g is a Coord object, g^F yields the derivative of F along g (via g.der method). g|F yields the grid cell width-weight cumulative sum of F over g (primitive, via g.vcumsum).
+
+  two fields F1, F2 are considered weakly the same, F1.weaksame(F2) yields True, when their name, value (an numpy array) and Gr (grid) attribute are equal, unless they contain nan values.
 
   NOTE: multiplication works a bit different from addition at the moment. Addition will go ahead even when coords in the grids are differently named (or have other non-value attributes differ) as long as the value (the coord points) are the same: then the (left and right) coords are considered equal. Multiplication treats them as different coords in this case.
-
   """
 
   global ID
@@ -3307,7 +3301,7 @@ class Field(Valued):
     """
     Tests whether fields contain equal name, value and grid. At the moment, if the value contains nan, this function will return false.
     """
-    if (self.name == other.name) and np.array_equal(self.value,other.value) and self.grid&other.grid:
+    if (self.name == other.name) and np.array_equal(self.value,other.value) and self.grid.weaksame(other.grid):
       return True
     else:
       return False
@@ -3444,15 +3438,11 @@ class Field(Valued):
 
     # if no Ax object is given, an Ax is chosen where the grid Coord elements are not array equal.
 
-#    if len(self.grid) != len(other.grid):
-#      raise Exception('Error: provide grids of equal dimension.')
-
     if isinstance(ax,Coord):
       ax = ax.axis
 
     self_axis = self.grid.axis()
 
-#    if not reduce(lambda x,y:x and y, [e^other[i] for i,e in enumerate(other)]):
     if self_axis != other.grid.axis():
       raise ValueError('Error: provide fields defined on the same grid directions.')
 
@@ -3552,16 +3542,6 @@ class Field(Valued):
       Field: containing the shifted value and grid.
     """
     return roll(self, shift = shift,coord = crd)
-
-
-# belongs to Field 
-#  def __xor__(self,other):
-#    """
-#    Tests the equivalence of the grids of two fields.
-#    """
-#    return self.grid^other.grid
-
-
 
   def __add__(self,other):
     """
@@ -3723,7 +3703,7 @@ class Field(Valued):
             new_crd_value = crd[slc]         
             new_crd = crd.copy(name = crd.name + '_sliced', value = new_crd_value)
 
-            new_crd|crd
+            new_crd.make_equiv(crd)
 
             if crd.dual == crd:
               new_crd.dual = new_crd
@@ -3735,7 +3715,7 @@ class Field(Valued):
                 slc_dual = slc
 
               new_crd_dual = crd.dual.copy(name = crd.dual.name + '_sliced', value = crd.dual[slc_dual])
-              new_crd_dual|crd.dual
+              new_crd_dual.make_equiv(crd.dual)
               new_crd.dual = new_crd_dual
               new_crd_dual.dual = new_crd
 
@@ -3863,7 +3843,7 @@ class Field(Valued):
 
       else:
         if self.grid != other.grid:
-          if self.grid&other.grid:
+          if self.grid.weaksame(other.grid):
 
             # If multiplicants are defined on grids that have the same values but are different objects, a duplicate grid is discovered and housekeeping is done. Duplicate grids commonly arise from earlier slicing.
             print 'Duplicate grids. FYI: replacing right gr.'
@@ -4907,7 +4887,7 @@ def cdfsniff_helper(filepath, verbose = False):
  
     for name in bins:
       for i in range(len(bins[name])-1):
-        coord_stack[bins[name][i]] | coord_stack[bins[name][i+1]]
+        coord_stack[bins[name][i]].make_equiv(coord_stack[bins[name][i+1]])
 
   file.close()
 
@@ -4924,10 +4904,6 @@ def guess_helper(desc, guess_names, true_val = None, false_val = None):
   """
   Helper function for guess_direction
   """
-
-
-#  if reduce(lambda x,y: x| y ,[e in desc for e in x_dir_names]):  
-#    return 'X'
 
   denied_found = [e[1:] in desc for e in guess_names if e[0] =='!']
   if denied_found:
@@ -5196,7 +5172,7 @@ def make_axes(cstack):
           created_axes.append(new_ax)
           c.axis = new_ax 
         # Ax object equivalent (parallel) to Coord object.
-        c.axis | c     
+        c.axis.make_equiv(c)     
   # return the list of Ax objects. 
 
   # there might be dual coords associated with coords that still have an axis attribute that hasn't been converted from str yet. Replace them with elements from the cstack:
