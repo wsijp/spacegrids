@@ -18,11 +18,11 @@ More advanced tutorial: http://nbviewer.ipython.org/github/willo12/spacegrids/bl
 
 The following statement provides all functionality: 
 
-Import with "import spacegrids as sg". Once loaded, sg allows an overview of the available data via sg.info(). A project object is created via P = sg.project(D['some_project']). This then allows fields to be loaded automatically for all experiment subdirectories. Data grids are constructed based on the Netcdf metadata. 
+Import with "import spacegrids as sg". Once loaded, sg allows an overview of the available data via sg.info(). A project object is created via P = sg.Project(D['some_project']). This then allows fields to be loaded automatically for all experiment subdirectories. Data grids are constructed based on the Netcdf metadata. 
 
 Data directory tree:
 
-Before using projects, Netcdf data must be organised in a projects directory tree. Create a directory named PROJECTS inside your home directory (by default), to contain all the data for all the projects. Then create a subdirectory for each of your projects, say one is called test_project. When using sg.info() and sg.project with the nonick = True argument (see documentation), this is all that is needed to allow the sg module to recognise these subdirectories as representing projects. 
+Before using projects, Netcdf data must be organised in a projects directory tree. Create a directory named PROJECTS inside your home directory (name default), to contain all the data for all the projects. Then create a subdirectory for each of your projects, say one is called test_project. When using sg.info() and sg.project with the nonick = True argument (see documentation), this is all that is needed to allow the sg module to recognise these subdirectories as representing projects. 
 This will allow the sg Python code to regard all Netcdf files placed directly inside test_project as belonging to individual experiments. Alternatively, instead of a single file, a subdirectory may represent an experiment. So directories inside the test_project directory are associated with output from a single experiment each, where all Netcdf files contained within are interpreted as belonging to that same experiment.   
 
 To get started in ipython (bring up with sg.overview() ):
@@ -31,7 +31,7 @@ import spacegrids as sg
 
 D = sg.info(nonick = True)  
 
-P = sg.project(D['my_project'] , nonick = True)  
+P = sg.Project(D['my_project'] , nonick = True)  
 
 P.load(['temperature','u'])  
 

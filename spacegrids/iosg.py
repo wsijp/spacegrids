@@ -188,6 +188,7 @@ def locate(top = '/home/',fname = projnickfile):
   Args: 
     top: (str) the start dir
     fname: (str)the filename to look for. 
+
   
   Returns:
     List of all paths to dirs containing fname.  

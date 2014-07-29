@@ -60,7 +60,6 @@ def field2cumsum(func):
 
 
 
-
 def check_equiv(func):
   """
   Decorator to perform preliminary equivalence check between self and other.
@@ -82,6 +81,52 @@ def check_equiv(func):
     return func(caller,other, *args, **kwargs)
 
   return checker
+
+
+
+
+def method2members(func):
+  """
+  Decorator to transfer method call from Membered object to its members.
+
+  Args:
+    func: function.
+
+  Returns:
+    Function: the decorator.
+  """
+
+  def wrap(caller, *args, **kwargs): 
+
+    method_name = func.__name__
+    
+    return caller.call_on_members(method_name, *args, **kwargs)
+
+  return wrap
+
+
+def att2members(func):
+  """
+  Decorator to transfer attribute retrieval from Membered object to its members.
+
+  Args:
+    func: function.
+
+  Returns:
+    Function: the decorator.
+  """
+
+  def wrap(caller, *args, **kwargs): 
+
+    att_name = func.__name__
+    
+    return caller.get_from_members(att_name, *args, **kwargs)
+
+  return wrap
+
+
+
+
 
 # ----- most general classes ------------
 
@@ -388,9 +433,9 @@ class Directional(Named):
     return
 
 
-  def is_equiv(self,other):
+  def is_equiv(self,other, checks = False):
     """
-    Test for equivalence (under make_equiv). e.g. xt is equivalent to xu
+    Test for equivalence (under make_equiv) between Directional objects. e.g. xt is equivalent to xu
 
     Args:
       other: (Coord or Ax)
@@ -414,10 +459,15 @@ class Directional(Named):
     else:
       # Warnings helpful for debugging and spotting potential problems:
 
-      if ( self.same(other) ):
-        warnings.warn('Warning (severe): %s.is_equiv(%s) is False, but %s.same(%s) is True! ' % (self,other,self,other) )
-      elif ( self.weaksame(other) ):
-        warnings.warn('Warning (severe): %s.is_equiv(%s) is False, but %s.weaksame(%s) is True! ' % (self,other,self,other) )
+      if checks is True:
+
+        try:
+          if ( self.same(other) ):
+            warnings.warn('Warning (severe): %s.is_equiv(%s) is False, but %s.same(%s) is True! ' % (self,other,self,other) )
+          elif ( self.weaksame(other) ):
+            warnings.warn('Warning (severe): %s.is_equiv(%s) is False, but %s.weaksame(%s) is True! ' % (self,other,self,other) )
+        except: 
+          warnings.warn('Consistency check failed.')
 
       # then go about normal business:
       return False
@@ -566,6 +616,13 @@ class Membered(Named):
     return self.__class__( [ getattr(member, method)(*args, **kwargs) for member in self ] )
 
 
+  def get_from_members(self, att_name):
+    """
+    Call method on all members and construct new Membered object.
+    """
+
+    return self.__class__( [ getattr(member, att_name) for member in self ] )
+
 
   def __and__(self,other):
     """
@@ -574,12 +631,14 @@ class Membered(Named):
 
     return self.weaksame(other)
 
-
+  @method2members
   def __neg__(self):
-    """
-    Call __neg__ on members and return corresponding Membered object.
-    """
-    return self.__class__( [-member for member in self] )
+    pass
+
+#    """
+#    Call __neg__ on members and return corresponding Membered object.
+#    """
+#    return self.__class__( [-member for member in self] )
 
   def reverse(self):
     """
@@ -596,13 +655,12 @@ class Membered(Named):
     return self.__class__([ self[len(self) -i -1 ] for i in range(len(self))  ])
 
 
-  def copy(self):
+  @method2members
+  def copy(self,*args,**kwargs):
     """
     Member-wise copy method.
     """
-
-    return self.__class__([e.copy() for e in self])
-
+    pass
 
 
   def strict_equiv(self, other):
@@ -932,9 +990,8 @@ class Coord(Directional, Valued):
     # the following test and warning is to do with little things that we don't want to trip over with errors:
     # self is a Coord, so it has an axis attribute (this should be put into the specs!), but other might not:
     if not hasattr(other, 'axis'):
-      warnings.warn('Coords method %s.same(%s) on argument without Ax attribute: returning False.'%(self.name, other.name))      
-      return False
-
+      raise Exception('Coords method %s.same(%s) on argument without Ax attribute.'%(self.name, other.name))      
+     
     if (isinstance(self.axis,str) or isinstance(self.axis,unicode)) and (isinstance(other.axis,str) or isinstance(other.axis,unicode)):
       # Both of the axis attributes are a str. Comparing apples with apples.
 
@@ -972,8 +1029,9 @@ class Coord(Directional, Valued):
     # the following test and warning is to do with little things that we don't want to trip over with errors:
     # self is a Coord, so it has a value attribute (this should be put into the specs!), but other might not:
     if not hasattr(other, 'value'):
-      warnings.warn('Coords method %s.weaksame(%s) on argument without Ax attribute: returning False.'%(self.name, other.name))      
-      return False
+      # raising might be a bit harsh here...
+      raise Exception('Coords method %s.weaksame(%s) on argument without value attribute: returning False.'%(self.name, other.name))      
+      
 
     return (self.name == other.name) and (self.direction == other.direction) and self.array_equal(other) 
 
@@ -1703,7 +1761,7 @@ class Coord(Directional, Valued):
   def der(self, F):
 
     """
-    Coord derivative method on Field F. 
+    Coord derivative method on Field argument F. 
 
     If Coord non-cyclical, the first derivative element is nan and the second is the derivative at the first element of the original Coord. 
 
@@ -1811,7 +1869,6 @@ class Coord(Directional, Valued):
 
 
   def vol(self, gr):
-
     """
     Generalized volume method related to .d() method: self.d() if self in gr, None otherwise.
 
@@ -1825,6 +1882,9 @@ class Coord(Directional, Valued):
     Returns:
        Field or None: self.d() if self in gr, None otherwise.
 
+    Raises:
+       ValueError: when Coord not in argument gr (so get this right in your scripts).
+
     See also: 
       d method 
       delta_dist method
@@ -1833,8 +1893,9 @@ class Coord(Directional, Valued):
     """
 
     if self not in gr:
-      print 'Coord must be in grid argument, returning None.'
-      return
+      # Raising an error here to avoid harder debugging later on.
+      raise ValueError('Coord "%s" must be in grid argument "%s".'%(self.name, gr.__repr__() ) )
+      
     else:
       return self.d()
 
@@ -2216,7 +2277,7 @@ class Ax(Directional):
 
   def der(self,F):
     """
-    Derivative method of Ax . Uses entire grid, in case some coords depend on other coords. e.g. x-differentiation requires knowledge of y-position due to nature of polar coords.
+    Derivative method of Ax. Uses entire grid, in case some coords depend on other coords, as with x-coord. e.g. x-differentiation requires knowledge of y-position due to nature of polar coords.
     """
 
     return (F.grid).der(crd = self*F.grid, F = F)      
@@ -2897,6 +2958,10 @@ class Gr(tuple, Membered):
   def __div__(self,other):
     """
     Division of grids. E.g. xt*yt*zt/yt = xt*zt
+
+
+    Returns:
+      Resulting Gr object 
     """
 
     if isinstance(other,Coord):
@@ -2904,6 +2969,7 @@ class Gr(tuple, Membered):
     elif isinstance(other,Ax):
       other = AxGr((other,))
 
+    # From here, we know other is a Gr
 
     result = list(self)
     for it in self:
@@ -2934,7 +3000,8 @@ class Gr(tuple, Membered):
         return   
  
     elif isinstance(other,Field):
-
+      """ Gr multiplication with Field is a shorthand for vsum method.
+      """
       return self.vsum(other)
 
 
@@ -2991,13 +3058,9 @@ class Gr(tuple, Membered):
 
     return tuple(sh)
  
-
+  @att2members
   def dual(self):
-      """
-      Returns grid made up of the dual Coord elements of this Gr object.
-      """
- 
-      return Gr([e.dual for e in self])
+    pass
 
   def ones(self):
     """
@@ -3365,6 +3428,8 @@ class Field(Valued):
     If ax is None, concatenation takes place along the first encountered common axis with non-equal values.
     Grids must be orient along same axes and in same axis order.
 
+    Concatenation along direction with same Coord values for both fields leads to the right (other) Field being returned (don't use this).
+
     Args:
       other: (Field) to concatenate with
       ax: (Ax) axis to concatenate along.
@@ -3399,6 +3464,7 @@ class Field(Valued):
     
     cat_coord_self = ax*self.grid
     
+    # Two checks
     if cat_coord_self is None:
       # in this case concat is done along an axis not in the self grid
  
@@ -3409,8 +3475,9 @@ class Field(Valued):
 
       raise ValueError('Field concat error %s and %s. Provide pieces of right dimensions. (now %s and %s)'%(self.name,other.name, str((self.grid/ax).shape())  , str( (other.grid/ax).shape())   ) )
 
-      # obtain the index of the axis in the grid along which to concatenate.
-      # why do we need eq_index here instead of index? because it can be an Ax object.
+    # We now know that cat_coord_self in grid and pieces of compatible dimension
+    # Next, obtain the index of the axis in the grid along which to concatenate.
+    # why do we need eq_index here instead of index? because it is an Ax object.
     ax_index = self.grid.eq_index(ax)
 
     # combine the two halves as dictionaries of slices of what is to be the new Coord first
@@ -3452,7 +3519,7 @@ class Field(Valued):
 
 
 
-    new_coord|cat_coord_self
+    new_coord.make_equiv(cat_coord_self)
       # construct combined Field values. Reshape is needed for np.concatenate function.
     values = [Dcomb[k][:].reshape(piece_shape) for k in cat_coord_value]
    
@@ -3465,9 +3532,13 @@ class Field(Valued):
 
     return self.copy(value = new_value,grid = new_grid )
 
+  def der(self, ax):
+    """Calls Ax.der on self.
+    """
+    return ax.der(self)
 
 
-  def roll(shift, crd):
+  def roll(self, shift, crd):
     """
     Rolls Field along Coord.
 
@@ -3870,6 +3941,7 @@ class Field(Valued):
     else:
       raise TypeError('Field error in %s/%s with Field %s. Provide Field,gr or Coord objects or int or double for denominator. (Or check staleness of objects.)' % (self,other,self) )
      
+# --> belongs to  Field.
 
   def vcumsum(self,coord, upward=True):
     """
@@ -3888,10 +3960,12 @@ class Field(Valued):
     Computes sum of Field over grid using masked array (nan is not counted). 
 
     Args:
-      grid: (Gr) grid to sum over. Say self.gr is zt*yt*xt and grid is yt*xt
+      grid: (Gr) grid to sum over. None means the entire Field grid.
 
     Returns:
       Field containing values summed over grid of smaller dimension, or float if grid is self.grid.
+
+    Say self.gr is zt*yt*xt and grid is yt*xt.
 
     Examples:
 
@@ -3902,7 +3976,7 @@ class Field(Valued):
     (longitude)
     """
 
-    if not(grid) or self.grid.perm(grid):
+    if (grid is None) or self.grid.perm(grid):
 # in this case no grid argument is given, or the full grid is given (up to a permutation).
       R = ma.masked_array(self.value,np.isnan(self.value))
       return ma.sum(R)
@@ -3949,7 +4023,7 @@ class Field(Valued):
     Uses sum method, see sum.
 
     Args:
-      grid: (Gr) to use in sum method.
+      grid: (Gr) to use in sum method.  None means the entire Field grid.
 
     Returns:
       float: the total volume.
@@ -3962,7 +4036,7 @@ class Field(Valued):
     Calls sum. Method sum uses masked arrays. See sum.
 
     Args:
-      grid: (Gr) grid to sum over.
+      grid: (Gr) grid to sum over.  None means the entire Field grid.
 
     Returns:
       Field containing values summed over grid of smaller dimension, or float if grid is self.grid.
@@ -4043,18 +4117,29 @@ class Field(Valued):
 
 
 
-class VField(tuple):
-
+class VField(tuple, Membered):
   """
   vector Field. A tuple of fields with extra rules. Allows multiplication.
   """
 
   def __mul__(self,other):
+    """
+    Vector field multiplication.
+
+    Behaviour depends on direction attribute of Field members. 
+
+    If other (right multiplicant) is Field or 1D VField, multiplication is:
+      - distributive on self members if other.direction is scalar
+      - works on matching direction member if found
+      - yields a higher dimensional VField if self.direction not in members directions. 
+
+    Otherwise, the result is the product of self and the individual members from left to right.
+    """
 
     if isinstance(other,Field):
       
         if other.direction == ID():
-          # scalar Field multiplication works on individual member fields.
+          # scalar Field multiplication works on all individual member fields: distributive.
           return VField([e*other for e in self])
 
         elif other.direction in self.direction():
@@ -4083,6 +4168,11 @@ class VField(tuple):
 
 
   def __div__(self,other):
+    """
+    Vectorfield division.
+
+    Similar to multiplication.
+    """
 
     if isinstance(other,Field):
       
@@ -4111,14 +4201,21 @@ class VField(tuple):
 
        return VField([e/other for e in self])
 
-  def __neg__(self):
-    return VField( [-e for e in self] )
+  @method2members
+  def der(self, ax):
+    pass
 
+  @method2members
   def __sub__(self,other):
-    return self + (-other)
+    pass
 
   def __add__(self,other):
+    """
+    Adding two vector fields.
 
+    Raises:
+      ValueError
+    """
     if isinstance(other, VField):
 
       L_l = []
@@ -4139,13 +4236,12 @@ class VField(tuple):
           L.append(sum_fld)
         return VField(L)
       else:
-        raise Exception('Error in VField addition %s + %s. Provide equal length' % (self,other))
+        raise ValueError('Error in VField addition %s + %s. Provide equal length' % (self,other))
 
     elif isinstance(other,Field):
       # sum a Field to a VField. the Field is added to all members.  
 #      if other.direction == ID():
-
-    
+   
       L = []
       for it in self:
         sum_fld = it + other
@@ -4155,47 +4251,35 @@ class VField(tuple):
 
     return
 
-
+  @method2members
   def vcumsum(self,coord, upward=True):
-    """
-    Apply vcumsum method of coord on Field elements of self.
-    """
-    return VField([coord.vcumsum(e,upward=upward)  for e in self] )
+    pass
 
-
+  @method2members
   def vsum(self,coord):
-    """
-    Apply vsum method of coord on Field elements of self.
-    """
-    return VField([coord.vsum(e,upward=upward)  for e in self] )
-
-
-
-
-
-
+    pass
 
 
 
 
   def innersum(self):
-
+    """Return sum of all members
+    """
     return reduce(lambda x,y: x+y, self)
 
-
-  def copy(self):
-
-    return VField([ e.copy() for e in self ])    
 
   def direction(self):
     """ 
     Method that returns a tuple of the directions of the tuple components of this vector Field by examining these components.
+
+    For example, if U.direction is X and V.direction is Y, then (U*V).direction is X*Y
     """
     return reduce(lambda x,y: x*y, [e.direction for e in self])
 
 
   def draw(self, **kwargs):
-
+    """ Quick and easy plotting of this object. Only 2D VFields.
+    """
     if len(self.direction()) == 2:
       if len(self[0].grid) == 2:
 
@@ -4225,58 +4309,128 @@ class VField(tuple):
 
 def concatenate(fields, ax=None, name_suffix='_cat', new_coord_name = 'gamma', new_coord= None, strings = None ):
   """
-  Joins a sequence of fields together.
+  Joins a sequence of Field objects together.
 
   concatenate((a1,a2,...),ax=None)
-  Parameters
-  ----------
-  a1, a2,.... : sequence of Field objects
        
-  The Field value ndarrays must have the same shape, except in the dimension
-  corresponding to `ax` (the one with unequal Coord point values, by default). axis : Ax object, optional       
-  The axis along which the arrays will be joined.  Default is the first one with unequal Coord point values.
+  The Field value ndarrays must have the same shape, except in the direction of concatenation if present in the grid.
+  Default behaviour (CASE A0) when ax = None picks the concatenation direction as the first direction with unequal Coord point values (indicating pieces of a dimension). For instance, SAT1.shape is (50,100) and SAT2.shape is (50,100) would concatenate to shape (100,100) by concatenating along index 0. 
 
-  a new Coord is created if none of the grid elements point in the direction of the ax argument. Then, new_coord_name is used. 
-  The above behaviour is overridden if the new_coord argument is given. This is a Coord object that will be used to construct one Field from the fields list argument. The list elements become slices (at single Coord values) and the new_coord values are the corresponding coordinates.
+  If ax is already in grid directions (in Field.grid.axis(), CASE A1 ), and Field grids have equal Coord member in that direction, as per Field.cat method, the last Field is returned: don't use this.
+
+  A new Coord is created (CASE A2) if new_coord argument is None and if none of the grid members axis point in the direction of the ax argument (e.g. X,Y vs Z). Then, "new_coord_name" is used. 
+  The above behaviour is overridden if the "new_coord" argument is given (CASE B). This is a Coord object that will be used to construct one Field from the fields list argument. The list elements become slices (at single Coord values) and the new_coord values are the corresponding coordinates.
+
+  Args:
+    fields: (container of Field objects, e.g. list) Field objects to concat.
+    ax: (Gr) axis along which to concatenate, optional.
+    name_suffix: (str) suffix to use for returned Field object name
+    new_coord_name: (str) name to be used for creation of new Coord in case ax not in Field grid
+    new_coord: (Coord) overrides default behaviour if set by concatenating along that new Coord.
+    strings: (container of strings) used as strings argument in Coord creation with new_coord_name
+
+  Returns:
+    The concatenated Field.
+
+  Raises:
+    ValueError if Field sequence is empty or, if new_coord is not None, if the Field list is of unequal length to new_coord. 
+
+  Examples:
+  
+  Obtain X,Y,.. for project P via:
+
+  >>> for c in P['DPO'].axes:
+  >>> exec c.name + ' = c'
+
+  CASE A0:
+
+  >>> SAT = P['DPO']['A_sat']
+  >>> SAT1 = SAT[Y,:50]
+  >>> SAT2 = SAT[Y,50:]
+  >>> SAT_combined = sg.concatenate([SAT1,SAT2 ] )
+  >>> SAT_combined.shape # we get the old Field back via automatic Y-concatenation
+  (100, 100)
+
+  CASE A2: ax not in grid.axis(), a new Coord will be created
+
+  >>> SAT = P['DPO']['A_sat']
+  >>> SAT1 = SAT[Y,:50]
+  >>> SAT2 = SAT[Y,50:]
+  >>> W = sg.Ax('W') # Create test Coord to concatenate along.
+  >>> SAT_combined = sg.concatenate([SAT1,SAT2 ], ax = W )
+  >>> SAT_combined.shape
+  (2,50,100)
+  >>> SAT_combined.grid
+  (gamma, latitude_sliced, longitude)
+  >>> SAT_combined.grid[0].value  # a new Coord has been created
+  array([0, 1])
+
+  CASE B: use new_coord to create new grid
+
+  >>> SAT = P['DPO']['A_sat']
+  >>> SAT1 = SAT[Y,:50]
+  >>> SAT2 = SAT[Y,50:]
+  >>> W = sg.Ax('W') # Create test Coord to concatenate along.
+  >>> w = sg.Coord('w' , axis = W, direction = 'W', value = np.array([0,1]))
+  >>> SAT_combined = sg.concatenate([SAT1,SAT2 ], new_coord = w )
+  >>> SAT_combined.shape
+  (2,50,100)
+  >>> SAT_combined.grid
+  (w, latitude_sliced, longitude)
+  >>> SAT_combined.grid[0].value  # we get the value of w
+  array([0, 1])
   """
 
-  
+  # Preliminary checks 
   if fields == []:
     raise ValueError('Provide list of fields.')
 
+  # We will always check the first Field only for its grid as grids are assumed the same.
   if new_coord is not None:
+
+    # CASE B new_coord given
     if len(fields) != len(new_coord):
       raise ValueError('Provide fields and new_coord arguments of equal length if providing new_coord argument.')
 
     # EXIT POINT
     return fields[0].copy( name = fields[0].name +name_suffix, value = np.array( [ F[:] for F in fields ] ) , grid = new_coord*fields[0].grid )
 
-
+  # CASE A "new_coord" arg not given
 
   if ax and (ax*fields[0].grid is None):
-
-
-    # the axis is not in the grid of the first Field
+    # CASE A2
+    # the axis is given but is not in the grid of the first Field
+    # We will construct new Coord with new_coord_name and axis is ax
+    # Then, the regridded Field objects will always have the ax in their grid, and can be sent to the Field.cat method.
     expanded_fields = []
 
     if strings is not None:    
       for i, F in enumerate(fields):
-        new_coord = Coord(name = new_coord_name,value = np.array([i]), direction = ax.name , axis = ax , strings = [strings[i],] )
-        expanded_fields.append( F(new_coord*F.grid) )
+        new_coord = Coord(name = new_coord_name,value = np.array([float(i)]), direction = ax.name , axis = ax , strings = [strings[i],] )
+        expanded_fields.append( F.regrid(new_coord*F.grid) )
     else:
+ 
       for i, F in enumerate(fields):
         new_coord = Coord(name = new_coord_name,value = np.array([i]), direction = ax.name , axis = ax  )
-        expanded_fields.append( F(new_coord*F.grid) )
+        expanded_fields.append( F.regrid(new_coord*F.grid) )
 
     fields = expanded_fields    
     name_suffix = ''
+
+  # At this point, the Field grids will always have the ax argument direction in them, either because it was always there, or because we just added a newly created Coord.
+  # That means that here we have:
+  #  CASE A0: ax is None. Field.cat method will find natural Coord to cat 
+  #  CASE A1: ax was already in grid.
+  #  CASE A2: ax was not in grid, but is now with newly constructed new_coord.
 
   # EXIT POINT
   return reduce(lambda x,y:x.cat(y,ax=ax, name_suffix = name_suffix), fields)
 
 def squeeze(F, hard = False):
   """
-  Equivalent to Numpy squeeze method. Remove dimensions and associated coords in grid of length 1. Reversible operation as squeezed dimensions are recorded. Setting argument hard to True yields an irreversible squeeze where the squeezed dims are not recorded (and cannot be unsqueezed later). 
+  Equivalent to Numpy squeeze method. Remove dimensions and associated coords in grid of length 1. Reversible operation as squeezed dimensions are stored in different attribute (squeezed_dims). Setting argument "hard" to True yields an irreversible squeeze where the squeezed dims are not recorded (and cannot be unsqueezed later). 
+
+  See also: Field.unsqueeze
   """
 
   dims = list(F.grid)
@@ -4307,6 +4461,7 @@ def unsqueeze(F ):
   """
   Opposite of squeeze. Uses the grid stored in squeezed_dims Field attribute to restore the unit-length dimensions (coords) of the Field. 
   
+  See also: Field.squeeze
   """
 
   gr_unsqueezed = F.squeezed_dims*F.grid
@@ -4319,12 +4474,8 @@ def unsqueeze(F ):
 
 
 def nugget(path = None, name = None,fields = [] , history = 'Created from Spacegrids '  ):
-
     """
-    Write.
-
     Creates Netcdf file and writes all loaded Field to it, along with their Coord objects.
-
     """
 
     if name is None:
@@ -4361,20 +4512,28 @@ def nugget(path = None, name = None,fields = [] , history = 'Created from Spaceg
 
 
 def roll(F,shift=1,coord=None,axis=None,mask=False,keepgrid = False, nan_val = np.nan):
-
   """
-  Function that rolls a Field similar to np.roll on numpy arrays (sg roll actually calls np.roll). Axis can be picked via coord name. If mask is True, the elements that rolled from the other side of the array are set to nan (appropriate for non re-entrant domains). The rolled coord element of the grid belonging to Field F is replaced by a new Coord object reflecting the roll operation. To disable this Coord replacement, use argument keepgrid = True
+  Function that rolls a Field similar to np.roll on numpy arrays. 
 
-  
+  sg.roll actually calls np.roll. Axis can be picked via coord name. If mask is True, the elements that rolled from the other side of the array are set to nan (appropriate for non re-entrant domains). The rolled coord element of the grid belonging to Field F is replaced by a new Coord object reflecting the roll operation. To disable this Coord replacement, use argument keepgrid = True
 
-  NOTE: axis here means np array index.
+  Args:
+    F: (Field) to roll
+    shift: (int) to roll by
+    coord: (Coord) to roll along (e.g. latitude)
+    axis: (int) indicates np.array index to roll by: generally not set.
+    mask: (Boolean) if True, handle exposed areas that need to be set to nan
+    keepgrid: (Boolean) if True, keep the original Field grid (replaced with shifted by default)  
+    nan_val: (np.nan) value to indicate nan
 
+  Returns:
+    Rolled Field.
   """
 
   if isinstance(coord,Ax):
     coord = coord*F.grid
 
-  if not(axis):
+  if axis is None:
     if coord in F.grid:
       
       axis = F.grid.index(coord)
@@ -4419,7 +4578,10 @@ def roll(F,shift=1,coord=None,axis=None,mask=False,keepgrid = False, nan_val = n
   return Fr
 
 def ones(grid):
+  """Returns a Field with value np.ones(grid.shape) and grid attribute grid.
 
+  No nans.
+  """
   return Field('ones',np.ones(grid.shape()),grid)
 
 
@@ -4479,7 +4641,6 @@ def find_set_dual(cstack, force = None):
   This function tries to find duals among a list cstack (argument) of Coord objects.
 
   Checks if duals have been defined before. If one such Coord is found, function is aborted (it is assumed it is not needed then). Override with argument force = True.
-
   """
 
   if force is None:
@@ -4525,11 +4686,19 @@ def find_set_dual(cstack, force = None):
 
 def find_equal_axes(lstack,rstack):
   """
-  Expects two lists of Coord objects and determines which Coord objects are equal. This is needed when different Coord objects have identical attributes.
+  Expects two lists of Coord objects and determines which Coord objects are equal. 
+
+  This is needed when different Coord objects have identical attributes. Acts directly on the Coord stack arguments. This function is generally called before axis attributes are converted from str to Ax objects.
+
+  Args:
+    lstack: (list of Coord objects), the first Coord stack
+    rstack: (list of Coord objects), the second Coord stack
   """
 
   for lc in lstack:
     for i,rc in enumerate(rstack):
+
+      # this == would have to become lc.axis.same(rc.axis) for Ax objects.
       if (lc.axis == rc.axis):
         # use Coord equality method & (__and__):
         if lc.weaksame(rc):
@@ -4551,9 +4720,18 @@ def find_equal_axes(lstack,rstack):
 
 def cdfsniff(path_parent, file_extensions = cdf_file_extensions, verbose = False):
   """
-  This sg function looks inside the path_parent path (path to directory containing the Netcdf files, provided as argument) for Netcdf files and extracts Coord objects from the dim data using sg.cdfsniff_helper.
+  Looks inside the path_parent path for Netcdf files and extracts Coord objects from the dim data.
 
-  Returns all Coord objects that contain different data, to be used in the Coord stack cstack.
+  Path is to directory containing the Netcdf files, provided as argument.  
+
+  Uses sg.cdfsniff_helper.
+
+  Args:
+    path_parent: (str) path to directory containing the Netcdf files
+    file_extensions: (list of str) containing patterns to match Netcdf files
+
+  Returns:
+    List of all Coord objects that contain different data, to be used in the Coord stack cstack.
   """
 
   if os.path.isfile(path_parent):
@@ -4584,15 +4762,13 @@ def cdfsniff_helper(filepath, verbose = False):
   """
   Takes inventory of coords in netcdf file. 
 
-  Input:
-  filepath	total file path the specific Netcdf file.
-
-  Output:
-  A list of spacegrids Coord objects.
-
   Directions and therefore types of Coord objects (e.g. XCoord) are guessed from description and naming of Netcdf vars.
 
+  Args:
+    filepath	total file path the specific Netcdf file.
 
+  Returns:
+    A list of spacegrids Coord objects.
   """
 
 # axis to the possible axes encountered in netcdf: X,Y,Z
@@ -4772,8 +4948,9 @@ def guess_helper(desc, guess_names, true_val = None, false_val = None):
 def guess_direction(cdf_var,  name_atts = ['long_name','standard_name'], x_dir_names = ['eastward','Eastward','zonal','Zonal'], y_dir_names = ['northward','Northward','meridional','Meridional'], z_dir_names = ['upward','Upward','vertical','Vertical'],t_dir_names = [],directional_names = ['velocity','stress','momentum flux','momentum_flux']):
 
   """
-  Helper function for cdfread. Used to guess, based on keywords in the netcdf data descriptions, whether a Field is a (space-) vector Field component and in what direction it points. The directional_names argument is a list of keywords that might show up in a description that indicates a vector component: e.g. the word velocity. If this list is empty, the function will not search for those keywords (less restrictive). The name_atts argument indicates the possible name of a descriptive attribute in a netcdf file. The {x,y,z}_dir_names correspond to keywords indicating that particular direction (x,y,z).
+  Helper function for cdfread to guess, based on keywords in the netcdf data descriptions, whether a Field is a (space-) vector Field component and in what direction it points. 
 
+  The directional_names argument is a list of keywords that might show up in a description that indicates a vector component: e.g. the word velocity. If this list is empty, the function will not search for those keywords (less restrictive). The name_atts argument indicates the possible name of a descriptive attribute in a netcdf file. The {x,y,z}_dir_names correspond to keywords indicating that particular direction (x,y,z).
   """
 
  # the keywords in the description will indicate a direction Field.
@@ -4806,9 +4983,19 @@ def guess_direction(cdf_var,  name_atts = ['long_name','standard_name'], x_dir_n
 
 def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squeeze_Field=False):
   """
-  Reads data corresponding to variable name varname from netcdf file. Returns Field object. coord_stack is used to provide Field with grid object built from corresponding Coord objects according to information in netcdf.
-  Input filepath is complete path pointing to file.
+  Reads data corresponding to variable name varname from netcdf file. 
 
+  coord_stack is used to provide Field with grid object built from corresponding Coord objects according to information in netcdf.
+
+  Args:
+    filepath: (str) complete path pointing to file.
+    varname: (str) variable name in Netcdf file
+    coord_stack: (list of Coord) to use when reading
+    ax_stack: (list of Ax) to use when reading
+    squeeze_Field: (Boolean) if True, hard- squeeze the Field at this point of the reading process (fully removing the 1-dimensional dims).
+
+  Returns: 
+    Field that was read. 
   """
 
   file = netcdf_file(filepath,'r')
@@ -4897,8 +5084,9 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
 
 def dimname(crd):
   """
-  Strip off _crd suffix if it had been added because dim name equalled axis name
+  Strip off _crd suffix if it had been added because dim name equalled axis name.
   """
+
   if ('_crd' in crd.name) and (crd.name.split('_crd')[0] == crd.axis.name):
     return crd.axis.name
   else:
@@ -4924,7 +5112,8 @@ def delta(x):
 
 
 def prep_dual_array(raw_array):
-
+  """Prepare the dual.
+  """
   if raw_array.ndim == 1:
     return raw_array
   elif raw_array.ndim == 2:
@@ -4954,7 +5143,7 @@ def guess_grid_type(crd, default = 'ts_grid'):
   """
   Function that guesses the grid type using the keywords contained in the (sg) global dictionary grid_type_names by testing for keywords (contained as lists in that dictionary).
 
-  Returns None if no grid type is found. 
+  Returns Entry from grid_type_names or None if no grid type is found. 
   """
   for grtn in grid_type_names:
     if reduce(lambda x,y: x|y, [e in crd.long_name for e in grid_type_names[grtn]]):
@@ -4969,12 +5158,7 @@ def guess_grid_type(crd, default = 'ts_grid'):
 
 def make_axes(cstack):
   """
-
   Replaces axis attribute of Coord objects if it is a string with newly created (non-repeating) corresponding axis objects.
-
-  inputs: cstack, a list of Coord objects.
-  outputs: returns a list of all unique (no repeats) Ax objects that have been created to replace the axis attribute of the elements of the Coord list (cstack) argument that were strings. None is returned when all cstack Coord elements already have Ax axis attributes.
-
 
    The Ax objects are created here.
 
@@ -4982,7 +5166,14 @@ def make_axes(cstack):
 
   NOTE THAT THIS FUNCTION DOES 2 THINGS: IT RETURNS A LIST OF AXES AND MODIFIES THE CSTACK ARGUMENT. 
 
+
+  Args: 
+    cstack: (list of Coord) to act on.
+
+  Returns: 
+    List of all unique (no repeats) Ax objects that have been created to replace the axis attribute of the elements of the Coord list (cstack) argument that were strings. None is returned when all cstack Coord elements already have Ax axis attributes.
   """
+
   # No Coord objects will be removed from the cstack list. But cstack argument is modified!
   # created_axes will contain the newly created Ax objects!! So created_axes is NOT cstack!!
   created_axes = []
@@ -5022,9 +5213,11 @@ def make_axes(cstack):
 
 
 
-# define the scalar axis via a lazy class. Then ID*X = X etc.
+
 class GetId(object):
-  
+  """
+  Define the scalar axis via a lazy class. Then ID*X = X etc.
+  """
   def __init__(self):
     self.ret_id = None  
 
@@ -5041,7 +5234,9 @@ ID = GetId()
 # ---------------- Gr related functions --------------------
 
 def finer_grid(grid, factor = 5.):
-
+  """
+  Call finer method on Gr members.
+  """
   return reduce(lambda x,y: x*y, [crd.finer(factor = factor) for crd in grid])
 
 
