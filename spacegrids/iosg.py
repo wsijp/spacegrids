@@ -46,6 +46,25 @@ from fieldcls import *
 def netcdf_file(filepath,mode = 'r'):
   """
   Wrapper for opening Netcdf functions from NETCDF4, ScientificIO or Scipy
+
+  Depends on cdf_lib_used variable.
+
+  For 'netcdf4': 
+  file = Dataset(filepath,mode, format='NETCDF4')
+  For 'scientificio': 
+  file = Scientific.IO.NetCDF.NetCDFFile(filename = filepath, mode = mode)
+  Otherwise: 
+  file = netcdf.netcdf_file(filename = filepath, mode = mode)
+
+  Args:
+    filepath: (str) full path to file
+    mode: (str) mode to use as mode argument to file opening function
+
+  Returns:
+    file handle if successful.
+
+  Raises:
+    IOError if there are problems opening the file.
   """
 
   if cdf_lib_used =='netcdf4':  

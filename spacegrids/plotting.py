@@ -32,20 +32,16 @@ def auto_cont(m,M, num_cont, max_try = 5):
 
   raw_step = abs(M - m)/float(num_cont)
 
-#  print m
-#  print M
-
+  # compute orders of magnitude:
   m_order = order_mag(m)
   M_order = order_mag(M)
   step_order = order_mag(raw_step)
-
 
   step = round_order(raw_step)
   m_new = round_order(m,step_order) 
   M_new = round_order(M, step_order) + step
 
-#  print conts[0], m, M, step
-
+  # sometimes grey areas remain in the plot beyond the m and M margins. This is to get rid of that by adding a few more contours on either side.
   tries = 0
   while (m-step < m_new) and (tries < max_try):
     m_new = m_new - step
@@ -56,16 +52,23 @@ def auto_cont(m,M, num_cont, max_try = 5):
     M_new = M_new + step
     tries += 1
 
-
   return np.arange(m_new,M_new,step)      
 
-def prep_axes(fld, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True , grid = None):
+def prep_axes(fld, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True , grid = None):
   """
   Prepare axes names etc for plotting.
 
+  Supplies data and label information ready to use in plotting.
+
   Args:
     fld: (Field) to be plotted
-    xlabel
+    minus_z: (Boolean) display negative numbers on vertical scale (Z) if True
+    xl: (None, list/ tuple of length 2) plot limits in the x-direction
+    yl: (None, list/ tuple of length 2) plot limits in the y-direction
+    xscale: (float) scale in x direction
+    yscale: (float) scale in y direction
+    ax_units: (Boolean) display units on axes if True
+    grid: (None or Gr) grid to draw information from.
 
   Returns:
     body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale
@@ -131,10 +134,10 @@ def prep_axes(fld, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xsc
       xlbl = ''
 
 
-  if not(xl):
+  if xl is None:
     xl = [0,len(X)]
 
-  if not(yl):
+  if yl is None:
     yl = [0,len(Y)]
 
   X = X[xl[0]:xl[1]]
@@ -152,14 +155,25 @@ def prep_axes(fld, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xsc
 
 
 def quiver(vfld, showland=True, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True,ax=None,greyshade = '0.65',kmt = None, **kwargs):
-
   """
-  Function that calls Matplotlib quiver and passes on arguments, but takes a Field as argument (instead of a numpy)
+  Function that calls Matplotlib quiver and passes on arguments, but takes a Field as argument (instead of an ndarray)
   
   Assuming that z vs x and z vs y quiver plots are rare: expects x-y plots.  
 
-  Input: vfld 	-supergrid vector Field to be plotted
-  
+  Args: 
+    vfld: (VField) to be plotted
+    showland: (Boolean) show land (nan) is True (not working yet)
+    xlabel: (Boolean) show x label if True
+    ylabel: (Boolean) show y label if True  
+    minus_z: (Boolean) display negative numbers on vertical scale (Z) if True
+    xl: (None, list/ tuple of length 2) plot limits in the x-direction
+    yl: (None, list/ tuple of length 2) plot limits in the y-direction
+    xscale: (float) scale in x direction
+    yscale: (float) scale in y direction
+    ax_units: (Boolean) display units on axes if True
+    ax: (None or figure axis handle) set to plt.gca() if argument is None
+    greyshade: (str) shade of grey to use for land
+    ***kwargs: normal kw arguments that can be passed on to quiver.
   """
 
   greyshade = float(greyshade)
@@ -171,15 +185,15 @@ def quiver(vfld, showland=True, xlabel = True,ylabel = True, minus_z=True,xl=Non
           
       if vfld.direction()[0].name == 'X':
 
-        body_x,mbody_x,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=vfld[0], xlabel=xlabel ,ylabel=ylabel, minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
+        body_x,mbody_x,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=vfld[0],  minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
 
-        body_y,mbody_y,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=vfld[1], xlabel=xlabel ,ylabel=ylabel, minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
+        body_y,mbody_y,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=vfld[1],  minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
         
       elif vfld.direction()[0].name == 'Y':
 
-        body_y,mbody_y,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=vfld[0],  xlabel=xlabel ,ylabel=ylabel, minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
+        body_y,mbody_y,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=vfld[0],   minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
 
-        body_x,mbody_x,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=vfld[1],  xlabel=xlabel ,ylabel=ylabel, minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
+        body_x,mbody_x,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=vfld[1],   minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
 
 
       if showland:
@@ -202,7 +216,7 @@ def quiver(vfld, showland=True, xlabel = True,ylabel = True, minus_z=True,xl=Non
       if ylabel:
         plt.ylabel(ylbl) 
 
-      if not(ax):
+      if ax is not None:
         ax = plt.gca()
 
 
@@ -213,22 +227,40 @@ def quiver(vfld, showland=True, xlabel = True,ylabel = True, minus_z=True,xl=Non
 
 
 def scale_prep_deco(func):
+  """Decorator used for contour and contourf
+  """
 
   def plot_wrapper(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True, num_xticks = 6, num_yticks = 6, greyshade = '0.65', showland = False,grid = None,*args, **kwargs):
+    """  
+    Returned function for scale_prep_deco decorator.
 
-#  def plot_wrapper(*args, **kwargs):
 
-    """
-   
-  Arguments specific to only one function:
+    Wraps contour and contourf, who take slightly different args: arguments specific to only one function:
   
-  contourf
-  greyshade = '0.65'
+    contourf
+    greyshade = '0.65'
 
-  contour
-  showland = False
+    contour
+    showland = False
 
 
+    Args:
+      fld: (Field) to be plotted
+      num_cont: (int) number of contours to be plotted
+      xlabel: (Boolean) show x label if True
+      ylabel: (Boolean) show y label if True  
+      minus_z: (Boolean) display negative numbers on vertical scale (Z) if True
+      xl: (None, list/ tuple of length 2) plot limits in the x-direction
+      yl: (None, list/ tuple of length 2) plot limits in the y-direction
+      xscale: (float) scale in x direction
+      yscale: (float) scale in y direction
+      ax_units: (Boolean) display units on axes if True
+      num_xticks: (None or int) number of ticks on x-axis, or disabled
+      num_yticks: (None or int) number of ticks on y-axis, or disabled
+      greyshade: (str) shade of grey to use for land
+      showland: (Boolean) show land (nan) is True
+      grid: (None or Gr) grid to draw information from.
+      *args,**kwargs: normal kw arguments that can be passed on to contour(f).
     """
 
   # obtain prepared arrays and names from Field object. mbody is a masked array containing the Field data. mbody will be used in plotting.
@@ -237,7 +269,7 @@ def scale_prep_deco(func):
 
 #    body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes({k:kwargs[k] for k in ['fld', 'num_cont', 'xlabel' ,'ylabel', 'minus_z', 'xl','yl','xscale','yscale','ax_units']})
 
-    body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=fld,  xlabel=xlabel ,ylabel=ylabel, minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units, grid = grid)
+    body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=fld,   minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units, grid = grid)
 
   # Use of X, Y confusing here, as they refer to coord objects, whereas X,Y,... usually refer to ax objects. Change in later version
 
@@ -278,17 +310,30 @@ def scale_prep_deco(func):
 
 @scale_prep_deco
 def contourf(X_scaled,Y_scaled,mbody, levels = None, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True, num_xticks = 6, num_yticks = 6, greyshade = '0.65', showland = False,grid = None,*args, **kwargs):
-
   """
+  Contourf function with Field attributes .
+
   Before decoration: takes axes and numpy array argument.
   After decoration: a function that calls Matplotlib contourf and passes on arguments, but takes a Field as argument (instead of a numpy array)
   
-  Input: fld 	-supergrid Field to be plotted
 
-  num_xticks/ num_yticks: number of labeled points on X and Y axis. Disabled if set to None. In this case plt.contour defaults are chosen. 
-
-
-
+    Args: (for decorated version)
+      fld: (Field) to be plotted
+      num_cont: (int) number of contours to be plotted
+      xlabel: (Boolean) show x label if True
+      ylabel: (Boolean) show y label if True  
+      minus_z: (Boolean) display negative numbers on vertical scale (Z) if True
+      xl: (None, list/ tuple of length 2) plot limits in the x-direction
+      yl: (None, list/ tuple of length 2) plot limits in the y-direction
+      xscale: (float) scale in x direction
+      yscale: (float) scale in y direction
+      ax_units: (Boolean) display units on axes if True
+      num_xticks: (None or int) number of ticks on x-axis, or disabled
+      num_yticks: (None or int) number of ticks on y-axis, or disabled
+      greyshade: (str) shade of grey to use for land
+      showland: (Boolean) show land (nan) is True
+      grid: (None or Gr) grid to draw information from.
+      *args,**kwargs: normal kw arguments that can be passed on to contour(f).
   """
 
 
@@ -315,13 +360,30 @@ def contourf(X_scaled,Y_scaled,mbody, levels = None, num_cont =15, xlabel = True
 
 @scale_prep_deco
 def contour(X_scaled,Y_scaled,mbody, levels = None, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True, num_xticks = 6, num_yticks = 6, greyshade = '0.65', showland = False,grid = None,*args, **kwargs):
-
   """
-  Function that calls contour, but takes a Field as argument (instead of a numpy)
+  Contour function with Field attributes .
+
+  Before decoration: takes axes and numpy array argument.
+  After decoration: a function that calls Matplotlib contourf and passes on arguments, but takes a Field as argument (instead of a numpy array)
   
-  
-  fld 	-spacegrid Field to be plotted
-  
+
+    Args: (for decorated version)
+      fld: (Field) to be plotted
+      num_cont: (int) number of contours to be plotted
+      xlabel: (Boolean) show x label if True
+      ylabel: (Boolean) show y label if True  
+      minus_z: (Boolean) display negative numbers on vertical scale (Z) if True
+      xl: (None, list/ tuple of length 2) plot limits in the x-direction
+      yl: (None, list/ tuple of length 2) plot limits in the y-direction
+      xscale: (float) scale in x direction
+      yscale: (float) scale in y direction
+      ax_units: (Boolean) display units on axes if True
+      num_xticks: (None or int) number of ticks on x-axis, or disabled
+      num_yticks: (None or int) number of ticks on y-axis, or disabled
+      greyshade: (str) shade of grey to use for land
+      showland: (Boolean) show land (nan) is True
+      grid: (None or Gr) grid to draw information from.
+      *args,**kwargs: normal kw arguments that can be passed on to contour(f).  
   """
 
   if showland:
@@ -347,14 +409,17 @@ def contour(X_scaled,Y_scaled,mbody, levels = None, num_cont =15, xlabel = True,
 
 def plot(fld0 = None,fld1=None, minus_z=True,xlbl='',ylbl='', grid = None,start_zero=False, **kwargs):
    """
-   Function that calls Matplotlib plot, but takes fields as arguments (instead of numpy arrays)
+   Function that calls Matplotlib plot, but takes fields as arguments (instead of numpy arrays).
 
-   Inputs:
-   fld0 	Field to be plotted if fld1 is None, otherwise x-coord with fld1 as y-coord
-   minus_z 	z-axis points downard if true
-   xlbl, ylbl 	override Field labels if not ''
-   grid 	replaces Field grid if not None
-   start_zero	if True, x-axis starts at 0  
+   Adds additional plot elements based on iformation from Field.
+
+   Args:
+     fld0: (Field) to be plotted if Field fld1 is None, otherwise x-coord with fld1 as y-coord
+     minus_z: (Boolean) z-axis points downard if true
+     xlbl, ylbl: (str) override Field labels if not ''
+     grid: (None or Gr) replaces Field grid if not None
+     start_zero: (Boolean) if True, x-axis starts at 0  
+     **kwargs: additional args to pass to plot function.
    """
  
    if fld1 is None:
@@ -441,6 +506,10 @@ def plot(fld0 = None,fld1=None, minus_z=True,xlbl='',ylbl='', grid = None,start_
 
 
 def treat_kmt(kmt):
+  """Returns a finer (interpolated) version of ndarray argument kmt.
+
+  Used in plotting bathymetry.
+  """
 
   sh = kmt.shape
 
@@ -460,6 +529,10 @@ def treat_kmt(kmt):
 
 
 def add_kmt(kmt):
+  """Plot 1 contour of ndarray argument kmt.
+
+  Used in plotting bathymetry. Calls treat_kmt.
+  """
   kmti = treat_kmt(kmt)
   sh = kmti.shape
 
