@@ -45,7 +45,7 @@ from fieldcls import *
 
 def netcdf_file(filepath,mode = 'r'):
   """
-  Wrapper for open Netcdf functions from ScientificIO or Scipy
+  Wrapper for opening Netcdf functions from NETCDF4, ScientificIO or Scipy
   """
 
   if cdf_lib_used =='netcdf4':  
@@ -83,13 +83,18 @@ def netcdf_file(filepath,mode = 'r'):
 
 
 def msk_read(filepath='masks/msk', crop = 1):
-
   """
   Reads a text file containing a mask pointed to by filepath and returns a corresponding array.
-  Due to the way these masks are stored for the UVic model, cropping is needed, as indicated 
-  by the crop flag in the arguments.
-  This is the lowest level mask read function in sg.
 
+  Due to the way these masks are stored for the UVic model, cropping is needed, as indicated 
+  by the crop flag in the arguments.  This is the lowest level mask read function in sg.
+
+  Args:
+    filepath: (str) path to the file
+    crop: (int) amount of points to crop at the margins.
+
+  Return:
+    ndarray containing mask.
   """
 
   str_data = []
@@ -113,10 +118,20 @@ def msk_read(filepath='masks/msk', crop = 1):
   else:  
     return np.flipud(np.array(data))
 
-def read_masks(dir_path, msk_shape=0,grids = False, msk_val =2):
-  
+def read_masks(dir_path, msk_shape=None,grids = False, msk_val =2):
       """
       Reads mask and returns a list of Field objects containing masks.
+
+      Calls msk_read, see msk_read.
+
+      Args:
+        dir_path: (str) path to directory
+        msk_shape: (None or tuple of int) describing supposed shape of mask
+        grids: (Gr) grid to use for masks
+        msk_val: (int) value that will not be nan in mask
+
+      Returns:
+        Dictionary of masks and their names
       """
 
       if not(grids):
@@ -138,8 +153,8 @@ def read_masks(dir_path, msk_shape=0,grids = False, msk_val =2):
           fpath = os.path.join(dir_path,it)
 	  msk = msk_read(fpath)
 
-          if msk_shape:
-# only test shape if msk_shape not default value of 0
+          if msk_shape is not None:
+# only test shape if msk_shape not default value of None
             if (msk.shape != tuple(msk_shape)):
               print "Warning: mask shape does not agree: " + it,
               print msk.shape,
@@ -170,14 +185,12 @@ def locate(top = '/home/',fname = projnickfile):
   """
   Locates all files with filename fname. Helper function to info function.
   
-  Inputs: 
-  top		(default '/home/') the start dir
-  fname		(default projname) the filename to look for. 
+  Args: 
+    top: (str) the start dir
+    fname: (str)the filename to look for. 
   
-  Outputs:
-  paths		all paths to dirs containing fname
-  
-  
+  Returns:
+    List of all paths to dirs containing fname.  
   """
 
  

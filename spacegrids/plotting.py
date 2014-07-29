@@ -15,6 +15,16 @@ from fieldcls import *
 warnings.formatwarning = warning_on_one_line
 
 def auto_cont(m,M, num_cont, max_try = 5):
+  """
+  Automatically pick contours.
+
+  Pick a quantity of around num_cont contours between integers m and M. 
+
+  Int max_try indicates how many times to try and refine the boundaries of the interval.
+
+  Returns:
+    1D ndarray containing the desired contours: np.arange(m_new,M_new,step)    
+  """
 
   if M < m:
     rng = auto_cont(m = -m, M = - M, num_cont = num_cont)
@@ -49,10 +59,16 @@ def auto_cont(m,M, num_cont, max_try = 5):
 
   return np.arange(m_new,M_new,step)      
 
-def prep_axes(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True , grid = None):
-
+def prep_axes(fld, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True , grid = None):
   """
   Prepare axes names etc for plotting.
+
+  Args:
+    fld: (Field) to be plotted
+    xlabel
+
+  Returns:
+    body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale
   """
 
   xlbl=''
@@ -130,10 +146,6 @@ def prep_axes(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=No
   M = np.nanmax(body)
   m = np.nanmin(body)
 
-#  step = (M-m)/num_cont
-  
-#  M += 2*step
-#  m -= step
 
   return body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale
 
@@ -225,7 +237,7 @@ def scale_prep_deco(func):
 
 #    body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes({k:kwargs[k] for k in ['fld', 'num_cont', 'xlabel' ,'ylabel', 'minus_z', 'xl','yl','xscale','yscale','ax_units']})
 
-    body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=fld, num_cont=num_cont, xlabel=xlabel ,ylabel=ylabel, minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units, grid = grid)
+    body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=fld,  xlabel=xlabel ,ylabel=ylabel, minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units, grid = grid)
 
   # Use of X, Y confusing here, as they refer to coord objects, whereas X,Y,... usually refer to ax objects. Change in later version
 
