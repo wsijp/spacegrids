@@ -4566,7 +4566,7 @@ def ones(grid):
 
 
 
-def finer_Field(F,factor =5.):
+def finer_field(F,factor =5.):
 
   """
   This is a more UVic specific function to prepare a Field containing the outline of the continents for horizontal plots.
