@@ -479,6 +479,19 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     self.assertEqual( np.array_equal( F.value[:,1], np.array([1.,2.,3.]) ), True  )
 
 
+  def test_copy_equiv_method(self):
+    """
+    Test whether Coord.copy yields a new self-equivalent Coord object.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    K = coord1.copy(name='ho')  
+
+    self.assertEqual(K.is_equiv(K),  True  )
+
+
   def test_make_equiv_method(self):
     """
     Test Coord make_equiv method.

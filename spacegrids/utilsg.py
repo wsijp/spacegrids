@@ -808,7 +808,22 @@ def end_of_filepath(path):
   return L_tmp[-1]
 
 
+def affix(coord_name ,affix = '', kind = 'suffix'):
+  """
+  Append affix to string, ignore when affix already present.
 
+  Can replace this with a nillpotent decorator.
+  """
+
+  if affix in coord_name:
+    return coord_name
+
+  if kind == 'suffix':
+    return coord_name + affix
+  elif kind == 'prefix':
+    return affix + coord_name 
+  else:
+    raise Exception('Provide suffix or prefix for kind.')
 
 
 # ------------- general time series related functions ----------------

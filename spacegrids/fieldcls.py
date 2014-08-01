@@ -202,6 +202,7 @@ class Named(object):
       # decide whether to copy over the equivs list
       if hasattr(self,'equivs'):
         result.equivs = self.equivs
+#        result.make_equiv(result)
 
     return result
 
@@ -308,9 +309,22 @@ class Named(object):
     return None    
 
 
+class Associative(Named):
+  """
+  Associative class that objects with the equiv method can belong to. 
 
+  Two objects will be equivalent if they belong to the same associative class. 
 
+  For Coord objects, this should remain consistent with the axis attribute: two Coord objects belong to the same associative class iff they have the same axis attribute. In this case, the associative class of Coord objects is effectively their direction or axis. The mechanisms for the two remain independent.
 
+  For classes using Associative as equivalence principle:
+
+  Their copy method should carry over the Associative object of the parent.
+  Their make_equiv method should make the associate the Associative object of the argument equal to the Associative object of the calling object.
+  Their __init__ method should create a new Associative class as default behaviour, and assign an argument Associative class if given.
+  """
+
+  pass
 
 
 
@@ -396,10 +410,10 @@ class Directional(Named):
 
   def make_equiv(self,other):
     """
-    Register equivalence of two Coord objects. 
+    Register equivalence of two Directional objects. 
 
     Args:
-      other: (Coord)
+      other: (Directional)
 
     Returns:
       None
@@ -553,6 +567,8 @@ class Directional(Named):
     """
 
     return self.is_equiv(other)
+
+
 
 
 
@@ -2208,6 +2224,7 @@ class YCoord(Coord):
       vol method      
     """
 
+
     return Field(name='distance_'+self.name,value = fact*self[:]*np.pi/180.,grid = (self**2), units = self.units) 
 
 
@@ -3502,10 +3519,10 @@ class Field(Valued):
     if stringscomb is not None:
       new_strings = [stringscomb[k] for k in cat_coord_value]
 
-      new_coord = cat_coord_self.copy(name = cat_coord_self.name +name_suffix,   value = cat_coord_value, strings = new_strings)
+      new_coord = cat_coord_self.copy(name = affix(cat_coord_self.name ,name_suffix, 'suffix'),   value = cat_coord_value, strings = new_strings)
 
     else:
-      new_coord = cat_coord_self.copy(name = cat_coord_self.name +name_suffix,   value = cat_coord_value, strings = None)
+      new_coord = cat_coord_self.copy(name = affix(cat_coord_self.name ,name_suffix, 'suffix'),   value = cat_coord_value, strings = None)
 
 
 
