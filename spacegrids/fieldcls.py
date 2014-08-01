@@ -160,15 +160,14 @@ class Named(object):
     self.name = name
     self.long_name = long_name
 
+  def __repr__(self):
+    return self.name
 
-  def copy(self, equiv = True, *args, **kwargs):
+  def copy(self, *args, **kwargs):
     """
     Copy method for Named. See __init__ for arguments.
 
     Most child classes should inherit this method.
-
-    Args (in addition to __init__):
-      equivs: (Boolean) If True, the copies will be equivalent. 
 
     Returns: 
       a copy of the Directional object.
@@ -197,12 +196,6 @@ class Named(object):
 
     # initialize new object:
     result = self.__class__(**new_kwargs)
-
-    if equiv:
-      # decide whether to copy over the equivs list
-      if hasattr(self,'equivs'):
-        result.equivs = self.equivs
-#        result.make_equiv(result)
 
     return result
 
@@ -324,15 +317,17 @@ class Associative(Named):
   Their __init__ method should create a new Associative class as default behaviour, and assign an argument Associative class if given.
   """
 
-  pass
+  def __init__(self,name):
 
+    self.name = name
+    self.associative = self
 
 
 class Directional(Named):
   """
   Base class for derived Coord and Ax classes, representing "direction" (e.g. "latitude" or "depth").
 
-  An abstract equivalence relationship is defined among directional objects by adding them to each other's equiv attribute (a list of equivalent Directionals). This relationship is generally used to indicate whether two Directional objects have the same direction (e.g. X,Y), but could represent other relationships depending on the user.
+  An abstract equivalence relationship is defined among Directional objects where two objects are equivalent when they have the same 'associative' attribute (pointing to an Associative object). This relationship is generally used to indicate whether two Directional objects have the same direction (e.g. X,Y), but could represent other relationships depending on the user.
 
   The same method is differentiated from the weaksame method (unlike the parent class), with the more strict additional condition that in addition to "name", the "direction" attribute also needs to be the same. therefore, two Directional objects are considered "same" when both "name" and "direction" match. They are "weaksame" when only the "name" matches.
 
@@ -353,7 +348,7 @@ class Directional(Named):
     else:
       return self.name
 
-  def __init__(self,name='scalar',direction ='scalar',long_name= '' ):  
+  def __init__(self,name='scalar',direction ='scalar',long_name= '', associative = None ):  
     """
     Initialisation of Directional object. 
 
@@ -361,9 +356,13 @@ class Directional(Named):
       name: (str) name of Object
       direction: (str) name of direction in which object points
       long_name: (str) longer description (e.g. for display or in Netcdf)
+      associative: (Directional or Associative) object that this new object is equivalent to, or its Associative
 
     Returns:
       Directional object
+
+    Raises:
+      ValueError if associative has no associative attribute
     """
   
 # choosing the name ID creates an identity object. ID*b = b for all Coord elements b.
@@ -374,6 +373,14 @@ class Directional(Named):
     self.name = name
     self.direction = direction
     self.long_name = long_name
+
+    if associative is None:
+      self.associative = Associative(self.name+'_assoc')
+    else:
+      if hasattr(associative, 'associative'):
+        self.associative = associative.associative
+      else:
+        raise ValueError('provide object with associative attribute for associative.')
 
   def __neg__(self):
     """
@@ -431,17 +438,7 @@ class Directional(Named):
     True 
     """  
 
-#      self.equivs.append(other)
-#      other.equivs.append(self)    
-
-    for e in set(self.equivs):
-      e.equivs.append(other)
-
-    for e in set(other.equivs):
-      e.equivs.append(self)        
-
-    self.equivs = list(set(self.equivs))
-    other.equivs = list(set(other.equivs))
+    other.associative = self.associative  
 
     return
 
@@ -466,7 +463,8 @@ class Directional(Named):
       eq_in
     """
     
-    if (other in self.equivs) | (self in other.equivs):
+#    if (other in self.equivs) | (self in other.equivs):
+    if self.associative is other.associative: 
 
       return True     
     else:
@@ -951,6 +949,9 @@ class Coord(Directional, Valued):
 
   Being a container of Coord objects, the Gr object (grid) is closely related to Coord. A shorthand for Gr construction is via multiplication of Coord objects. If two Coord objects coord1 and coord2 are not equivalent (generally when they point in different directions, e.g. X and Y), their product is a shorthand for the creation of a 2D grid coord1*coord2 = Gr((coord1, coord2)). By induction, products containing n elements yield Gr objects of dimension <=n. See class documentation.
 
+  An abstract equivalence relationship is inherited from the Directional classs where two objects are equivalent when they have the same 'associative' attribute (pointing to an Associative object). This relationship is generally used to indicate whether two Directional objects have the same direction (e.g. X,Y), but could represent other relationships depending on the user.
+
+
   The Coord class contains methods related to distances, with the following dependencies. dist is fundamental. delta_dist depends on dist. der depends on dist. d depends on dual Coord and delta_dist. vol depends on d.
 
 
@@ -1060,7 +1061,7 @@ class Coord(Directional, Valued):
     self.value.sort(*args,**kwargs)
 
 
-  def __init__(self,name='scalar',value = np.array([0]), dual = None,axis = '?',direction ='scalar', units = None,long_name ='?', metadata = {} , strings = None):  
+  def __init__(self,name='scalar',value = np.array([0]), dual = None,axis = '?',direction ='scalar', units = None,long_name ='?', metadata = {} , strings = None , associative = None):  
     """
     Initialisation of Coord object. 
 
@@ -1076,9 +1077,10 @@ class Coord(Directional, Valued):
       long_name: (str) a longer description. Usually taken from identically named variable in Netcdf file.
       metadata: (dict) name vs value dict of metadata to save into Netcdf. Usually obtained from Netcdf read.
       strings: (list of strings or None) str labels for coord points. If not None, needs to be of same length as value
+      associative: (Coord) object that this object is equivalent to (same direction)
 
     Raises:
-      ValueError: if argument strings is not None and if len(strings) != len(value)
+      ValueError: if argument strings is not None and if len(strings) != len(value) or when associative has no associative attribute
     """
   
 # choosing the name ID creates an identity object. ID*b = b for all Coord elements b.
@@ -1109,6 +1111,16 @@ class Coord(Directional, Valued):
 
     self.give_dual(dual)
  
+
+    if associative is None:
+      self.associative = Associative(self.name+'_assoc')
+    else:
+      if hasattr(associative, 'associative'):
+        self.associative = associative.associative
+      else:
+        raise ValueError('provide object with associative attribute for associative.')
+
+
 
   def _copy_cleanup(self,**new_kwargs):
     """
@@ -2238,6 +2250,9 @@ class Ax(Directional):
   Axis. Represents direction: e.g. the longitudinal direction, X, or the vertical, Z.
 
   Coord objects have an attribute that points to an Ax object, representing its direction.
+
+  An abstract equivalence relationship is inherited from the Directional class, where two objects are equivalent when they have the same 'associative' attribute (pointing to an Associative object). This relationship is generally used to indicate whether two Directional objects have the same direction (e.g. X,Y), but could represent other relationships depending on the user. This means that a Coord object can be equivalent to an Ax object. The usual meaning of this is that both point in the same direction.
+
 
   Attributes: (identical to Directional parent class)
       name: (str) name of Object
@@ -4403,12 +4418,12 @@ def concatenate(fields, ax=None, name_suffix='_cat', new_coord_name = 'gamma', n
 
     if strings is not None:    
       for i, F in enumerate(fields):
-        new_coord = Coord(name = new_coord_name,value = np.array([float(i)]), direction = ax.name , axis = ax , strings = [strings[i],] )
+        new_coord = Coord(name = new_coord_name,value = np.array([float(i)]), direction = ax.name , axis = ax , strings = [strings[i],], associative = ax )
         expanded_fields.append( F.regrid(new_coord*F.grid) )
     else:
  
       for i, F in enumerate(fields):
-        new_coord = Coord(name = new_coord_name,value = np.array([i]), direction = ax.name , axis = ax  )
+        new_coord = Coord(name = new_coord_name,value = np.array([i]), direction = ax.name , axis = ax , associative = ax  )
         expanded_fields.append( F.regrid(new_coord*F.grid) )
 
     fields = expanded_fields    

@@ -505,7 +505,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     coord1.make_equiv(coord2)
   
-    self.assertEqual(coord2 in coord1.equivs, True  )
+    self.assertEqual(coord2.associative, coord1.associative  )
 
   def test_is_equiv_method_false(self):
     """
