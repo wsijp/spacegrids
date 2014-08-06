@@ -1,13 +1,27 @@
 #encoding:utf-8
 
-""" Project class
+""" Projects represent experiment data organized in project directories.
+
+Netcdf data must be organised in a projects directory tree. Create a directory named PROJECTS inside your home directory (name default), to contain all the data for all the projects. Then create a subdirectory for each of your projects, say one is called test_project. When using sg.info() and sg.Project with the nonick = True argument (see documentation), this is all that is needed to allow the sg module to recognise these subdirectories as representing projects. 
+  This will allow the sg Python code to regard all Netcdf files placed directly inside test_project as belonging to individual experiments. Alternatively, instead of a single file, a subdirectory may represent an experiment. So directories inside the test_project directory are associated with output from a single experiment each, where all Netcdf files contained within are interpreted as belonging to that same experiment.   
+
+  To get started in ipython (bring up with sg.overview() ):
+
+  >>> import spacegrids as sg		
+  >>> D = sg.info(nonick = True)  
+  >>> P = sgPproject(D['my_project'] , nonick = True)  
+  >>> P.load(['temperature','u'])  
+  >>> # obtain the axes under their names T, X, Y, Z in namespace:
+  >>> for c in P['some_experiment'].axes:
+  >>>   exec c.name + ' = c'	
+ 
 """
 
 import types
 import os
 import re
 
-from config import *
+from _config import *
 
 from fieldcls import *
 from expercls import *
@@ -330,7 +344,7 @@ class Project(object):
       for expname in self.expers.keys():
         self.expers[expname].delvar(varname) 
 
-        self.update_nbytes()
+        self._update_nbytes()
 
     else:
       print 'No experiments.'
@@ -349,7 +363,7 @@ class Project(object):
         if msg:
           print 'No experiment by that name. ' + msg
 
-    self.update_nbytes()
+    self._update_nbytes()
 
 
 # --> belongs to Project
@@ -387,7 +401,7 @@ class Project(object):
 
       self.expers[expname] = Exper(path = self.path,name = expname, cstack = cstack, descr = descr)
 
-    self.update_nbytes()
+    self._update_nbytes()
     return 
 
   def load(self, varnames, descr = 0,chk_loaded = False, ax=None, name_suffix='_cat', new_coord_name = 'gamma', new_coord= None ):
@@ -447,7 +461,7 @@ class Project(object):
             
 	  self.expers[k].load(varname,ax=ax, name_suffix=name_suffix, new_coord_name = new_coord_name, new_coord= new_coord)  
 
-    self.update_nbytes()
+    self._update_nbytes()
     return    
 
   def write(self, path = None, name = None, force = False , history = 'Created from Spacegrids ', insert_dual = True  ): 
@@ -494,7 +508,7 @@ class Project(object):
 	
     return flag	
  
-  def update_nbytes(self):
+  def _update_nbytes(self):
     """
     Update estimate of number of Mb used by Project.
     """

@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -6,14 +8,14 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>spacegrids package &mdash; spacegrids  documentation</title>
+    <title>spacegrids Package &mdash; spacegrids  documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
+        URL_ROOT:    '',
         VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -23,7 +25,6 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="spacegrids  documentation" href="index.html" />
     <link rel="prev" title="Welcome to spacegrids’s documentation!" href="index.html" /> 
   </head>
@@ -50,24 +51,476 @@
           <div class="body">
             
   <div class="section" id="spacegrids-package">
-<h1>spacegrids package<a class="headerlink" href="#spacegrids-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<h1>spacegrids Package<a class="headerlink" href="#spacegrids-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">spacegrids</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-spacegrids.__init__"></span></div>
+<div class="section" id="module-spacegrids.abstract">
+<span id="abstract-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">abstract</span></tt> Module<a class="headerlink" href="#module-spacegrids.abstract" title="Permalink to this headline">¶</a></h2>
+<p>Abstract classes to build Coord, Gr, Ax, AxGr and Field class.</p>
+<p>Most classes inherit from the abstract base classes Named, Associative, Directional, Membered, Valued contained in abstract.py.</p>
+<p>The abstract module contains the following classes:</p>
+<div class="section" id="named">
+<h3>Named<a class="headerlink" href="#named" title="Permalink to this headline">¶</a></h3>
+<p>Base class for most other sg classes, representing objects with copy and same methods.</p>
 </div>
-<div class="section" id="module-spacegrids.config">
-<span id="spacegrids-config-module"></span><h2>spacegrids.config module<a class="headerlink" href="#module-spacegrids.config" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="spacegrids.config.warning_on_one_line">
-<tt class="descclassname">spacegrids.config.</tt><tt class="descname">warning_on_one_line</tt><big>(</big><em>message</em>, <em>category</em>, <em>filename</em>, <em>lineno</em>, <em>file=None</em>, <em>line=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/config.html#warning_on_one_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.config.warning_on_one_line" title="Permalink to this definition">¶</a></dt>
+<div class="section" id="associative">
+<h3>Associative<a class="headerlink" href="#associative" title="Permalink to this headline">¶</a></h3>
+<p>Associative class that objects with the equiv method can belong to. Two objects will be equivalent if they belong to the same associative class.</p>
+</div>
+<div class="section" id="directional">
+<h3>Directional<a class="headerlink" href="#directional" title="Permalink to this headline">¶</a></h3>
+<p>Base class for derived Coord and Ax classes, representing &#8220;direction&#8221; (e.g. &#8220;latitude&#8221; or &#8220;depth&#8221;). An abstract equivalence relationship is defined among Directional objects where two objects are equivalent when they have the same &#8216;associative&#8217; attribute (pointing to an Associative object). This relationship is generally used to indicate whether two Directional objects have the same direction (e.g. X,Y), but could represent other relationships depending on the user.</p>
+</div>
+<div class="section" id="membered">
+<h3>Membered<a class="headerlink" href="#membered" title="Permalink to this headline">¶</a></h3>
+<p>Base class for classes containing members such as a grid (Gr) object containing coordinate (Coord) members, or an AxGr object containing Ax objects, e.g. (X, Y).</p>
+</div>
+<div class="section" id="valued">
+<h3>Valued<a class="headerlink" href="#valued" title="Permalink to this headline">¶</a></h3>
+<p>Base class for classes that contain a ndarray value attribute. The Field class is derived from this.</p>
+<dl class="class">
+<dt id="spacegrids.abstract.Associative">
+<em class="property">class </em><tt class="descclassname">spacegrids.abstract.</tt><tt class="descname">Associative</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Associative"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Associative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.abstract.Named" title="spacegrids.abstract.Named"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.abstract.Named</span></tt></a></p>
+<p>Associative class that objects with the equiv method can belong to.</p>
+<p>Two objects will be equivalent if they belong to the same associative class.</p>
+<p>For Coord objects, this should remain consistent with the axis attribute: two Coord objects belong to the same associative class iff they have the same axis attribute. In this case, the associative class of Coord objects is effectively their direction or axis. The mechanisms for the two remain independent.</p>
+<p>For classes using Associative as equivalence principle:</p>
+<p>Their copy method should carry over the Associative object of the parent.
+Their make_equiv method should make the associate the Associative object of the argument equal to the Associative object of the calling object.
+Their __init__ method should create a new Associative class as default behaviour, and assign an argument Associative class if given.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.abstract.Directional">
+<em class="property">class </em><tt class="descclassname">spacegrids.abstract.</tt><tt class="descname">Directional</tt><big>(</big><em>name='scalar'</em>, <em>direction='scalar'</em>, <em>long_name=''</em>, <em>associative=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Directional"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Directional" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.abstract.Named" title="spacegrids.abstract.Named"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.abstract.Named</span></tt></a></p>
+<p>Base class for derived Coord and Ax classes, representing &#8220;direction&#8221; (e.g. &#8220;latitude&#8221; or &#8220;depth&#8221;).</p>
+<p>An abstract equivalence relationship is defined among Directional objects where two objects are equivalent when they have the same &#8216;associative&#8217; attribute (pointing to an Associative object). This relationship is generally used to indicate whether two Directional objects have the same direction (e.g. X,Y), but could represent other relationships depending on the user.</p>
+<p>The same method is differentiated from the weaksame method (unlike the parent class), with the more strict additional condition that in addition to &#8220;name&#8221;, the &#8220;direction&#8221; attribute also needs to be the same. therefore, two Directional objects are considered &#8220;same&#8221; when both &#8220;name&#8221; and &#8220;direction&#8221; match. They are &#8220;weaksame&#8221; when only the &#8220;name&#8221; matches.</p>
+<p>This base class is closely related to the Ax class. The Coord class is also derived from it.</p>
+<dl class="docutils">
+<dt>Attributes:</dt>
+<dd>name: (str) name of Object
+direction: (str) name of direction in which object points
+long_name: (str) longer description (e.g. for display or in Netcdf)</dd>
+</dl>
+<dl class="method">
+<dt id="spacegrids.abstract.Directional.eq_in">
+<tt class="descname">eq_in</tt><big>(</big><em>collection</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Directional.eq_in"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Directional.eq_in" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines whether Coord (self) is equivalent to any of the constituent Coord objects of the argument Gr or GrAx, and returns equivalent object.</p>
+<p>Uses: eq_index</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>collection: (Gr or AxGr) object to be checked.</dd>
+<dt>Returns:</dt>
+<dd>The equivalent object  when crd is equivalent to one of the Coord objects in argument, None otherwise.</dd>
+<dt>See also:</dt>
+<dd>eq_in method of Ax, GrAx
+is_equiv
+make_equiv
+eq_index
+eq_in</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Directional.eq_index">
+<tt class="descname">eq_index</tt><big>(</big><em>collection</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Directional.eq_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Directional.eq_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find index of first element in collection equivalent to self under is_equiv.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>collection: (e.g. List) order collection of Directional objects</dd>
+<dt>Returns:</dt>
+<dd>Integer if equivalent found (index to equiv element), None otherwise.</dd>
+<dt>See also:</dt>
+<dd>make_equiv
+is_equiv
+eq_in</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Directional.is_equiv">
+<tt class="descname">is_equiv</tt><big>(</big><em>other</em>, <em>checks=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Directional.is_equiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Directional.is_equiv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test for equivalence (under make_equiv) between Directional objects. e.g. xt is equivalent to xu</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>other: (Coord or Ax)</dd>
+<dt>Returns:</dt>
+<dd>True when equivalent, False otherwise.</dd>
+</dl>
+<p>Examples:
+&gt;&gt;&gt; depth.is_equiv(longitude) # generally different directions.
+False</p>
+<dl class="docutils">
+<dt>See also:</dt>
+<dd>make_equiv
+eq_index
+eq_in</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Directional.make_equiv">
+<tt class="descname">make_equiv</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Directional.make_equiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Directional.make_equiv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register equivalence of two Directional objects.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>other: (Directional)</dd>
+<dt>Returns:</dt>
+<dd>None</dd>
+<dt>See also:</dt>
+<dd>is_equiv
+eq_index
+eq_in</dd>
+</dl>
+<p>Examples:
+&gt;&gt;&gt; depth.is_equiv(longitude) # generally different directions.
+False
+&gt;&gt;&gt; depth.make_equiv(longitude) # don&#8217;t do this in real work
+&gt;&gt;&gt; depth.is_equiv(longitude) # uphysically:
+True</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Directional.same">
+<tt class="descname">same</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Directional.same"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Directional.same" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to check whether this Directional object has identical main attributes to argument other.</p>
+<p>Overrides Name class same method.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>other: (Directional) to check against</dd>
+<dt>Returns:</dt>
+<dd>True/ False</dd>
+<dt>Attributes checked:</dt>
+<dd>name: via str ==
+direction: via str ==</dd>
+<dt>See also:</dt>
+<dd>samein method
+same_index method</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.abstract.Membered">
+<em class="property">class </em><tt class="descclassname">spacegrids.abstract.</tt><tt class="descname">Membered</tt><big>(</big><em>name='scalar'</em>, <em>long_name=''</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Membered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Membered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.abstract.Named" title="spacegrids.abstract.Named"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.abstract.Named</span></tt></a></p>
+<p>Base class for classes containing members such as a grid (Gr) object containing coordinate (Coord) members, or an AxGr object containing Ax objects, e.g. (X, Y).</p>
+<p>This class is intended for multiple inheritance with classes that provide container functionality. For example Tuple. The elements inside the tuples are then referred to as &#8220;members&#8221;, hence the name of this class.  Methods relate to general operations with these members. Note that more specific member-related methods are relegated to derived classes.</p>
+<p>__init__ method of joint-inheritance class must take a container of elements.</p>
+<dl class="method">
+<dt id="spacegrids.abstract.Membered.call_on_members">
+<tt class="descname">call_on_members</tt><big>(</big><em>method</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Membered.call_on_members"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Membered.call_on_members" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call method on all members and construct new Membered object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Membered.copy">
+<tt class="descname">copy</tt><big>(</big><em>caller</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Membered.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Membered.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Membered.eq_in">
+<tt class="descname">eq_in</tt><big>(</big><em>member</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Membered.eq_in"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Membered.eq_in" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines whether argument is equivalent to any of the constituent members.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>member: (Membered) object to be checked.</dd>
+<dt>Returns:</dt>
+<dd>True when member is equivalent to one of the member objects, False otherwise.</dd>
+</dl>
+<p>See also:
+eq_in method of Coord</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Membered.eq_index">
+<tt class="descname">eq_index</tt><big>(</big><em>member</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Membered.eq_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Membered.eq_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns index of argument in members.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Membered.eq_perm">
+<tt class="descname">eq_perm</tt><big>(</big><em>other</em>, <em>verbose=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Membered.eq_perm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Membered.eq_perm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Yields permutation of members going from self to other, where equivalent members are treated as identical.</p>
+<p>See also perm.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Membered.get_from_members">
+<tt class="descname">get_from_members</tt><big>(</big><em>att_name</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Membered.get_from_members"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Membered.get_from_members" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call method on all members and construct new Membered object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Membered.is_equiv">
+<tt class="descname">is_equiv</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Membered.is_equiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Membered.is_equiv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks member-wise equivalence between Membered objects up to a permutation.</p>
+<p>For grids,  objects are equivalent if they define the same physical subspace, based on the equivalence definition for Coord classes. In other words, checks whether the individual Coord elements of the two grid (Gr object) arguments are equivalent up to a permutation. A stricter version of this test is strict_equiv, which allows no permutation.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>other: (Membered) the object to compare with</dd>
+<dt>Returns:</dt>
+<dd>True if all (self) members are equivalent to a member of other and vice versa and both have equal length. False otherwise</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Membered.perm">
+<tt class="descname">perm</tt><big>(</big><em>other</em>, <em>verbose=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Membered.perm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Membered.perm" title="Permalink to this definition">¶</a></dt>
+<dd><p>yields permutation of axes going from self to other.</p>
+<p>E.g. for grids gr1 and gr2, g2 = g1.rearrange( g1.perm(g2) )</p>
+<p>Returns None if no permutation exists.</p>
+<p>See also rearrange.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Membered.rearrange">
+<tt class="descname">rearrange</tt><big>(</big><em>permutation</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Membered.rearrange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Membered.rearrange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rearranges the order of the members of this object via permutation arrgument.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>permutation: (List or Tuple) permutation to rearrange by</dd>
+<dt>Returns:</dt>
+<dd>object of same type as self with member rearranged.</dd>
+</dl>
+<p>Examples:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g1</span> <span class="o">=</span> <span class="n">latitude</span><span class="o">*</span><span class="n">depth</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g1</span><span class="o">.</span><span class="n">rearrange</span><span class="p">(</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="p">)</span> 
+<span class="go">(depth, latitude)</span>
+</pre></div>
+</div>
+<p>See also Gr.perm method</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Membered.reverse">
+<tt class="descname">reverse</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Membered.reverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Membered.reverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reverse the order of the members.</p>
+<p>Examples:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">coord1</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">fieldcls</span><span class="o">.</span><span class="n">Coord</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;test1&#39;</span><span class="p">,</span><span class="n">direction</span> <span class="o">=</span><span class="s">&#39;X&#39;</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span><span class="mf">2.</span><span class="p">,</span><span class="mf">3.</span><span class="p">])</span> <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coord2</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">fieldcls</span><span class="o">.</span><span class="n">Coord</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;test2&#39;</span><span class="p">,</span><span class="n">direction</span> <span class="o">=</span><span class="s">&#39;Y&#39;</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span><span class="mf">2.</span><span class="p">,</span><span class="mf">3.</span><span class="p">,</span><span class="mf">4.</span><span class="p">])</span> <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">coord1</span><span class="o">*</span><span class="n">coord2</span><span class="p">)</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+<span class="go">(test2, test1)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Membered.same">
+<tt class="descname">same</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Membered.same"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Membered.same" title="Permalink to this definition">¶</a></dt>
+<dd><p>Member-wise same comparison.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Membered.strict_equiv">
+<tt class="descname">strict_equiv</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Membered.strict_equiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Membered.strict_equiv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether two Membered objects have equivalent Members at each position.
+This is a stricter test than Membered equivalence testing via gr1.is_equiv(gr2), which only tests whether both Membered objects describe the same linear space (elements equivalent up to a permutation).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Membered.weaksame">
+<tt class="descname">weaksame</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Membered.weaksame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Membered.weaksame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Member-wise weaksame comparison.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.abstract.Named">
+<em class="property">class </em><tt class="descclassname">spacegrids.abstract.</tt><tt class="descname">Named</tt><big>(</big><em>name='scalar'</em>, <em>long_name=''</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Named"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Named" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Base class for most other sg classes, representing objects with copy and same methods.</p>
+<p>The &#8220;same&#8221; method indicates when Named objects are &#8220;the same&#8221;, namely when their &#8220;name&#8221; attribute is the same. This method coincides with the &#8220;weaksame&#8221; method. &#8220;Weaksame&#8221; is generally a weaker condition in the derived classes. The &#8220;same&#8221; method allows the implementation of the &#8220;samein&#8221; and &#8220;sameindex&#8221; methods at this abstract level, with generally the &#8220;same&#8221; method overriden in derived classes.</p>
+<p>This class provides a copy method that is used by the derived classes.</p>
+<dl class="docutils">
+<dt>Attributes:</dt>
+<dd>name: (str) name of Object</dd>
+</dl>
+<dl class="method">
+<dt id="spacegrids.abstract.Named.copy">
+<tt class="descname">copy</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Named.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Named.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy method for Named. See __init__ for arguments.</p>
+<p>Most child classes should inherit this method.</p>
+<dl class="docutils">
+<dt>Returns: </dt>
+<dd>a copy of the Directional object.</dd>
+</dl>
+<p>Copy methods in sg work as follows: when no value is selected for an argument, a copy of the self attribute will be used. Otherwise, the <a href="#id2"><span class="problematic" id="id3">**</span></a>kwargs argument value will be used.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Named.same">
+<tt class="descname">same</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Named.same"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Named.same" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to check whether this Named object has identical main attributes to argument other.</p>
+<p>Placeholder identical to weaksame: to be overriden in child classes.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>other: (Named) to check against</dd>
+<dt>Returns:</dt>
+<dd>True/ False</dd>
+<dt>Attributes checked:</dt>
+<dd>name: via str ==</dd>
+<dt>See also:</dt>
+<dd>samein method
+same_index method</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Named.samein">
+<tt class="descname">samein</tt><big>(</big><em>L</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Named.samein"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Named.samein" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether this Directional is the same as any element in list L, under &#8216;same&#8217; method.</p>
+<p>Uses: same method.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>L: (list of Directional objects) to test against</dd>
+<dt>returns:</dt>
+<dd>True/ False</dd>
+<dt>See also:</dt>
+<dd>same method
+same_index method</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Named.sameindex">
+<tt class="descname">sameindex</tt><big>(</big><em>L</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Named.sameindex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Named.sameindex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find index of this Directional in list L of Directional objects, under &#8216;same&#8217; method.</p>
+<p>Uses: same method.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>L: (list of directional objects) to search</dd>
+<dt>returns:</dt>
+<dd>None or Integer, the index of the first item it in the list that satisfies self.same(it)</dd>
+<dt>See also:</dt>
+<dd>same method
+samein method</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Named.weaksame">
+<tt class="descname">weaksame</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Named.weaksame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Named.weaksame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests if two Directional objects have the same name.</p>
+<p>Weak test to see if two Directional objects are similar.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>other: other Directional object to compare self with</dd>
+<dt>Returns: </dt>
+<dd>True/ False</dd>
+</dl>
+<p><strong>See also</strong>
+same method
+samein method
+sameindex method</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.abstract.Valued">
+<em class="property">class </em><tt class="descclassname">spacegrids.abstract.</tt><tt class="descname">Valued</tt><big>(</big><em>name='scalar'</em>, <em>value=array([0])</em>, <em>long_name=''</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Valued"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Valued" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.abstract.Named" title="spacegrids.abstract.Named"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.abstract.Named</span></tt></a></p>
+<p>Base class for classes that contain a ndarray value attribute.</p>
+<p>This class derives its name from the presence of an attribute named &#8220;value&#8221; that contains a Numpy ndarray. Methods relate to this attribute.</p>
+<dl class="method">
+<dt id="spacegrids.abstract.Valued.array_equal">
+<tt class="descname">array_equal</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Valued.array_equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Valued.array_equal" title="Permalink to this definition">¶</a></dt>
+<dd><p>test whether Valued objects contain identically valued ndarrays in value attributes.</p>
+<p>This is a common method that should be inherited by child classes.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>other: (Valued object) the Valued to compare with</dd>
+<dt>Returns:</dt>
+<dd>True/ False (using np.array_equal)</dd>
+<dt>Raises:</dt>
+<dd>ValueError: when argument is not a Coord object</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Valued.same">
+<tt class="descname">same</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Valued.same"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Valued.same" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether this Valued object contains identical name and value to argument object.</p>
+<p>Overrides Named same method and is a stronger condition. Generally to be overriden in child classes.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>other: (Valued) object to compare against.</dd>
+<dt>Returns: </dt>
+<dd>True/ False</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-spacegrids.decorators">
+<span id="decorators-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">decorators</span></tt> Module<a class="headerlink" href="#module-spacegrids.decorators" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="spacegrids.decorators.att2members">
+<tt class="descclassname">spacegrids.decorators.</tt><tt class="descname">att2members</tt><big>(</big><em>func</em><big>)</big><a class="reference internal" href="_modules/spacegrids/decorators.html#att2members"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.decorators.att2members" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator to transfer attribute retrieval from Membered object to its members.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>func: function.</dd>
+<dt>Returns:</dt>
+<dd>Function: the decorator.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.decorators.check_equiv">
+<tt class="descclassname">spacegrids.decorators.</tt><tt class="descname">check_equiv</tt><big>(</big><em>func</em><big>)</big><a class="reference internal" href="_modules/spacegrids/decorators.html#check_equiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.decorators.check_equiv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator to perform preliminary equivalence check between self and other.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>func: function.</dd>
+<dt>Returns:</dt>
+<dd>Function: the decorator.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.decorators.method2members">
+<tt class="descclassname">spacegrids.decorators.</tt><tt class="descname">method2members</tt><big>(</big><em>func</em><big>)</big><a class="reference internal" href="_modules/spacegrids/decorators.html#method2members"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.decorators.method2members" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator to transfer method call from Membered object to its members.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>func: function.</dd>
+<dt>Returns:</dt>
+<dd>Function: the decorator.</dd>
+</dl>
+</dd></dl>
 
 </div>
 <div class="section" id="module-spacegrids.expercls">
-<span id="spacegrids-expercls-module"></span><h2>spacegrids.expercls module<a class="headerlink" href="#module-spacegrids.expercls" title="Permalink to this headline">¶</a></h2>
-<p>Exper class</p>
+<span id="expercls-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">expercls</span></tt> Module<a class="headerlink" href="#module-spacegrids.expercls" title="Permalink to this headline">¶</a></h2>
+<p>The Exper class and associated functions. Exper represents experiment data sets.</p>
+<p>An Exper object corresponds to (collections of) Netcdf File(s).</p>
+<p>The general workflow starts with the creation of a Project object (providing a path to a project directory). This will lead sg to look through the project directory for subdirectories and Netcdf files (based on the file suffix). An Exper object is created for each subdir and Netcdf file found, and added to the project. So an Exper object may represent either a subdirectory of a project directory or a specific Netcdf file inside that project directory (recorded in the &#8216;path&#8217; attribute). Each Exper with name attribute &#8216;foo&#8217; can then be accessed via P[&#8216;foo&#8217;]. This procedure provides groundwork by interpreting axis and coordinate date found in the Netcdf files (inside the subdirectories in the case where the Exper object represents a subdirectory) and adding this information to the Exper objects (see Attributes). Once this structure is established, specific data sets can be loaded across experiments using P.load.</p>
+<blockquote>
+<div><p>Examples:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spacegrids</span> <span class="kn">as</span> <span class="nn">sg</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">D</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">info_dict</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">P</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Project</span><span class="p">(</span><span class="n">D</span><span class="p">[</span><span class="s">&#39;my_project&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">E</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="s">&#39;DPO&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">E</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="go">DPO</span>
+<span class="go">----------</span>
+<span class="go">Exper using 0.01 Mb. 0 fields loaded.  </span>
+</pre></div>
+</div>
+</div></blockquote>
 <dl class="class">
 <dt id="spacegrids.expercls.Exper">
-<em class="property">class </em><tt class="descclassname">spacegrids.expercls.</tt><tt class="descname">Exper</tt><big>(</big><em>path='/home/wim'</em>, <em>name='test'</em>, <em>cstack=</em>, <span class="optional">[</span><span class="optional">]</span><em>params={}</em>, <em>vars={}</em>, <em>descr=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/expercls.html#Exper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.expercls.Exper" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">spacegrids.expercls.</tt><tt class="descname">Exper</tt><big>(</big><em>path='/home/nfs/z3049637'</em>, <em>name='test'</em>, <em>cstack=</em><span class="optional">[</span><span class="optional">]</span>, <em>params={}</em>, <em>vars={}</em>, <em>descr=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/expercls.html#Exper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.expercls.Exper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Represents experiment data sets. Corresponds to (collections of) Netcdf File(s).</p>
 <dl class="docutils">
@@ -267,14 +720,36 @@ file_extensions: (str) file extensions to look for in path (default .cdf and .nc
 
 </div>
 <div class="section" id="module-spacegrids.fieldcls">
-<span id="spacegrids-fieldcls-module"></span><h2>spacegrids.fieldcls module<a class="headerlink" href="#module-spacegrids.fieldcls" title="Permalink to this headline">¶</a></h2>
-<p>Coord, Gr, Ax, AxGr and Field class</p>
+<span id="fieldcls-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">fieldcls</span></tt> Module<a class="headerlink" href="#module-spacegrids.fieldcls" title="Permalink to this headline">¶</a></h2>
+<p>Field and Gr objects represent data defined on grids and reflecting Netcdf data: Coord, Gr, Ax, AxGr and Field.</p>
+<p>Gr (grid) objects are constructed from Coord (coordinate) objects as tuples and Membered methods. Similarly, AxGr (axis grid) objects are constructed from Ax (axis, e.g. X or Y) objects. Field objects contain a grid (a Gr object) attribute and a ndarray value attribute of data defined on that grid. Vfield objects (vector fields) are tuples of Field objects with Membered methods.</p>
+<p>The fieldcls module contains the following classes:</p>
+<div class="section" id="coord">
+<h3>Coord<a class="headerlink" href="#coord" title="Permalink to this headline">¶</a></h3>
+<p>Represents distrete coordinate collection in a direction (e.g. 10m depth, 20m depth,...). Corresponds to dimension variable in Netcdf.</p>
+</div>
+<div class="section" id="gr">
+<h3>Gr<a class="headerlink" href="#gr" title="Permalink to this headline">¶</a></h3>
+<p>Represents Coord grids. Consists of a tuple of Coord objects, with additional Membered and other methods.</p>
+</div>
+<div class="section" id="ax">
+<h3>Ax<a class="headerlink" href="#ax" title="Permalink to this headline">¶</a></h3>
+<p>Axis. Represents direction: e.g. the longitudinal direction, X, or the vertical, Z. Coord objects have an attribute that points to an Ax object, representing its direction.</p>
+</div>
+<div class="section" id="axgr">
+<h3>AxGr<a class="headerlink" href="#axgr" title="Permalink to this headline">¶</a></h3>
+<p>Same as Gr, but containing Ax objects instead of Coord. Difference is mainly in the multiplication methods.</p>
+</div>
+<div class="section" id="field">
+<h3>Field<a class="headerlink" href="#field" title="Permalink to this headline">¶</a></h3>
+<p>Represents a dataset defined on a grid.</p>
 <dl class="class">
 <dt id="spacegrids.fieldcls.Ax">
-<em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">Ax</tt><big>(</big><em>name='scalar'</em>, <em>direction='scalar'</em>, <em>long_name=''</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Ax"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Ax" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#spacegrids.fieldcls.Directional" title="spacegrids.fieldcls.Directional"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.fieldcls.Directional</span></tt></a></p>
+<em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">Ax</tt><big>(</big><em>name='scalar'</em>, <em>direction='scalar'</em>, <em>long_name=''</em>, <em>associative=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Ax"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Ax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.abstract.Directional" title="spacegrids.abstract.Directional"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.abstract.Directional</span></tt></a></p>
 <p>Axis. Represents direction: e.g. the longitudinal direction, X, or the vertical, Z.</p>
 <p>Coord objects have an attribute that points to an Ax object, representing its direction.</p>
+<p>An abstract equivalence relationship is inherited from the Directional class, where two objects are equivalent when they have the same &#8216;associative&#8217; attribute (pointing to an Associative object). This relationship is generally used to indicate whether two Directional objects have the same direction (e.g. X,Y), but could represent other relationships depending on the user. This means that a Coord object can be equivalent to an Ax object. The usual meaning of this is that both point in the same direction.</p>
 <dl class="docutils">
 <dt>Attributes: (identical to Directional parent class)</dt>
 <dd>name: (str) name of Object
@@ -300,7 +775,7 @@ long_name: (str) longer description (e.g. for display or in Netcdf)</dd>
 <dl class="class">
 <dt id="spacegrids.fieldcls.AxGr">
 <em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">AxGr</tt><big>(</big><em>name='scalar'</em>, <em>long_name=''</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#AxGr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.AxGr" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt>, <a class="reference internal" href="#spacegrids.fieldcls.Membered" title="spacegrids.fieldcls.Membered"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.fieldcls.Membered</span></tt></a></p>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt>, <a class="reference internal" href="#spacegrids.abstract.Membered" title="spacegrids.abstract.Membered"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.abstract.Membered</span></tt></a></p>
 <p>Same as Gr, but containing Ax objects instead of Coord.</p>
 <p>Difference is mainly in the multiplication methods.</p>
 <p>Example: (X,Y )</p>
@@ -308,13 +783,14 @@ long_name: (str) longer description (e.g. for display or in Netcdf)</dd>
 
 <dl class="class">
 <dt id="spacegrids.fieldcls.Coord">
-<em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">Coord</tt><big>(</big><em>name='scalar'</em>, <em>value=array([0])</em>, <em>dual=None</em>, <em>axis='?'</em>, <em>direction='scalar'</em>, <em>units=None</em>, <em>long_name='?'</em>, <em>metadata={}</em>, <em>strings=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#spacegrids.fieldcls.Directional" title="spacegrids.fieldcls.Directional"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.fieldcls.Directional</span></tt></a>, <a class="reference internal" href="#spacegrids.fieldcls.Valued" title="spacegrids.fieldcls.Valued"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.fieldcls.Valued</span></tt></a></p>
-<p>Representing distrete coordinate collection. Corresponds to dimension variable in Netcdf.</p>
+<em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">Coord</tt><big>(</big><em>name='scalar'</em>, <em>value=array([0])</em>, <em>dual=None</em>, <em>axis='?'</em>, <em>direction='scalar'</em>, <em>units=None</em>, <em>long_name='?'</em>, <em>metadata={}</em>, <em>strings=None</em>, <em>associative=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.abstract.Directional" title="spacegrids.abstract.Directional"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.abstract.Directional</span></tt></a>, <a class="reference internal" href="#spacegrids.abstract.Valued" title="spacegrids.abstract.Valued"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.abstract.Valued</span></tt></a></p>
+<p>Represents distrete coordinate collection in a direction (e.g. 10m depth, 20m depth,...). Corresponds to dimension variable in Netcdf.</p>
 <p>Coord objects are defined by a name, value (generally a numpy array) and units. The value of a Coord is a 1D ndarray containing the locations of data points. Coord is the basic building block of Gr (grid) objects.
 Examples of Coord objects are xt or yt, corresponding to the tracer grid cells in the x and y directions. Coord objects have a corresponding dual. For xt it is xt_edges and vice versa. The dual generally contains the edges of the grid cells. If no dual argument is given, the Coord object is its own dual.</p>
-<p>Coord objects c1 and c2 are considered equal, c1&amp;c2 yields True, when the name, value (numpy array) and units attributes are equal.</p>
+<p>Coord objects c1 and c2 are considered weakly the same, c1.weaksame(c2) yields True, when the name, value (numpy array) and units attributes are equal.</p>
 <p>Being a container of Coord objects, the Gr object (grid) is closely related to Coord. A shorthand for Gr construction is via multiplication of Coord objects. If two Coord objects coord1 and coord2 are not equivalent (generally when they point in different directions, e.g. X and Y), their product is a shorthand for the creation of a 2D grid coord1*coord2 = Gr((coord1, coord2)). By induction, products containing n elements yield Gr objects of dimension &lt;=n. See class documentation.</p>
+<p>An abstract equivalence relationship is inherited from the Directional classs where two objects are equivalent when they have the same &#8216;associative&#8217; attribute (pointing to an Associative object). This relationship is generally used to indicate whether two Directional objects have the same direction (e.g. X,Y), but could represent other relationships depending on the user.</p>
 <p>The Coord class contains methods related to distances, with the following dependencies. dist is fundamental. delta_dist depends on dist. der depends on dist. d depends on dual Coord and delta_dist. vol depends on d.</p>
 <dl class="docutils">
 <dt>Attributes:</dt>
@@ -360,22 +836,6 @@ index: (int) index at which to take a slice in case of Field argument.</dd>
 </pre></div>
 </div>
 </dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Coord.cdf_insert">
-<tt class="descname">cdf_insert</tt><big>(</big><em>file_handle</em>, <em>miss_default=9.96921e+36</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.cdf_insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.cdf_insert" title="Permalink to this definition">¶</a></dt>
-<dd><p>Netcdf insert method of Coord 
-Inserts Coord as variable into Netcdf file.</p>
-<p>Input: file_handle file handle of opened Netcdf file.</p>
-<p>Inserts Coord as variable into Netcdf file.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>file_handle: (file object). Points to opened file.
-miss_default: (float) value to use as default for missing values/ NaNs</dd>
-<dt>Returns:</dt>
-<dd>file_handle</dd>
 </dl>
 </dd></dl>
 
@@ -731,130 +1191,18 @@ insert_dual: (Boolean) Flag determining whether to include the duals of the Coor
 </dd></dl>
 
 <dl class="class">
-<dt id="spacegrids.fieldcls.Directional">
-<em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">Directional</tt><big>(</big><em>name='scalar'</em>, <em>direction='scalar'</em>, <em>long_name=''</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Directional"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Directional" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#spacegrids.fieldcls.Named" title="spacegrids.fieldcls.Named"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.fieldcls.Named</span></tt></a></p>
-<p>Base class for derived Coord and Ax classes, representing &#8220;direction&#8221; (e.g. &#8220;latitude&#8221; or &#8220;depth&#8221;).</p>
-<p>An abstract equivalence relationship is defined among directional objects by adding them to each other&#8217;s equiv attribute (a list of equivalent Directionals). This relationship is generally used to indicate whether two Directional objects have the same direction (e.g. X,Y), but could represent other relationships depending on the user.</p>
-<p>The same method is differentiated from the weaksame method (unlike the parent class), with the more strict additional condition that in addition to &#8220;name&#8221;, the &#8220;direction&#8221; attribute also needs to be the same. therefore, two Directional objects are considered &#8220;same&#8221; when both &#8220;name&#8221; and &#8220;direction&#8221; match. They are &#8220;weaksame&#8221; when only the &#8220;name&#8221; matches.</p>
-<p>This base class is closely related to the Ax class. The Coord class is also derived from it.</p>
-<dl class="docutils">
-<dt>Attributes:</dt>
-<dd>name: (str) name of Object
-direction: (str) name of direction in which object points
-long_name: (str) longer description (e.g. for display or in Netcdf)</dd>
-</dl>
-<dl class="method">
-<dt id="spacegrids.fieldcls.Directional.eq_in">
-<tt class="descname">eq_in</tt><big>(</big><em>collection</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Directional.eq_in"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Directional.eq_in" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines whether Coord (self) is equivalent to any of the constituent Coord objects of the argument Gr or GrAx, and returns equivalent object.</p>
-<p>Uses: eq_index</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>collection: (Gr or AxGr) object to be checked.</dd>
-<dt>Returns:</dt>
-<dd>The equivalent object  when crd is equivalent to one of the Coord objects in argument, None otherwise.</dd>
-<dt>See also:</dt>
-<dd>eq_in method of Ax, GrAx
-is_equiv
-make_equiv
-eq_index
-eq_in</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Directional.eq_index">
-<tt class="descname">eq_index</tt><big>(</big><em>collection</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Directional.eq_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Directional.eq_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find index of first element in collection equivalent to self under is_equiv.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>collection: (e.g. List) order collection of Directional objects</dd>
-<dt>Returns:</dt>
-<dd>Integer if equivalent found (index to equiv element), None otherwise.</dd>
-<dt>See also:</dt>
-<dd>make_equiv
-is_equiv
-eq_in</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Directional.is_equiv">
-<tt class="descname">is_equiv</tt><big>(</big><em>other</em>, <em>checks=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Directional.is_equiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Directional.is_equiv" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test for equivalence (under make_equiv) between Directional objects. e.g. xt is equivalent to xu</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>other: (Coord or Ax)</dd>
-<dt>Returns:</dt>
-<dd>True when equivalent, False otherwise.</dd>
-</dl>
-<p>Examples:
-&gt;&gt;&gt; depth.is_equiv(longitude) # generally different directions.
-False</p>
-<dl class="docutils">
-<dt>See also:</dt>
-<dd>make_equiv
-eq_index
-eq_in</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Directional.make_equiv">
-<tt class="descname">make_equiv</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Directional.make_equiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Directional.make_equiv" title="Permalink to this definition">¶</a></dt>
-<dd><p>Register equivalence of two Coord objects.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>other: (Coord)</dd>
-<dt>Returns:</dt>
-<dd>None</dd>
-<dt>See also:</dt>
-<dd>is_equiv
-eq_index
-eq_in</dd>
-</dl>
-<p>Examples:
-&gt;&gt;&gt; depth.is_equiv(longitude) # generally different directions.
-False
-&gt;&gt;&gt; depth.make_equiv(longitude) # don&#8217;t do this in real work
-&gt;&gt;&gt; depth.is_equiv(longitude) # uphysically:
-True</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Directional.same">
-<tt class="descname">same</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Directional.same"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Directional.same" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method to check whether this Directional object has identical main attributes to argument other.</p>
-<p>Overrides Name class same method.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>other: (Directional) to check against</dd>
-<dt>Returns:</dt>
-<dd>True/ False</dd>
-<dt>Attributes checked:</dt>
-<dd>name: via str ==
-direction: via str ==</dd>
-<dt>See also:</dt>
-<dd>samein method
-same_index method</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
 <dt id="spacegrids.fieldcls.Field">
 <em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">Field</tt><big>(</big><em>name</em>, <em>value</em>, <em>grid</em>, <em>units='?'</em>, <em>direction=None</em>, <em>strict_v=True</em>, <em>long_name='?'</em>, <em>metadata={}</em>, <em>squeezed_dims=()</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#spacegrids.fieldcls.Valued" title="spacegrids.fieldcls.Valued"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.fieldcls.Valued</span></tt></a></p>
-<p>Field  to represent a scalar valued function, also dataset, defined on a grid.</p>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.abstract.Valued" title="spacegrids.abstract.Valued"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.abstract.Valued</span></tt></a></p>
+<p>Represents a dataset defined on a grid.</p>
+<p>Field objects contain a grid (a Gr object) attribute and a ndarray value attribute of data defined on that grid.</p>
 <p>The call method allows fields to act as function defined on grid objects.
 For a 2D scalar corresponding to Field T, say defined on grid yt*xt, T(dy*dx) yields a 2D array of the scalar values.</p>
 <p>If Field T is naturally defined on grid yt*xt, then T(zt*yt*xt) yields a 3D array b such that b[k,:,:] = T(yt*xt) for all possible k.</p>
-<blockquote>
-<div>If g is a Gr (grid) or Coord object, left or right multiplication of a Field  object F with Gr Coord results in the grid-cell width weighted summing of the Field over the coords in the multiplicant g (integration, via g.vsum method), resulting in a smaller dimension Field.</div></blockquote>
-<p>If g is a Coord object, g^F yields the derivative of F along g (via g.der method). g|F yields the grid cell width-weight cumulative sum of F over g (primitive, via g.vcumsum).</p>
-<p>two fields F1, F2 are considered equal, F1&amp;F2 yields True, when their name, value (an numpy array) and Gr (grid) attribute are equal, unless they contain nan values.</p>
+<p>If g is a Gr (grid) or Coord object, left or right multiplication of a Field  object F with Gr Coord results in the grid-cell width weighted summing of the Field over the coords in the multiplicant g (integration, via g.vsum method), resulting in a smaller dimension Field.</p>
+<p>If g is a Coord object, g.der(F) yields the derivative of F along g. g.vcumsum(F) yields the grid cell width-weight cumulative sum of F over g.</p>
+<p>Shortcuts: if g is a Coord object, g^F yields the derivative of F along g (via g.der method). g|F yields the grid cell width-weight cumulative sum of F over g (primitive, via g.vcumsum).</p>
+<p>two fields F1, F2 are considered weakly the same, F1.weaksame(F2) yields True, when their name, value (an numpy array) and Gr (grid) attribute are equal, unless they contain nan values.</p>
 <p>NOTE: multiplication works a bit different from addition at the moment. Addition will go ahead even when coords in the grids are differently named (or have other non-value attributes differ) as long as the value (the coord points) are the same: then the (left and right) coords are considered equal. Multiplication treats them as different coords in this case.</p>
 <dl class="method">
 <dt id="spacegrids.fieldcls.Field.cat">
@@ -876,20 +1224,6 @@ name_suffix: (str) suffix to use in new name.</dd>
 </dd></dl>
 
 <dl class="method">
-<dt id="spacegrids.fieldcls.Field.cdf_insert">
-<tt class="descname">cdf_insert</tt><big>(</big><em>file_handle</em>, <em>insert_dual=True</em>, <em>force_squeeze=False</em>, <em>miss_default=9.96921e+36</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.cdf_insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.cdf_insert" title="Permalink to this definition">¶</a></dt>
-<dd><p>Inserts Field into Netcdf file on disk.</p>
-<p>Writes Field to already opened file referred to with file_handle argument, along with the Coord members of the grid. Also inserts their dual Coord objects (edges) depending on flag.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>file_handle: the file handle of the opened file.
-insert_dual: (Boolean) insert the dual Coord objects as well if True
-force_squeeze: (Boolean) do not call unsqueeze method if True
-miss_default: (float) default for missing values.</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
 <dt id="spacegrids.fieldcls.Field.dV">
 <tt class="descname">dV</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.dV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.dV" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns Field of same dimension containing ndarray of grid cell volumes, with field nan values (often representing land) set to nan.</p>
@@ -903,8 +1237,16 @@ miss_default: (float) default for missing values.</dd>
 
 <dl class="method">
 <dt id="spacegrids.fieldcls.Field.draw">
-<tt class="descname">draw</tt><big>(</big><em>colorbar=True</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.draw" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">draw</tt><big>(</big><em>colorbar=True</em>, <em>index=0</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.draw" title="Permalink to this definition">¶</a></dt>
 <dd><p>Quick plot of this Field using the most obvious layout etc.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>colorbar: (Boolean) add colorbar if True
+index: (int) index value at which to slice if Field dim &gt; 2
+<a href="#id4"><span class="problematic" id="id5">**</span></a>kwargs: further kwargs to be passed on</dd>
+<dt>Returns:</dt>
+<dd>h, cb: handles to figure and colorbar</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1051,8 +1393,8 @@ force_squeeze: (Boolean) do not call unsqueeze method if True</dd>
 <dl class="class">
 <dt id="spacegrids.fieldcls.Gr">
 <em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">Gr</tt><big>(</big><em>name='scalar'</em>, <em>long_name=''</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt>, <a class="reference internal" href="#spacegrids.fieldcls.Membered" title="spacegrids.fieldcls.Membered"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.fieldcls.Membered</span></tt></a></p>
-<p>Represents Coord grids. Consists of a tuple of Coord objects, with additional methods. Gr objects g1 and g2 are considered weaksame, g1.weaksame(g2) yields True, when the individual Coord elements are weaksame.</p>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt>, <a class="reference internal" href="#spacegrids.abstract.Membered" title="spacegrids.abstract.Membered"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.abstract.Membered</span></tt></a></p>
+<p>Represents Coord grids. Consists of a tuple of Coord objects, with additional Membered and other methods. Gr objects g1 and g2 are considered weaksame, g1.weaksame(g2) yields True, when the individual Coord elements are weaksame.</p>
 <dl class="method">
 <dt id="spacegrids.fieldcls.Gr.array_equal">
 <tt class="descname">array_equal</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.array_equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.array_equal" title="Permalink to this definition">¶</a></dt>
@@ -1247,229 +1589,9 @@ other: (Gr) another larger grid containing self (self members are subset of othe
 </dd></dl>
 
 <dl class="class">
-<dt id="spacegrids.fieldcls.Membered">
-<em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">Membered</tt><big>(</big><em>name='scalar'</em>, <em>long_name=''</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Membered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Membered" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#spacegrids.fieldcls.Named" title="spacegrids.fieldcls.Named"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.fieldcls.Named</span></tt></a></p>
-<p>Base class for classes containing members such as Coord or Ax objects, such as Gr and AxGr.</p>
-<p>This class is intended for multiple inheritance with classes that provide container functionality. For example Tuple. The elements inside the tuples are then referred to as &#8220;members&#8221;, hence the name of this class.  Methods relate to general operations with these members. Note that more specific member-related methods are relegated to derived classes.</p>
-<p>__init__ method of joint-inheritance class must take a container of elements.</p>
-<dl class="method">
-<dt id="spacegrids.fieldcls.Membered.call_on_members">
-<tt class="descname">call_on_members</tt><big>(</big><em>method</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Membered.call_on_members"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Membered.call_on_members" title="Permalink to this definition">¶</a></dt>
-<dd><p>Call method on all members and construct new Membered object.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Membered.copy">
-<tt class="descname">copy</tt><big>(</big><em>caller</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Membered.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Membered.copy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Membered.eq_in">
-<tt class="descname">eq_in</tt><big>(</big><em>member</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Membered.eq_in"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Membered.eq_in" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines whether argument is equivalent to any of the constituent members.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>member: (Membered) object to be checked.</dd>
-<dt>Returns:</dt>
-<dd>True when member is equivalent to one of the member objects, False otherwise.</dd>
-</dl>
-<p>See also:
-eq_in method of Coord</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Membered.eq_index">
-<tt class="descname">eq_index</tt><big>(</big><em>member</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Membered.eq_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Membered.eq_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns index of argument in members.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Membered.eq_perm">
-<tt class="descname">eq_perm</tt><big>(</big><em>other</em>, <em>verbose=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Membered.eq_perm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Membered.eq_perm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Yields permutation of members going from self to other, where equivalent members are treated as identical.</p>
-<p>See also perm.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Membered.get_from_members">
-<tt class="descname">get_from_members</tt><big>(</big><em>att_name</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Membered.get_from_members"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Membered.get_from_members" title="Permalink to this definition">¶</a></dt>
-<dd><p>Call method on all members and construct new Membered object.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Membered.is_equiv">
-<tt class="descname">is_equiv</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Membered.is_equiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Membered.is_equiv" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks member-wise equivalence between Membered objects up to a permutation.</p>
-<p>For grids,  objects are equivalent if they define the same physical subspace, based on the equivalence definition for Coord classes. In other words, checks whether the individual Coord elements of the two grid (Gr object) arguments are equivalent up to a permutation. A stricter version of this test is strict_equiv, which allows no permutation.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>other: (Membered) the object to compare with</dd>
-<dt>Returns:</dt>
-<dd>True if all (self) members are equivalent to a member of other and vice versa and both have equal length. False otherwise</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Membered.perm">
-<tt class="descname">perm</tt><big>(</big><em>other</em>, <em>verbose=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Membered.perm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Membered.perm" title="Permalink to this definition">¶</a></dt>
-<dd><p>yields permutation of axes going from self to other.</p>
-<p>E.g. for grids gr1 and gr2, g2 = g1.rearrange( g1.perm(g2) )</p>
-<p>Returns None if no permutation exists.</p>
-<p>See also rearrange.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Membered.rearrange">
-<tt class="descname">rearrange</tt><big>(</big><em>permutation</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Membered.rearrange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Membered.rearrange" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rearranges the order of the members of this object via permutation arrgument.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>permutation: (List or Tuple) permutation to rearrange by</dd>
-<dt>Returns:</dt>
-<dd>object of same type as self with member rearranged.</dd>
-</dl>
-<p>Examples:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">g1</span> <span class="o">=</span> <span class="n">latitude</span><span class="o">*</span><span class="n">depth</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">g1</span><span class="o">.</span><span class="n">rearrange</span><span class="p">(</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="p">)</span> 
-<span class="go">(depth, latitude)</span>
-</pre></div>
-</div>
-<p>See also Gr.perm method</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Membered.reverse">
-<tt class="descname">reverse</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Membered.reverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Membered.reverse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reverse the order of the members.</p>
-<p>Examples:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">coord1</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">fieldcls</span><span class="o">.</span><span class="n">Coord</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;test1&#39;</span><span class="p">,</span><span class="n">direction</span> <span class="o">=</span><span class="s">&#39;X&#39;</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span><span class="mf">2.</span><span class="p">,</span><span class="mf">3.</span><span class="p">])</span> <span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">coord2</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">fieldcls</span><span class="o">.</span><span class="n">Coord</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;test2&#39;</span><span class="p">,</span><span class="n">direction</span> <span class="o">=</span><span class="s">&#39;Y&#39;</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span><span class="mf">2.</span><span class="p">,</span><span class="mf">3.</span><span class="p">,</span><span class="mf">4.</span><span class="p">])</span> <span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">coord1</span><span class="o">*</span><span class="n">coord2</span><span class="p">)</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
-<span class="go">(test2, test1)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Membered.same">
-<tt class="descname">same</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Membered.same"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Membered.same" title="Permalink to this definition">¶</a></dt>
-<dd><p>Member-wise same comparison.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Membered.strict_equiv">
-<tt class="descname">strict_equiv</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Membered.strict_equiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Membered.strict_equiv" title="Permalink to this definition">¶</a></dt>
-<dd><p>Tests whether two Membered objects have equivalent Members at each position.
-This is a stricter test than Membered equivalence testing via gr1.is_equiv(gr2), which only tests whether both Membered objects describe the same linear space (elements equivalent up to a permutation).</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Membered.weaksame">
-<tt class="descname">weaksame</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Membered.weaksame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Membered.weaksame" title="Permalink to this definition">¶</a></dt>
-<dd><p>Member-wise weaksame comparison.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="spacegrids.fieldcls.Named">
-<em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">Named</tt><big>(</big><em>name='scalar'</em>, <em>long_name=''</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Named"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Named" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Base class for most other sg classes, representing objects with copy and same methods.</p>
-<p>The &#8220;same&#8221; method indicates when Named objects are &#8220;the same&#8221;, namely when their &#8220;name&#8221; attribute is the same. This method coincides with the &#8220;weaksame&#8221; method. &#8220;Weaksame&#8221; is generally a weaker condition in the derived classes. The &#8220;same&#8221; method allows the implementation of the &#8220;samein&#8221; and &#8220;sameindex&#8221; methods at this abstract level, with generally the &#8220;same&#8221; method overriden in derived classes.</p>
-<p>This class provides a copy method that is used by the derived classes.</p>
-<dl class="docutils">
-<dt>Attributes:</dt>
-<dd>name: (str) name of Object</dd>
-</dl>
-<dl class="method">
-<dt id="spacegrids.fieldcls.Named.copy">
-<tt class="descname">copy</tt><big>(</big><em>equiv=True</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Named.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Named.copy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Copy method for Named. See __init__ for arguments.</p>
-<p>Most child classes should inherit this method.</p>
-<dl class="docutils">
-<dt>Args (in addition to __init__):</dt>
-<dd>equivs: (Boolean) If True, the copies will be equivalent.</dd>
-<dt>Returns: </dt>
-<dd>a copy of the Directional object.</dd>
-</dl>
-<p>Copy methods in sg work as follows: when no value is selected for an argument, a copy of the self attribute will be used. Otherwise, the <a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs argument value will be used.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Named.same">
-<tt class="descname">same</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Named.same"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Named.same" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method to check whether this Named object has identical main attributes to argument other.</p>
-<p>Placeholder identical to weaksame: to be overriden in child classes.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>other: (Named) to check against</dd>
-<dt>Returns:</dt>
-<dd>True/ False</dd>
-<dt>Attributes checked:</dt>
-<dd>name: via str ==</dd>
-<dt>See also:</dt>
-<dd>samein method
-same_index method</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Named.samein">
-<tt class="descname">samein</tt><big>(</big><em>L</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Named.samein"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Named.samein" title="Permalink to this definition">¶</a></dt>
-<dd><p>Tests whether this Directional is the same as any element in list L, under &#8216;same&#8217; method.</p>
-<p>Uses: same method.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>L: (list of Directional objects) to test against</dd>
-<dt>returns:</dt>
-<dd>True/ False</dd>
-<dt>See also:</dt>
-<dd>same method
-same_index method</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Named.sameindex">
-<tt class="descname">sameindex</tt><big>(</big><em>L</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Named.sameindex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Named.sameindex" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find index of this Directional in list L of Directional objects, under &#8216;same&#8217; method.</p>
-<p>Uses: same method.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>L: (list of directional objects) to search</dd>
-<dt>returns:</dt>
-<dd>None or Integer, the index of the first item it in the list that satisfies self.same(it)</dd>
-<dt>See also:</dt>
-<dd>same method
-samein method</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Named.weaksame">
-<tt class="descname">weaksame</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Named.weaksame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Named.weaksame" title="Permalink to this definition">¶</a></dt>
-<dd><p>Tests if two Directional objects have the same name.</p>
-<p>Weak test to see if two Directional objects are similar.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>other: other Directional object to compare self with</dd>
-<dt>Returns: </dt>
-<dd>True/ False</dd>
-</dl>
-<p><strong>See also</strong>
-same method
-samein method
-sameindex method</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
 <dt id="spacegrids.fieldcls.VField">
 <em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">VField</tt><big>(</big><em>name='scalar'</em>, <em>long_name=''</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#VField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.VField" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt>, <a class="reference internal" href="#spacegrids.fieldcls.Membered" title="spacegrids.fieldcls.Membered"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.fieldcls.Membered</span></tt></a></p>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt>, <a class="reference internal" href="#spacegrids.abstract.Membered" title="spacegrids.abstract.Membered"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.abstract.Membered</span></tt></a></p>
 <p>vector Field. A tuple of fields with extra rules. Allows multiplication.</p>
 <dl class="method">
 <dt id="spacegrids.fieldcls.VField.der">
@@ -1508,44 +1630,8 @@ sameindex method</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="spacegrids.fieldcls.Valued">
-<em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">Valued</tt><big>(</big><em>name='scalar'</em>, <em>value=array([0])</em>, <em>long_name=''</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Valued"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Valued" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#spacegrids.fieldcls.Named" title="spacegrids.fieldcls.Named"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.fieldcls.Named</span></tt></a></p>
-<p>Base class for classes that contain a ndarray value attribute.</p>
-<p>This class derives its name from the presence of an attribute named &#8220;value&#8221; that contains a Numpy ndarray. Methods relate to this attribute.</p>
-<dl class="method">
-<dt id="spacegrids.fieldcls.Valued.array_equal">
-<tt class="descname">array_equal</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Valued.array_equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Valued.array_equal" title="Permalink to this definition">¶</a></dt>
-<dd><p>test whether Valued objects contain identically valued ndarrays in value attributes.</p>
-<p>This is a common method that should be inherited by child classes.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>other: (Valued object) the Valued to compare with</dd>
-<dt>Returns:</dt>
-<dd>True/ False (using np.array_equal)</dd>
-<dt>Raises:</dt>
-<dd>ValueError: when argument is not a Coord object</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="spacegrids.fieldcls.Valued.same">
-<tt class="descname">same</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Valued.same"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Valued.same" title="Permalink to this definition">¶</a></dt>
-<dd><p>Tests whether this Valued object contains identical name and value to argument object.</p>
-<p>Overrides Named same method and is a stronger condition. Generally to be overriden in child classes.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>other: (Valued) object to compare against.</dd>
-<dt>Returns: </dt>
-<dd>True/ False</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
 <dt id="spacegrids.fieldcls.XCoord">
-<em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">XCoord</tt><big>(</big><em>name='scalar'</em>, <em>value=array([0])</em>, <em>dual=None</em>, <em>axis='?'</em>, <em>direction='scalar'</em>, <em>units=None</em>, <em>long_name='?'</em>, <em>metadata={}</em>, <em>strings=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#XCoord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.XCoord" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">XCoord</tt><big>(</big><em>name='scalar'</em>, <em>value=array([0])</em>, <em>dual=None</em>, <em>axis='?'</em>, <em>direction='scalar'</em>, <em>units=None</em>, <em>long_name='?'</em>, <em>metadata={}</em>, <em>strings=None</em>, <em>associative=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#XCoord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.XCoord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#spacegrids.fieldcls.Coord" title="spacegrids.fieldcls.Coord"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.fieldcls.Coord</span></tt></a></p>
 <p>Specialized Coord class for representing longitudinal direction in spherical coordinates. A re-entrant geometry is assumed. See Coord.</p>
 <p>The XCoord class contains methods related to distances, with the following dependencies. dist and delta_dist are fundamental (no link, in contrast to Coord). The rest is the same as Coord: der depends on dist. d depends on dual Coord and delta_dist. vol depends on d.</p>
@@ -1569,9 +1655,9 @@ keepgrid: (Boolean, default False) grid not updated if True</dd>
 <dl class="method">
 <dt id="spacegrids.fieldcls.XCoord.d">
 <tt class="descname">d</tt><big>(</big><em>y_coord</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#XCoord.d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.XCoord.d" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Calculates width of grid cell in direction of XCoord (self) using the dual of self (e.g. xt_edges).</p>
-<p>Yields grid cell widths. Can be used to compute volumes.</p>
+<dd><p>Calculates width of grid cell in direction of XCoord (self) using the dual of self (e.g. xt_edges).</p>
+<blockquote>
+<div><p>Yields grid cell widths. Can be used to compute volumes.</p>
 <p>Overides the d method of the Coord class.</p>
 <p>Calculates self.dual.delta_dist() where it is defined</p>
 </div></blockquote>
@@ -1686,9 +1772,9 @@ vol method</dd>
 <dl class="method">
 <dt id="spacegrids.fieldcls.XCoord.vol">
 <tt class="descname">vol</tt><big>(</big><em>gr</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#XCoord.vol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.XCoord.vol" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Generalized volume method related to d method of XCoord: yields self.d(y_coord) if self and a y-coord y_coord in gr, None otherwise.</p>
-<p>Determines widths (1D &#8220;volumes&#8221;) of cells along self Coord. grid argument acts as filter: aborts if self not in grid. The grid argument is more critical in derived classes (e.g. x_coord), where auxhiliary coordinates are picked from Gr and need to be present.</p>
+<dd><p>Generalized volume method related to d method of XCoord: yields self.d(y_coord) if self and a y-coord y_coord in gr, None otherwise.</p>
+<blockquote>
+<div><p>Determines widths (1D &#8220;volumes&#8221;) of cells along self Coord. grid argument acts as filter: aborts if self not in grid. The grid argument is more critical in derived classes (e.g. x_coord), where auxhiliary coordinates are picked from Gr and need to be present.</p>
 <p>Overrides vol method of Coord.</p>
 <p>Picks auxiliary coordinate (as when x-widths depend on y) from grid argument gr (y grid is chosen on the same grid as x-coord) depending on what inspect module finds in d method interface</p>
 </div></blockquote>
@@ -1714,7 +1800,7 @@ dist method</dd>
 
 <dl class="class">
 <dt id="spacegrids.fieldcls.YCoord">
-<em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">YCoord</tt><big>(</big><em>name='scalar'</em>, <em>value=array([0])</em>, <em>dual=None</em>, <em>axis='?'</em>, <em>direction='scalar'</em>, <em>units=None</em>, <em>long_name='?'</em>, <em>metadata={}</em>, <em>strings=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#YCoord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.YCoord" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">YCoord</tt><big>(</big><em>name='scalar'</em>, <em>value=array([0])</em>, <em>dual=None</em>, <em>axis='?'</em>, <em>direction='scalar'</em>, <em>units=None</em>, <em>long_name='?'</em>, <em>metadata={}</em>, <em>strings=None</em>, <em>associative=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#YCoord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.YCoord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#spacegrids.fieldcls.Coord" title="spacegrids.fieldcls.Coord"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.fieldcls.Coord</span></tt></a></p>
 <p>Specialized Coord class for representing latitudinal direction in spherical coordinates. See Coord.</p>
 <p>The YCoord class contains methods related to distances, with dependencies identical to Coord (as opposed to XCoord). dist is overriden, working through into der, delta_dist, d and vol (even though these affected methods are inherited from Coord).</p>
@@ -1741,20 +1827,8 @@ vol method</dd>
 </dd></dl>
 
 <dl class="function">
-<dt id="spacegrids.fieldcls.att2members">
-<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">att2members</tt><big>(</big><em>func</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#att2members"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.att2members" title="Permalink to this definition">¶</a></dt>
-<dd><p>Decorator to transfer attribute retrieval from Membered object to its members.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>func: function.</dd>
-<dt>Returns:</dt>
-<dd>Function: the decorator.</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
 <dt id="spacegrids.fieldcls.cdfread">
-<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">cdfread</tt><big>(</big><em>filepath</em>, <em>varname</em>, <em>coord_stack=</em>, <span class="optional">[</span><span class="optional">]</span><em>ax_stack=</em>, <span class="optional">[</span><span class="optional">]</span><em>verbose=True</em>, <em>squeeze_Field=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#cdfread"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.cdfread" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">cdfread</tt><big>(</big><em>filepath</em>, <em>varname</em>, <em>coord_stack=</em><span class="optional">[</span><span class="optional">]</span>, <em>ax_stack=</em><span class="optional">[</span><span class="optional">]</span>, <em>verbose=True</em>, <em>squeeze_Field=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#cdfread"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.cdfread" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads data corresponding to variable name varname from netcdf file.</p>
 <p>coord_stack is used to provide Field with grid object built from corresponding Coord objects according to information in netcdf.</p>
 <dl class="docutils">
@@ -1774,38 +1848,13 @@ squeeze_Field: (Boolean) if True, hard- squeeze the Field at this point of the r
 <tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">cdfsniff</tt><big>(</big><em>path_parent, file_extensions=['*.nc', '*.cdf'], verbose=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#cdfsniff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.cdfsniff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Looks inside the path_parent path for Netcdf files and extracts Coord objects from the dim data.</p>
 <p>Path is to directory containing the Netcdf files, provided as argument.</p>
-<p>Uses sg.cdfsniff_helper.</p>
+<p>Uses sg._cdfsniff_helper.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>path_parent: (str) path to directory containing the Netcdf files
 file_extensions: (list of str) containing patterns to match Netcdf files</dd>
 <dt>Returns:</dt>
 <dd>List of all Coord objects that contain different data, to be used in the Coord stack cstack.</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.fieldcls.cdfsniff_helper">
-<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">cdfsniff_helper</tt><big>(</big><em>filepath</em>, <em>verbose=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#cdfsniff_helper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.cdfsniff_helper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Takes inventory of coords in netcdf file.</p>
-<p>Directions and therefore types of Coord objects (e.g. XCoord) are guessed from description and naming of Netcdf vars.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>filepath    total file path the specific Netcdf file.</dd>
-<dt>Returns:</dt>
-<dd>A list of spacegrids Coord objects.</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.fieldcls.check_equiv">
-<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">check_equiv</tt><big>(</big><em>func</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#check_equiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.check_equiv" title="Permalink to this definition">¶</a></dt>
-<dd><p>Decorator to perform preliminary equivalence check between self and other.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>func: function.</dd>
-<dt>Returns:</dt>
-<dd>Function: the decorator.</dd>
 </dl>
 </dd></dl>
 
@@ -1885,24 +1934,6 @@ strings: (container of strings) used as strings argument in Coord creation with 
 </dd></dl>
 
 <dl class="function">
-<dt id="spacegrids.fieldcls.dimname">
-<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">dimname</tt><big>(</big><em>crd</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#dimname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.dimname" title="Permalink to this definition">¶</a></dt>
-<dd><p>Strip off _crd suffix if it had been added because dim name equalled axis name.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.fieldcls.field2cumsum">
-<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">field2cumsum</tt><big>(</big><em>func</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#field2cumsum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.field2cumsum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Decorator to dispatch argument to other methods depending on argument.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>func: function.</dd>
-<dt>Returns:</dt>
-<dd>Function: the decorator.</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
 <dt id="spacegrids.fieldcls.find_equal_axes">
 <tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">find_equal_axes</tt><big>(</big><em>lstack</em>, <em>rstack</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#find_equal_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.find_equal_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Expects two lists of Coord objects and determines which Coord objects are equal.</p>
@@ -1922,8 +1953,8 @@ rstack: (list of Coord objects), the second Coord stack</dd>
 </dd></dl>
 
 <dl class="function">
-<dt id="spacegrids.fieldcls.finer_Field">
-<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">finer_Field</tt><big>(</big><em>F</em>, <em>factor=5.0</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#finer_Field"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.finer_Field" title="Permalink to this definition">¶</a></dt>
+<dt id="spacegrids.fieldcls.finer_field">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">finer_field</tt><big>(</big><em>F</em>, <em>factor=5.0</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#finer_field"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.finer_field" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is a more UVic specific function to prepare a Field containing the outline of the continents for horizontal plots.</p>
 </dd></dl>
 
@@ -1938,19 +1969,6 @@ rstack: (list of Coord objects), the second Coord stack</dd>
 <tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">guess_direction</tt><big>(</big><em>cdf_var, name_atts=['long_name', 'standard_name'], x_dir_names=['eastward', 'Eastward', 'zonal', 'Zonal'], y_dir_names=['northward', 'Northward', 'meridional', 'Meridional'], z_dir_names=['upward', 'Upward', 'vertical', 'Vertical'], t_dir_names=[], directional_names=['velocity', 'stress', 'momentum flux', 'momentum_flux']</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#guess_direction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.guess_direction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function for cdfread to guess, based on keywords in the netcdf data descriptions, whether a Field is a (space-) vector Field component and in what direction it points.</p>
 <p>The directional_names argument is a list of keywords that might show up in a description that indicates a vector component: e.g. the word velocity. If this list is empty, the function will not search for those keywords (less restrictive). The name_atts argument indicates the possible name of a descriptive attribute in a netcdf file. The {x,y,z}_dir_names correspond to keywords indicating that particular direction (x,y,z).</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.fieldcls.guess_grid_type">
-<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">guess_grid_type</tt><big>(</big><em>crd</em>, <em>default='ts_grid'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#guess_grid_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.guess_grid_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function that guesses the grid type using the keywords contained in the (sg) global dictionary grid_type_names by testing for keywords (contained as lists in that dictionary).</p>
-<p>Returns Entry from grid_type_names or None if no grid type is found.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.fieldcls.guess_helper">
-<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">guess_helper</tt><big>(</big><em>desc</em>, <em>guess_names</em>, <em>true_val=None</em>, <em>false_val=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#guess_helper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.guess_helper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper function for guess_direction</p>
 </dd></dl>
 
 <dl class="function">
@@ -1976,20 +1994,8 @@ rstack: (list of Coord objects), the second Coord stack</dd>
 </dd></dl>
 
 <dl class="function">
-<dt id="spacegrids.fieldcls.method2members">
-<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">method2members</tt><big>(</big><em>func</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#method2members"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.method2members" title="Permalink to this definition">¶</a></dt>
-<dd><p>Decorator to transfer method call from Membered object to its members.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>func: function.</dd>
-<dt>Returns:</dt>
-<dd>Function: the decorator.</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
 <dt id="spacegrids.fieldcls.nugget">
-<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">nugget</tt><big>(</big><em>path=None</em>, <em>name=None</em>, <em>fields=</em>, <span class="optional">[</span><span class="optional">]</span><em>history='Created from Spacegrids '</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#nugget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.nugget" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">nugget</tt><big>(</big><em>path=None</em>, <em>name=None</em>, <em>fields=</em><span class="optional">[</span><span class="optional">]</span>, <em>history='Created from Spacegrids '</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#nugget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.nugget" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates Netcdf file and writes all loaded Field to it, along with their Coord objects.</p>
 </dd></dl>
 
@@ -1998,12 +2004,6 @@ rstack: (list of Coord objects), the second Coord stack</dd>
 <tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">ones</tt><big>(</big><em>grid</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#ones"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.ones" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a Field with value np.ones(grid.shape) and grid attribute grid.</p>
 <p>No nans.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.fieldcls.prep_dual_array">
-<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">prep_dual_array</tt><big>(</big><em>raw_array</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#prep_dual_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.prep_dual_array" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prepare the dual.</p>
 </dd></dl>
 
 <dl class="function">
@@ -2040,79 +2040,18 @@ nan_val: (np.nan) value to indicate nan</dd>
 </dd></dl>
 
 </div>
-<div class="section" id="module-spacegrids.iosg">
-<span id="spacegrids-iosg-module"></span><h2>spacegrids.iosg module<a class="headerlink" href="#module-spacegrids.iosg" title="Permalink to this headline">¶</a></h2>
-<p>io related</p>
-<dl class="function">
-<dt id="spacegrids.iosg.locate">
-<tt class="descclassname">spacegrids.iosg.</tt><tt class="descname">locate</tt><big>(</big><em>top='/home/'</em>, <em>fname='projname'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/iosg.html#locate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.iosg.locate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Locates all files with filename fname. Helper function to info function.</p>
-<dl class="docutils">
-<dt>Args: </dt>
-<dd>top: (str) the start dir
-fname: (str)the filename to look for.</dd>
-<dt>Returns:</dt>
-<dd>List of all paths to dirs containing fname.</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.iosg.msk_read">
-<tt class="descclassname">spacegrids.iosg.</tt><tt class="descname">msk_read</tt><big>(</big><em>filepath='masks/msk'</em>, <em>crop=1</em><big>)</big><a class="reference internal" href="_modules/spacegrids/iosg.html#msk_read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.iosg.msk_read" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads a text file containing a mask pointed to by filepath and returns a corresponding array.</p>
-<p>Due to the way these masks are stored for the UVic model, cropping is needed, as indicated 
-by the crop flag in the arguments.  This is the lowest level mask read function in sg.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>filepath: (str) path to the file
-crop: (int) amount of points to crop at the margins.</dd>
-<dt>Return:</dt>
-<dd>ndarray containing mask.</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.iosg.netcdf_file">
-<tt class="descclassname">spacegrids.iosg.</tt><tt class="descname">netcdf_file</tt><big>(</big><em>filepath</em>, <em>mode='r'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/iosg.html#netcdf_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.iosg.netcdf_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Wrapper for opening Netcdf functions from NETCDF4, ScientificIO or Scipy</p>
-<p>Depends on cdf_lib_used variable.</p>
-<p>For &#8216;netcdf4&#8217;: 
-file = Dataset(filepath,mode, format=&#8217;NETCDF4&#8217;)
-For &#8216;scientificio&#8217;: 
-file = Scientific.IO.NetCDF.NetCDFFile(filename = filepath, mode = mode)
-Otherwise: 
-file = netcdf.netcdf_file(filename = filepath, mode = mode)</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>filepath: (str) full path to file
-mode: (str) mode to use as mode argument to file opening function</dd>
-<dt>Returns:</dt>
-<dd>file handle if successful.</dd>
-<dt>Raises:</dt>
-<dd>IOError if there are problems opening the file.</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.iosg.read_masks">
-<tt class="descclassname">spacegrids.iosg.</tt><tt class="descname">read_masks</tt><big>(</big><em>dir_path</em>, <em>msk_shape=None</em>, <em>grids=False</em>, <em>msk_val=2</em><big>)</big><a class="reference internal" href="_modules/spacegrids/iosg.html#read_masks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.iosg.read_masks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads mask and returns a list of Field objects containing masks.</p>
-<p>Calls msk_read, see msk_read.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>dir_path: (str) path to directory
-msk_shape: (None or tuple of int) describing supposed shape of mask
-grids: (Gr) grid to use for masks
-msk_val: (int) value that will not be nan in mask</dd>
-<dt>Returns:</dt>
-<dd>Dictionary of masks and their names</dd>
-</dl>
-</dd></dl>
-
 </div>
 <div class="section" id="module-spacegrids.ops">
-<span id="spacegrids-ops-module"></span><h2>spacegrids.ops module<a class="headerlink" href="#module-spacegrids.ops" title="Permalink to this headline">¶</a></h2>
-<p>io related</p>
+<span id="ops-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">ops</span></tt> Module<a class="headerlink" href="#module-spacegrids.ops" title="Permalink to this headline">¶</a></h2>
+<p>Mathematical operators based on Field and Gr operations.</p>
+<p>The mathematical operators defined here, such as Der, provide basic building blocks for the user to define more detailed Operators. Arithmatic operations such as addition and multiplication among these operators yield new operators. These new operators can be called on Field objects later, performing the intended operation.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ddX</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Der</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="c"># create Operator that would take X-derivative on Field args</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ddY</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Der</span><span class="p">(</span><span class="n">Y</span><span class="p">)</span> <span class="c"># similar</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ddXddY</span> <span class="o">=</span> <span class="n">ddX</span><span class="o">*</span><span class="n">ddY</span>  <span class="c"># create composite operator</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ddXddY</span><span class="p">(</span><span class="n">F</span><span class="p">)</span> <span class="c"># differentiation in X direction following differentiation in Y</span>
+</pre></div>
+</div>
 <dl class="class">
 <dt id="spacegrids.ops.Add">
 <em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">Add</tt><big>(</big><em>left</em>, <em>right</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#Add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.Add" title="Permalink to this definition">¶</a></dt>
@@ -2130,6 +2069,13 @@ msk_val: (int) value that will not be nan in mask</dd>
 <dt>Attributes:</dt>
 <dd>ax: (Ax) axis in which direction __call__ will take the derivative.</dd>
 </dl>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ddX</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Der</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="c"># create Operator that would take X-derivative on Field args</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ddY</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Der</span><span class="p">(</span><span class="n">Y</span><span class="p">)</span> <span class="c"># similar</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ddXddY</span> <span class="o">=</span> <span class="n">ddX</span><span class="o">*</span><span class="n">ddY</span>  <span class="c"># create composite operator</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ddXddY</span><span class="p">(</span><span class="n">F</span><span class="p">)</span> <span class="c"># differentiation in X direction following differentiation in Y</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="class">
@@ -2156,7 +2102,7 @@ msk_val: (int) value that will not be nan in mask</dd>
 
 <dl class="class">
 <dt id="spacegrids.ops.If">
-<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">If</tt><big>(</big><em>Cond_Op</em>, <em>True_Op</em>, <em>Else_Op=&lt;spacegrids.ops.Identity object at 0xa0bbb4c&gt;</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#If"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.If" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">If</tt><big>(</big><em>Cond_Op</em>, <em>True_Op</em>, <em>Else_Op=&lt;spacegrids.ops.Identity object at 0x41c0510&gt;</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#If"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.If" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
 <p>If Operator as in If then.</p>
 <p>The state of the system is defined by the Field(s) vF. Therefore, the condition can be internal to the call function and must be defined in terms of vF (e.g. &#8216;len(vF.grid) == 3&#8217;).</p>
@@ -2277,8 +2223,9 @@ msk_val: (int) value that will not be nan in mask</dd>
 
 </div>
 <div class="section" id="module-spacegrids.plotting">
-<span id="spacegrids-plotting-module"></span><h2>spacegrids.plotting module<a class="headerlink" href="#module-spacegrids.plotting" title="Permalink to this headline">¶</a></h2>
-<p>plotting</p>
+<span id="plotting-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">plotting</span></tt> Module<a class="headerlink" href="#module-spacegrids.plotting" title="Permalink to this headline">¶</a></h2>
+<p>Functions relating to plotting Fields.</p>
+<p>Field objects contain more information than Numpy ndarrays. For instance, information about grids is stored alongside the actual data defined on that grid. This information can be used to automatically choose figure axes and labels etc. This is done in the plot, contour and contourf functions contained in this module. These functions take Field arguments, and call their plt counterparts by the same name. Arguments can be passed on directly to these counterparts.</p>
 <dl class="function">
 <dt id="spacegrids.plotting.add_kmt">
 <tt class="descclassname">spacegrids.plotting.</tt><tt class="descname">add_kmt</tt><big>(</big><em>kmt</em><big>)</big><a class="reference internal" href="_modules/spacegrids/plotting.html#add_kmt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.plotting.add_kmt" title="Permalink to this definition">¶</a></dt>
@@ -2301,7 +2248,7 @@ msk_val: (int) value that will not be nan in mask</dd>
 <dl class="function">
 <dt id="spacegrids.plotting.contour">
 <tt class="descclassname">spacegrids.plotting.</tt><tt class="descname">contour</tt><big>(</big><em>fld</em>, <em>num_cont=15</em>, <em>xlabel=True</em>, <em>ylabel=True</em>, <em>minus_z=True</em>, <em>xl=None</em>, <em>yl=None</em>, <em>xscale=1.0</em>, <em>yscale=1.0</em>, <em>ax_units=True</em>, <em>num_xticks=6</em>, <em>num_yticks=6</em>, <em>greyshade='0.65'</em>, <em>showland=False</em>, <em>grid=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/plotting.html#contour"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.plotting.contour" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returned function for scale_prep_deco decorator.</p>
+<dd><p>Returned function for _scale_prep_deco decorator.</p>
 <p>Wraps contour and contourf, who take slightly different args: arguments specific to only one function:</p>
 <p>contourf
 greyshade = &#8216;0.65&#8217;</p>
@@ -2324,14 +2271,14 @@ num_yticks: (None or int) number of ticks on y-axis, or disabled
 greyshade: (str) shade of grey to use for land
 showland: (Boolean) show land (nan) is True
 grid: (None or Gr) grid to draw information from.
-<a href="#id3"><span class="problematic" id="id4">*</span></a>args,**kwargs: normal kw arguments that can be passed on to contour(f).</dd>
+<a href="#id6"><span class="problematic" id="id7">*</span></a>args,**kwargs: normal kw arguments that can be passed on to contour(f).</dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="spacegrids.plotting.contourf">
 <tt class="descclassname">spacegrids.plotting.</tt><tt class="descname">contourf</tt><big>(</big><em>fld</em>, <em>num_cont=15</em>, <em>xlabel=True</em>, <em>ylabel=True</em>, <em>minus_z=True</em>, <em>xl=None</em>, <em>yl=None</em>, <em>xscale=1.0</em>, <em>yscale=1.0</em>, <em>ax_units=True</em>, <em>num_xticks=6</em>, <em>num_yticks=6</em>, <em>greyshade='0.65'</em>, <em>showland=False</em>, <em>grid=None</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/plotting.html#contourf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.plotting.contourf" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returned function for scale_prep_deco decorator.</p>
+<dd><p>Returned function for _scale_prep_deco decorator.</p>
 <p>Wraps contour and contourf, who take slightly different args: arguments specific to only one function:</p>
 <p>contourf
 greyshade = &#8216;0.65&#8217;</p>
@@ -2354,7 +2301,7 @@ num_yticks: (None or int) number of ticks on y-axis, or disabled
 greyshade: (str) shade of grey to use for land
 showland: (Boolean) show land (nan) is True
 grid: (None or Gr) grid to draw information from.
-<a href="#id5"><span class="problematic" id="id6">*</span></a>args,**kwargs: normal kw arguments that can be passed on to contour(f).</dd>
+<a href="#id8"><span class="problematic" id="id9">*</span></a>args,**kwargs: normal kw arguments that can be passed on to contour(f).</dd>
 </dl>
 </dd></dl>
 
@@ -2370,27 +2317,7 @@ minus_z: (Boolean) z-axis points downard if true
 xlbl, ylbl: (str) override Field labels if not &#8216;&#8217;
 grid: (None or Gr) replaces Field grid if not None
 start_zero: (Boolean) if True, x-axis starts at 0  
-<a href="#id7"><span class="problematic" id="id8">**</span></a>kwargs: additional args to pass to plot function.</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.plotting.prep_axes">
-<tt class="descclassname">spacegrids.plotting.</tt><tt class="descname">prep_axes</tt><big>(</big><em>fld</em>, <em>minus_z=True</em>, <em>xl=None</em>, <em>yl=None</em>, <em>xscale=1.0</em>, <em>yscale=1.0</em>, <em>ax_units=True</em>, <em>grid=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/plotting.html#prep_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.plotting.prep_axes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prepare axes names etc for plotting.</p>
-<p>Supplies data and label information ready to use in plotting.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>fld: (Field) to be plotted
-minus_z: (Boolean) display negative numbers on vertical scale (Z) if True
-xl: (None, list/ tuple of length 2) plot limits in the x-direction
-yl: (None, list/ tuple of length 2) plot limits in the y-direction
-xscale: (float) scale in x direction
-yscale: (float) scale in y direction
-ax_units: (Boolean) display units on axes if True
-grid: (None or Gr) grid to draw information from.</dd>
-<dt>Returns:</dt>
-<dd>body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale</dd>
+<a href="#id10"><span class="problematic" id="id11">**</span></a>kwargs: additional args to pass to plot function.</dd>
 </dl>
 </dd></dl>
 
@@ -2413,14 +2340,8 @@ yscale: (float) scale in y direction
 ax_units: (Boolean) display units on axes if True
 ax: (None or figure axis handle) set to plt.gca() if argument is None
 greyshade: (str) shade of grey to use for land
-<a href="#id9"><span class="problematic" id="id10">**</span></a><a href="#id11"><span class="problematic" id="id12">*</span></a>kwargs: normal kw arguments that can be passed on to quiver.</dd>
+<a href="#id12"><span class="problematic" id="id13">**</span></a><a href="#id14"><span class="problematic" id="id15">*</span></a>kwargs: normal kw arguments that can be passed on to quiver.</dd>
 </dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="spacegrids.plotting.scale_prep_deco">
-<tt class="descclassname">spacegrids.plotting.</tt><tt class="descname">scale_prep_deco</tt><big>(</big><em>func</em><big>)</big><a class="reference internal" href="_modules/spacegrids/plotting.html#scale_prep_deco"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.plotting.scale_prep_deco" title="Permalink to this definition">¶</a></dt>
-<dd><p>Decorator used for contour and contourf</p>
 </dd></dl>
 
 <dl class="function">
@@ -2432,11 +2353,26 @@ greyshade: (str) shade of grey to use for land
 
 </div>
 <div class="section" id="module-spacegrids.projectcls">
-<span id="spacegrids-projectcls-module"></span><h2>spacegrids.projectcls module<a class="headerlink" href="#module-spacegrids.projectcls" title="Permalink to this headline">¶</a></h2>
-<p>Project class</p>
+<span id="projectcls-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">projectcls</span></tt> Module<a class="headerlink" href="#module-spacegrids.projectcls" title="Permalink to this headline">¶</a></h2>
+<p>Projects represent experiment data organized in project directories.</p>
+<dl class="docutils">
+<dt>Netcdf data must be organised in a projects directory tree. Create a directory named PROJECTS inside your home directory (name default), to contain all the data for all the projects. Then create a subdirectory for each of your projects, say one is called test_project. When using sg.info() and sg.Project with the nonick = True argument (see documentation), this is all that is needed to allow the sg module to recognise these subdirectories as representing projects. </dt>
+<dd><p class="first">This will allow the sg Python code to regard all Netcdf files placed directly inside test_project as belonging to individual experiments. Alternatively, instead of a single file, a subdirectory may represent an experiment. So directories inside the test_project directory are associated with output from a single experiment each, where all Netcdf files contained within are interpreted as belonging to that same experiment.</p>
+<p>To get started in ipython (bring up with sg.overview() ):</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spacegrids</span> <span class="kn">as</span> <span class="nn">sg</span>           
+<span class="gp">&gt;&gt;&gt; </span><span class="n">D</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">nonick</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">P</span> <span class="o">=</span> <span class="n">sgPproject</span><span class="p">(</span><span class="n">D</span><span class="p">[</span><span class="s">&#39;my_project&#39;</span><span class="p">]</span> <span class="p">,</span> <span class="n">nonick</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">P</span><span class="o">.</span><span class="n">load</span><span class="p">([</span><span class="s">&#39;temperature&#39;</span><span class="p">,</span><span class="s">&#39;u&#39;</span><span class="p">])</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># obtain the axes under their names T, X, Y, Z in namespace:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">P</span><span class="p">[</span><span class="s">&#39;some_experiment&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>  <span class="k">exec</span> <span class="n">c</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39; = c&#39;</span>    
+</pre></div>
+</div>
+</dd>
+</dl>
 <dl class="class">
 <dt id="spacegrids.projectcls.Project">
-<em class="property">class </em><tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">Project</tt><big>(</big><em>path='/home/wim', expnames=['*'], varnames=[], msk_grid='UVic2.8_t', name=None, nonick=False, descr=None, verbose=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">Project</tt><big>(</big><em>path='/home/nfs/z3049637', expnames=['*'], varnames=[], msk_grid='UVic2.8_t', name=None, nonick=False, descr=None, verbose=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Represents experiment data organized in project directories.</p>
 <p>Data directory tree:</p>
@@ -2615,12 +2551,6 @@ add2cstack: (Boolean) determines whether new Coord will be added to the Exper co
 </dd></dl>
 
 <dl class="method">
-<dt id="spacegrids.projectcls.Project.update_nbytes">
-<tt class="descname">update_nbytes</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project.update_nbytes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project.update_nbytes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update estimate of number of Mb used by Project.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="spacegrids.projectcls.Project.write">
 <tt class="descname">write</tt><big>(</big><em>path=None</em>, <em>name=None</em>, <em>force=False</em>, <em>history='Created from Spacegrids '</em>, <em>insert_dual=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project.write" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write entire loaded Project to disk.</p>
@@ -2636,7 +2566,7 @@ add2cstack: (Boolean) determines whether new Coord will be added to the Exper co
 
 <dl class="function">
 <dt id="spacegrids.projectcls.info">
-<tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">info</tt><big>(</big><em>rootdir='/home/wim'</em>, <em>projdirname='PROJECTS'</em>, <em>fname='projname'</em>, <em>nonick=False</em>, <em>verbose=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.info" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">info</tt><big>(</big><em>rootdir='/home/nfs/z3049637'</em>, <em>projdirname='PROJECTS'</em>, <em>fname='projname'</em>, <em>nonick=False</em>, <em>verbose=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simple function to take inventory of all Project directories based on contents of projname text files inside project directories.</p>
 <p>This way, no specific paths need to be used, and projects can be referred to by their nicknames defined in a file called projname in each directory containing the experiment directories.</p>
 <dl class="docutils">
@@ -2661,13 +2591,13 @@ fname: (str) the filename to look for and read the content of to determine nickn
 
 <dl class="function">
 <dt id="spacegrids.projectcls.info_dict">
-<tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">info_dict</tt><big>(</big><em>rootdir='/home/wim'</em>, <em>projdirname='PROJECTS'</em>, <em>fname='projname'</em>, <em>nonick=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#info_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.info_dict" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">info_dict</tt><big>(</big><em>rootdir='/home/nfs/z3049637'</em>, <em>projdirname='PROJECTS'</em>, <em>fname='projname'</em>, <em>nonick=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#info_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.info_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>See info method.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="spacegrids.projectcls.ls">
-<tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">ls</tt><big>(</big><em>rootdir='/home/wim'</em>, <em>projdirname='PROJECTS'</em>, <em>fname='projname'</em>, <em>nonick=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#ls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.ls" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">ls</tt><big>(</big><em>rootdir='/home/nfs/z3049637'</em>, <em>projdirname='PROJECTS'</em>, <em>fname='projname'</em>, <em>nonick=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#ls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.ls" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simple function to display all Project directories vs their projname nicknames.</p>
 <p>See info method for details.</p>
 <p>Calls info_dict.</p>
@@ -2686,7 +2616,7 @@ fname: (str) the filename to look for and read the content of to determine nickn
 
 <dl class="class">
 <dt id="spacegrids.projectcls.project">
-<em class="property">class </em><tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">project</tt><big>(</big><em>path='/home/wim', expnames=['*'], varnames=[], msk_grid='UVic2.8_t', name=None, nonick=False, descr=None, verbose=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.project" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">project</tt><big>(</big><em>path='/home/nfs/z3049637', expnames=['*'], varnames=[], msk_grid='UVic2.8_t', name=None, nonick=False, descr=None, verbose=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.project" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Legacy class to generate error when initialized by depricated code.</p>
 </dd></dl>
@@ -2708,8 +2638,8 @@ fname: (str) the filename to look for and read the content of to determine nickn
 
 </div>
 <div class="section" id="module-spacegrids.utilsg">
-<span id="spacegrids-utilsg-module"></span><h2>spacegrids.utilsg module<a class="headerlink" href="#module-spacegrids.utilsg" title="Permalink to this headline">¶</a></h2>
-<p>useful general functions</p>
+<span id="utilsg-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">utilsg</span></tt> Module<a class="headerlink" href="#module-spacegrids.utilsg" title="Permalink to this headline">¶</a></h2>
+<p>Useful general functions and utilities.</p>
 <dl class="class">
 <dt id="spacegrids.utilsg.Report">
 <em class="property">class </em><tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">Report</tt><big>(</big><em>value=''</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#Report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.Report" title="Permalink to this definition">¶</a></dt>
@@ -2720,22 +2650,6 @@ fname: (str) the filename to look for and read the content of to determine nickn
 <div>value : <cite>str</cite> The reporting string being built</div></blockquote>
 <p>Examples:</p>
 </div></blockquote>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spacegrids</span> <span class="kn">as</span> <span class="nn">sg</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">REP</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Report</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">REP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&#39;---&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">REP</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s">&#39;a test&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">REP</span><span class="o">.</span><span class="n">line</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">D</span> <span class="o">=</span><span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s">&#39;b&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="s">&#39;c&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="s">&#39;d&#39;</span><span class="p">:</span><span class="mi">5</span><span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">REP</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">REP</span>
-<span class="go">---</span>
-<span class="go">a test</span>
-<span class="go">----------</span>
-
-<span class="go">a               1              c               3              </span>
-<span class="go">b               2              d               5              </span>
-</pre></div>
-</div>
 <dl class="method">
 <dt id="spacegrids.utilsg.Report.block">
 <tt class="descname">block</tt><big>(</big><em>L</em>, <em>delim='\ '</em>, <em>width=12</em>, <em>cols=4</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#Report.block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.Report.block" title="Permalink to this definition">¶</a></dt>
@@ -2773,9 +2687,9 @@ echoln method</p>
 <dl class="method">
 <dt id="spacegrids.utilsg.Report.echoln">
 <tt class="descname">echoln</tt><big>(</big><em>what=''</em>, <em>delim=' '</em>, <em>maxlen=10</em>, <em>width=12</em>, <em>cols=4</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#Report.echoln"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.Report.echoln" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Insert a string on a new line into Report value.</p>
-<dl class="docutils">
+<dd><p>Insert a string on a new line into Report value.</p>
+<blockquote>
+<div><dl class="docutils">
 <dt>Args:</dt>
 <dd>what: string to insert (default &#8216;&#8217;) or list/ tuple of strings
 delim: delimiter character passed to block method
@@ -2843,22 +2757,13 @@ instead of name if the alias attribute is available.</p>
 <p>Examples:</p>
 <p>For example, we could apply add_alias to a list of 4 test Coord objects, two of which have the same name.</p>
 </div></blockquote>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spacegrids</span> <span class="kn">as</span> <span class="nn">sg</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">coord1</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Coord</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;test&#39;</span><span class="p">,</span><span class="n">direction</span> <span class="o">=</span><span class="s">&#39;X&#39;</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span> <span class="p">)</span>
+</dd></dl>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="n">coord2</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Coord</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;test&#39;</span><span class="p">,</span><span class="n">direction</span> <span class="o">=</span><span class="s">&#39;Y&#39;</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span> <span class="p">)</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">coord3</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Coord</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;test3&#39;</span><span class="p">,</span><span class="n">direction</span> <span class="o">=</span><span class="s">&#39;X&#39;</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]))</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">coord4</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Coord</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;test4&#39;</span><span class="p">,</span><span class="n">direction</span> <span class="o">=</span><span class="s">&#39;X&#39;</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]))</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">L</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">add_alias</span><span class="p">([</span><span class="n">coord1</span><span class="p">,</span> <span class="n">coord2</span><span class="p">,</span> <span class="n">coord3</span><span class="p">,</span> <span class="n">coord4</span><span class="p">])</span>  
-
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="p">[</span><span class="n">it</span><span class="o">.</span><span class="n">alias</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">L</span><span class="p">]</span>
-<span class="go">[&#39;test&#39;, &#39;test2&#39;, &#39;test3&#39;, &#39;test4&#39;]</span>
-</pre></div>
-</div>
+<dl class="function">
+<dt id="spacegrids.utilsg.affix">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">affix</tt><big>(</big><em>coord_name</em>, <em>affix=''</em>, <em>kind='suffix'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#affix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.affix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append affix to string, ignore when affix already present.</p>
+<p>Can replace this with a nillpotent decorator.</p>
 </dd></dl>
 
 <dl class="function">
@@ -2959,9 +2864,9 @@ sort: flag. sort called on result if True.</dd>
 <dl class="function">
 <dt id="spacegrids.utilsg.order_mag">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">order_mag</tt><big>(</big><em>val</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#order_mag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.order_mag" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Find order of magnitude of value.</p>
-<dl class="docutils">
+<dd><p>Find order of magnitude of value.</p>
+<blockquote>
+<div><dl class="docutils">
 <dt>Args:</dt>
 <dd>val: float</dd>
 <dt>Returns: </dt>
@@ -2969,11 +2874,6 @@ sort: flag. sort called on result if True.</dd>
 </dl>
 <p>Examples:</p>
 </div></blockquote>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spacegrids</span> <span class="kn">as</span> <span class="nn">sg</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sg</span><span class="o">.</span><span class="n">order_mag</span><span class="p">(</span><span class="mf">1140.</span><span class="p">)</span>
-<span class="go">3.0</span>
-</pre></div>
-</div>
 </dd></dl>
 
 <dl class="function">
@@ -3029,9 +2929,9 @@ id_index</p>
 <dl class="function">
 <dt id="spacegrids.utilsg.round_order">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">round_order</tt><big>(</big><em>value</em>, <em>order=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#round_order"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.round_order" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Round value up to order of magnitude order.</p>
-<dl class="docutils">
+<dd><p>Round value up to order of magnitude order.</p>
+<blockquote>
+<div><dl class="docutils">
 <dt>Args:</dt>
 <dd>value: float
 order:  (int) the order to which to round value (e.g. order=2 is 100)</dd>
@@ -3040,13 +2940,6 @@ order:  (int) the order to which to round value (e.g. order=2 is 100)</dd>
 </dl>
 <p>Examples:</p>
 </div></blockquote>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spacegrids</span> <span class="kn">as</span> <span class="nn">sg</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sg</span><span class="o">.</span><span class="n">round_order</span><span class="p">(</span><span class="mf">1140.</span><span class="p">,</span><span class="mf">2.</span><span class="p">)</span>
-<span class="go">1100.0</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sg</span><span class="o">.</span><span class="n">round_order</span><span class="p">(</span><span class="mf">1140.</span><span class="p">,</span><span class="mf">1.</span><span class="p">)</span>
-<span class="go">1140.0</span>
-</pre></div>
-</div>
 </dd></dl>
 
 <dl class="function">
@@ -3056,7 +2949,7 @@ order:  (int) the order to which to round value (e.g. order=2 is 100)</dd>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>L: list of strings       
-name_filter: the wildcard glob pattern (e.g. &#8216;<a href="#id13"><span class="problematic" id="id14">*</span></a>hello&#8217;)</dd>
+name_filter: the wildcard glob pattern (e.g. &#8216;<a href="#id16"><span class="problematic" id="id17">*</span></a>hello&#8217;)</dd>
 <dt>Returns: </dt>
 <dd>A list of strings that match.</dd>
 </dl>
@@ -3107,9 +3000,6 @@ format: string indicating the text formatting (see default).</dd>
 </dd></dl>
 
 </div>
-<div class="section" id="module-spacegrids">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-spacegrids" title="Permalink to this headline">¶</a></h2>
-</div>
 </div>
 
 
@@ -3120,17 +3010,30 @@ format: string indicating the text formatting (see default).</dd>
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">spacegrids package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-spacegrids.config">spacegrids.config module</a></li>
-<li><a class="reference internal" href="#module-spacegrids.expercls">spacegrids.expercls module</a></li>
-<li><a class="reference internal" href="#module-spacegrids.fieldcls">spacegrids.fieldcls module</a></li>
-<li><a class="reference internal" href="#module-spacegrids.iosg">spacegrids.iosg module</a></li>
-<li><a class="reference internal" href="#module-spacegrids.ops">spacegrids.ops module</a></li>
-<li><a class="reference internal" href="#module-spacegrids.plotting">spacegrids.plotting module</a></li>
-<li><a class="reference internal" href="#module-spacegrids.projectcls">spacegrids.projectcls module</a></li>
-<li><a class="reference internal" href="#module-spacegrids.utilsg">spacegrids.utilsg module</a></li>
-<li><a class="reference internal" href="#module-spacegrids">Module contents</a></li>
+<li><a class="reference internal" href="#">spacegrids Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">spacegrids</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-spacegrids.abstract"><tt class="docutils literal"><span class="pre">abstract</span></tt> Module</a><ul>
+<li><a class="reference internal" href="#named">Named</a></li>
+<li><a class="reference internal" href="#associative">Associative</a></li>
+<li><a class="reference internal" href="#directional">Directional</a></li>
+<li><a class="reference internal" href="#membered">Membered</a></li>
+<li><a class="reference internal" href="#valued">Valued</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-spacegrids.decorators"><tt class="docutils literal"><span class="pre">decorators</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-spacegrids.expercls"><tt class="docutils literal"><span class="pre">expercls</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-spacegrids.fieldcls"><tt class="docutils literal"><span class="pre">fieldcls</span></tt> Module</a><ul>
+<li><a class="reference internal" href="#coord">Coord</a></li>
+<li><a class="reference internal" href="#gr">Gr</a></li>
+<li><a class="reference internal" href="#ax">Ax</a></li>
+<li><a class="reference internal" href="#axgr">AxGr</a></li>
+<li><a class="reference internal" href="#field">Field</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-spacegrids.ops"><tt class="docutils literal"><span class="pre">ops</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-spacegrids.plotting"><tt class="docutils literal"><span class="pre">plotting</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-spacegrids.projectcls"><tt class="docutils literal"><span class="pre">projectcls</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-spacegrids.utilsg"><tt class="docutils literal"><span class="pre">utilsg</span></tt> Module</a></li>
 </ul>
 </li>
 </ul>
@@ -3176,8 +3079,8 @@ format: string indicating the text formatting (see default).</dd>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2014, Author.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+        &copy; Copyright 2014, Willem Sijp.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

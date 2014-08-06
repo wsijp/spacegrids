@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -23,7 +25,6 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="spacegrids  documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
@@ -63,21 +64,25 @@
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
-<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">_config</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">copy</span>
 
-<span class="c">#from spacegrids.decorators import field2cumsum</span>
+<span class="kn">from</span> <span class="nn">decorators</span> <span class="kn">import</span> <span class="n">method2members</span><span class="p">,</span> <span class="n">att2members</span>
+
+<span class="c">#from spacegrids.decorators import _field2cumsum</span>
 
 <span class="kn">from</span> <span class="nn">utilsg</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">iosg</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">_iosg</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">from</span> <span class="nn">abstract</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">warnings</span><span class="o">.</span><span class="n">formatwarning</span> <span class="o">=</span> <span class="n">warning_on_one_line</span>
 
-<span class="c"># ---- decorators -----</span>
 
-<div class="viewcode-block" id="field2cumsum"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.field2cumsum">[docs]</a><span class="k">def</span> <span class="nf">field2cumsum</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+<span class="c"># ---- decorators ------</span>
+
+<span class="k">def</span> <span class="nf">_field2cumsum</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  Decorator to dispatch argument to other methods depending on argument.</span>
 
@@ -109,871 +114,11 @@
   <span class="k">return</span> <span class="n">dispatcher</span>
 
 
-</div>
-<div class="viewcode-block" id="check_equiv"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.check_equiv">[docs]</a><span class="k">def</span> <span class="nf">check_equiv</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Decorator to perform preliminary equivalence check between self and other.</span>
-
-<span class="sd">  Args:</span>
-<span class="sd">    func: function.</span>
-
-<span class="sd">  Returns:</span>
-<span class="sd">    Function: the decorator.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-
-  <span class="k">def</span> <span class="nf">checker</span><span class="p">(</span><span class="n">caller</span><span class="p">,</span><span class="n">other</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span> 
-
-    
-    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">caller</span><span class="o">.</span><span class="n">is_equiv</span><span class="p">(</span><span class="n">other</span><span class="p">)):</span>
-      <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Ordered equivalence wrong, aborting with None!&quot;</span><span class="p">)</span>
-      <span class="k">return</span>
-
-    <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">caller</span><span class="p">,</span><span class="n">other</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-  <span class="k">return</span> <span class="n">checker</span>
-
-
-
-</div>
-<div class="viewcode-block" id="method2members"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.method2members">[docs]</a><span class="k">def</span> <span class="nf">method2members</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Decorator to transfer method call from Membered object to its members.</span>
-
-<span class="sd">  Args:</span>
-<span class="sd">    func: function.</span>
-
-<span class="sd">  Returns:</span>
-<span class="sd">    Function: the decorator.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-
-  <span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="n">caller</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span> 
-
-    <span class="n">method_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__name__</span>
-    
-    <span class="k">return</span> <span class="n">caller</span><span class="o">.</span><span class="n">call_on_members</span><span class="p">(</span><span class="n">method_name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-  <span class="k">return</span> <span class="n">wrap</span>
-
-</div>
-<div class="viewcode-block" id="att2members"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.att2members">[docs]</a><span class="k">def</span> <span class="nf">att2members</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Decorator to transfer attribute retrieval from Membered object to its members.</span>
-
-<span class="sd">  Args:</span>
-<span class="sd">    func: function.</span>
-
-<span class="sd">  Returns:</span>
-<span class="sd">    Function: the decorator.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-
-  <span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="n">caller</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span> 
-
-    <span class="n">att_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__name__</span>
-    
-    <span class="k">return</span> <span class="n">caller</span><span class="o">.</span><span class="n">get_from_members</span><span class="p">(</span><span class="n">att_name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-  <span class="k">return</span> <span class="n">wrap</span>
-
-
-
-
-
-<span class="c"># ----- most general classes ------------</span>
-</div>
-<div class="viewcode-block" id="Named"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Named">[docs]</a><span class="k">class</span> <span class="nc">Named</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Base class for most other sg classes, representing objects with copy and same methods.</span>
-
-<span class="sd">  The &quot;same&quot; method indicates when Named objects are &quot;the same&quot;, namely when their &quot;name&quot; attribute is the same. This method coincides with the &quot;weaksame&quot; method. &quot;Weaksame&quot; is generally a weaker condition in the derived classes. The &quot;same&quot; method allows the implementation of the &quot;samein&quot; and &quot;sameindex&quot; methods at this abstract level, with generally the &quot;same&quot; method overriden in derived classes.</span>
-
-<span class="sd">  This class provides a copy method that is used by the derived classes.</span>
-
-<span class="sd">  Attributes:</span>
-<span class="sd">      name: (str) name of Object</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-
-
-
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;scalar&#39;</span> <span class="p">,</span><span class="n">long_name</span><span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">):</span>  
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Initialisation of Name object. </span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      name: (str) name of Object</span>
-<span class="sd">      long_name: (str) longer description (e.g. for display)</span>
-
-
-<span class="sd">    Returns:</span>
-<span class="sd">      Named object</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-  
-    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="n">long_name</span>
-
-
-<div class="viewcode-block" id="Named.copy"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Named.copy">[docs]</a>  <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">equiv</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Copy method for Named. See __init__ for arguments.</span>
-
-<span class="sd">    Most child classes should inherit this method.</span>
-
-<span class="sd">    Args (in addition to __init__):</span>
-<span class="sd">      equivs: (Boolean) If True, the copies will be equivalent. </span>
-
-<span class="sd">    Returns: </span>
-<span class="sd">      a copy of the Directional object.</span>
-
-<span class="sd">    Copy methods in sg work as follows: when no value is selected for an argument, a copy of the self attribute will be used. Otherwise, the **kwargs argument value will be used.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c"># keys to exclude:    </span>
-    <span class="n">forbid</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;self&#39;</span><span class="p">,</span><span class="s">&#39;frame&#39;</span><span class="p">]</span>
-
-    <span class="c"># keys value dict to examine:</span>
-    <span class="n">allow</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__init__</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">forbid</span>  <span class="p">}</span>
-
-    <span class="c"># new kwargs to use in new object .__init__ construction</span>
-    <span class="n">new_kwargs</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">({})</span>
-
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">allow</span><span class="p">:</span>
-      <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-        <span class="c"># if given in kwargs, override</span>
-        <span class="n">new_kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-      <span class="k">else</span><span class="p">:</span>
-        <span class="c"># otherwise use value in self attribute</span>
-        <span class="n">new_kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>  
-
-    <span class="n">new_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copy_cleanup</span><span class="p">(</span><span class="o">**</span><span class="n">new_kwargs</span><span class="p">)</span>
-
-    <span class="c"># initialize new object:</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">(</span><span class="o">**</span><span class="n">new_kwargs</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">equiv</span><span class="p">:</span>
-      <span class="c"># decide whether to copy over the equivs list</span>
-      <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s">&#39;equivs&#39;</span><span class="p">):</span>
-        <span class="n">result</span><span class="o">.</span><span class="n">equivs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">equivs</span>
-
-    <span class="k">return</span> <span class="n">result</span>
-</div>
-  <span class="k">def</span> <span class="nf">_copy_cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">new_kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Override this method for specific work to be done before new object init in copy method (e.g. duals in Coord).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">new_kwargs</span>
-
-
-
-  <span class="k">def</span> <span class="nf">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Shorthand for weaksame method. See weaksame.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weaksame</span><span class="p">(</span><span class="n">other</span> <span class="o">=</span> <span class="n">other</span><span class="p">)</span>
-
-
-
-<div class="viewcode-block" id="Named.weaksame"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Named.weaksame">[docs]</a>  <span class="k">def</span> <span class="nf">weaksame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Tests if two Directional objects have the same name.</span>
-
-<span class="sd">    Weak test to see if two Directional objects are similar.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">         other: other Directional object to compare self with</span>
-<span class="sd">       </span>
-<span class="sd">    Returns: </span>
-<span class="sd">         True/ False</span>
-
-<span class="sd">    **See also**</span>
-<span class="sd">    same method</span>
-<span class="sd">    samein method</span>
-<span class="sd">    sameindex method</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
-      <span class="k">return</span> <span class="bp">True</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="k">return</span> <span class="bp">False</span>
-
-</div>
-<div class="viewcode-block" id="Named.same"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Named.same">[docs]</a>  <span class="k">def</span> <span class="nf">same</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Method to check whether this Named object has identical main attributes to argument other. </span>
-
-<span class="sd">    Placeholder identical to weaksame: to be overriden in child classes.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      other: (Named) to check against</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      True/ False</span>
-
-<span class="sd">    Attributes checked:</span>
-<span class="sd">      name: via str ==</span>
-<span class="sd"> </span>
-<span class="sd">    See also:</span>
-<span class="sd">      samein method</span>
-<span class="sd">      same_index method</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weaksame</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
-
-
-
-</div>
-<div class="viewcode-block" id="Named.samein"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Named.samein">[docs]</a>  <span class="k">def</span> <span class="nf">samein</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">L</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Tests whether this Directional is the same as any element in list L, under &#39;same&#39; method.</span>
-
-<span class="sd">    Uses: same method.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      L: (list of Directional objects) to test against</span>
-
-<span class="sd">    returns:</span>
-<span class="sd">      True/ False</span>
-
-<span class="sd">    See also:</span>
-<span class="sd">      same method</span>
-<span class="sd">      same_index method</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span><span class="n">x</span> <span class="ow">or</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">same</span><span class="p">(</span><span class="n">it</span><span class="p">)</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">L</span><span class="p">]</span> <span class="p">)</span>
-</div>
-<div class="viewcode-block" id="Named.sameindex"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Named.sameindex">[docs]</a>  <span class="k">def</span> <span class="nf">sameindex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">L</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Find index of this Directional in list L of Directional objects, under &#39;same&#39; method.</span>
-
-<span class="sd">    Uses: same method.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      L: (list of directional objects) to search</span>
-
-<span class="sd">    returns:</span>
-<span class="sd">      None or Integer, the index of the first item it in the list that satisfies self.same(it)</span>
-
-<span class="sd">    See also:</span>
-<span class="sd">      same method</span>
-<span class="sd">      samein method</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">it</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
-      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">same</span><span class="p">(</span><span class="n">it</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">i</span>
-     
-    <span class="k">return</span> <span class="bp">None</span>    
-
-
-
-
-
-
-
-</div></div>
-<div class="viewcode-block" id="Directional"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Directional">[docs]</a><span class="k">class</span> <span class="nc">Directional</span><span class="p">(</span><span class="n">Named</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Base class for derived Coord and Ax classes, representing &quot;direction&quot; (e.g. &quot;latitude&quot; or &quot;depth&quot;).</span>
-
-<span class="sd">  An abstract equivalence relationship is defined among directional objects by adding them to each other&#39;s equiv attribute (a list of equivalent Directionals). This relationship is generally used to indicate whether two Directional objects have the same direction (e.g. X,Y), but could represent other relationships depending on the user.</span>
-
-<span class="sd">  The same method is differentiated from the weaksame method (unlike the parent class), with the more strict additional condition that in addition to &quot;name&quot;, the &quot;direction&quot; attribute also needs to be the same. therefore, two Directional objects are considered &quot;same&quot; when both &quot;name&quot; and &quot;direction&quot; match. They are &quot;weaksame&quot; when only the &quot;name&quot; matches.</span>
-
-<span class="sd">  This base class is closely related to the Ax class. The Coord class is also derived from it.</span>
-
-
-<span class="sd">  Attributes:</span>
-<span class="sd">      name: (str) name of Object</span>
-<span class="sd">      direction: (str) name of direction in which object points</span>
-<span class="sd">      long_name: (str) longer description (e.g. for display or in Netcdf)</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-
-  <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Display alias if attribute present, name otherwise.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s">&#39;alias&#39;</span><span class="p">):</span>
-      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">alias</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
-
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;scalar&#39;</span><span class="p">,</span><span class="n">direction</span> <span class="o">=</span><span class="s">&#39;scalar&#39;</span><span class="p">,</span><span class="n">long_name</span><span class="o">=</span> <span class="s">&#39;&#39;</span> <span class="p">):</span>  
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Initialisation of Directional object. </span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      name: (str) name of Object</span>
-<span class="sd">      direction: (str) name of direction in which object points</span>
-<span class="sd">      long_name: (str) longer description (e.g. for display or in Netcdf)</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      Directional object</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-  
-<span class="c"># choosing the name ID creates an identity object. ID*b = b for all Coord elements b.</span>
-<span class="c"># could implement the identity Field in __call__</span>
-
-<span class="c"># Metric could be a class. Objects of this class could be constructed by a method of the Coord class (Coord objects then spawn metric objects).</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">equivs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">direction</span> <span class="o">=</span> <span class="n">direction</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="n">long_name</span>
-
-  <span class="k">def</span> <span class="nf">__neg__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    To be overriden for now. Could introduce +-1 here.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
-
-<div class="viewcode-block" id="Directional.same"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Directional.same">[docs]</a>  <span class="k">def</span> <span class="nf">same</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Method to check whether this Directional object has identical main attributes to argument other. </span>
-
-<span class="sd">    Overrides Name class same method.    </span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      other: (Directional) to check against</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      True/ False</span>
-
-<span class="sd">    Attributes checked:</span>
-<span class="sd">      name: via str ==</span>
-<span class="sd">      direction: via str == </span>
-
-<span class="sd">    See also:</span>
-<span class="sd">      samein method</span>
-<span class="sd">      same_index method</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span>
-
-
-
-
-<span class="c"># ----- equivalence related ---------  </span>
-</div>
-<div class="viewcode-block" id="Directional.make_equiv"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Directional.make_equiv">[docs]</a>  <span class="k">def</span> <span class="nf">make_equiv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Register equivalence of two Coord objects. </span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      other: (Coord)</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      None</span>
-
-<span class="sd">    See also:</span>
-<span class="sd">      is_equiv</span>
-<span class="sd">      eq_index</span>
-<span class="sd">      eq_in</span>
-
-<span class="sd">    Examples:</span>
-<span class="sd">    &gt;&gt;&gt; depth.is_equiv(longitude) # generally different directions.</span>
-<span class="sd">    False</span>
-<span class="sd">    &gt;&gt;&gt; depth.make_equiv(longitude) # don&#39;t do this in real work</span>
-<span class="sd">    &gt;&gt;&gt; depth.is_equiv(longitude) # uphysically:</span>
-<span class="sd">    True </span>
-<span class="sd">    &quot;&quot;&quot;</span>  
-
-<span class="c">#      self.equivs.append(other)</span>
-<span class="c">#      other.equivs.append(self)    </span>
-
-    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">equivs</span><span class="p">):</span>
-      <span class="n">e</span><span class="o">.</span><span class="n">equivs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">equivs</span><span class="p">):</span>
-      <span class="n">e</span><span class="o">.</span><span class="n">equivs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>        
-
-    <span class="bp">self</span><span class="o">.</span><span class="n">equivs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">equivs</span><span class="p">))</span>
-    <span class="n">other</span><span class="o">.</span><span class="n">equivs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">equivs</span><span class="p">))</span>
-
-    <span class="k">return</span>
-
-</div>
-<div class="viewcode-block" id="Directional.is_equiv"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Directional.is_equiv">[docs]</a>  <span class="k">def</span> <span class="nf">is_equiv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">,</span> <span class="n">checks</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Test for equivalence (under make_equiv) between Directional objects. e.g. xt is equivalent to xu</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      other: (Coord or Ax)</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      True when equivalent, False otherwise.</span>
-
-<span class="sd">    Examples:</span>
-<span class="sd">    &gt;&gt;&gt; depth.is_equiv(longitude) # generally different directions.</span>
-<span class="sd">    False</span>
-
-<span class="sd">    See also:</span>
-<span class="sd">      make_equiv</span>
-<span class="sd">      eq_index</span>
-<span class="sd">      eq_in</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    
-    <span class="k">if</span> <span class="p">(</span><span class="n">other</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">equivs</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="bp">self</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">equivs</span><span class="p">):</span>
-
-      <span class="k">return</span> <span class="bp">True</span>     
-    <span class="k">else</span><span class="p">:</span>
-      <span class="c"># Warnings helpful for debugging and spotting potential problems:</span>
-
-      <span class="k">if</span> <span class="n">checks</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
-
-        <span class="k">try</span><span class="p">:</span>
-          <span class="k">if</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">same</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="p">):</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Warning (severe): </span><span class="si">%s</span><span class="s">.is_equiv(</span><span class="si">%s</span><span class="s">) is False, but </span><span class="si">%s</span><span class="s">.same(</span><span class="si">%s</span><span class="s">) is True! &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">,</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">)</span> <span class="p">)</span>
-          <span class="k">elif</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">weaksame</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="p">):</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Warning (severe): </span><span class="si">%s</span><span class="s">.is_equiv(</span><span class="si">%s</span><span class="s">) is False, but </span><span class="si">%s</span><span class="s">.weaksame(</span><span class="si">%s</span><span class="s">) is True! &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">,</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">)</span> <span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span> 
-          <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Consistency check failed.&#39;</span><span class="p">)</span>
-
-      <span class="c"># then go about normal business:</span>
-      <span class="k">return</span> <span class="bp">False</span>
-
-
-</div>
-<div class="viewcode-block" id="Directional.eq_index"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Directional.eq_index">[docs]</a>  <span class="k">def</span> <span class="nf">eq_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span> <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Find index of first element in collection equivalent to self under is_equiv.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      collection: (e.g. List) order collection of Directional objects</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      Integer if equivalent found (index to equiv element), None otherwise.</span>
-
-
-<span class="sd">    See also:</span>
-<span class="sd">      make_equiv</span>
-<span class="sd">      is_equiv</span>
-<span class="sd">      eq_in</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">collection</span><span class="p">):</span>
-      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_equiv</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">i</span>
-    <span class="k">return</span> 
-
-</div>
-<div class="viewcode-block" id="Directional.eq_in"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Directional.eq_in">[docs]</a>  <span class="k">def</span> <span class="nf">eq_in</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Determines whether Coord (self) is equivalent to any of the constituent Coord objects of the argument Gr or GrAx, and returns equivalent object.</span>
-
-<span class="sd">    Uses: eq_index</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      collection: (Gr or AxGr) object to be checked.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      The equivalent object  when crd is equivalent to one of the Coord objects in argument, None otherwise.</span>
-
-<span class="sd">    See also:</span>
-<span class="sd">      eq_in method of Ax, GrAx</span>
-<span class="sd">      is_equiv</span>
-<span class="sd">      make_equiv</span>
-<span class="sd">      eq_index</span>
-<span class="sd">      eq_in   </span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-
-    <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_index</span><span class="p">(</span><span class="n">collection</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-      <span class="k">return</span> <span class="n">collection</span><span class="p">[</span><span class="n">i</span> <span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>   
-      <span class="k">return</span>
-
-
-
-
-<span class="c"># Belongs to Directional</span>
-</div>
-  <span class="nd">@field2cumsum</span>
-  <span class="k">def</span> <span class="nf">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Shorthand calling make_equiv (to register equivalence with other Directional object). </span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      other: (Directional)</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="bp">self</span><span class="o">.</span><span class="n">make_equiv</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
-
-
-  <span class="k">def</span> <span class="nf">__xor__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Shorthand calling is_equiv (to test equivalence with other Directional object). </span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      other: (Directional)</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_equiv</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
-
-
-
-<span class="c"># ----- multiplication related ---------      </span>
-
-  <span class="k">def</span> <span class="nf">__pow__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Repeated multiplication of object with itself.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">*</span><span class="n">y</span><span class="p">,</span> <span class="n">n</span><span class="o">*</span><span class="p">[</span><span class="bp">self</span><span class="p">])</span>
-
-</div>
-<div class="viewcode-block" id="Membered"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Membered">[docs]</a><span class="k">class</span> <span class="nc">Membered</span><span class="p">(</span><span class="n">Named</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Base class for classes containing members such as Coord or Ax objects, such as Gr and AxGr.</span>
-
-<span class="sd">  This class is intended for multiple inheritance with classes that provide container functionality. For example Tuple. The elements inside the tuples are then referred to as &quot;members&quot;, hence the name of this class.  Methods relate to general operations with these members. Note that more specific member-related methods are relegated to derived classes.</span>
-
-<span class="sd">  __init__ method of joint-inheritance class must take a container of elements. </span>
-<span class="sd">  &quot;&quot;&quot;</span>
-
-
-<div class="viewcode-block" id="Membered.same"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Membered.same">[docs]</a>  <span class="k">def</span> <span class="nf">same</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Member-wise same comparison.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
-      <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">same</span><span class="p">(</span><span class="n">other</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="p">):</span>    
-          <span class="k">return</span> <span class="bp">False</span>
-
-      <span class="k">return</span> <span class="bp">True</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="k">return</span> <span class="bp">False</span>
-
-
-</div>
-<div class="viewcode-block" id="Membered.weaksame"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Membered.weaksame">[docs]</a>  <span class="k">def</span> <span class="nf">weaksame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Member-wise weaksame comparison.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
-      <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">weaksame</span><span class="p">(</span><span class="n">other</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="p">):</span>    
-          <span class="k">return</span> <span class="bp">False</span>
-
-      <span class="k">return</span> <span class="bp">True</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="k">return</span> <span class="bp">False</span>
-
-</div>
-<div class="viewcode-block" id="Membered.call_on_members"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Membered.call_on_members">[docs]</a>  <span class="k">def</span> <span class="nf">call_on_members</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Call method on all members and construct new Membered object.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">(</span> <span class="p">[</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">method</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="bp">self</span> <span class="p">]</span> <span class="p">)</span>
-
-</div>
-<div class="viewcode-block" id="Membered.get_from_members"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Membered.get_from_members">[docs]</a>  <span class="k">def</span> <span class="nf">get_from_members</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">att_name</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Call method on all members and construct new Membered object.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">(</span> <span class="p">[</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">att_name</span><span class="p">)</span> <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="bp">self</span> <span class="p">]</span> <span class="p">)</span>
-
-</div>
-  <span class="k">def</span> <span class="nf">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Shorthand to member-wise weaksame comparison.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weaksame</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
-
-  <span class="nd">@method2members</span>
-  <span class="k">def</span> <span class="nf">__neg__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">pass</span>
-
-<span class="c">#    &quot;&quot;&quot;</span>
-<span class="c">#    Call __neg__ on members and return corresponding Membered object.</span>
-<span class="c">#    &quot;&quot;&quot;</span>
-<span class="c">#    return self.__class__( [-member for member in self] )</span>
-
-<div class="viewcode-block" id="Membered.reverse"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Membered.reverse">[docs]</a>  <span class="k">def</span> <span class="nf">reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Reverse the order of the members.</span>
-
-<span class="sd">    Examples:</span>
-
-<span class="sd">    &gt;&gt;&gt; coord1 = sg.fieldcls.Coord(name = &#39;test1&#39;,direction =&#39;X&#39;,value =np.array([1.,2.,3.]) )</span>
-<span class="sd">    &gt;&gt;&gt; coord2 = sg.fieldcls.Coord(name = &#39;test2&#39;,direction =&#39;Y&#39;,value =np.array([1.,2.,3.,4.]) )</span>
-<span class="sd">    &gt;&gt;&gt; (coord1*coord2).reverse()</span>
-<span class="sd">    (test2, test1)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">([</span> <span class="bp">self</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-</span><span class="n">i</span> <span class="o">-</span><span class="mi">1</span> <span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>  <span class="p">])</span>
-
-</div>
-  <span class="nd">@method2members</span>
-<div class="viewcode-block" id="Membered.copy"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Membered.copy">[docs]</a>  <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Member-wise copy method.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
-
-</div>
-<div class="viewcode-block" id="Membered.strict_equiv"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Membered.strict_equiv">[docs]</a>  <span class="k">def</span> <span class="nf">strict_equiv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Tests whether two Membered objects have equivalent Members at each position.</span>
-<span class="sd">    This is a stricter test than Membered equivalence testing via gr1.is_equiv(gr2), which only tests whether both Membered objects describe the same linear space (elements equivalent up to a permutation).</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
-      
-      <span class="n">RO</span> <span class="o">=</span> <span class="bp">True</span>      
-      <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">it</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">RO</span> <span class="o">*=</span> <span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">is_equiv</span><span class="p">(</span><span class="n">other</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
-      <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">RO</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="k">return</span> <span class="bp">False</span>
-
-</div>
-  <span class="k">def</span> <span class="nf">__xor__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Shorthand for is_equiv.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
-      
-      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_equiv</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="Membered.is_equiv"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Membered.is_equiv">[docs]</a>  <span class="k">def</span> <span class="nf">is_equiv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Checks member-wise equivalence between Membered objects up to a permutation. </span>
-
-<span class="sd">    For grids,  objects are equivalent if they define the same physical subspace, based on the equivalence definition for Coord classes. In other words, checks whether the individual Coord elements of the two grid (Gr object) arguments are equivalent up to a permutation. A stricter version of this test is strict_equiv, which allows no permutation.</span>
-<span class="sd"> </span>
-<span class="sd">    Args:</span>
-<span class="sd">      other: (Membered) the object to compare with</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      True if all (self) members are equivalent to a member of other and vice versa and both have equal length. False otherwise</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
-      
-      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_perm</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">True</span>
-      <span class="k">return</span> <span class="bp">False</span>
-
-    <span class="k">else</span><span class="p">:</span>
-      <span class="k">return</span> <span class="bp">False</span>
-
-
-</div>
-<div class="viewcode-block" id="Membered.eq_in"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Membered.eq_in">[docs]</a>  <span class="k">def</span> <span class="nf">eq_in</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">member</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Determines whether argument is equivalent to any of the constituent members.</span>
-
-<span class="sd">    </span>
-<span class="sd">    Args:</span>
-<span class="sd">      member: (Membered) object to be checked.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      True when member is equivalent to one of the member objects, False otherwise.</span>
-
-<span class="sd">    See also:</span>
-<span class="sd">    eq_in method of Coord </span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-      <span class="k">if</span> <span class="n">member</span><span class="o">.</span><span class="n">is_equiv</span><span class="p">(</span><span class="n">i</span><span class="p">):</span> <span class="k">return</span> <span class="bp">True</span>
-    <span class="k">return</span> <span class="bp">False</span>
-</div>
-<div class="viewcode-block" id="Membered.eq_index"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Membered.eq_index">[docs]</a>  <span class="k">def</span> <span class="nf">eq_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">member</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns index of argument in members.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-      <span class="k">if</span> <span class="n">member</span><span class="o">.</span><span class="n">is_equiv</span><span class="p">(</span><span class="n">v</span><span class="p">):</span> <span class="k">return</span> <span class="n">i</span>
-    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
-</div>
-<div class="viewcode-block" id="Membered.rearrange"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Membered.rearrange">[docs]</a>  <span class="k">def</span> <span class="nf">rearrange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">permutation</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Rearranges the order of the members of this object via permutation arrgument. </span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      permutation: (List or Tuple) permutation to rearrange by</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      object of same type as self with member rearranged.</span>
-<span class="sd">  </span>
-<span class="sd">    Examples: </span>
-
-<span class="sd">    &gt;&gt;&gt; g1 = latitude*depth</span>
-<span class="sd">    &gt;&gt;&gt; g1.rearrange( (1,0) ) </span>
-<span class="sd">    (depth, latitude)</span>
-
-<span class="sd">    See also Gr.perm method    </span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">((</span><span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">permutation</span><span class="p">))</span>
-    
-    
-
-</div>
-<div class="viewcode-block" id="Membered.perm"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Membered.perm">[docs]</a>  <span class="k">def</span> <span class="nf">perm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span><span class="n">verbose</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>     
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    yields permutation of axes going from self to other.</span>
-
-<span class="sd">    E.g. for grids gr1 and gr2, g2 = g1.rearrange( g1.perm(g2) )</span>
-
-<span class="sd">    Returns None if no permutation exists.</span>
-
-<span class="sd">    See also rearrange.</span>
-<span class="sd">    &quot;&quot;&quot;</span>  
-
-    <span class="k">return</span> <span class="n">find_perm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">,</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="Membered.eq_perm"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Membered.eq_perm">[docs]</a>  <span class="k">def</span> <span class="nf">eq_perm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>      
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Yields permutation of members going from self to other, where equivalent members are treated as identical. </span>
-
-<span class="sd">    See also perm.</span>
-<span class="sd">    &quot;&quot;&quot;</span>  
-
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
-      <span class="n">perm</span> <span class="o">=</span> <span class="p">[]</span>
-      <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">other</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">eq_in</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
-          <span class="n">perm</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eq_index</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-          <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span> <span class="s">&#39;Warning from eq_perm (often benign): inputs not permutable, returning None.&#39;</span><span class="p">)</span>
-          <span class="k">return</span>
-
-    <span class="k">else</span><span class="p">:</span>
-      <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-        <span class="k">print</span> <span class="s">&quot;Message from eq_perm: inputs must be of equal length.&quot;</span>
-      <span class="k">return</span> 
-    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">perm</span><span class="p">)</span>
-
-
-
-</div></div>
-<div class="viewcode-block" id="Valued"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Valued">[docs]</a><span class="k">class</span> <span class="nc">Valued</span><span class="p">(</span><span class="n">Named</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Base class for classes that contain a ndarray value attribute. </span>
-
-<span class="sd">  This class derives its name from the presence of an attribute named &quot;value&quot; that contains a Numpy ndarray. Methods relate to this attribute.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;scalar&#39;</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">]),</span><span class="n">long_name</span> <span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>  
-
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Initialisation of Valued object. </span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      name: (str) name of object.</span>
-<span class="sd">      value: (Numpy ndarray) </span>
-<span class="sd">      long_name: (str) a longer description. </span>
-<span class="sd">    &quot;&quot;&quot;</span>
-  
-    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="n">long_name</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span>
-
-
-  <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Display alias if attribute present, name otherwise.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s">&#39;alias&#39;</span><span class="p">):</span>
-      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">alias</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
-
-  <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Obtain item from value atttribute.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-
-<div class="viewcode-block" id="Valued.array_equal"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Valued.array_equal">[docs]</a>  <span class="k">def</span> <span class="nf">array_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; test whether Valued objects contain identically valued ndarrays in value attributes.</span>
-
-<span class="sd">    This is a common method that should be inherited by child classes. </span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      other: (Valued object) the Valued to compare with</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      True/ False (using np.array_equal)</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">      ValueError: when argument is not a Coord object</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span><span class="n">Valued</span><span class="p">):</span>
-      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;Error: provide Valued argument (</span><span class="si">%s</span><span class="s"> provided).&#39;</span><span class="o">%</span><span class="n">other</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="n">other</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> 
-
-</div>
-<div class="viewcode-block" id="Valued.same"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Valued.same">[docs]</a>  <span class="k">def</span> <span class="nf">same</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Tests whether this Valued object contains identical name and value to argument object. </span>
-
-<span class="sd">    Overrides Named same method and is a stronger condition. Generally to be overriden in child classes.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      other: (Valued) object to compare against.</span>
-
-<span class="sd">    Returns: </span>
-<span class="sd">      True/ False</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c"># the following test and warning is to do with little things that we don&#39;t want to trip over with errors:</span>
-    <span class="c"># self is a Coord, so it has a value attribute (this should be put into the specs!), but other might not:</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="s">&#39;value&#39;</span><span class="p">):</span>
-      <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Valued method </span><span class="si">%s</span><span class="s">.same(</span><span class="si">%s</span><span class="s">) on argument without Ax attribute: returning False.&#39;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>      
-      <span class="k">return</span> <span class="bp">False</span>
-
-    <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> 
-
-
-</div>
-  <span class="k">def</span> <span class="nf">__neg__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Obtain version of Valued with negative values (e.g. -xt). </span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      Valued copy with value is -self.value</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">value</span> <span class="o">=-</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-
-
-
-  <span class="k">def</span> <span class="nf">__pow__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Repeated multiplication of object with itself.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">*</span><span class="n">y</span><span class="p">,</span> <span class="n">n</span><span class="o">*</span><span class="p">[</span><span class="bp">self</span><span class="p">])</span>
-
-  <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Addition of value attributes</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-
-  <span class="k">def</span> <span class="nf">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Substraction of value attributes</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-
-
-  <span class="k">def</span> <span class="nf">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Multiplication of value attributes</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">*</span><span class="n">other</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-
-  <span class="k">def</span> <span class="nf">__div__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Division of value attributes</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">/</span><span class="n">other</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
 
 
 <span class="c"># -------- Coord  ----------------</span>
-</div>
+
 <div class="viewcode-block" id="Coord"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Coord">[docs]</a><span class="k">class</span> <span class="nc">Coord</span><span class="p">(</span><span class="n">Directional</span><span class="p">,</span> <span class="n">Valued</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  Representing distrete coordinate collection. Corresponds to dimension variable in Netcdf.</span>
@@ -981,9 +126,12 @@
 <span class="sd">  Coord objects are defined by a name, value (generally a numpy array) and units. The value of a Coord is a 1D ndarray containing the locations of data points. Coord is the basic building block of Gr (grid) objects.</span>
 <span class="sd">  Examples of Coord objects are xt or yt, corresponding to the tracer grid cells in the x and y directions. Coord objects have a corresponding dual. For xt it is xt_edges and vice versa. The dual generally contains the edges of the grid cells. If no dual argument is given, the Coord object is its own dual.</span>
 
-<span class="sd">  Coord objects c1 and c2 are considered equal, c1&amp;c2 yields True, when the name, value (numpy array) and units attributes are equal.</span>
+<span class="sd">  Coord objects c1 and c2 are considered weakly the same, c1.weaksame(c2) yields True, when the name, value (numpy array) and units attributes are equal.</span>
 
 <span class="sd">  Being a container of Coord objects, the Gr object (grid) is closely related to Coord. A shorthand for Gr construction is via multiplication of Coord objects. If two Coord objects coord1 and coord2 are not equivalent (generally when they point in different directions, e.g. X and Y), their product is a shorthand for the creation of a 2D grid coord1*coord2 = Gr((coord1, coord2)). By induction, products containing n elements yield Gr objects of dimension &lt;=n. See class documentation.</span>
+
+<span class="sd">  An abstract equivalence relationship is inherited from the Directional classs where two objects are equivalent when they have the same &#39;associative&#39; attribute (pointing to an Associative object). This relationship is generally used to indicate whether two Directional objects have the same direction (e.g. X,Y), but could represent other relationships depending on the user.</span>
+
 
 <span class="sd">  The Coord class contains methods related to distances, with the following dependencies. dist is fundamental. delta_dist depends on dist. der depends on dist. d depends on dual Coord and delta_dist. vol depends on d.</span>
 
@@ -1094,7 +242,7 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 </div>
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;scalar&#39;</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dual</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">axis</span> <span class="o">=</span> <span class="s">&#39;?&#39;</span><span class="p">,</span><span class="n">direction</span> <span class="o">=</span><span class="s">&#39;scalar&#39;</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">long_name</span> <span class="o">=</span><span class="s">&#39;?&#39;</span><span class="p">,</span> <span class="n">metadata</span> <span class="o">=</span> <span class="p">{}</span> <span class="p">,</span> <span class="n">strings</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>  
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;scalar&#39;</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dual</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">axis</span> <span class="o">=</span> <span class="s">&#39;?&#39;</span><span class="p">,</span><span class="n">direction</span> <span class="o">=</span><span class="s">&#39;scalar&#39;</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">long_name</span> <span class="o">=</span><span class="s">&#39;?&#39;</span><span class="p">,</span> <span class="n">metadata</span> <span class="o">=</span> <span class="p">{}</span> <span class="p">,</span> <span class="n">strings</span> <span class="o">=</span> <span class="bp">None</span> <span class="p">,</span> <span class="n">associative</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>  
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Initialisation of Coord object. </span>
 
@@ -1110,9 +258,10 @@
 <span class="sd">      long_name: (str) a longer description. Usually taken from identically named variable in Netcdf file.</span>
 <span class="sd">      metadata: (dict) name vs value dict of metadata to save into Netcdf. Usually obtained from Netcdf read.</span>
 <span class="sd">      strings: (list of strings or None) str labels for coord points. If not None, needs to be of same length as value</span>
+<span class="sd">      associative: (Coord) object that this object is equivalent to (same direction)</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if argument strings is not None and if len(strings) != len(value)</span>
+<span class="sd">      ValueError: if argument strings is not None and if len(strings) != len(value) or when associative has no associative attribute</span>
 <span class="sd">    &quot;&quot;&quot;</span>
   
 <span class="c"># choosing the name ID creates an identity object. ID*b = b for all Coord elements b.</span>
@@ -1143,6 +292,16 @@
 
     <span class="bp">self</span><span class="o">.</span><span class="n">give_dual</span><span class="p">(</span><span class="n">dual</span><span class="p">)</span>
  
+
+    <span class="k">if</span> <span class="n">associative</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">associative</span> <span class="o">=</span> <span class="n">Associative</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s">&#39;_assoc&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">associative</span><span class="p">,</span> <span class="s">&#39;associative&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">associative</span> <span class="o">=</span> <span class="n">associative</span><span class="o">.</span><span class="n">associative</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;provide object with associative attribute for associative.&#39;</span><span class="p">)</span>
+
+
 
   <span class="k">def</span> <span class="nf">_copy_cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">**</span><span class="n">new_kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -1286,6 +445,25 @@
 
     <span class="k">return</span> <span class="n">neg_crd</span>
 
+
+<span class="c"># Belongs to Coord</span>
+
+  <span class="nd">@_field2cumsum</span>
+  <span class="k">def</span> <span class="nf">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Shorthand calling make_equiv (to register equivalence with other Directional object). </span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      other: (Coord)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">make_equiv</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+
+
   <span class="k">def</span> <span class="nf">__xor__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Shorthand for several methods depending on argument type. </span>
@@ -1390,7 +568,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39;_zero&#39;</span>  <span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
  </div>
-<div class="viewcode-block" id="Coord.cdf_insert"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Coord.cdf_insert">[docs]</a>  <span class="k">def</span> <span class="nf">cdf_insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">file_handle</span><span class="p">,</span> <span class="n">miss_default</span> <span class="o">=</span> <span class="mf">9.96921e+36</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">_cdf_insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">file_handle</span><span class="p">,</span> <span class="n">miss_default</span> <span class="o">=</span> <span class="mf">9.96921e+36</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Netcdf insert method of Coord </span>
 <span class="sd">    Inserts Coord as variable into Netcdf file.</span>
@@ -1438,7 +616,7 @@
 
     <span class="k">return</span> <span class="n">file_handle</span>
 
-</div>
+
 <div class="viewcode-block" id="Coord.write"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Coord.write">[docs]</a>  <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span> <span class="p">,</span> <span class="n">history</span> <span class="o">=</span> <span class="s">&#39;Created from Spacegrids &#39;</span>  <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Writes Coord data to Netcdf file.</span>
@@ -1474,7 +652,7 @@
       <span class="k">print</span> <span class="s">&#39;Cannot write &#39;</span><span class="p">,</span> <span class="n">name</span>
     <span class="k">else</span><span class="p">:</span>
 
-      <span class="n">file_handle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cdf_insert</span><span class="p">(</span><span class="n">file_handle</span><span class="p">)</span>
+      <span class="n">file_handle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cdf_insert</span><span class="p">(</span><span class="n">file_handle</span><span class="p">)</span>
 
       <span class="n">file_handle</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="n">history</span> <span class="o">+</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">&#39;</span><span class="o">%</span><span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
  
@@ -1502,7 +680,7 @@
 
 
     <span class="n">finer_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39;_fine&#39;</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>  
-    <span class="n">finer_coord</span><span class="o">|</span><span class="bp">self</span>
+    <span class="n">finer_coord</span><span class="o">.</span><span class="n">make_equiv</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">finer_coord</span>
 
 </div>
@@ -2258,6 +1436,7 @@
 <span class="sd">      vol method      </span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+
     <span class="k">return</span> <span class="n">Field</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;distance_&#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span> <span class="n">fact</span><span class="o">*</span><span class="bp">self</span><span class="p">[:]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">180.</span><span class="p">,</span><span class="n">grid</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">)</span> 
 
 
@@ -2271,6 +1450,9 @@
 <span class="sd">  Axis. Represents direction: e.g. the longitudinal direction, X, or the vertical, Z.</span>
 
 <span class="sd">  Coord objects have an attribute that points to an Ax object, representing its direction.</span>
+
+<span class="sd">  An abstract equivalence relationship is inherited from the Directional class, where two objects are equivalent when they have the same &#39;associative&#39; attribute (pointing to an Associative object). This relationship is generally used to indicate whether two Directional objects have the same direction (e.g. X,Y), but could represent other relationships depending on the user. This means that a Coord object can be equivalent to an Ax object. The usual meaning of this is that both point in the same direction.</span>
+
 
 <span class="sd">  Attributes: (identical to Directional parent class)</span>
 <span class="sd">      name: (str) name of Object</span>
@@ -2293,16 +1475,29 @@
     <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">*</span><span class="n">other</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span><span class="o">.</span><span class="n">vcumsum</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">upward</span><span class="o">=</span><span class="n">upward</span><span class="p">)</span>
 
 <span class="c"># --&gt; belongs to Ax    </span>
+
 </div>
+  <span class="nd">@_field2cumsum</span>
+  <span class="k">def</span> <span class="nf">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Shorthand calling make_equiv (to register equivalence with other Directional object). </span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      other: (Ax)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">make_equiv</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+
   <span class="k">def</span> <span class="nf">__xor__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    If argument is a Coord, this method tests for equivalence. e.g. xt ~ xu</span>
 <span class="sd">    If argument is a Field, this method takes the derivative along self Coord axis.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-  
-    <span class="c"># This method works recursively to ensure associativity of the ^ relationship. E.g. a0^a1 is True and a1^a2 is True =&gt; a0^a3 is True</span>
-
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span><span class="n">Coord</span><span class="p">)</span> <span class="o">|</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span><span class="n">Ax</span><span class="p">):</span>
       <span class="k">if</span> <span class="p">(</span><span class="n">other</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">equivs</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="bp">self</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">equivs</span><span class="p">):</span>
 
@@ -3280,14 +2475,15 @@
 <span class="sd">  If Field T is naturally defined on grid yt*xt, then T(zt*yt*xt) yields a 3D array b such that b[k,:,:] = T(yt*xt) for all possible k.</span>
 
 
-<span class="sd">   If g is a Gr (grid) or Coord object, left or right multiplication of a Field  object F with Gr Coord results in the grid-cell width weighted summing of the Field over the coords in the multiplicant g (integration, via g.vsum method), resulting in a smaller dimension Field.</span>
+<span class="sd">  If g is a Gr (grid) or Coord object, left or right multiplication of a Field  object F with Gr Coord results in the grid-cell width weighted summing of the Field over the coords in the multiplicant g (integration, via g.vsum method), resulting in a smaller dimension Field.</span>
 
-<span class="sd">  If g is a Coord object, g^F yields the derivative of F along g (via g.der method). g|F yields the grid cell width-weight cumulative sum of F over g (primitive, via g.vcumsum).</span>
+<span class="sd">  If g is a Coord object, g.der(F) yields the derivative of F along g. g.vcumsum(F) yields the grid cell width-weight cumulative sum of F over g.</span>
 
-<span class="sd">  two fields F1, F2 are considered equal, F1&amp;F2 yields True, when their name, value (an numpy array) and Gr (grid) attribute are equal, unless they contain nan values.</span>
+<span class="sd">  Shortcuts: if g is a Coord object, g^F yields the derivative of F along g (via g.der method). g|F yields the grid cell width-weight cumulative sum of F over g (primitive, via g.vcumsum).</span>
+
+<span class="sd">  two fields F1, F2 are considered weakly the same, F1.weaksame(F2) yields True, when their name, value (an numpy array) and Gr (grid) attribute are equal, unless they contain nan values.</span>
 
 <span class="sd">  NOTE: multiplication works a bit different from addition at the moment. Addition will go ahead even when coords in the grids are differently named (or have other non-value attributes differ) as long as the value (the coord points) are the same: then the (left and right) coords are considered equal. Multiplication treats them as different coords in this case.</span>
-
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="k">global</span> <span class="n">ID</span>
@@ -3353,13 +2549,13 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Tests whether fields contain equal name, value and grid. At the moment, if the value contains nan, this function will return false.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="n">other</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">&amp;</span><span class="n">other</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="n">other</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">weaksame</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">grid</span><span class="p">):</span>
       <span class="k">return</span> <span class="bp">True</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="k">return</span> <span class="bp">False</span>
 
 </div>
-<div class="viewcode-block" id="Field.cdf_insert"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Field.cdf_insert">[docs]</a>  <span class="k">def</span> <span class="nf">cdf_insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">file_handle</span><span class="p">,</span> <span class="n">insert_dual</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">force_squeeze</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">miss_default</span> <span class="o">=</span> <span class="mf">9.96921e+36</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">_cdf_insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">file_handle</span><span class="p">,</span> <span class="n">insert_dual</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">force_squeeze</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">miss_default</span> <span class="o">=</span> <span class="mf">9.96921e+36</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Inserts Field into Netcdf file on disk.</span>
 
@@ -3375,15 +2571,15 @@
 
     <span class="c"># handle the squeeze dimensions</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">force_squeeze</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">squeezed_dims</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-      <span class="k">return</span> <span class="n">unsqueeze</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">cdf_insert</span><span class="p">(</span><span class="n">file_handle</span> <span class="o">=</span> <span class="n">file_handle</span><span class="p">,</span> <span class="n">insert_dual</span> <span class="o">=</span> <span class="n">insert_dual</span><span class="p">)</span>    
+      <span class="k">return</span> <span class="n">unsqueeze</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_cdf_insert</span><span class="p">(</span><span class="n">file_handle</span> <span class="o">=</span> <span class="n">file_handle</span><span class="p">,</span> <span class="n">insert_dual</span> <span class="o">=</span> <span class="n">insert_dual</span><span class="p">)</span>    
 
     <span class="c"># insert the coords in own grid</span>
     <span class="k">for</span> <span class="n">crd</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
       <span class="k">if</span> <span class="ow">not</span> <span class="n">crd</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">file_handle</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-        <span class="n">crd</span><span class="o">.</span><span class="n">cdf_insert</span><span class="p">(</span><span class="n">file_handle</span><span class="p">)</span>
+        <span class="n">crd</span><span class="o">.</span><span class="n">_cdf_insert</span><span class="p">(</span><span class="n">file_handle</span><span class="p">)</span>
     
         <span class="k">if</span> <span class="n">insert_dual</span> <span class="ow">and</span> <span class="p">(</span><span class="n">crd</span><span class="o">.</span><span class="n">dual</span> <span class="o">!=</span> <span class="n">crd</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">crd</span><span class="o">.</span><span class="n">dual</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">file_handle</span><span class="o">.</span><span class="n">variables</span><span class="p">):</span>
-          <span class="n">crd</span><span class="o">.</span><span class="n">dual</span><span class="o">.</span><span class="n">cdf_insert</span><span class="p">(</span><span class="n">file_handle</span><span class="p">)</span>         
+          <span class="n">crd</span><span class="o">.</span><span class="n">dual</span><span class="o">.</span><span class="n">_cdf_insert</span><span class="p">(</span><span class="n">file_handle</span><span class="p">)</span>         
 
     <span class="c"># This could bloat memory. Redo in a new way.</span>
     <span class="n">value</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">[:])</span>
@@ -3417,7 +2613,7 @@
 
     <span class="k">return</span> <span class="n">file_handle</span>
 
-</div>
+
 <div class="viewcode-block" id="Field.write"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Field.write">[docs]</a>  <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span> <span class="p">,</span> <span class="n">history</span> <span class="o">=</span> <span class="s">&#39;Created from Spacegrids &#39;</span> <span class="p">,</span> <span class="n">insert_dual</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">force_squeeze</span> <span class="o">=</span> <span class="bp">False</span> <span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
@@ -3459,7 +2655,7 @@
       <span class="k">print</span> <span class="s">&#39;Cannot write &#39;</span><span class="p">,</span> <span class="n">name</span>
     <span class="k">else</span><span class="p">:</span>
 
-      <span class="n">file_handle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cdf_insert</span><span class="p">(</span><span class="n">file_handle</span><span class="p">,</span> <span class="n">insert_dual</span> <span class="o">=</span> <span class="n">insert_dual</span> <span class="p">,</span> <span class="n">force_squeeze</span> <span class="o">=</span> <span class="n">force_squeeze</span><span class="p">)</span>
+      <span class="n">file_handle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cdf_insert</span><span class="p">(</span><span class="n">file_handle</span><span class="p">,</span> <span class="n">insert_dual</span> <span class="o">=</span> <span class="n">insert_dual</span> <span class="p">,</span> <span class="n">force_squeeze</span> <span class="o">=</span> <span class="n">force_squeeze</span><span class="p">)</span>
 
       <span class="n">file_handle</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="n">history</span> <span class="o">+</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">&#39;</span><span class="o">%</span><span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
  
@@ -3490,15 +2686,11 @@
 
     <span class="c"># if no Ax object is given, an Ax is chosen where the grid Coord elements are not array equal.</span>
 
-<span class="c">#    if len(self.grid) != len(other.grid):</span>
-<span class="c">#      raise Exception(&#39;Error: provide grids of equal dimension.&#39;)</span>
-
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span><span class="n">Coord</span><span class="p">):</span>
       <span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">axis</span>
 
     <span class="n">self_axis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">axis</span><span class="p">()</span>
 
-<span class="c">#    if not reduce(lambda x,y:x and y, [e^other[i] for i,e in enumerate(other)]):</span>
     <span class="k">if</span> <span class="n">self_axis</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">axis</span><span class="p">():</span>
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Error: provide fields defined on the same grid directions.&#39;</span><span class="p">)</span>
 
@@ -3558,10 +2750,10 @@
     <span class="k">if</span> <span class="n">stringscomb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
       <span class="n">new_strings</span> <span class="o">=</span> <span class="p">[</span><span class="n">stringscomb</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">cat_coord_value</span><span class="p">]</span>
 
-      <span class="n">new_coord</span> <span class="o">=</span> <span class="n">cat_coord_self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">cat_coord_self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span><span class="n">name_suffix</span><span class="p">,</span>   <span class="n">value</span> <span class="o">=</span> <span class="n">cat_coord_value</span><span class="p">,</span> <span class="n">strings</span> <span class="o">=</span> <span class="n">new_strings</span><span class="p">)</span>
+      <span class="n">new_coord</span> <span class="o">=</span> <span class="n">cat_coord_self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">affix</span><span class="p">(</span><span class="n">cat_coord_self</span><span class="o">.</span><span class="n">name</span> <span class="p">,</span><span class="n">name_suffix</span><span class="p">,</span> <span class="s">&#39;suffix&#39;</span><span class="p">),</span>   <span class="n">value</span> <span class="o">=</span> <span class="n">cat_coord_value</span><span class="p">,</span> <span class="n">strings</span> <span class="o">=</span> <span class="n">new_strings</span><span class="p">)</span>
 
     <span class="k">else</span><span class="p">:</span>
-      <span class="n">new_coord</span> <span class="o">=</span> <span class="n">cat_coord_self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">cat_coord_self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span><span class="n">name_suffix</span><span class="p">,</span>   <span class="n">value</span> <span class="o">=</span> <span class="n">cat_coord_value</span><span class="p">,</span> <span class="n">strings</span> <span class="o">=</span> <span class="bp">None</span><span class="p">)</span>
+      <span class="n">new_coord</span> <span class="o">=</span> <span class="n">cat_coord_self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">affix</span><span class="p">(</span><span class="n">cat_coord_self</span><span class="o">.</span><span class="n">name</span> <span class="p">,</span><span class="n">name_suffix</span><span class="p">,</span> <span class="s">&#39;suffix&#39;</span><span class="p">),</span>   <span class="n">value</span> <span class="o">=</span> <span class="n">cat_coord_value</span><span class="p">,</span> <span class="n">strings</span> <span class="o">=</span> <span class="bp">None</span><span class="p">)</span>
 
 
 
@@ -3598,16 +2790,6 @@
 <span class="sd">      Field: containing the shifted value and grid.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">roll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shift</span> <span class="o">=</span> <span class="n">shift</span><span class="p">,</span><span class="n">coord</span> <span class="o">=</span> <span class="n">crd</span><span class="p">)</span>
-
-
-<span class="c"># belongs to Field </span>
-<span class="c">#  def __xor__(self,other):</span>
-<span class="c">#    &quot;&quot;&quot;</span>
-<span class="c">#    Tests the equivalence of the grids of two fields.</span>
-<span class="c">#    &quot;&quot;&quot;</span>
-<span class="c">#    return self.grid^other.grid</span>
-
-
 </div>
   <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -3769,7 +2951,7 @@
             <span class="n">new_crd_value</span> <span class="o">=</span> <span class="n">crd</span><span class="p">[</span><span class="n">slc</span><span class="p">]</span>         
             <span class="n">new_crd</span> <span class="o">=</span> <span class="n">crd</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">crd</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39;_sliced&#39;</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">new_crd_value</span><span class="p">)</span>
 
-            <span class="n">new_crd</span><span class="o">|</span><span class="n">crd</span>
+            <span class="n">new_crd</span><span class="o">.</span><span class="n">make_equiv</span><span class="p">(</span><span class="n">crd</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">crd</span><span class="o">.</span><span class="n">dual</span> <span class="o">==</span> <span class="n">crd</span><span class="p">:</span>
               <span class="n">new_crd</span><span class="o">.</span><span class="n">dual</span> <span class="o">=</span> <span class="n">new_crd</span>
@@ -3781,7 +2963,7 @@
                 <span class="n">slc_dual</span> <span class="o">=</span> <span class="n">slc</span>
 
               <span class="n">new_crd_dual</span> <span class="o">=</span> <span class="n">crd</span><span class="o">.</span><span class="n">dual</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">crd</span><span class="o">.</span><span class="n">dual</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39;_sliced&#39;</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">crd</span><span class="o">.</span><span class="n">dual</span><span class="p">[</span><span class="n">slc_dual</span><span class="p">])</span>
-              <span class="n">new_crd_dual</span><span class="o">|</span><span class="n">crd</span><span class="o">.</span><span class="n">dual</span>
+              <span class="n">new_crd_dual</span><span class="o">.</span><span class="n">make_equiv</span><span class="p">(</span><span class="n">crd</span><span class="o">.</span><span class="n">dual</span><span class="p">)</span>
               <span class="n">new_crd</span><span class="o">.</span><span class="n">dual</span> <span class="o">=</span> <span class="n">new_crd_dual</span>
               <span class="n">new_crd_dual</span><span class="o">.</span><span class="n">dual</span> <span class="o">=</span> <span class="n">new_crd</span>
 
@@ -3909,7 +3091,7 @@
 
       <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
-          <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">&amp;</span><span class="n">other</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
+          <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">weaksame</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">grid</span><span class="p">):</span>
 
             <span class="c"># If multiplicants are defined on grids that have the same values but are different objects, a duplicate grid is discovered and housekeeping is done. Duplicate grids commonly arise from earlier slicing.</span>
             <span class="k">print</span> <span class="s">&#39;Duplicate grids. FYI: replacing right gr.&#39;</span>
@@ -4127,8 +3309,16 @@
      
       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="n">L</span><span class="p">]</span>
 </div>
-<div class="viewcode-block" id="Field.draw"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Field.draw">[docs]</a>  <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colorbar</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Field.draw"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Field.draw">[docs]</a>  <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colorbar</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span><span class="n">index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Quick plot of this Field using the most obvious layout etc.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      colorbar: (Boolean) add colorbar if True</span>
+<span class="sd">      index: (int) index value at which to slice if Field dim &gt; 2</span>
+<span class="sd">      **kwargs: further kwargs to be passed on</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      h, cb: handles to figure and colorbar</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -4138,19 +3328,26 @@
     <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
    
       <span class="n">h</span> <span class="o">=</span> <span class="n">contourf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-      <span class="n">cb</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+      <span class="k">if</span> <span class="n">colorbar</span><span class="p">:</span>
+        <span class="n">cb</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
       <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
 
     <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+      <span class="c"># 3D Field objects need to be sliced. Find an obvious Coord to slice at.</span>
+
       <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="s">&#39;axis&#39;</span><span class="p">):</span>
           <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;Z&#39;</span><span class="p">:</span>
+            <span class="c"># Slicing at a vertical Coord always good</span>
             <span class="k">break</span>       
       <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s">&#39;Z&#39;</span><span class="p">:</span>
+        <span class="c"># if we didn&#39;t find a Coord, use the first one.</span>
         <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-      <span class="n">h</span> <span class="o">=</span> <span class="n">contourf</span><span class="p">(</span><span class="n">e</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
-      <span class="n">cb</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+      <span class="c"># Slice at index along guessed Coord</span>
+      <span class="n">h</span> <span class="o">=</span> <span class="n">contourf</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">e</span><span class="p">,</span> <span class="n">index</span><span class="p">])</span>
+      <span class="k">if</span> <span class="n">colorbar</span><span class="p">:</span>
+        <span class="n">cb</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
       <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
 
     
@@ -4452,12 +3649,12 @@
 
     <span class="k">if</span> <span class="n">strings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>    
       <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">F</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fields</span><span class="p">):</span>
-        <span class="n">new_coord</span> <span class="o">=</span> <span class="n">Coord</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">new_coord_name</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)]),</span> <span class="n">direction</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">name</span> <span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="n">ax</span> <span class="p">,</span> <span class="n">strings</span> <span class="o">=</span> <span class="p">[</span><span class="n">strings</span><span class="p">[</span><span class="n">i</span><span class="p">],]</span> <span class="p">)</span>
+        <span class="n">new_coord</span> <span class="o">=</span> <span class="n">Coord</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">new_coord_name</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)]),</span> <span class="n">direction</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">name</span> <span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="n">ax</span> <span class="p">,</span> <span class="n">strings</span> <span class="o">=</span> <span class="p">[</span><span class="n">strings</span><span class="p">[</span><span class="n">i</span><span class="p">],],</span> <span class="n">associative</span> <span class="o">=</span> <span class="n">ax</span> <span class="p">)</span>
         <span class="n">expanded_fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">F</span><span class="o">.</span><span class="n">regrid</span><span class="p">(</span><span class="n">new_coord</span><span class="o">*</span><span class="n">F</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span> <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
  
       <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">F</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fields</span><span class="p">):</span>
-        <span class="n">new_coord</span> <span class="o">=</span> <span class="n">Coord</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">new_coord_name</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span><span class="p">]),</span> <span class="n">direction</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">name</span> <span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="n">ax</span>  <span class="p">)</span>
+        <span class="n">new_coord</span> <span class="o">=</span> <span class="n">Coord</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">new_coord_name</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span><span class="p">]),</span> <span class="n">direction</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">name</span> <span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="n">ax</span> <span class="p">,</span> <span class="n">associative</span> <span class="o">=</span> <span class="n">ax</span>  <span class="p">)</span>
         <span class="n">expanded_fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">F</span><span class="o">.</span><span class="n">regrid</span><span class="p">(</span><span class="n">new_coord</span><span class="o">*</span><span class="n">F</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span> <span class="p">)</span>
 
     <span class="n">fields</span> <span class="o">=</span> <span class="n">expanded_fields</span>    
@@ -4546,7 +3743,7 @@
 
       <span class="k">for</span> <span class="n">fld</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
 
-        <span class="n">file_handle</span> <span class="o">=</span> <span class="n">fld</span><span class="o">.</span><span class="n">cdf_insert</span><span class="p">(</span><span class="n">file_handle</span><span class="p">)</span>
+        <span class="n">file_handle</span> <span class="o">=</span> <span class="n">fld</span><span class="o">.</span><span class="n">_cdf_insert</span><span class="p">(</span><span class="n">file_handle</span><span class="p">)</span>
 
       <span class="n">file_handle</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="n">history</span> <span class="o">+</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">&#39;</span><span class="o">%</span><span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
  
@@ -4632,7 +3829,7 @@
 
 
 </div>
-<div class="viewcode-block" id="finer_Field"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.finer_Field">[docs]</a><span class="k">def</span> <span class="nf">finer_Field</span><span class="p">(</span><span class="n">F</span><span class="p">,</span><span class="n">factor</span> <span class="o">=</span><span class="mf">5.</span><span class="p">):</span>
+<div class="viewcode-block" id="finer_field"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.finer_field">[docs]</a><span class="k">def</span> <span class="nf">finer_field</span><span class="p">(</span><span class="n">F</span><span class="p">,</span><span class="n">factor</span> <span class="o">=</span><span class="mf">5.</span><span class="p">):</span>
 
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  This is a more UVic specific function to prepare a Field containing the outline of the continents for horizontal plots.</span>
@@ -4708,10 +3905,10 @@
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">L</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
   
     <span class="c"># only unique pairs with the same axis will be interpreted as duals.    </span>
-      <span class="k">if</span> <span class="n">guess_grid_type</span><span class="p">(</span><span class="n">L</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="s">&#39;ts_grid&#39;</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">_guess_grid_type</span><span class="p">(</span><span class="n">L</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="s">&#39;ts_grid&#39;</span><span class="p">:</span>
         <span class="n">crd_dual</span> <span class="o">=</span> <span class="n">make_dual</span><span class="p">(</span><span class="n">L</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">name</span> <span class="o">=</span> <span class="n">L</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> 
         <span class="n">L</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dual</span> <span class="o">=</span> <span class="n">crd_dual</span>
-      <span class="k">elif</span> <span class="n">guess_grid_type</span><span class="p">(</span><span class="n">L</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="s">&#39;ts_grid&#39;</span><span class="p">:</span>
+      <span class="k">elif</span> <span class="n">_guess_grid_type</span><span class="p">(</span><span class="n">L</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="s">&#39;ts_grid&#39;</span><span class="p">:</span>
         <span class="n">crd_dual</span> <span class="o">=</span> <span class="n">make_dual</span><span class="p">(</span><span class="n">L</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">name</span> <span class="o">=</span> <span class="n">L</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> 
         <span class="n">L</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">dual</span> <span class="o">=</span> <span class="n">crd_dual</span>
 
@@ -4770,7 +3967,7 @@
 
 <span class="sd">  Path is to directory containing the Netcdf files, provided as argument.  </span>
 
-<span class="sd">  Uses sg.cdfsniff_helper.</span>
+<span class="sd">  Uses sg._cdfsniff_helper.</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">    path_parent: (str) path to directory containing the Netcdf files</span>
@@ -4782,7 +3979,7 @@
 
   <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path_parent</span><span class="p">):</span>
     <span class="c"># In this case, a file path is provided. This occurs when experiment object correspond to (Netcdf) files instead of directories containing Netcdf files.</span>
-    <span class="k">return</span> <span class="n">rem_equivs</span><span class="p">(</span><span class="n">cdfsniff_helper</span><span class="p">(</span> <span class="n">path_parent</span> <span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span> <span class="p">))</span>
+    <span class="k">return</span> <span class="n">rem_equivs</span><span class="p">(</span><span class="n">_cdfsniff_helper</span><span class="p">(</span> <span class="n">path_parent</span> <span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span> <span class="p">))</span>
 
   <span class="c"># all files within path_parent</span>
   <span class="n">fnames</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path_parent</span><span class="p">)</span>
@@ -4795,16 +3992,16 @@
 
   <span class="n">cdf_filepaths</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">globfpaths</span>  <span class="p">]</span>  <span class="p">)</span>
 
-  <span class="c"># construct combined cstack out of individual Netcdf files via cdfsniff_helper: </span>
+  <span class="c"># construct combined cstack out of individual Netcdf files via _cdfsniff_helper: </span>
   <span class="k">for</span> <span class="n">cdf_filepath</span> <span class="ow">in</span> <span class="n">cdf_filepaths</span><span class="p">:</span>
 
-    <span class="n">cstack</span> <span class="o">=</span> <span class="n">cstack</span> <span class="o">+</span> <span class="n">cdfsniff_helper</span><span class="p">(</span> <span class="n">cdf_filepath</span> <span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span> <span class="p">)</span>
+    <span class="n">cstack</span> <span class="o">=</span> <span class="n">cstack</span> <span class="o">+</span> <span class="n">_cdfsniff_helper</span><span class="p">(</span> <span class="n">cdf_filepath</span> <span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span> <span class="p">)</span>
 
   <span class="c"># remove equivalent Coord objects (containing the same data) and return    </span>
   <span class="k">return</span> <span class="n">rem_equivs</span><span class="p">(</span><span class="n">cstack</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="cdfsniff_helper"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.cdfsniff_helper">[docs]</a><span class="k">def</span> <span class="nf">cdfsniff_helper</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_cdfsniff_helper</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  Takes inventory of coords in netcdf file. </span>
 
@@ -4895,7 +4092,7 @@
           <span class="n">this_coord</span> <span class="o">=</span> <span class="n">cdf_axes</span><span class="p">[</span><span class="n">direction</span><span class="p">](</span><span class="n">coord_name</span><span class="p">,</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="nb">file</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">dim_name</span><span class="p">][:]</span> <span class="p">),</span> <span class="n">axis</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="nb">file</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">dim_name</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span> <span class="p">),</span><span class="n">direction</span> <span class="o">=</span> <span class="n">direction</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">units</span><span class="p">,</span> <span class="n">long_name</span> <span class="o">=</span> <span class="n">long_name</span> <span class="p">,</span> <span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">)</span>  
 
           <span class="c">#this_coord = cdf_axes[file.variables[dim_name].axis](dim_name, file.variables[dim_name][:], axis = file.variables[dim_name].axis, units = units)  </span>
-          <span class="n">dual_coord</span> <span class="o">=</span> <span class="n">cdf_axes</span><span class="p">[</span><span class="n">direction</span><span class="p">](</span><span class="n">dual_var_name</span><span class="p">,</span><span class="n">prep_dual_array</span><span class="p">(</span><span class="n">dual_var</span><span class="p">),</span><span class="n">dual</span> <span class="o">=</span> <span class="n">this_coord</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="nb">file</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">dim_name</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span> <span class="p">),</span> <span class="n">direction</span> <span class="o">=</span> <span class="n">direction</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">units</span><span class="p">,</span> <span class="n">long_name</span> <span class="o">=</span> <span class="n">long_name</span><span class="p">,</span> <span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">)</span>
+          <span class="n">dual_coord</span> <span class="o">=</span> <span class="n">cdf_axes</span><span class="p">[</span><span class="n">direction</span><span class="p">](</span><span class="n">dual_var_name</span><span class="p">,</span><span class="n">_prep_dual_array</span><span class="p">(</span><span class="n">dual_var</span><span class="p">),</span><span class="n">dual</span> <span class="o">=</span> <span class="n">this_coord</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="nb">file</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">dim_name</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span> <span class="p">),</span> <span class="n">direction</span> <span class="o">=</span> <span class="n">direction</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">units</span><span class="p">,</span> <span class="n">long_name</span> <span class="o">=</span> <span class="n">long_name</span><span class="p">,</span> <span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">)</span>
 
           <span class="n">this_coord</span><span class="o">.</span><span class="n">dual</span> <span class="o">=</span> <span class="n">dual_coord</span>
 
@@ -4925,7 +4122,7 @@
           <span class="n">this_coord</span> <span class="o">=</span> <span class="n">cdf_axes</span><span class="p">[</span><span class="n">direction</span><span class="p">](</span><span class="n">coord_name</span><span class="p">,</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="nb">file</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">dim_name</span><span class="p">]</span> <span class="p">[:]</span> <span class="p">),</span> <span class="n">axis</span> <span class="o">=</span> <span class="nb">file</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span><span class="n">direction</span> <span class="o">=</span> <span class="n">direction</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">units</span><span class="p">,</span> <span class="n">long_name</span> <span class="o">=</span> <span class="n">long_name</span><span class="p">,</span> <span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">)</span>  
 
           <span class="c">#this_coord = cdf_axes[file.variables[dim_name].axis](dim_name, file.variables[dim_name][:], axis = file.variables[dim_name].axis, units = units)  </span>
-          <span class="n">dual_coord</span> <span class="o">=</span> <span class="n">cdf_axes</span><span class="p">[</span><span class="n">direction</span><span class="p">](</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="nb">file</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">dim_name</span><span class="p">]</span><span class="o">.</span><span class="n">edges</span> <span class="p">),</span><span class="n">prep_dual_array</span><span class="p">(</span><span class="n">dual_var</span><span class="p">),</span><span class="n">dual</span> <span class="o">=</span> <span class="n">this_coord</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="n">direction</span><span class="p">,</span> <span class="n">direction</span> <span class="o">=</span> <span class="n">direction</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">units</span><span class="p">,</span> <span class="n">long_name</span> <span class="o">=</span> <span class="n">long_name</span><span class="p">,</span> <span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">)</span>
+          <span class="n">dual_coord</span> <span class="o">=</span> <span class="n">cdf_axes</span><span class="p">[</span><span class="n">direction</span><span class="p">](</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="nb">file</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">dim_name</span><span class="p">]</span><span class="o">.</span><span class="n">edges</span> <span class="p">),</span><span class="n">_prep_dual_array</span><span class="p">(</span><span class="n">dual_var</span><span class="p">),</span><span class="n">dual</span> <span class="o">=</span> <span class="n">this_coord</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="n">direction</span><span class="p">,</span> <span class="n">direction</span> <span class="o">=</span> <span class="n">direction</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">units</span><span class="p">,</span> <span class="n">long_name</span> <span class="o">=</span> <span class="n">long_name</span><span class="p">,</span> <span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">)</span>
 
 
           <span class="n">this_coord</span><span class="o">.</span><span class="n">dual</span> <span class="o">=</span> <span class="n">dual_coord</span>
@@ -4953,7 +4150,7 @@
  
     <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">bins</span><span class="p">:</span>
       <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">[</span><span class="n">name</span><span class="p">])</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
-        <span class="n">coord_stack</span><span class="p">[</span><span class="n">bins</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="n">i</span><span class="p">]]</span> <span class="o">|</span> <span class="n">coord_stack</span><span class="p">[</span><span class="n">bins</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">coord_stack</span><span class="p">[</span><span class="n">bins</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="n">i</span><span class="p">]]</span><span class="o">.</span><span class="n">make_equiv</span><span class="p">(</span><span class="n">coord_stack</span><span class="p">[</span><span class="n">bins</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]])</span>
 
   <span class="nb">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
@@ -4965,15 +4162,11 @@
 
 
 
-</div>
-<div class="viewcode-block" id="guess_helper"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.guess_helper">[docs]</a><span class="k">def</span> <span class="nf">guess_helper</span><span class="p">(</span><span class="n">desc</span><span class="p">,</span> <span class="n">guess_names</span><span class="p">,</span> <span class="n">true_val</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">false_val</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+
+<span class="k">def</span> <span class="nf">_guess_helper</span><span class="p">(</span><span class="n">desc</span><span class="p">,</span> <span class="n">guess_names</span><span class="p">,</span> <span class="n">true_val</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">false_val</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  Helper function for guess_direction</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-
-
-<span class="c">#  if reduce(lambda x,y: x| y ,[e in desc for e in x_dir_names]):  </span>
-<span class="c">#    return &#39;X&#39;</span>
 
   <span class="n">denied_found</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="ow">in</span> <span class="n">desc</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">guess_names</span> <span class="k">if</span> <span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span><span class="s">&#39;!&#39;</span><span class="p">]</span>
   <span class="k">if</span> <span class="n">denied_found</span><span class="p">:</span>
@@ -4990,7 +4183,7 @@
     <span class="k">return</span> <span class="n">true_val</span>
   <span class="k">else</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">false_val</span>
-</div>
+
 <div class="viewcode-block" id="guess_direction"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.guess_direction">[docs]</a><span class="k">def</span> <span class="nf">guess_direction</span><span class="p">(</span><span class="n">cdf_var</span><span class="p">,</span>  <span class="n">name_atts</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;long_name&#39;</span><span class="p">,</span><span class="s">&#39;standard_name&#39;</span><span class="p">],</span> <span class="n">x_dir_names</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;eastward&#39;</span><span class="p">,</span><span class="s">&#39;Eastward&#39;</span><span class="p">,</span><span class="s">&#39;zonal&#39;</span><span class="p">,</span><span class="s">&#39;Zonal&#39;</span><span class="p">],</span> <span class="n">y_dir_names</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;northward&#39;</span><span class="p">,</span><span class="s">&#39;Northward&#39;</span><span class="p">,</span><span class="s">&#39;meridional&#39;</span><span class="p">,</span><span class="s">&#39;Meridional&#39;</span><span class="p">],</span> <span class="n">z_dir_names</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;upward&#39;</span><span class="p">,</span><span class="s">&#39;Upward&#39;</span><span class="p">,</span><span class="s">&#39;vertical&#39;</span><span class="p">,</span><span class="s">&#39;Vertical&#39;</span><span class="p">],</span><span class="n">t_dir_names</span> <span class="o">=</span> <span class="p">[],</span><span class="n">directional_names</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;velocity&#39;</span><span class="p">,</span><span class="s">&#39;stress&#39;</span><span class="p">,</span><span class="s">&#39;momentum flux&#39;</span><span class="p">,</span><span class="s">&#39;momentum_flux&#39;</span><span class="p">]):</span>
 
   <span class="sd">&quot;&quot;&quot;</span>
@@ -5018,7 +4211,7 @@
 
         <span class="k">for</span> <span class="n">XX</span> <span class="ow">in</span> <span class="n">try_dict</span><span class="p">:</span>
 
-          <span class="n">try_dir</span> <span class="o">=</span> <span class="n">guess_helper</span><span class="p">(</span><span class="n">desc</span><span class="p">,</span> <span class="n">try_dict</span><span class="p">[</span><span class="n">XX</span><span class="p">],</span> <span class="n">true_val</span> <span class="o">=</span> <span class="n">XX</span><span class="p">)</span>
+          <span class="n">try_dir</span> <span class="o">=</span> <span class="n">_guess_helper</span><span class="p">(</span><span class="n">desc</span><span class="p">,</span> <span class="n">try_dict</span><span class="p">[</span><span class="n">XX</span><span class="p">],</span> <span class="n">true_val</span> <span class="o">=</span> <span class="n">XX</span><span class="p">)</span>
         
           <span class="k">if</span> <span class="n">try_dir</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">try_dir</span>
@@ -5116,7 +4309,7 @@
    
     <span class="k">for</span> <span class="n">crd</span> <span class="ow">in</span> <span class="n">coord_stack</span><span class="p">:</span>
    
-      <span class="k">if</span> <span class="p">(</span><span class="n">dim</span> <span class="o">==</span> <span class="n">dimname</span><span class="p">(</span><span class="n">crd</span><span class="p">)</span> <span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">dim_val</span> <span class="p">,</span> <span class="n">crd</span><span class="p">[:]):</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">dim</span> <span class="o">==</span> <span class="n">_dimname</span><span class="p">(</span><span class="n">crd</span><span class="p">)</span> <span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">dim_val</span> <span class="p">,</span> <span class="n">crd</span><span class="p">[:]):</span>
      
         <span class="n">grid</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">crd</span><span class="p">)</span>
             
@@ -5128,7 +4321,7 @@
   <span class="k">return</span> <span class="n">Field</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span><span class="n">body</span><span class="p">,</span><span class="n">grid</span><span class="o">=</span><span class="n">Gr</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">grid</span><span class="p">)),</span><span class="n">units</span> <span class="o">=</span> <span class="n">units</span><span class="p">,</span> <span class="n">direction</span> <span class="o">=</span> <span class="n">direction</span><span class="p">,</span> <span class="n">long_name</span> <span class="o">=</span> <span class="n">long_name</span><span class="p">,</span> <span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="dimname"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.dimname">[docs]</a><span class="k">def</span> <span class="nf">dimname</span><span class="p">(</span><span class="n">crd</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_dimname</span><span class="p">(</span><span class="n">crd</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  Strip off _crd suffix if it had been added because dim name equalled axis name.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
@@ -5138,7 +4331,7 @@
   <span class="k">else</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">crd</span><span class="o">.</span><span class="n">name</span>
 
-</div>
+
 <div class="viewcode-block" id="delta"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.delta">[docs]</a><span class="k">def</span> <span class="nf">delta</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  Function that calls the d method of the Coord object depending on the kind of coordinate (i.e. x or y).</span>
@@ -5157,7 +4350,7 @@
 
 
 </div>
-<div class="viewcode-block" id="prep_dual_array"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.prep_dual_array">[docs]</a><span class="k">def</span> <span class="nf">prep_dual_array</span><span class="p">(</span><span class="n">raw_array</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_prep_dual_array</span><span class="p">(</span><span class="n">raw_array</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Prepare the dual.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="k">if</span> <span class="n">raw_array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -5184,8 +4377,8 @@
 
 
 <span class="c"># ------------- some Ax related functions ----------------------</span>
-</div>
-<div class="viewcode-block" id="guess_grid_type"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.guess_grid_type">[docs]</a><span class="k">def</span> <span class="nf">guess_grid_type</span><span class="p">(</span><span class="n">crd</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="s">&#39;ts_grid&#39;</span><span class="p">):</span>
+
+<span class="k">def</span> <span class="nf">_guess_grid_type</span><span class="p">(</span><span class="n">crd</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="s">&#39;ts_grid&#39;</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  Function that guesses the grid type using the keywords contained in the (sg) global dictionary grid_type_names by testing for keywords (contained as lists in that dictionary).</span>
 
@@ -5201,7 +4394,7 @@
 
 
 
-</div>
+
 <div class="viewcode-block" id="make_axes"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.make_axes">[docs]</a><span class="k">def</span> <span class="nf">make_axes</span><span class="p">(</span><span class="n">cstack</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">  Replaces axis attribute of Coord objects if it is a string with newly created (non-repeating) corresponding axis objects.</span>
@@ -5242,7 +4435,7 @@
           <span class="n">created_axes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_ax</span><span class="p">)</span>
           <span class="n">c</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="n">new_ax</span> 
         <span class="c"># Ax object equivalent (parallel) to Coord object.</span>
-        <span class="n">c</span><span class="o">.</span><span class="n">axis</span> <span class="o">|</span> <span class="n">c</span>     
+        <span class="n">c</span><span class="o">.</span><span class="n">axis</span><span class="o">.</span><span class="n">make_equiv</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>     
   <span class="c"># return the list of Ax objects. </span>
 
   <span class="c"># there might be dual coords associated with coords that still have an axis attribute that hasn&#39;t been converted from str yet. Replace them with elements from the cstack:</span>
@@ -5329,8 +4522,8 @@
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2014, Author.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+        &copy; Copyright 2014, Willem Sijp.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

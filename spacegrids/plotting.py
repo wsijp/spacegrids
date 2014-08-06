@@ -1,6 +1,8 @@
 #encoding:utf-8
 
-""" plotting
+""" Functions relating to plotting Fields.
+
+Field objects contain more information than Numpy ndarrays. For instance, information about grids is stored alongside the actual data defined on that grid. This information can be used to automatically choose figure axes and labels etc. This is done in the plot, contour and contourf functions contained in this module. These functions take Field arguments, and call their plt counterparts by the same name. Arguments can be passed on directly to these counterparts.
 """
 
 import numpy as np
@@ -9,7 +11,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import warnings
 
-from config import *
+from _config import *
 from fieldcls import *
 
 warnings.formatwarning = warning_on_one_line
@@ -54,7 +56,7 @@ def auto_cont(m,M, num_cont, max_try = 5):
 
   return np.arange(m_new,M_new,step)      
 
-def prep_axes(fld, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True , grid = None):
+def _prep_axes(fld, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True , grid = None):
   """
   Prepare axes names etc for plotting.
 
@@ -185,15 +187,15 @@ def quiver(vfld, showland=True, xlabel = True,ylabel = True, minus_z=True,xl=Non
           
       if vfld.direction()[0].name == 'X':
 
-        body_x,mbody_x,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=vfld[0],  minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
+        body_x,mbody_x,M,m,X,Y,xlbl,ylbl,xscale,yscale = _prep_axes(fld=vfld[0],  minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
 
-        body_y,mbody_y,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=vfld[1],  minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
+        body_y,mbody_y,M,m,X,Y,xlbl,ylbl,xscale,yscale = _prep_axes(fld=vfld[1],  minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
         
       elif vfld.direction()[0].name == 'Y':
 
-        body_y,mbody_y,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=vfld[0],   minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
+        body_y,mbody_y,M,m,X,Y,xlbl,ylbl,xscale,yscale = _prep_axes(fld=vfld[0],   minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
 
-        body_x,mbody_x,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=vfld[1],   minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
+        body_x,mbody_x,M,m,X,Y,xlbl,ylbl,xscale,yscale = _prep_axes(fld=vfld[1],   minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units)
 
 
       if showland:
@@ -226,13 +228,13 @@ def quiver(vfld, showland=True, xlabel = True,ylabel = True, minus_z=True,xl=Non
       warnings.warn('Define quiver input on 2D grid.',RuntimeWarning)
 
 
-def scale_prep_deco(func):
+def _scale_prep_deco(func):
   """Decorator used for contour and contourf
   """
 
   def plot_wrapper(fld, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True, num_xticks = 6, num_yticks = 6, greyshade = '0.65', showland = False,grid = None,*args, **kwargs):
     """  
-    Returned function for scale_prep_deco decorator.
+    Returned function for _scale_prep_deco decorator.
 
 
     Wraps contour and contourf, who take slightly different args: arguments specific to only one function:
@@ -267,9 +269,9 @@ def scale_prep_deco(func):
   # M, m are the max and min of the data.
 
 
-#    body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes({k:kwargs[k] for k in ['fld', 'num_cont', 'xlabel' ,'ylabel', 'minus_z', 'xl','yl','xscale','yscale','ax_units']})
+#    body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale = _prep_axes({k:kwargs[k] for k in ['fld', 'num_cont', 'xlabel' ,'ylabel', 'minus_z', 'xl','yl','xscale','yscale','ax_units']})
 
-    body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale = prep_axes(fld=fld,   minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units, grid = grid)
+    body,mbody,M,m,X,Y,xlbl,ylbl,xscale,yscale = _prep_axes(fld=fld,   minus_z=minus_z, xl=xl,yl=yl,xscale = xscale,yscale = yscale,ax_units=ax_units, grid = grid)
 
   # Use of X, Y confusing here, as they refer to coord objects, whereas X,Y,... usually refer to ax objects. Change in later version
 
@@ -308,7 +310,7 @@ def scale_prep_deco(func):
   return plot_wrapper
 
 
-@scale_prep_deco
+@_scale_prep_deco
 def contourf(X_scaled,Y_scaled,mbody, levels = None, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True, num_xticks = 6, num_yticks = 6, greyshade = '0.65', showland = False,grid = None,*args, **kwargs):
   """
   Contourf function with Field attributes .
@@ -358,7 +360,7 @@ def contourf(X_scaled,Y_scaled,mbody, levels = None, num_cont =15, xlabel = True
   return cset
 
 
-@scale_prep_deco
+@_scale_prep_deco
 def contour(X_scaled,Y_scaled,mbody, levels = None, num_cont =15, xlabel = True,ylabel = True, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_units=True, num_xticks = 6, num_yticks = 6, greyshade = '0.65', showland = False,grid = None,*args, **kwargs):
   """
   Contour function with Field attributes .

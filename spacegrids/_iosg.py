@@ -5,7 +5,7 @@
 
 import numpy as np
 
-from config import *
+from _config import *
 
 import warnings
 warnings.formatwarning = warning_on_one_line

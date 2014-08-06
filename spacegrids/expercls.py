@@ -1,6 +1,22 @@
 #encoding:utf-8
 
-""" Exper class
+"""The Exper class and associated functions. Exper represents experiment data sets. 
+
+An Exper object corresponds to (collections of) Netcdf File(s).
+
+The general workflow starts with the creation of a Project object (providing a path to a project directory). This will lead sg to look through the project directory for subdirectories and Netcdf files (based on the file suffix). An Exper object is created for each subdir and Netcdf file found, and added to the project. So an Exper object may represent either a subdirectory of a project directory or a specific Netcdf file inside that project directory (recorded in the 'path' attribute). Each Exper with name attribute 'foo' can then be accessed via P['foo']. This procedure provides groundwork by interpreting axis and coordinate date found in the Netcdf files (inside the subdirectories in the case where the Exper object represents a subdirectory) and adding this information to the Exper objects (see Attributes). Once this structure is established, specific data sets can be loaded across experiments using P.load.
+
+  Examples:
+
+  >>> import spacegrids as sg
+  >>> D = sg.info_dict()
+  >>> P = sg.Project(D['my_project'])
+  >>> E = P['DPO']
+  >>> E.show()
+  DPO
+  ----------
+  Exper using 0.01 Mb. 0 fields loaded.  
+
 """
 
 import types
@@ -8,13 +24,13 @@ import datetime
 import glob
 import warnings
 
-from config import *
+from _config import *
 
 import os
 import copy
 
 from fieldcls import *
-from iosg import *
+from _iosg import *
 
 warnings.formatwarning = warning_on_one_line
 
@@ -260,7 +276,7 @@ class Exper(object):
 
         for fld in self.vars.values():
 
-          file_handle = fld.cdf_insert(file_handle, insert_dual = insert_dual)
+          file_handle = fld._cdf_insert(file_handle, insert_dual = insert_dual)
 
         file_handle.history = history + '%s'%str(datetime.datetime.now())
  

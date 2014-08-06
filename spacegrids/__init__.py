@@ -10,8 +10,8 @@ from  expercls import *
 from projectcls import *
 from ops import *
 from plotting import *
-from config import *
-from iosg import *
+from _config import *
+from _iosg import *
 from utilsg import *
 
 # masked arrays are done as follows:

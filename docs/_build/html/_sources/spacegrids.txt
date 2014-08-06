@@ -1,78 +1,76 @@
-spacegrids package
+spacegrids Package
 ==================
 
-Submodules
-----------
+:mod:`spacegrids` Package
+-------------------------
 
-spacegrids.config module
-------------------------
-
-.. automodule:: spacegrids.config
+.. automodule:: spacegrids.__init__
     :members:
     :undoc-members:
     :show-inheritance:
 
-spacegrids.expercls module
---------------------------
+
+:mod:`abstract` Module
+----------------------
+
+.. automodule:: spacegrids.abstract
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`decorators` Module
+------------------------
+
+.. automodule:: spacegrids.decorators
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`expercls` Module
+----------------------
 
 .. automodule:: spacegrids.expercls
     :members:
     :undoc-members:
     :show-inheritance:
 
-spacegrids.fieldcls module
---------------------------
+:mod:`fieldcls` Module
+----------------------
 
 .. automodule:: spacegrids.fieldcls
     :members:
     :undoc-members:
     :show-inheritance:
 
-spacegrids.iosg module
-----------------------
-
-.. automodule:: spacegrids.iosg
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-spacegrids.ops module
----------------------
+:mod:`ops` Module
+-----------------
 
 .. automodule:: spacegrids.ops
     :members:
     :undoc-members:
     :show-inheritance:
 
-spacegrids.plotting module
---------------------------
+:mod:`plotting` Module
+----------------------
 
 .. automodule:: spacegrids.plotting
     :members:
     :undoc-members:
     :show-inheritance:
 
-spacegrids.projectcls module
-----------------------------
+:mod:`projectcls` Module
+------------------------
 
 .. automodule:: spacegrids.projectcls
     :members:
     :undoc-members:
     :show-inheritance:
 
-spacegrids.utilsg module
-------------------------
+:mod:`utilsg` Module
+--------------------
 
 .. automodule:: spacegrids.utilsg
     :members:
     :undoc-members:
     :show-inheritance:
 
-
-Module contents
----------------
-
-.. automodule:: spacegrids
-    :members:
-    :undoc-members:
-    :show-inheritance:

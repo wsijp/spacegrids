@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -23,7 +25,6 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="spacegrids  documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
@@ -57,7 +58,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 
-<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">_config</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="kn">from</span> <span class="nn">fieldcls</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">expercls</span> <span class="kn">import</span> <span class="o">*</span>
@@ -198,7 +199,7 @@
         <span class="c"># make a handy dictionary for easy reference</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">e</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="p">:</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">e</span><span class="p">]</span><span class="o">.</span><span class="n">cstack</span><span class="p">}</span>
 
-      <span class="c"># at this stage of the loading process, the Coord elements in the experiment cstack attributes (lists) have an axis attribute, but they are only the strings (e.g. &#39;X&#39;,&#39;Y&#39;,&#39;Z&#39;) obtained from the netcdf file. Next, we will replace these string instances with axis objects (defined as a class in sg) with their name attributes being the original strings (e.g. &#39;X&#39;). Here, as with coords above, we need to be carefully to make those objects the same objects (in memory) if they are equal according to the &amp; method criteria (equal name, values etc, but possibly different objects in memory). So: if a&amp;b True, then b is replaced with a in the list). </span>
+      <span class="c"># at this stage of the loading process, the Coord elements in the experiment cstack attributes (lists) have an axis attribute, but they are only the strings (e.g. &#39;X&#39;,&#39;Y&#39;,&#39;Z&#39;) obtained from the netcdf file. Next, we will replace these string instances with axis objects (defined as a class in sg) with their name attributes being the original strings (e.g. &#39;X&#39;). Here, as with coords above, we need to be carefully to make those objects the same objects (in memory) if they are equal according to the weaksame method criteria (equal name, values etc, but possibly different objects in memory). So: if a.weaksame(b) True, then b is replaced with a in the list). </span>
       <span class="c"># So, replace axis string attribute with object attribute and obtain corresponding accumulated list of axis objects. We do this using the make_axis function:</span>
        
       <span class="n">L</span> <span class="o">=</span> <span class="n">make_axes</span><span class="p">([</span> <span class="n">c</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">e</span><span class="p">]</span><span class="o">.</span><span class="n">cstack</span> <span class="p">])</span>
@@ -380,7 +381,7 @@
       <span class="k">for</span> <span class="n">expname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">expname</span><span class="p">]</span><span class="o">.</span><span class="n">delvar</span><span class="p">(</span><span class="n">varname</span><span class="p">)</span> 
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">update_nbytes</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_nbytes</span><span class="p">()</span>
 
     <span class="k">else</span><span class="p">:</span>
       <span class="k">print</span> <span class="s">&#39;No experiments.&#39;</span>
@@ -399,7 +400,7 @@
         <span class="k">if</span> <span class="n">msg</span><span class="p">:</span>
           <span class="k">print</span> <span class="s">&#39;No experiment by that name. &#39;</span> <span class="o">+</span> <span class="n">msg</span>
 
-    <span class="bp">self</span><span class="o">.</span><span class="n">update_nbytes</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_update_nbytes</span><span class="p">()</span>
 
 
 <span class="c"># --&gt; belongs to Project</span>
@@ -437,7 +438,7 @@
 
       <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">expname</span><span class="p">]</span> <span class="o">=</span> <span class="n">Exper</span><span class="p">(</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span><span class="n">name</span> <span class="o">=</span> <span class="n">expname</span><span class="p">,</span> <span class="n">cstack</span> <span class="o">=</span> <span class="n">cstack</span><span class="p">,</span> <span class="n">descr</span> <span class="o">=</span> <span class="n">descr</span><span class="p">)</span>
 
-    <span class="bp">self</span><span class="o">.</span><span class="n">update_nbytes</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_update_nbytes</span><span class="p">()</span>
     <span class="k">return</span> 
 </div>
 <div class="viewcode-block" id="Project.load"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.load">[docs]</a>  <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varnames</span><span class="p">,</span> <span class="n">descr</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="n">chk_loaded</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name_suffix</span><span class="o">=</span><span class="s">&#39;_cat&#39;</span><span class="p">,</span> <span class="n">new_coord_name</span> <span class="o">=</span> <span class="s">&#39;gamma&#39;</span><span class="p">,</span> <span class="n">new_coord</span><span class="o">=</span> <span class="bp">None</span> <span class="p">):</span>
@@ -497,7 +498,7 @@
             
 	  <span class="bp">self</span><span class="o">.</span><span class="n">expers</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">name_suffix</span><span class="o">=</span><span class="n">name_suffix</span><span class="p">,</span> <span class="n">new_coord_name</span> <span class="o">=</span> <span class="n">new_coord_name</span><span class="p">,</span> <span class="n">new_coord</span><span class="o">=</span> <span class="n">new_coord</span><span class="p">)</span>  
 
-    <span class="bp">self</span><span class="o">.</span><span class="n">update_nbytes</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_update_nbytes</span><span class="p">()</span>
     <span class="k">return</span>    
 </div>
 <div class="viewcode-block" id="Project.write"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.write">[docs]</a>  <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">force</span> <span class="o">=</span> <span class="bp">False</span> <span class="p">,</span> <span class="n">history</span> <span class="o">=</span> <span class="s">&#39;Created from Spacegrids &#39;</span><span class="p">,</span> <span class="n">insert_dual</span> <span class="o">=</span> <span class="bp">True</span>  <span class="p">):</span> 
@@ -544,7 +545,7 @@
 	
     <span class="k">return</span> <span class="n">flag</span>	
  </div>
-<div class="viewcode-block" id="Project.update_nbytes"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.update_nbytes">[docs]</a>  <span class="k">def</span> <span class="nf">update_nbytes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">_update_nbytes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update estimate of number of Mb used by Project.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -555,7 +556,7 @@
       <span class="bp">self</span><span class="o">.</span><span class="n">nbytes</span> <span class="o">=</span> <span class="mi">0</span>
 
 
-</div>
+
 <div class="viewcode-block" id="Project.cat"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.projectcls.Project.cat">[docs]</a>  <span class="k">def</span> <span class="nf">cat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fld_name</span><span class="p">,</span> <span class="n">new_ax_name</span> <span class="o">=</span> <span class="s">&#39;exper&#39;</span><span class="p">,</span> <span class="n">new_coord_name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">new_coord</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
@@ -993,8 +994,8 @@
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2014, Author.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+        &copy; Copyright 2014, Willem Sijp.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

@@ -1,4 +1,7 @@
 
+
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -14,7 +17,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
+        URL_ROOT:    '',
         VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -24,7 +27,6 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="spacegrids  documentation" href="index.html" /> 
   </head>
   <body>
@@ -98,21 +100,29 @@
   </dt>
 
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Gr.array_equal">array_equal() (spacegrids.fieldcls.Gr method)</a>
+  <dt><a href="spacegrids.html#spacegrids.utilsg.affix">affix() (in module spacegrids.utilsg)</a>
+  </dt>
+
+      
+  <dt><a href="spacegrids.html#spacegrids.abstract.Valued.array_equal">array_equal() (spacegrids.abstract.Valued method)</a>
   </dt>
 
       <dd><dl>
         
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Valued.array_equal">(spacegrids.fieldcls.Valued method)</a>
+  <dt><a href="spacegrids.html#spacegrids.fieldcls.Gr.array_equal">(spacegrids.fieldcls.Gr method)</a>
   </dt>
 
       </dl></dd>
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.att2members">att2members() (in module spacegrids.fieldcls)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Associative">Associative (class in spacegrids.abstract)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="spacegrids.html#spacegrids.decorators.att2members">att2members() (in module spacegrids.decorators)</a>
+  </dt>
+
       
   <dt><a href="spacegrids.html#spacegrids.plotting.auto_cont">auto_cont() (in module spacegrids.plotting)</a>
   </dt>
@@ -154,7 +164,7 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Membered.call_on_members">call_on_members() (spacegrids.fieldcls.Membered method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Membered.call_on_members">call_on_members() (spacegrids.abstract.Membered method)</a>
   </dt>
 
       
@@ -172,16 +182,6 @@
 
       </dl></dd>
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Coord.cdf_insert">cdf_insert() (spacegrids.fieldcls.Coord method)</a>
-  </dt>
-
-      <dd><dl>
-        
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Field.cdf_insert">(spacegrids.fieldcls.Field method)</a>
-  </dt>
-
-      </dl></dd>
-      
   <dt><a href="spacegrids.html#spacegrids.fieldcls.cdfread">cdfread() (in module spacegrids.fieldcls)</a>
   </dt>
 
@@ -190,19 +190,15 @@
   </dt>
 
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.cdfsniff_helper">cdfsniff_helper() (in module spacegrids.fieldcls)</a>
+  <dt><a href="spacegrids.html#spacegrids.decorators.check_equiv">check_equiv() (in module spacegrids.decorators)</a>
   </dt>
 
-      
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.check_equiv">check_equiv() (in module spacegrids.fieldcls)</a>
-  </dt>
-
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="spacegrids.html#spacegrids.fieldcls.concatenate">concatenate() (in module spacegrids.fieldcls)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="spacegrids.html#spacegrids.plotting.contour">contour() (in module spacegrids.plotting)</a>
   </dt>
@@ -226,12 +222,12 @@
 
       </dl></dd>
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Membered.copy">copy() (spacegrids.fieldcls.Membered method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Membered.copy">copy() (spacegrids.abstract.Membered method)</a>
   </dt>
 
       <dd><dl>
         
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Named.copy">(spacegrids.fieldcls.Named method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Named.copy">(spacegrids.abstract.Named method)</a>
   </dt>
 
       </dl></dd>
@@ -316,15 +312,11 @@
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.dimname">dimname() (in module spacegrids.fieldcls)</a>
-  </dt>
-
-      
   <dt><a href="spacegrids.html#spacegrids.fieldcls.VField.direction">direction() (spacegrids.fieldcls.VField method)</a>
   </dt>
 
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Directional">Directional (class in spacegrids.fieldcls)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Directional">Directional (class in spacegrids.abstract)</a>
   </dt>
 
       
@@ -378,33 +370,33 @@
   </dt>
 
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Directional.eq_in">eq_in() (spacegrids.fieldcls.Directional method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Directional.eq_in">eq_in() (spacegrids.abstract.Directional method)</a>
   </dt>
 
       <dd><dl>
         
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Membered.eq_in">(spacegrids.fieldcls.Membered method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Membered.eq_in">(spacegrids.abstract.Membered method)</a>
   </dt>
 
       </dl></dd>
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Coord.eq_index">eq_index() (spacegrids.fieldcls.Coord method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Directional.eq_index">eq_index() (spacegrids.abstract.Directional method)</a>
   </dt>
 
       <dd><dl>
         
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Directional.eq_index">(spacegrids.fieldcls.Directional method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Membered.eq_index">(spacegrids.abstract.Membered method)</a>
   </dt>
 
         
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Membered.eq_index">(spacegrids.fieldcls.Membered method)</a>
+  <dt><a href="spacegrids.html#spacegrids.fieldcls.Coord.eq_index">(spacegrids.fieldcls.Coord method)</a>
   </dt>
 
       </dl></dd>
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Membered.eq_perm">eq_perm() (spacegrids.fieldcls.Membered method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Membered.eq_perm">eq_perm() (spacegrids.abstract.Membered method)</a>
   </dt>
 
       
@@ -423,10 +415,6 @@
   <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="spacegrids.html#spacegrids.fieldcls.Field">Field (class in spacegrids.fieldcls)</a>
-  </dt>
-
-      
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.field2cumsum">field2cumsum() (in module spacegrids.fieldcls)</a>
   </dt>
 
       
@@ -452,7 +440,7 @@
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.finer_Field">finer_Field() (in module spacegrids.fieldcls)</a>
+  <dt><a href="spacegrids.html#spacegrids.fieldcls.finer_field">finer_field() (in module spacegrids.fieldcls)</a>
   </dt>
 
       
@@ -496,19 +484,19 @@
   </dt>
 
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Membered.get_from_members">get_from_members() (spacegrids.fieldcls.Membered method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Membered.get_from_members">get_from_members() (spacegrids.abstract.Membered method)</a>
   </dt>
 
       
   <dt><a href="spacegrids.html#spacegrids.fieldcls.GetId">GetId (class in spacegrids.fieldcls)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="spacegrids.html#spacegrids.fieldcls.Coord.give_axis">give_axis() (spacegrids.fieldcls.Coord method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="spacegrids.html#spacegrids.fieldcls.Coord.give_dual">give_dual() (spacegrids.fieldcls.Coord method)</a>
   </dt>
@@ -519,14 +507,6 @@
 
       
   <dt><a href="spacegrids.html#spacegrids.fieldcls.guess_direction">guess_direction() (in module spacegrids.fieldcls)</a>
-  </dt>
-
-      
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.guess_grid_type">guess_grid_type() (in module spacegrids.fieldcls)</a>
-  </dt>
-
-      
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.guess_helper">guess_helper() (in module spacegrids.fieldcls)</a>
   </dt>
 
   </dl></td>
@@ -592,12 +572,12 @@
   </dt>
 
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Directional.is_equiv">is_equiv() (spacegrids.fieldcls.Directional method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Directional.is_equiv">is_equiv() (spacegrids.abstract.Directional method)</a>
   </dt>
 
       <dd><dl>
         
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Membered.is_equiv">(spacegrids.fieldcls.Membered method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Membered.is_equiv">(spacegrids.abstract.Membered method)</a>
   </dt>
 
       </dl></dd>
@@ -623,6 +603,8 @@
   <dt><a href="spacegrids.html#spacegrids.expercls.Exper.list_vars">list_vars() (spacegrids.expercls.Exper method)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="spacegrids.html#spacegrids.expercls.Exper.load">load() (spacegrids.expercls.Exper method)</a>
   </dt>
@@ -633,14 +615,8 @@
   </dt>
 
       </dl></dd>
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="spacegrids.html#spacegrids.projectcls.Project.loaded">loaded() (spacegrids.projectcls.Project method)</a>
-  </dt>
-
-      
-  <dt><a href="spacegrids.html#spacegrids.iosg.locate">locate() (in module spacegrids.iosg)</a>
   </dt>
 
       
@@ -672,7 +648,7 @@
   </dt>
 
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Directional.make_equiv">make_equiv() (spacegrids.fieldcls.Directional method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Directional.make_equiv">make_equiv() (spacegrids.abstract.Directional method)</a>
   </dt>
 
       
@@ -683,6 +659,8 @@
   <dt><a href="spacegrids.html#spacegrids.ops.Mean">Mean (class in spacegrids.ops)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="spacegrids.html#spacegrids.fieldcls.Field.mean">mean() (spacegrids.fieldcls.Field method)</a>
   </dt>
@@ -693,10 +671,8 @@
   </dt>
 
       </dl></dd>
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Membered">Membered (class in spacegrids.fieldcls)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Membered">Membered (class in spacegrids.abstract)</a>
   </dt>
 
       
@@ -704,11 +680,7 @@
   </dt>
 
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.method2members">method2members() (in module spacegrids.fieldcls)</a>
-  </dt>
-
-      
-  <dt><a href="spacegrids.html#spacegrids.iosg.msk_read">msk_read() (in module spacegrids.iosg)</a>
+  <dt><a href="spacegrids.html#spacegrids.decorators.method2members">method2members() (in module spacegrids.decorators)</a>
   </dt>
 
       
@@ -722,7 +694,7 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Named">Named (class in spacegrids.fieldcls)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Named">Named (class in spacegrids.abstract)</a>
   </dt>
 
       
@@ -731,10 +703,6 @@
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="spacegrids.html#spacegrids.iosg.netcdf_file">netcdf_file() (in module spacegrids.iosg)</a>
-  </dt>
-
       
   <dt><a href="spacegrids.html#spacegrids.fieldcls.nugget">nugget() (in module spacegrids.fieldcls)</a>
   </dt>
@@ -796,29 +764,21 @@
   </dt>
 
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Membered.perm">perm() (spacegrids.fieldcls.Membered method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Membered.perm">perm() (spacegrids.abstract.Membered method)</a>
   </dt>
 
       
   <dt><a href="spacegrids.html#spacegrids.ops.Pick">Pick (class in spacegrids.ops)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="spacegrids.html#spacegrids.plotting.plot">plot() (in module spacegrids.plotting)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="spacegrids.html#spacegrids.utilsg.plural">plural() (in module spacegrids.utilsg)</a>
-  </dt>
-
-      
-  <dt><a href="spacegrids.html#spacegrids.plotting.prep_axes">prep_axes() (in module spacegrids.plotting)</a>
-  </dt>
-
-      
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.prep_dual_array">prep_dual_array() (in module spacegrids.fieldcls)</a>
   </dt>
 
       
@@ -858,15 +818,11 @@
   </dt>
 
       
-  <dt><a href="spacegrids.html#spacegrids.iosg.read_masks">read_masks() (in module spacegrids.iosg)</a>
-  </dt>
-
-      
   <dt><a href="spacegrids.html#spacegrids.projectcls.read_projnick">read_projnick() (in module spacegrids.projectcls)</a>
   </dt>
 
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Membered.rearrange">rearrange() (spacegrids.fieldcls.Membered method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Membered.rearrange">rearrange() (spacegrids.abstract.Membered method)</a>
   </dt>
 
       
@@ -890,7 +846,7 @@
   </dt>
 
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Membered.reverse">reverse() (spacegrids.fieldcls.Membered method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Membered.reverse">reverse() (spacegrids.abstract.Membered method)</a>
   </dt>
 
       
@@ -922,37 +878,33 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Coord.same">same() (spacegrids.fieldcls.Coord method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Directional.same">same() (spacegrids.abstract.Directional method)</a>
   </dt>
 
       <dd><dl>
         
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Directional.same">(spacegrids.fieldcls.Directional method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Membered.same">(spacegrids.abstract.Membered method)</a>
   </dt>
 
         
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Membered.same">(spacegrids.fieldcls.Membered method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Named.same">(spacegrids.abstract.Named method)</a>
   </dt>
 
         
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Named.same">(spacegrids.fieldcls.Named method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Valued.same">(spacegrids.abstract.Valued method)</a>
   </dt>
 
         
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Valued.same">(spacegrids.fieldcls.Valued method)</a>
+  <dt><a href="spacegrids.html#spacegrids.fieldcls.Coord.same">(spacegrids.fieldcls.Coord method)</a>
   </dt>
 
       </dl></dd>
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Named.samein">samein() (spacegrids.fieldcls.Named method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Named.samein">samein() (spacegrids.abstract.Named method)</a>
   </dt>
 
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Named.sameindex">sameindex() (spacegrids.fieldcls.Named method)</a>
-  </dt>
-
-      
-  <dt><a href="spacegrids.html#spacegrids.plotting.scale_prep_deco">scale_prep_deco() (in module spacegrids.plotting)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Named.sameindex">sameindex() (spacegrids.abstract.Named method)</a>
   </dt>
 
       
@@ -990,11 +942,15 @@
   </dt>
 
       
-  <dt><a href="spacegrids.html#module-spacegrids">spacegrids (module)</a>
+  <dt><a href="spacegrids.html#module-spacegrids.__init__">spacegrids.__init__ (module)</a>
   </dt>
 
       
-  <dt><a href="spacegrids.html#module-spacegrids.config">spacegrids.config (module)</a>
+  <dt><a href="spacegrids.html#module-spacegrids.abstract">spacegrids.abstract (module)</a>
+  </dt>
+
+      
+  <dt><a href="spacegrids.html#module-spacegrids.decorators">spacegrids.decorators (module)</a>
   </dt>
 
   </dl></td>
@@ -1005,10 +961,6 @@
 
       
   <dt><a href="spacegrids.html#module-spacegrids.fieldcls">spacegrids.fieldcls (module)</a>
-  </dt>
-
-      
-  <dt><a href="spacegrids.html#module-spacegrids.iosg">spacegrids.iosg (module)</a>
   </dt>
 
       
@@ -1036,7 +988,7 @@
   </dt>
 
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Membered.strict_equiv">strict_equiv() (spacegrids.fieldcls.Membered method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Membered.strict_equiv">strict_equiv() (spacegrids.abstract.Membered method)</a>
   </dt>
 
       
@@ -1109,12 +1061,6 @@
   <dt><a href="spacegrids.html#spacegrids.expercls.Exper.update_nbytes">update_nbytes() (spacegrids.expercls.Exper method)</a>
   </dt>
 
-      <dd><dl>
-        
-  <dt><a href="spacegrids.html#spacegrids.projectcls.Project.update_nbytes">(spacegrids.projectcls.Project method)</a>
-  </dt>
-
-      </dl></dd>
   </dl></td>
 </tr></table>
 
@@ -1122,7 +1068,7 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Valued">Valued (class in spacegrids.fieldcls)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Valued">Valued (class in spacegrids.abstract)</a>
   </dt>
 
       
@@ -1192,33 +1138,29 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="spacegrids.html#spacegrids.config.warning_on_one_line">warning_on_one_line() (in module spacegrids.config)</a>
-  </dt>
-
-      
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Coord.weaksame">weaksame() (spacegrids.fieldcls.Coord method)</a>
+  <dt><a href="spacegrids.html#spacegrids.abstract.Membered.weaksame">weaksame() (spacegrids.abstract.Membered method)</a>
   </dt>
 
       <dd><dl>
         
+  <dt><a href="spacegrids.html#spacegrids.abstract.Named.weaksame">(spacegrids.abstract.Named method)</a>
+  </dt>
+
+        
+  <dt><a href="spacegrids.html#spacegrids.fieldcls.Coord.weaksame">(spacegrids.fieldcls.Coord method)</a>
+  </dt>
+
+        
   <dt><a href="spacegrids.html#spacegrids.fieldcls.Field.weaksame">(spacegrids.fieldcls.Field method)</a>
   </dt>
 
-        
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Membered.weaksame">(spacegrids.fieldcls.Membered method)</a>
-  </dt>
-
-        
-  <dt><a href="spacegrids.html#spacegrids.fieldcls.Named.weaksame">(spacegrids.fieldcls.Named method)</a>
-  </dt>
-
       </dl></dd>
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="spacegrids.html#spacegrids.ops.While">While (class in spacegrids.ops)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="spacegrids.html#spacegrids.expercls.Exper.write">write() (spacegrids.expercls.Exper method)</a>
   </dt>
@@ -1300,8 +1242,8 @@
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2014, Author.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+        &copy; Copyright 2014, Willem Sijp.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

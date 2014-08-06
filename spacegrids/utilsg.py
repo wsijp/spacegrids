@@ -1,6 +1,6 @@
 #encoding:utf-8
 
-""" useful general functions
+""" Useful general functions and utilities.
 """
 
 import numpy as np
@@ -10,7 +10,7 @@ import math
 import fnmatch
 import itertools
 
-from config import *
+from _config import *
 
 class Report():
   """

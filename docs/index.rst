@@ -1,10 +1,12 @@
 .. spacegrids documentation master file, created by
-   sphinx-quickstart on Tue Jul  8 11:28:26 2014.
+   sphinx-quickstart on Wed Aug  6 13:45:41 2014.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to spacegrids's documentation!
+Spacegrids data analysis documentation
 ======================================
+
+
 
 Contents:
 

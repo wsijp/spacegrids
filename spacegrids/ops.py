@@ -1,9 +1,18 @@
 #encoding:utf-8
 
-""" io related
+""" Mathematical operators based on Field and Gr operations.
+
+The mathematical operators defined here, such as Der, provide basic building blocks for the user to define more detailed Operators. Arithmatic operations such as addition and multiplication among these operators yield new operators. These new operators can be called on Field objects later, performing the intended operation. 
+
+Example:
+
+  >>> ddX = sg.Der(X) # create Operator that would take X-derivative on Field args
+  >>> ddY = sg.Der(Y) # similar
+  >>> ddXddY = ddX*ddY  # create composite operator
+  >>> ddXddY(F) # differentiation in X direction following differentiation in Y
 """
 
-from config import *
+from _config import *
 
 from fieldcls import *
 
@@ -254,10 +263,17 @@ class Der(Operator):
 
   Attributes:
     ax: (Ax) axis in which direction __call__ will take the derivative. 
+
+  Example:
+
+    >>> ddX = sg.Der(X) # create Operator that would take X-derivative on Field args
+    >>> ddY = sg.Der(Y) # similar
+    >>> ddXddY = ddX*ddY  # create composite operator
+    >>> ddXddY(F) # differentiation in X direction following differentiation in Y
   """
 
   def __init__(self,Xi):
-    """Initialize Der Operator by assigning ax attribute.
+    """Initialize Der Operator by assigning Ax object from Xi arg. to ax attribute.
     """
     self.ax = Xi
 
