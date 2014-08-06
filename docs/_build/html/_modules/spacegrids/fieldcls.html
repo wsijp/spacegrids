@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -51,7 +49,37 @@
   <h1>Source code for spacegrids.fieldcls</h1><div class="highlight"><pre>
 <span class="c">#encoding:utf-8</span>
 
-<span class="sd">&quot;&quot;&quot; Coord, Gr, Ax, AxGr and Field class</span>
+<span class="sd">&quot;&quot;&quot;Field and Gr objects represent data defined on grids and reflecting Netcdf data: Coord, Gr, Ax, AxGr and Field.</span>
+
+<span class="sd">Gr (grid) objects are constructed from Coord (coordinate) objects as tuples and Membered methods. Similarly, AxGr (axis grid) objects are constructed from Ax (axis, e.g. X or Y) objects. Field objects contain a grid (a Gr object) attribute and a ndarray value attribute of data defined on that grid. Vfield objects (vector fields) are tuples of Field objects with Membered methods.</span>
+
+<span class="sd">The fieldcls module contains the following classes:</span>
+
+<span class="sd">Coord</span>
+<span class="sd">-----</span>
+
+<span class="sd">Represents distrete coordinate collection in a direction (e.g. 10m depth, 20m depth,...). Corresponds to dimension variable in Netcdf.</span>
+
+<span class="sd">Gr</span>
+<span class="sd">--</span>
+
+<span class="sd">Represents Coord grids. Consists of a tuple of Coord objects, with additional Membered and other methods.</span>
+
+<span class="sd">Ax</span>
+<span class="sd">--</span>
+
+<span class="sd">Axis. Represents direction: e.g. the longitudinal direction, X, or the vertical, Z. Coord objects have an attribute that points to an Ax object, representing its direction.</span>
+
+<span class="sd">AxGr</span>
+<span class="sd">----</span>
+
+<span class="sd">Same as Gr, but containing Ax objects instead of Coord. Difference is mainly in the multiplication methods.</span>
+
+<span class="sd">Field</span>
+<span class="sd">-----</span>
+
+<span class="sd">Represents a dataset defined on a grid.</span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
@@ -121,7 +149,7 @@
 
 <div class="viewcode-block" id="Coord"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Coord">[docs]</a><span class="k">class</span> <span class="nc">Coord</span><span class="p">(</span><span class="n">Directional</span><span class="p">,</span> <span class="n">Valued</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Representing distrete coordinate collection. Corresponds to dimension variable in Netcdf.</span>
+<span class="sd">  Represents distrete coordinate collection in a direction (e.g. 10m depth, 20m depth,...). Corresponds to dimension variable in Netcdf.</span>
 
 <span class="sd">  Coord objects are defined by a name, value (generally a numpy array) and units. The value of a Coord is a 1D ndarray containing the locations of data points. Coord is the basic building block of Gr (grid) objects.</span>
 <span class="sd">  Examples of Coord objects are xt or yt, corresponding to the tracer grid cells in the x and y directions. Coord objects have a corresponding dual. For xt it is xt_edges and vice versa. The dual generally contains the edges of the grid cells. If no dual argument is given, the Coord object is its own dual.</span>
@@ -1695,7 +1723,7 @@
 <div class="viewcode-block" id="Gr"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Gr">[docs]</a><span class="k">class</span> <span class="nc">Gr</span><span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="n">Membered</span><span class="p">):</span>
 
   <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Represents Coord grids. Consists of a tuple of Coord objects, with additional methods. Gr objects g1 and g2 are considered weaksame, g1.weaksame(g2) yields True, when the individual Coord elements are weaksame.</span>
+<span class="sd">  Represents Coord grids. Consists of a tuple of Coord objects, with additional Membered and other methods. Gr objects g1 and g2 are considered weaksame, g1.weaksame(g2) yields True, when the individual Coord elements are weaksame.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
 
@@ -2467,7 +2495,9 @@
   </div>
 <div class="viewcode-block" id="Field"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Field">[docs]</a><span class="k">class</span> <span class="nc">Field</span><span class="p">(</span><span class="n">Valued</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">  Field  to represent a scalar valued function, also dataset, defined on a grid.</span>
+<span class="sd">  Represents a dataset defined on a grid. </span>
+
+<span class="sd">  Field objects contain a grid (a Gr object) attribute and a ndarray value attribute of data defined on that grid.</span>
 
 <span class="sd">  The call method allows fields to act as function defined on grid objects.</span>
 <span class="sd">  For a 2D scalar corresponding to Field T, say defined on grid yt*xt, T(dy*dx) yields a 2D array of the scalar values.</span>
@@ -4523,7 +4553,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2014, Willem Sijp.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

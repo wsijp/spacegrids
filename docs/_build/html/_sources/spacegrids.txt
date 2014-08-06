@@ -18,13 +18,6 @@ spacegrids Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`decorators` Module
-------------------------
-
-.. automodule:: spacegrids.decorators
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 :mod:`expercls` Module
 ----------------------

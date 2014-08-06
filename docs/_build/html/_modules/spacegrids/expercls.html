@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -51,7 +49,23 @@
   <h1>Source code for spacegrids.expercls</h1><div class="highlight"><pre>
 <span class="c">#encoding:utf-8</span>
 
-<span class="sd">&quot;&quot;&quot; Exper class</span>
+<span class="sd">&quot;&quot;&quot;The Exper class and associated functions. Exper represents experiment data sets. </span>
+
+<span class="sd">An Exper object corresponds to (collections of) Netcdf File(s).</span>
+
+<span class="sd">The general workflow starts with the creation of a Project object (providing a path to a project directory). This will lead sg to look through the project directory for subdirectories and Netcdf files (based on the file suffix). An Exper object is created for each subdir and Netcdf file found, and added to the project. So an Exper object may represent either a subdirectory of a project directory or a specific Netcdf file inside that project directory (recorded in the &#39;path&#39; attribute). Each Exper with name attribute &#39;foo&#39; can then be accessed via P[&#39;foo&#39;]. This procedure provides groundwork by interpreting axis and coordinate date found in the Netcdf files (inside the subdirectories in the case where the Exper object represents a subdirectory) and adding this information to the Exper objects (see Attributes). Once this structure is established, specific data sets can be loaded across experiments using P.load.</span>
+
+<span class="sd">  Examples:</span>
+
+<span class="sd">  &gt;&gt;&gt; import spacegrids as sg</span>
+<span class="sd">  &gt;&gt;&gt; D = sg.info_dict()</span>
+<span class="sd">  &gt;&gt;&gt; P = sg.Project(D[&#39;my_project&#39;])</span>
+<span class="sd">  &gt;&gt;&gt; E = P[&#39;DPO&#39;]</span>
+<span class="sd">  &gt;&gt;&gt; E.show()</span>
+<span class="sd">  DPO</span>
+<span class="sd">  ----------</span>
+<span class="sd">  Exper using 0.01 Mb. 0 fields loaded.  </span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">types</span>
@@ -665,7 +679,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2014, Willem Sijp.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

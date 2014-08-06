@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -51,7 +49,16 @@
   <h1>Source code for spacegrids.ops</h1><div class="highlight"><pre>
 <span class="c">#encoding:utf-8</span>
 
-<span class="sd">&quot;&quot;&quot; io related</span>
+<span class="sd">&quot;&quot;&quot; Mathematical operators based on Field and Gr operations.</span>
+
+<span class="sd">The mathematical operators defined here, such as Der, provide basic building blocks for the user to define more detailed Operators. Arithmatic operations such as addition and multiplication among these operators yield new operators. These new operators can be called on Field objects later, performing the intended operation. </span>
+
+<span class="sd">Example:</span>
+
+<span class="sd">  &gt;&gt;&gt; ddX = sg.Der(X) # create Operator that would take X-derivative on Field args</span>
+<span class="sd">  &gt;&gt;&gt; ddY = sg.Der(Y) # similar</span>
+<span class="sd">  &gt;&gt;&gt; ddXddY = ddX*ddY  # create composite operator</span>
+<span class="sd">  &gt;&gt;&gt; ddXddY(F) # differentiation in X direction following differentiation in Y</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">_config</span> <span class="kn">import</span> <span class="o">*</span>
@@ -305,10 +312,17 @@
 
 <span class="sd">  Attributes:</span>
 <span class="sd">    ax: (Ax) axis in which direction __call__ will take the derivative. </span>
+
+<span class="sd">  Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; ddX = sg.Der(X) # create Operator that would take X-derivative on Field args</span>
+<span class="sd">    &gt;&gt;&gt; ddY = sg.Der(Y) # similar</span>
+<span class="sd">    &gt;&gt;&gt; ddXddY = ddX*ddY  # create composite operator</span>
+<span class="sd">    &gt;&gt;&gt; ddXddY(F) # differentiation in X direction following differentiation in Y</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Xi</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Initialize Der Operator by assigning ax attribute.</span>
+    <span class="sd">&quot;&quot;&quot;Initialize Der Operator by assigning Ax object from Xi arg. to ax attribute.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="n">Xi</span>
 
@@ -646,7 +660,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2014, Willem Sijp.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

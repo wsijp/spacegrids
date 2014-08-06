@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -51,7 +49,21 @@
   <h1>Source code for spacegrids.projectcls</h1><div class="highlight"><pre>
 <span class="c">#encoding:utf-8</span>
 
-<span class="sd">&quot;&quot;&quot; Project class</span>
+<span class="sd">&quot;&quot;&quot; Projects represent experiment data organized in project directories.</span>
+
+<span class="sd">Netcdf data must be organised in a projects directory tree. Create a directory named PROJECTS inside your home directory (name default), to contain all the data for all the projects. Then create a subdirectory for each of your projects, say one is called test_project. When using sg.info() and sg.Project with the nonick = True argument (see documentation), this is all that is needed to allow the sg module to recognise these subdirectories as representing projects. </span>
+<span class="sd">  This will allow the sg Python code to regard all Netcdf files placed directly inside test_project as belonging to individual experiments. Alternatively, instead of a single file, a subdirectory may represent an experiment. So directories inside the test_project directory are associated with output from a single experiment each, where all Netcdf files contained within are interpreted as belonging to that same experiment.   </span>
+
+<span class="sd">  To get started in ipython (bring up with sg.overview() ):</span>
+
+<span class="sd">  &gt;&gt;&gt; import spacegrids as sg		</span>
+<span class="sd">  &gt;&gt;&gt; D = sg.info(nonick = True)  </span>
+<span class="sd">  &gt;&gt;&gt; P = sgPproject(D[&#39;my_project&#39;] , nonick = True)  </span>
+<span class="sd">  &gt;&gt;&gt; P.load([&#39;temperature&#39;,&#39;u&#39;])  </span>
+<span class="sd">  &gt;&gt;&gt; # obtain the axes under their names T, X, Y, Z in namespace:</span>
+<span class="sd">  &gt;&gt;&gt; for c in P[&#39;some_experiment&#39;].axes:</span>
+<span class="sd">  &gt;&gt;&gt;   exec c.name + &#39; = c&#39;	</span>
+<span class="sd"> </span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">types</span>
@@ -995,7 +1007,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2014, Willem Sijp.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>
