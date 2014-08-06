@@ -50,7 +50,7 @@ TEMP_sliced = TEMP[Y,:50]
 
 m_TEMP = TEMP_sliced/(X*Y)	
 
-TEMP_regridded = TEMP(U.gr)	
+TEMP_regridded = TEMP.regrid(U.gr)	
 
 
 =============================================================
