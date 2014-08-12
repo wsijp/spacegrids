@@ -2857,15 +2857,22 @@ class Field(Valued):
         raise Exception('Field type error in %s - %s with Field %s: right factor must be Field, int or float.' % (self,other,self)  )
 
 
+
+
+
   def __setitem__(self,k,v):
+    return self.set_value(k,v)
+
+  def __getitem__(self,L):
+    return self.get_value(L)
+
+
+  def set_value(self,k,v):
     self.value[k] = v
     return
 
+  def get_value(self,L):
 
-
- 
-
-  def __getitem__(self,L):
     """getitem of Field.
     
     Returns a numpy array containing the sliced content of self if argument consists only of slice objects.
@@ -2878,97 +2885,8 @@ class Field(Valued):
       ValueError, RuntimeError
     """ 
 
-    if isinstance(L,tuple):
-      # In this case, the argument is expected to be multiple slice objects only or slice objects interspersed with Coord objects.
- 
-      crds = []		# holds Coord objects along which to slice
-      slices = []	# holds slice objects
-      
-      for i in L:
-        if isinstance(i,Coord):
-          if i not in self.grid:
-            raise ValueError('Slice Coord argument %s not in Field %s grid %s.'%(i,self,self.grid))
+    standard_slices = interpret_slices(L)
 
-          crds.append(i)
-        elif isinstance(i,Ax):
-       
-          if i*self.grid is None:
-            raise ValueError('Slice axis argument %s not in Field %s grid %s.' % (i,self,self.grid))
-          else:
-            crds.append(i*self.grid) 
-        elif isinstance(i,int)  | isinstance(i,slice):
-          slices.append(i)
-        else:
-          raise RuntimeError('Non-integer slice axis argument %s for Field %s not recognised as Ax or Coord object. The Ax/ Coord object might be stale. ' % (i, self) )
-
-
-      if len(crds) == 0:
-        # No Coord objects recorded
-        if len(slices) == 0:
-          warnings.warn( '(severe): no slices!', RuntimeWarning )
-        return self.value[L]
-      elif len(crds) == len(slices):        
-        # In this case, we can associate a slice object (or int) to each Coord object in the argument.
-        # The order then determines which slice object corresponds to which Coord object.
-        # The task is now to slice the Field value appropriately and to create the associated Coord objects.
-
-        if len(crds) == 1:
-          crd = crds[0]
-          if not isinstance(crd,Coord):
-            raise ValueError('Slice axis not valid. Value crd is: %s '  % crd)
-
-          slc = slices[0]
-          new_value = self.slice(sl_coord = crd, slice_obj = slc)
-
-          # Create the new sliced Coord object. By default, this yields an equivalent Coord to the original.
-
-          if isinstance(slc,int):
-             # Simple slice case at a certain point along an axis.
-            
-             return self.copy(value = new_value, grid = self.grid/crd)
-
-          elif isinstance(slc,slice):
-            # a subset along an axis is taken. New Coord object(s) with the correct value needs to be created.
-            new_crd_value = crd[slc]         
-            new_crd = crd.copy(name = crd.name + '_sliced', value = new_crd_value)
-
-            new_crd.make_equiv(crd)
-
-            if crd.dual == crd:
-              new_crd.dual = new_crd
-            else:
-
-              if (slc.stop != None):
-                slc_dual = slice(slc.start, slc.stop+1, slc.step)
-              else:
-                slc_dual = slc
-
-              new_crd_dual = crd.dual.copy(name = crd.dual.name + '_sliced', value = crd.dual[slc_dual])
-              new_crd_dual.make_equiv(crd.dual)
-              new_crd.dual = new_crd_dual
-              new_crd_dual.dual = new_crd
-
-            return self.copy(value = new_value, grid = new_crd*self.grid)
-
-          else:
-            # Input is neither slice object nor int
-            raise Exception('Field slice error in Field %s arg %s : use slice objects only or Coord objects and slice objects.' % (self,L)  )                
-
-
-        else:
-          
-          # length of Coord-slice argument pairs is greater than 1.
-          # go through arguments recursively.
-          F = self
-          for e in zip(crds,slices):
-            F = F[e[0],e[1]]
-
-          return F
-      else:
-       raise ValueError('Field slice error in Field %s arg %s : use slice objects only or Coord objects and slice objects.' % (self,L)  )         
-
-    else:
-      return self.value[L]
 
 
   def __call__(self,grid, method = 'linear'):
@@ -4200,10 +4118,35 @@ def guess_direction(cdf_var,  name_atts = ['long_name','standard_name'], x_dir_n
  
   return 'scalar'
 
+def _read_data(var_cdf_ob):
+  """Read data from Netcdf variable object into memory and return data as ndarray.
+  """
+
+  body = copy.deepcopy(var_cdf_ob[:])
+  if isinstance(body,np.ma.masked_array):
+    # The Netcdf4 module yields masked arrays. Convert to ndarray to work well with sg.
+    # fill_value is a standard attribute of masked arrays (no checks):
+    mis_val = body.fill_value
+
+    body = np.array(body)
+  else:
+    fvn = get_att(var_cdf_ob, fval_names,fail_val = [np.nan])
+    if isinstance(fvn,list):  
+      mis_val = fvn[0] 
+    else:
+      mis_val = fvn
+
+  try: 
+    body[body == mis_val] = np.nan
+  except:
+    
+    warnings.warn('missing value not set to NaN.')
+
+  return body
 
 def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squeeze_Field=False):
   """
-  Reads data corresponding to variable name varname from netcdf file. 
+  Reads data corresponding to variable name varname from netcdf file and returns Field. 
 
   coord_stack is used to provide Field with grid object built from corresponding Coord objects according to information in netcdf.
 
@@ -4212,7 +4155,7 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
     varname: (str) variable name in Netcdf file
     coord_stack: (list of Coord) to use when reading
     ax_stack: (list of Ax) to use when reading
-    squeeze_Field: (Boolean) if True, hard- squeeze the Field at this point of the reading process (fully removing the 1-dimensional dims).
+    squeeze_Field: (Boolean) if True, hard- squeeze the Field at this point of the reading process (fully removing the 1-dimensional dims). Generally not used.
 
   Returns: 
     Field that was read. 
@@ -4230,22 +4173,11 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
   # in future we are going to use this metadata instead of below attributes. For now, it is used when fields are saved.
   metadata = {k:var_cdf_ob.__dict__[k] for k in var_cdf_ob.__dict__.keys() if k not in ['data','dimensions','_shape','_size']  }
 
-  dims = list(var_cdf_ob.dimensions)  
-  body = copy.deepcopy(var_cdf_ob[:])
-  if isinstance(body,np.ma.masked_array):
-    # The Netcdf4 module yields masked arrays. Convert to ndarray to work well with sg.
-    # fill_value is a standard attribute of masked arrays (no checks):
-    mis_val = body.fill_value
+  dims = list(var_cdf_ob.dimensions) 
 
-    body = np.array(body)
-  else:
-    fvn = get_att(var_cdf_ob, fval_names,fail_val = [np.nan])
-    if isinstance(fvn,list):  
-      mis_val = fvn[0] 
-    else:
-      mis_val = fvn
+  # VARIABLE DATA READ FROM FILE 
+  body = _read_data(var_cdf_ob)
 
-#  mis_val = var_cdf_ob.missing_value[0]
   if hasattr(var_cdf_ob,'units'):
     units = var_cdf_ob.units
   else:
@@ -4256,7 +4188,6 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
   else:
     long_name = varname
 
- 
 # attempts at interpreting data by obtaining the string name of the direction. these names are a convention: 'X','Y','Z'. This direction guess is for fields that could be components of a vector fields.
 
   direction = guess_direction(var_cdf_ob)
@@ -4266,22 +4197,14 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
 
   direction = Dict[direction]
 
-
   if squeeze_Field:
   # if there are dimensions of length 1, remove them.
-    if 1 in body.shape:
-   
+    if 1 in var_cdf_ob.shape:
       for i,dim in enumerate(dims):
-        if body.shape[i] == 1:
+        if var_cdf_ob.shape[i] == 1:
           dims.remove(dims[i])
-   
-    body = np.squeeze(body)
-
-  try: 
-    body[body == mis_val] = np.nan
-  except:
     
-    warnings.warn('missing value not set to NaN.')
+    body = np.squeeze(body)
  
   grid = []
 
@@ -4295,9 +4218,6 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
         grid.append(crd)
             
   file.close()
-#  print '-----'
-#  print Gr(tuple(grid)).shape()
-#  print body.shape
  
   return Field(varname,body,grid=Gr(tuple(grid)),units = units, direction = direction, long_name = long_name, metadata = metadata)
 
@@ -4429,6 +4349,75 @@ def make_axes(cstack):
           cstack[j].dual = cstack[i]
 
   return created_axes        
+
+
+
+def interpret_slices(L, grid):
+  """Interpret slice argument, e.g. TEMP(X,:,Y,:50) or TEMP(:,50:)
+
+  Args:
+    L: (list) of slice, int, Ax or Coord ojbects
+    grid: (Gr) grid to slice on
+
+  Returns:
+    A list of standard slice objects that can be used to slice ndarrays or Netcdf vars
+  """
+
+  if isinstance(L,tuple):
+    # In this case, the argument is expected to be multiple slice objects only or slice objects interspersed with Coord objects.
+ 
+    crds = []		# holds Coord objects along which to slice
+    slices = []	# holds slice objects
+      
+    for i in L:
+      if isinstance(i,Coord):
+        if i not in grid:
+          raise ValueError('Slice Coord argument %s not in Field %s grid %s.'%(i,self,self.grid))
+
+        crds.append(i)
+
+      elif isinstance(i,Ax):
+       
+        slice_coord = i*grid
+        if slice_coord is None:
+          raise ValueError('Slice axis argument %s not in Field %s grid %s.' % (i,self,self.grid))
+        else:
+          crds.append(slice_coord) 
+
+      elif isinstance(i,int)  | isinstance(i,slice):
+        slices.append(i)
+      else:
+        raise RuntimeError('Non-integer slice axis argument %s for grid %s not recognised as Ax or Coord object. The Ax/ Coord object might be stale. ' % (i, grid) )
+
+
+    if len(crds) == 0:
+      # No Coord objects recorded: this is likely a normal slice list: do nothing
+      if len(slices) == 0:
+        warnings.warn( '(severe): no slices!', RuntimeWarning )
+      return L
+
+    elif len(crds) == len(slices):        
+          # In this case, we can associate a slice object (or int) to each Coord object in the argument.
+          # The order then determines which slice object corresponds to which Coord object.
+          # The task is now to slice the Field value appropriately and to create the associated Coord objects.
+
+
+      all_slices = [slice(None, None, None) for member in grid]
+
+      for it in zip(crds,slices):
+      
+        all_slices[grid.index(it[0])] =  it[1] 
+
+      return all_slices
+
+    else:
+     # case where len(crds) != len(slices). Leads to error
+     raise ValueError('Field slice error in Field %s arg %s: use slice objects only or pairs of Coord objects and slice objects.' % (self,L)  )         
+
+  else:
+  # Trivial case where argument is not a tuple. e.g. it is ':' or '10'
+    return L
+
 
 
 

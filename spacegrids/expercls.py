@@ -230,8 +230,10 @@ class Exper(object):
     self.update_nbytes()
 
 
-  def write(self, path = None, name = None , history = 'Created from Spacegrids ' , insert_dual = True ):
+  def write(self, path = None, name = None , history = 'Created from Spacegrids ' , insert_dual = True , *args, **kwargs):
     """Write Exper to Netcdf file.
+
+    *args, **kwargs are passed on to netcdf io function (Dataset() ).
 
     Args:
       path: (str) path to the directory where the file will go (e.g. 'data/' or '/home/me/', default pwd).
@@ -267,7 +269,7 @@ class Exper(object):
 
       try:
         # using io_sg version of netcdf_file. May use ScientificIO or Scipy
-        file_handle = netcdf_file(name , 'w')
+        file_handle = netcdf_file(name , 'w', *args, **kwargs)
 
       except (IOError, RuntimeError):
         print '... FAIL'
@@ -291,7 +293,7 @@ class Exper(object):
 
 
       
-  def load(self,varnames, squeeze_field = True, ax=None, name_suffix='_cat', new_coord_name = 'gamma', new_coord= None ):
+  def load(self,varnames, squeeze_field = True, ax=None, name_suffix='_cat', new_coord_name = 'gamma', new_coord= None , *args, **kwargs):
     """
     Load a variable or list of variables contained in varnames into Exper. 
 
@@ -348,7 +350,9 @@ class Exper(object):
       for filepath in paths:
 
         try:       
-          file = netcdf_file(filepath,'r')
+          file = netcdf_file(filepath,'r', *args, **kwargs)
+
+          # extract the filename fnm from the path:
           fnm = os.path.split(filepath)[1]
         except IOError:
           raise IOError('Cannot open %s'%filepath)

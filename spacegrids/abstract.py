@@ -763,10 +763,19 @@ class Valued(Named):
     else:
       return self.name
 
+
+  def get_value(self,i):
+    return self.value[i]
+
+
+  def set_value(self, value):
+    self.value[i] = value
+
+
   def __getitem__(self,i):
     """Obtain item from value atttribute.
     """
-    return self.value[i]
+    return self.get_value(i)
 
   def array_equal(self,other):
     """ test whether Valued objects contain identically valued ndarrays in value attributes.

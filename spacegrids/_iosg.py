@@ -43,7 +43,7 @@ from fieldcls import *
 
 
 
-def netcdf_file(filepath,mode = 'r'):
+def netcdf_file(filepath,mode = 'r', *args, **kwargs):
   """
   Wrapper for opening Netcdf functions from NETCDF4, ScientificIO or Scipy
 
@@ -54,7 +54,7 @@ def netcdf_file(filepath,mode = 'r'):
   For 'scientificio': 
   file = Scientific.IO.NetCDF.NetCDFFile(filename = filepath, mode = mode)
   Otherwise: 
-  file = netcdf.netcdf_file(filename = filepath, mode = mode)
+  file = netcdf.netcdf_file(filename = filepath, mode = mode, *args, **kwargs)
 
   Args:
     filepath: (str) full path to file
@@ -70,7 +70,7 @@ def netcdf_file(filepath,mode = 'r'):
   if cdf_lib_used =='netcdf4':  
 
     try:
-      file = Dataset(filepath,mode, format='NETCDF4')
+      file = Dataset(filepath,mode, format='NETCDF4', *args, **kwargs)
 
     except IOError:
      raise IOError('Cannot open %s using NetCDF4'%filepath)
@@ -80,7 +80,7 @@ def netcdf_file(filepath,mode = 'r'):
 
   if cdf_lib_used == 'scientificio':
     try:
-      file = Scientific.IO.NetCDF.NetCDFFile(filename = filepath, mode = mode)
+      file = Scientific.IO.NetCDF.NetCDFFile(filename = filepath, mode = mode, *args, **kwargs)
     except IOError:
      raise IOError('Cannot open %s using Scientific.IO'%filepath)
       
@@ -92,7 +92,7 @@ def netcdf_file(filepath,mode = 'r'):
     # Scipy way:
 
     try:
-      file = netcdf.netcdf_file(filename = filepath, mode = mode)
+      file = netcdf.netcdf_file(filename = filepath, mode = mode, *args, **kwargs)
     except IOError:
       raise IOError('Cannot open %s using Scipy'%filepath)
     else:
