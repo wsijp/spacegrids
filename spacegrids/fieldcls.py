@@ -326,6 +326,51 @@ class Coord(Directional, Valued):
       dual.dual = self
 
 
+
+  def sliced(self,slice_obj = None ,suffix = '_sliced', slice_dual = True):
+    """Create new sliced Coord and dual with sliced value.
+
+    Also slices 'strings' attribute if set.
+
+    Sliced Coord object and possible dual are not registered with cstack. The sliced dual Coord can be accessed via the sliced Coord.
+
+    Args:
+      slice_obj: (slice object) to slice value with
+      suffix: (str) suffix to use for sliced Coord 
+      slice_dual: (Boolean) determines whether dual Coord is sliced too
+
+    Returns:
+      Coord object containing sliced value, or self if slice(None,None,None)
+    """
+
+    if slice_obj == slice(None,None,None):
+      return self
+
+    new_name = affix(self.name, suffix)
+    new_value = self.value[slice_obj]
+
+    if self.strings is not None:
+      new_strings = self.strings[slice_obj]
+    else:
+      new_strings = None
+
+    new_coord = self.copy(name = new_name , value = new_value, strings = new_strings)
+
+    if slice_dual:
+      # also slice the dual (edges) Coord and assign to new Coord.
+      if self.dual is not self:
+        # create new dual coord
+        new_dual = self.dual.sliced(slice_obj = slice_obj ,suffix = suffix, slice_dual = False)
+      else:
+        # give_dual will make the new_coord self-dual
+        new_dual = None
+
+      new_coord.give_dual(new_dual)
+
+    return new_coord
+
+
+
   def __len__(self):
     """Obtain length of value attribute (1D ndarray)
     """
@@ -1837,6 +1882,13 @@ class Gr(tuple, Membered):
      
     return
 
+  def sliced(self,slices):
+
+    slices = interpret_slices(slices, self)
+
+    return self.__class__([crd.sliced(slices[i]) for i, crd in enumerate(self) ] )
+
+
   def function(self,func):
     """
     Returns a Field containing the values of function argument func on the grid points defined in this grid. 
@@ -2032,7 +2084,7 @@ class Gr(tuple, Membered):
       type: (str) desired output type. -'array' in arguments will return a list of arrays. -'Field' in arguments will return a list of fields.
       force: (Boolean) do not use cached value if True. 
 
-    Output: 
+    Returns: 
       A list of arrays or fields of the dimension of the grid being called.
     
 
@@ -2581,9 +2633,6 @@ class Field(Valued):
       except:
         warnings.warn('Could not set missing value for Field %s.'%self.name)
 
-
-
-
     # Create the actual variable corresponding to Field.value
     var_cdf = file_handle.createVariable(self.name, value.dtype.char, tuple( [crd.name for crd in self.grid] )   )
     var_cdf[:] = value
@@ -2885,8 +2934,9 @@ class Field(Valued):
       ValueError, RuntimeError
     """ 
 
-    standard_slices = interpret_slices(L)
+    standard_slices = interpret_slices(L, self.grid)
 
+    print standard_slices
 
 
   def __call__(self,grid, method = 'linear'):
@@ -3189,7 +3239,7 @@ class Field(Valued):
 
 
 
-  def slice(self, sl_coord = None,slice_obj = slice(1,None,None)):
+  def slice_by(self, sl_coord = None,slice_obj = slice(1,None,None)):
     """
     Slice along Coord (e.g. xt) using slice_obj as slice, e.g. slice(1,None,None).
     """

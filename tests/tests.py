@@ -13,6 +13,24 @@ import numpy as np
 import spacegrids as sg
 
 
+class TestValuedClass(unittest.TestCase):
+
+
+  def setUp(self):
+    pass
+
+  def tearDown(self):
+    pass
+
+
+  def test_slice_method(self):
+
+    K = sg.Valued('K',np.array([1.,2.,3.,4.]))
+    R=K.slice(slice(1,None,None))
+
+    self.assertEqual( np.array_equal( R.value, np.array([ 2.,  3.,  4.]) ), True )    
+
+
 # test the info function
 
 class TestInfo(unittest.TestCase):
@@ -79,7 +97,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     # Note that some coord values are deliberately unordered.   
 
     # Coords ---    
-    coord1 = sg.fieldcls.Coord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]) , metadata = {'hi':5} )
+    coord1 = sg.fieldcls.Coord(name = 'test1',direction ='X',value =np.array([1.,2.,3.]), strings = ['one','two','three'] , metadata = {'hi':5} )
     coord2 = sg.fieldcls.Coord(name = 'test2',direction ='Y',value =np.array([1.,2.,3.,4.]), metadata = {'hi':7})
     coord3 = sg.fieldcls.Coord(name = 'test',direction ='X',value =np.array([5.,1.,2.,3.,4.]), metadata = {'hi':3})
     # identical in main attributes to previous set (in order):
@@ -89,7 +107,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     # providing coord1 and coord2 with duals. coord3 is self-dual
 
-    coord1_edges = sg.fieldcls.Coord(name = 'test1_edges',direction ='X',value =np.array([0.5,1.5,2.5,3.5]), dual = coord1 , metadata = {'hi':25} )
+    coord1_edges = sg.fieldcls.Coord(name = 'test1_edges',direction ='X',value =np.array([0.5,1.5,2.5,3.5]), strings = ['a','b','c','d'] , dual = coord1 , metadata = {'hi':25} )
     coord2_edges = sg.fieldcls.Coord(name = 'test2_edges',direction ='Y',value =np.array([0.5,1.5,2.5,3.5,4.5]), dual = coord2, metadata = {'hi':77})
 
     # identical in main attributes to previous set (in order):
@@ -186,6 +204,48 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     """
 
     pass
+
+  def test_coord_sliced_method(self):
+    """Tests whether slicing works"""
+
+    coord1 = self.fixture[0][0] # this one has string property set
+    coord2 = self.fixture[0][1] # this one doesn't
+    coord4 = self.fixture[1][0]
+
+    self.assertEqual(coord1.sliced(slice(None,None,None) ) is coord1, True   )
+
+    slice_obj = slice(1,None,None)
+
+    coord1_sliced = coord1.sliced( slice_obj )
+    coord2_sliced = coord2.sliced( slice_obj )
+
+
+    self.assertEqual(np.array_equal(coord1_sliced.value,  coord1.value[slice_obj] ) , True)
+
+    self.assertEqual(np.array_equal(coord1_sliced.strings,  coord1.strings[slice_obj] ) , True)
+
+
+    # the dual Coord should also be sliced and be properly assigned:
+    self.assertEqual(len(coord1_sliced.dual.value) , len(coord1.dual.value) -1 )
+
+    self.assertEqual(coord1_sliced.dual.dual, coord1_sliced)
+
+    self.assertEqual(coord2_sliced.strings,  None)
+
+    # Now make coord1 self dual to test for self-dual Coord object:
+
+    coord1.give_dual()
+
+    # as an aside, test whether give_dual worked:
+
+    self.assertEqual(coord1.dual is coord1, True)
+
+    # ok, slice again:
+    coord1_sliced = coord1.sliced( slice_obj )
+
+    # the sliced coord should remain self-dual:
+    self.assertEqual(coord1_sliced.dual is coord1_sliced, True)
+
 
   # ---------- test block for Coord class ------
 
@@ -2597,6 +2657,25 @@ class TestGrid(unittest.TestCase):
     self.assertEqual(Igr[0].shape, (19, 100, 100))
 
 
+
+  def test_grid_sliced_method(self):
+
+# Corresponds to CASE 1a in equal length grid case in fieldcls.py source code.
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'   
+
+    gr1 = depth*latitude*longitude
+
+    gr1_sliced = gr1.sliced((X,slice(1,None,None)))
+
+   self.assertEqual((gr1_sliced.shape(), (19, 100, 99) )
+
+   self.assertEqual((gr1_sliced[0] is depth, True )
+
+
   def test_grid_permute_function_equal_len_and_coords(self):
 
 # Corresponds to CASE 1a in equal length grid case in fieldcls.py source code.
@@ -2646,6 +2725,30 @@ class TestGrid(unittest.TestCase):
 
     self.assertEqual(gr1(gr2), None )
 
+  def test_gr_interpret_slices_function(self):
+
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'   
+
+
+   # This time, we are going to a new grid that is incompatible, leading to a None result.
+ 
+    gr1 = depth*latitude*longitude
+
+
+    self.assertEqual(sg.interpret_slices((longitude,10),gr1) , [slice(None, None, None), slice(None, None, None), 10]   )
+
+
+    self.assertEqual(sg.interpret_slices((X,10),gr1) , [slice(None, None, None), slice(None, None, None), 10]   )
+
+    self.assertEqual(sg.interpret_slices(10 , [slice(None, None, None), 10   )
+
+    self.assertEqual( sg.interpret_slices((slice(None, None, None), slice(None, None, None)),G) ,  (slice(None, None, None), slice(None, None, None))   )
 
   def test_gr_method_expand_size(self):
     """

@@ -769,13 +769,32 @@ class Valued(Named):
 
 
   def set_value(self, value):
-    self.value[i] = value
+    self.value = value
 
 
   def __getitem__(self,i):
     """Obtain item from value atttribute.
     """
     return self.get_value(i)
+
+
+  def __setitem__(self,value):
+
+    return self.set_value(value)
+
+  def slice(self,slice_obj = None ,suffix = '_sliced'):
+    """Create new sliced Valued object with sliced value.
+
+    The slice argument must match the value dimensions, there are no checks.
+
+    Args:
+      slice_obj: (slice objects or tuple of) to slice value with
+      suffix: (str) suffix to use for sliced Valued object
+
+    Returns:
+      Valued object containing sliced value
+    """
+    return self.copy(name = affix(self.name, suffix) , value = self.value[slice_obj]  )
 
   def array_equal(self,other):
     """ test whether Valued objects contain identically valued ndarrays in value attributes.
