@@ -404,7 +404,7 @@ class Project(object):
     self._update_nbytes()
     return 
 
-  def load(self, varnames, descr = 0,chk_loaded = False, ax=None, name_suffix='_cat', new_coord_name = 'gamma', new_coord= None ):
+  def load(self, varnames, descr = 0,chk_loaded = False, ax=None, name_suffix='_cat', new_coord_name = 'gamma', new_coord= None, slices = None ):
 # -->This load belongs to Project. It calls the load method of the Exper. 
 # slices argument value is just an example
     """
@@ -459,7 +459,7 @@ class Project(object):
 	    # in case netcdf information has been pre-added:
    	for k in self.expers.keys():
             
-	  self.expers[k].load(varname,ax=ax, name_suffix=name_suffix, new_coord_name = new_coord_name, new_coord= new_coord)  
+	  self.expers[k].load(varname,ax=ax, name_suffix=name_suffix, new_coord_name = new_coord_name, new_coord= new_coord, slices = slices)  
 
     self._update_nbytes()
     return    

@@ -293,7 +293,7 @@ class Exper(object):
 
 
       
-  def load(self,varnames, squeeze_field = True, ax=None, name_suffix='_cat', new_coord_name = 'gamma', new_coord= None , *args, **kwargs):
+  def load(self,varnames, squeeze_field = True, ax=None, name_suffix='_cat', new_coord_name = 'gamma', new_coord= None,slices = None , *args, **kwargs):
     """
     Load a variable or list of variables contained in varnames into Exper. 
 
@@ -309,6 +309,7 @@ class Exper(object):
       name_suffix (str): passed on to the concatenate function
       new_coord_name (str): passed on to the concatenate function
       new_coord (Coord): passed on to the concatenate function
+      slices: (tuple of slice, Coord and Ax objects) slices to take. No slicing if None.     
 
     Returns:
       None
@@ -360,7 +361,7 @@ class Exper(object):
 
           if varname in file.variables:
            
-            F.append(cdfread(filepath,varname,self.cstack,self.axes))
+            F.append(cdfread(filepath,varname,self.cstack,self.axes,slices =slices))
             fnames.append(fnm)
 
           file.close()

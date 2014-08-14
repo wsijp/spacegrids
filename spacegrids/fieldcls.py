@@ -247,6 +247,7 @@ class Coord(Directional, Valued):
 # could implement the identity Field in __call__
 
 # Metric could be a class. Objects of this class could be constructed by a method of the Coord class (Coord objects then spawn metric objects).
+
     self.equivs = [self]
     self.name = name
     self.value = value
@@ -258,6 +259,7 @@ class Coord(Directional, Valued):
 
     self.fld = None
     self.len = len(value)
+
     self.metadata = metadata
     self.nbytes = self.value.nbytes
 
@@ -346,6 +348,10 @@ class Coord(Directional, Valued):
     if slice_obj == slice(None,None,None):
       return self
 
+    # Keeping the int argument results in a float value attribute to the new Coord, so we make it a slice object instead:
+    elif isinstance(slice_obj,int):
+      slice_obj = slice(slice_obj, slice_obj+1,None)
+
     new_name = affix(self.name, suffix)
     new_value = self.value[slice_obj]
 
@@ -360,7 +366,15 @@ class Coord(Directional, Valued):
       # also slice the dual (edges) Coord and assign to new Coord.
       if self.dual is not self:
         # create new dual coord
-        new_dual = self.dual.sliced(slice_obj = slice_obj ,suffix = suffix, slice_dual = False)
+
+        new_stop = slice_obj.stop
+        if len(self.dual) > len(self) and (new_stop is not None):
+          new_stop += 1
+          new_slice_obj = slice(slice_obj.start, new_stop, slice_obj.step)
+        else:
+          new_slice_obj = slice_obj
+          
+        new_dual = self.dual.sliced(slice_obj = new_slice_obj ,suffix = suffix, slice_dual = False)
       else:
         # give_dual will make the new_coord self-dual
         new_dual = None
@@ -794,8 +808,8 @@ class Coord(Directional, Valued):
     if not self in F.grid:
       raise  ValueError('Coord sum method of %s: Coord must be in grid of argument Field. Make sure Coord object is identical to one of Coord objects in Field grid. (Also watch for stale objects.)'%self.name)   
 
-    value = np.array(ma.sum(ma.masked_array(F[:],np.isnan(F[:])), axis = (F.grid).index(self) ))
-    find_land = np.array(ma.sum(ma.masked_array(np.ones(F[:].shape),np.isnan(F[:])), axis = (F.grid).index(self) ))
+    value = np.array(ma.sum(ma.masked_array(F.value,np.isnan(F.value)), axis = (F.grid).index(self) ))
+    find_land = np.array(ma.sum(ma.masked_array(np.ones(F.value.shape),np.isnan(F.value)), axis = (F.grid).index(self) ))
 
     if land_nan:
       if not value.ndim == 0:
@@ -838,7 +852,7 @@ class Coord(Directional, Valued):
   
     SI = self._slice_index(F.grid, slice_obj = slice(None,None,-1))
 
-    return F.copy(name = F.name,value = F[SI],grid = F.grid, units = F.units)
+    return F.copy(name = F.name,value = F.value[SI],grid = F.grid, units = F.units)
 
 
 
@@ -922,10 +936,10 @@ class Coord(Directional, Valued):
       Fc = self.flip(F.copy() )
     
     # do not count land in sums:  
-    land_i = np.isnan(Fc[:]) 
-    Fc[land_i] = 0.
+    land_i = np.isnan(Fc.value) 
+    Fc.value[land_i] = 0.
 
-    result_array = np.array(np.cumsum(Fc[:], axis = (Fc.grid).index(self) ))
+    result_array = np.array(np.cumsum(Fc.value, axis = (Fc.grid).index(self) ))
 
     if land_nan == True:
       # if desired, set land to nan in resulting array:
@@ -1003,7 +1017,7 @@ class Coord(Directional, Valued):
       vol method      
     """
 
-    return Field(name='distance_'+self.name,value = fact*self[:],grid = (self**2), units = self.units) 
+    return Field(name='distance_'+self.name,value = fact*self.value,grid = (self**2), units = self.units) 
 
 
   def der(self, F):
@@ -1107,7 +1121,7 @@ class Coord(Directional, Valued):
     ret_Field = self.dual.delta_dist()
     if self != self.dual:
       # for non-self dual Coord objects: truncate to achieve equal length to self:
-      ret_Field.value = ret_Field[1:]
+      ret_Field.value = ret_Field.value[1:]
 
     # update these attributes, as the original copy was based on self.dual:
     ret_Field.grid = self**2
@@ -1238,9 +1252,9 @@ class XCoord(Coord):
     """
  
     # crdvals is in degrees longitude
-    crdvals = np.roll(self[:],1)
+    crdvals = np.roll(self.value,1)
     crdvals[0] -= 360.
-    crdvals -= self[:]
+    crdvals -= self.value
 
     val = np.array([ -fact*np.cos(np.radians(y))*(np.pi/180.)*crdvals for y in y_coord  ])
    
@@ -1312,7 +1326,7 @@ class XCoord(Coord):
       vol method      
     """
 
-    crdvals = self[:]
+    crdvals = self.value
     
     return Field(name='distance_'+self.name,value = np.array([ fact*np.cos(np.radians(y))*crdvals for y in y_coord  ])*np.pi/180.,grid = y_coord*self, units = self.units) 
 
@@ -1361,7 +1375,7 @@ class XCoord(Coord):
 
 
     ret_Field = self.dual.delta_dist(y_coord)
-    ret_Field.value = ret_Field[:,1:] # truncate field value
+    ret_Field.value = ret_Field.value[:,1:] # truncate field value
     ret_Field.grid = y_coord*self
     ret_Field.shape = ret_Field.grid.shape() # we have truncated the field value, so recalc
 
@@ -1461,7 +1475,7 @@ class YCoord(Coord):
     """
 
 
-    return Field(name='distance_'+self.name,value = fact*self[:]*np.pi/180.,grid = (self**2), units = self.units) 
+    return Field(name='distance_'+self.name,value = fact*self.value*np.pi/180.,grid = (self**2), units = self.units) 
 
 
 
@@ -1719,7 +1733,13 @@ class AxGr(tuple, Membered):
 class Gr(tuple, Membered):
 
   """
-  Represents Coord grids. Consists of a tuple of Coord objects, with additional Membered and other methods. Gr objects g1 and g2 are considered weaksame, g1.weaksame(g2) yields True, when the individual Coord elements are weaksame.
+  The Gr (grid) class represents Coord grids. A Gr object consists of a tuple of Coord objects, with additional Membered and other methods. 
+  
+  Gr object behave like tuples of Coord objects, and indexing is done as in tuples: if g = Gr((coord1,coord2)), then g[0] is coord1 etc.
+
+  The multiplication methods of Coord and Gr objects are such that Gr objects can be built via multiplication as follows: coord1*coord2 yields Gr((coord1,coord2)) etc. For instance, depth*latitude*longitude represents a 3 dimensional grid, and is essentially a Coord tuple of length 3 with extra methods.
+
+  Gr objects g1 and g2 are considered weaksame, g1.weaksame(g2) yields True, when the individual Coord elements are weaksame.
   """
 
 
@@ -1731,7 +1751,7 @@ class Gr(tuple, Membered):
 
     if len(self) == len(other):
 
-      return reduce(lambda x,y: x and y, [ np.array_equal(e[:], other[i][:]) for i,e in enumerate(self)  ] )
+      return reduce(lambda x,y: x and y, [ np.array_equal(e.value, other[i].value) for i,e in enumerate(self)  ] )
 
     else:
       return False
@@ -1882,7 +1902,21 @@ class Gr(tuple, Membered):
      
     return
 
+
+
   def sliced(self,slices):
+    """Create new sliced Gr object. 
+
+    Calls sliced methods on each Coord member using slice object arguments.
+
+    Arguments can be of the form e.g. (slice(1,None,None),slice(1,None,None)slice(1,None,None)) or (X,slice(1,None,None)) etc.
+
+    Args:
+      slices: (tuple or list of) Coord, Ax or slice objects. 
+
+    Returns:
+      A Gr object with sliced Coord members
+    """
 
     slices = interpret_slices(slices, self)
 
@@ -2202,8 +2236,8 @@ class Gr(tuple, Membered):
 
     if len(self) == 1:
     
-      L = self[0][:]
-      R = other[0][:]
+      L = self[0].value
+      R = other[0].value
 
       if L[2]<L[1]:
         # in case it's a negative scale, as in depth
@@ -2323,7 +2357,7 @@ class Gr(tuple, Membered):
     sh = [];
 
     for c in self:
-      if (not isinstance(c[:],str)) and (not isinstance(c[:],unicode)):
+      if (not isinstance(c.value,str)) and (not isinstance(c.value,unicode)):
         sh.append(len(c))
       else:
         sh.append(-1)
@@ -2569,7 +2603,7 @@ class Field(Valued):
 
         else:
 
-          raise Exception('Error in Field creation %s using grid %s: value array argument must have same shape as grid argument! Gr shape %s while Field shape %s ' %(name,grid,str(shape),str(value.shape) ) )
+          raise Exception('Error in Field creation %s using grid %s: value array argument must have same shape as grid argument! Gr shape %s while Field value shape %s ' %(name,grid,str(shape),str(value.shape) ) )
           return
       else:
         raise Exception('Error in Field creation %s: argument grid %s must be a Gr object!' % (name, grid))
@@ -2615,7 +2649,7 @@ class Field(Valued):
           crd.dual._cdf_insert(file_handle)         
 
     # This could bloat memory. Redo in a new way.
-    value = copy.deepcopy(self[:])
+    value = copy.deepcopy(self.value)
 
     miss_val = miss_default
     if 'FillValue' in self.metadata:
@@ -2754,13 +2788,13 @@ class Field(Valued):
     left_coord = (ax*self.grid)
     right_coord = (ax*other.grid)
     # e here is a point in the relevant Coord: 
-    Dleft = {e:self[ax,i] for i, e in enumerate( left_coord[:] ) }
-    Dright = {e:other[ax,i] for i, e in  enumerate( right_coord[:] ) }
+    Dleft = {e:self[ax,i] for i, e in enumerate( left_coord.value ) }
+    Dright = {e:other[ax,i] for i, e in  enumerate( right_coord.value ) }
 
     # if one or both coords have no strings attribute set, don't give the new Coord a string attribute either.
     if (left_coord.strings is not None) and (right_coord.strings is not None):
-      stringsleft = {e:left_coord.strings[i] for i, e in enumerate( left_coord[:] ) }    
-      stringsright = {e:right_coord.strings[i] for i, e in enumerate( right_coord[:] ) }    
+      stringsleft = {e:left_coord.strings[i] for i, e in enumerate( left_coord.value ) }    
+      stringsright = {e:right_coord.strings[i] for i, e in enumerate( right_coord.value ) }    
       stringscomb = dict(stringsleft.items() + stringsright.items() )
     else:
 
@@ -2789,7 +2823,7 @@ class Field(Valued):
 
     new_coord.make_equiv(cat_coord_self)
       # construct combined Field values. Reshape is needed for np.concatenate function.
-    values = [Dcomb[k][:].reshape(piece_shape) for k in cat_coord_value]
+    values = [Dcomb[k].value.reshape(piece_shape) for k in cat_coord_value]
    
     new_value = np.concatenate(values,axis=ax_index)
 
@@ -2913,18 +2947,10 @@ class Field(Valued):
     return self.set_value(k,v)
 
   def __getitem__(self,L):
-    return self.get_value(L)
-
-
-  def set_value(self,k,v):
-    self.value[k] = v
-    return
-
-  def get_value(self,L):
-
+    
     """getitem of Field.
     
-    Returns a numpy array containing the sliced content of self if argument consists only of slice objects.
+    Returns a new field containing the sliced content of self if argument consists only of slice objects. Returns value if argument is :
     If argument is of form: (crd0,1,crd2,1:) etc for crd0,crd1 Coord objects, slicing will take place along each Coord using the slice object or integer following each crd argument as the slice object. A new Field will be returned and new associated Coord objects and a corresponding grid will be produced for the return Field.
 
     The argument may also contain Ax objects X,Y,Z,T. In this case, the argument will be converted to the corresponding Coord object from the Field grid self.grid via multiplication.
@@ -2934,9 +2960,34 @@ class Field(Valued):
       ValueError, RuntimeError
     """ 
 
+    if L == slice(None,None,None):
+      return self.get_value()
+
     standard_slices = interpret_slices(L, self.grid)
 
-    print standard_slices
+    new_name = affix(self.name, '_sliced')
+    new_value = self.get_value()[standard_slices]
+    new_grid = self.grid.sliced(standard_slices)
+
+    if (not isinstance(new_value,np.ndarray)) | (new_value.shape == (1,)):    
+      # For single valued slices, do not return a Field
+      return_value = new_value
+    else:
+      new_value = new_value.reshape(new_grid.shape())
+      return_value = self.copy(name = new_name, value = new_value, grid = new_grid)
+
+    return return_value
+
+  def set_value(self,k,v):
+    self.value[k] = v
+    return
+
+  def get_value(self):
+
+    """Obtain value of Field.
+    """ 
+
+    return self.value
 
 
   def __call__(self,grid, method = 'linear'):
@@ -3182,7 +3233,7 @@ class Field(Valued):
     """
 
     new_fld = self.grid.ones()
-    new_fld.value[np.isnan(self[:])] = nan_val
+    new_fld.value[np.isnan(self.value)] = nan_val
 
     return new_fld
 
@@ -3644,7 +3695,7 @@ def squeeze(F, hard = False):
       if body.shape[i] == 1:
         squeezed_dims.append(dims[i])
         dims.remove(dims[i])
-      
+      # do this with pop
    
   body = np.squeeze(body)
   return F.copy(value=body,grid = Gr(dims) , squeezed_dims =  Gr(squeezed_dims) )
@@ -3815,16 +3866,16 @@ def make_dual(crd,name = None,guess_append = True,append_last=True, zero_boundar
     else:
       append_last = True      
 
-  if len(crd[:]) > 1:
+  if len(crd.value) > 1:
     if append_last:
-      value = np.append(crd[:] , np.array(2*crd[-1] - crd[-2]))
+      value = np.append(crd.value , np.array(2*crd.value[-1] - crd.value[-2]))
 
     else:
   
-      value = np.append(np.array(2*crd[0] - crd[1]),crd[:])
+      value = np.append(np.array(2*crd.value[0] - crd.value[1]),crd.value)
 
   else:
-      value = crd[:]
+      value = crd.value[:]
  
   return crd.copy(name = name +'_edges',value= value, long_name = crd.long_name + ' as edges')
 
@@ -4168,11 +4219,16 @@ def guess_direction(cdf_var,  name_atts = ['long_name','standard_name'], x_dir_n
  
   return 'scalar'
 
-def _read_data(var_cdf_ob):
+def _read_data(var_cdf_ob, slices = None):
   """Read data from Netcdf variable object into memory and return data as ndarray.
   """
 
-  body = copy.deepcopy(var_cdf_ob[:])
+  if slices is None:
+    body = copy.deepcopy(var_cdf_ob[:])
+  else:
+    
+    body = copy.deepcopy(var_cdf_ob[slices])  
+
   if isinstance(body,np.ma.masked_array):
     # The Netcdf4 module yields masked arrays. Convert to ndarray to work well with sg.
     # fill_value is a standard attribute of masked arrays (no checks):
@@ -4194,7 +4250,7 @@ def _read_data(var_cdf_ob):
 
   return body
 
-def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squeeze_Field=False):
+def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squeeze_Field=False, slices=None):
   """
   Reads data corresponding to variable name varname from netcdf file and returns Field. 
 
@@ -4206,6 +4262,7 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
     coord_stack: (list of Coord) to use when reading
     ax_stack: (list of Ax) to use when reading
     squeeze_Field: (Boolean) if True, hard- squeeze the Field at this point of the reading process (fully removing the 1-dimensional dims). Generally not used.
+    slices: (tuple of slice, Coord and Ax objects) slices to take. No slicing if None.
 
   Returns: 
     Field that was read. 
@@ -4225,8 +4282,27 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
 
   dims = list(var_cdf_ob.dimensions) 
 
+ 
+  grid = []
+
+  for dim in dims:
+    dim_val = file.variables[dim][:]
+   
+    for crd in coord_stack:
+   
+      if (dim == _dimname(crd) ) and np.array_equal(dim_val , crd.value):
+     
+        grid.append(crd)
+  
+  grid=Gr(tuple(grid))          
+  if slices is not None:
+
+    slices = interpret_slices(slices,grid )
+    grid = grid.sliced(slices )
+
+
   # VARIABLE DATA READ FROM FILE 
-  body = _read_data(var_cdf_ob)
+  body = _read_data(var_cdf_ob, slices = slices)
 
   if hasattr(var_cdf_ob,'units'):
     units = var_cdf_ob.units
@@ -4255,21 +4331,10 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
           dims.remove(dims[i])
     
     body = np.squeeze(body)
- 
-  grid = []
 
-  for dim in dims:
-    dim_val = file.variables[dim][:]
-   
-    for crd in coord_stack:
-   
-      if (dim == _dimname(crd) ) and np.array_equal(dim_val , crd[:]):
-     
-        grid.append(crd)
-            
   file.close()
- 
-  return Field(varname,body,grid=Gr(tuple(grid)),units = units, direction = direction, long_name = long_name, metadata = metadata)
+
+  return Field(varname,body,grid=grid,units = units, direction = direction, long_name = long_name, metadata = metadata)
 
 
 def _dimname(crd):
@@ -4401,19 +4466,26 @@ def make_axes(cstack):
   return created_axes        
 
 
+def _int2slice(value):
+
+  if isinstance(value,int):
+    return slice(value,value+1,None)
+  else:
+    return value
+
 
 def interpret_slices(L, grid):
   """Interpret slice argument, e.g. TEMP(X,:,Y,:50) or TEMP(:,50:)
 
   Args:
-    L: (list) of slice, int, Ax or Coord ojbects
+    L: (list) of slice, Ax or Coord ojbects
     grid: (Gr) grid to slice on
 
   Returns:
     A list of standard slice objects that can be used to slice ndarrays or Netcdf vars
   """
 
-  if isinstance(L,tuple):
+  if isinstance(L,tuple) or isinstance(L,list):
     # In this case, the argument is expected to be multiple slice objects only or slice objects interspersed with Coord objects.
  
     crds = []		# holds Coord objects along which to slice
@@ -4434,7 +4506,9 @@ def interpret_slices(L, grid):
         else:
           crds.append(slice_coord) 
 
-      elif isinstance(i,int)  | isinstance(i,slice):
+      elif isinstance(i,int):  
+        slices.append(slice(i,i+1,None))
+      elif isinstance(i,slice):
         slices.append(i)
       else:
         raise RuntimeError('Non-integer slice axis argument %s for grid %s not recognised as Ax or Coord object. The Ax/ Coord object might be stale. ' % (i, grid) )
@@ -4444,7 +4518,7 @@ def interpret_slices(L, grid):
       # No Coord objects recorded: this is likely a normal slice list: do nothing
       if len(slices) == 0:
         warnings.warn( '(severe): no slices!', RuntimeWarning )
-      return L
+      return tuple(L)
 
     elif len(crds) == len(slices):        
           # In this case, we can associate a slice object (or int) to each Coord object in the argument.
@@ -4458,15 +4532,15 @@ def interpret_slices(L, grid):
       
         all_slices[grid.index(it[0])] =  it[1] 
 
-      return all_slices
+      return tuple(all_slices)
 
     else:
      # case where len(crds) != len(slices). Leads to error
      raise ValueError('Field slice error in Field %s arg %s: use slice objects only or pairs of Coord objects and slice objects.' % (self,L)  )         
 
   else:
-  # Trivial case where argument is not a tuple. e.g. it is ':' or '10'
-    return L
+  # Trivial case where argument is not a tuple. e.g. it is 'slice(10,None,None)' or '10'
+    return (L,)
 
 
 

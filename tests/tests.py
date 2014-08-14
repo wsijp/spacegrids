@@ -205,6 +205,25 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     pass
 
+
+
+
+  def test_coord_sliced_method(self):
+    """Tests whether slicing works"""
+
+    coord1 = self.fixture[0][0] # this one has string property set
+    coord2 = self.fixture[0][1] # this one doesn't
+    coord4 = self.fixture[1][0]
+
+    K=coord1(coord1*coord2)
+    R = coord1.coord_shift(K,1)
+
+    self.assertEqual( (R[1,1:3]).shape, (2,)   )
+    self.assertEqual( (isinstance(R[1,1:3]), sg.Field), True   )
+    self.assertEqual( (isinstance(R[1,1:2]), sg.Field), False   ) # float
+    self.assertEqual( (isinstance(R[1,2]), sg.Field), False   ) # float
+
+
   def test_coord_sliced_method(self):
     """Tests whether slicing works"""
 
@@ -228,9 +247,18 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     # the dual Coord should also be sliced and be properly assigned:
     self.assertEqual(len(coord1_sliced.dual.value) , len(coord1.dual.value) -1 )
 
+    # the dual should remain one longer
+    self.assertEqual(len(coord1_sliced.dual.value) , len(coord1_sliced.value) + 1 )
+
+
     self.assertEqual(coord1_sliced.dual.dual, coord1_sliced)
 
     self.assertEqual(coord2_sliced.strings,  None)
+
+    # test integer slice:
+    self.assertEqual(len(coord1.sliced(2) )  , 1)
+
+
 
     # Now make coord1 self dual to test for self-dual Coord object:
 
@@ -679,8 +707,8 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     # test whether Field.roll method compatible with sg.roll.
     self.assertEqual( np.array_equal(R.value, K.roll(shift=1 , crd=coord1).value),True)
     
-    self.assertEqual( np.array_equal( R[0,:],  np.array([3.,3.,3.,3.]) ), True  )
-    self.assertEqual( np.array_equal( R[1,:],  np.array([1.,1.,1.,1.]) ), True  )
+    self.assertEqual( np.array_equal( R.value[0,:],  np.array([3.,3.,3.,3.]) ), True  )
+    self.assertEqual( np.array_equal( R.value[1,:],  np.array([1.,1.,1.,1.]) ), True  )
     # first coord in R.grid is replaced:
     self.assertEqual( R.grid[0] is coord1, False  )
     # second coord in R.grid is not replaced:
@@ -719,8 +747,8 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     K = coord1(coord1*coord2)
     R= sg.roll(K,coord=coord1,mask = True)
     
-    self.assertEqual( np.isnan( R[0,:] ).all() , True  )
-    self.assertEqual( np.array_equal( R[1,:],  np.array([1.,1.,1.,1.]) ), True  )
+    self.assertEqual( np.isnan( R.value[0,:] ).all() , True  )
+    self.assertEqual( np.array_equal( R.value[1,:],  np.array([1.,1.,1.,1.]) ), True  )
 
 
   def test_coord_shift_method(self):
@@ -738,8 +766,8 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     K = coord1(coord1*coord2) 
     R = coord1.coord_shift(K,1)
 
-    self.assertEqual( np.isnan( R[0,:] ).all() , True  )
-    self.assertEqual( np.array_equal( R[1,:],  np.array([1.,1.,1.,1.]) ), True  )
+    self.assertEqual( np.isnan( R.value[0,:] ).all() , True  )
+    self.assertEqual( np.array_equal( R.value[1,:],  np.array([1.,1.,1.,1.]) ), True  )
 
   def test_trans_method(self):
     """
@@ -754,8 +782,8 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     K = coord1(coord1*coord2) 
     R = coord1.trans(K)
 
-    self.assertEqual( np.array_equal( R[1,:],  np.array([1.,1.,1.,1.]) ), True  )
-    self.assertEqual( np.array_equal( R[2,:],  np.array([1.,1.,1.,1.]) ), True  )
+    self.assertEqual( np.array_equal( R.value[1,:],  np.array([1.,1.,1.,1.]) ), True  )
+    self.assertEqual( np.array_equal( R.value[2,:],  np.array([1.,1.,1.,1.]) ), True  )
 
     self.assertEqual( R.grid[0] is coord1   , True  )
 
@@ -903,7 +931,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     coord1 = cstack1[0]
  
-    self.assertEqual( np.array_equal(  coord1.delta_dist()[1:], np.array([ 1.,   1.]) ), True )
+    self.assertEqual( np.array_equal(  coord1.delta_dist().value[1:], np.array([ 1.,   1.]) ), True )
 
     self.assertEqual( np.isnan(  coord1.delta_dist()[0] ), True )
 
@@ -1176,8 +1204,8 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     R = coord1.coord_shift(K,1)
 
     # Check the shift is re-entrant:
-    self.assertEqual( np.array_equal( R[0,:],  np.array([3.,3.,3.,3.]) ), True  )
-    self.assertEqual( np.array_equal( R[1,:],  np.array([1.,1.,1.,1.]) ), True  )
+    self.assertEqual( np.array_equal( R.value[0,:],  np.array([3.,3.,3.,3.]) ), True  )
+    self.assertEqual( np.array_equal( R.value[1,:],  np.array([1.,1.,1.,1.]) ), True  )
 
     # check sum is preserved:
     self.assertEqual( np.sum(K.value), np.sum(R.value)  )
@@ -2488,7 +2516,7 @@ class TestFieldBasic(unittest.TestCase):
     print 'Tearing down %s'%type(self).__name__
     del self.fixture
 
-  def test_slice(self):
+  def test_slice_NH(self):
 
     SAT = self.fixture['DPO']['A_sat']
 
@@ -2498,6 +2526,30 @@ class TestFieldBasic(unittest.TestCase):
     SAT_sliced = SAT[Y,:50]
 
     self.assertEqual( SAT_sliced.shape ,  (50,100)  )
+
+  def test_slice_one_lat(self):
+
+    SAT = self.fixture['DPO']['A_sat']
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'       
+
+    SAT_sliced = SAT[Y,50]
+
+    self.assertEqual( SAT_sliced.shape ,  (1,100)  )
+
+  def test_slice_everything(self):
+    """ Slicing with : should yield the value attribute, an ndarray
+    """
+
+    SAT = self.fixture['DPO']['A_sat']
+
+    SAT_sliced = SAT[:]
+
+    self.assertEqual( isinstance(SAT_sliced, np.ndarray) ,  True  )
+
+
+
 
   def test_concatenate_arg_ax_None(self):
     """
@@ -2669,11 +2721,15 @@ class TestGrid(unittest.TestCase):
 
     gr1 = depth*latitude*longitude
 
-    gr1_sliced = gr1.sliced((X,slice(1,None,None)))
+    gr1_sliced = gr1.sliced((X,slice(1,None,None)) )
 
-   self.assertEqual((gr1_sliced.shape(), (19, 100, 99) )
+    self.assertEqual(gr1_sliced.shape(), (19, 100, 99) )
 
-   self.assertEqual((gr1_sliced[0] is depth, True )
+    self.assertEqual(gr1_sliced[0] is depth, True )
+
+    # Try single slab slice:
+    gr1_sliced = gr1.sliced((X,10))
+    self.assertEqual(gr1_sliced.shape(), (19,100,1) )
 
 
   def test_grid_permute_function_equal_len_and_coords(self):
@@ -2739,16 +2795,17 @@ class TestGrid(unittest.TestCase):
    # This time, we are going to a new grid that is incompatible, leading to a None result.
  
     gr1 = depth*latitude*longitude
+ 
+    slNone = slice(None, None, None)
+
+    self.assertEqual(sg.interpret_slices((longitude,10),gr1) == (slNone, slNone, slice(10,11,None) )  , True )
 
 
-    self.assertEqual(sg.interpret_slices((longitude,10),gr1) , [slice(None, None, None), slice(None, None, None), 10]   )
+    self.assertEqual(sg.interpret_slices((X,10),gr1) == (slNone, slNone, slice(10,11,None) )  , True )
 
+#    self.assertEqual(sg.interpret_slices(10 , slNone, 10   )
 
-    self.assertEqual(sg.interpret_slices((X,10),gr1) , [slice(None, None, None), slice(None, None, None), 10]   )
-
-    self.assertEqual(sg.interpret_slices(10 , [slice(None, None, None), 10   )
-
-    self.assertEqual( sg.interpret_slices((slice(None, None, None), slice(None, None, None)),G) ,  (slice(None, None, None), slice(None, None, None))   )
+#    self.assertEqual( sg.interpret_slices((slNone, slNone),G) ,  (slNone, slNone)   )
 
   def test_gr_method_expand_size(self):
     """
