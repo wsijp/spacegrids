@@ -1750,8 +1750,11 @@ class Gr(tuple, Membered):
     """
 
     if len(self) == len(other):
-
-      return reduce(lambda x,y: x and y, [ np.array_equal(e.value, other[i].value) for i,e in enumerate(self)  ] )
+      if len(self) == 0:
+        # empty grids are always equal (reduce will not work)
+        return True
+      else:
+        return reduce(lambda x,y: x and y, [ np.array_equal(e.value, other[i].value) for i,e in enumerate(self)  ] )
 
     else:
       return False
@@ -1903,6 +1906,13 @@ class Gr(tuple, Membered):
     return
 
 
+  def squeeze(self):
+    """Remove Coord members of length 1 and return them as a Gr.
+    """
+    
+    tosqueeze = self.__class__([crd for crd in self if (len(crd.value) == 1) ])
+
+    return self/tosqueeze, tosqueeze
 
   def sliced(self,slices):
     """Create new sliced Gr object. 
@@ -2832,6 +2842,7 @@ class Field(Valued):
        
 #      new_value = new_value.reshape(new_grid.shape())
 
+    
     return self.copy(value = new_value,grid = new_grid )
 
   def der(self, ax):
@@ -3676,29 +3687,16 @@ def squeeze(F, hard = False):
   See also: Field.unsqueeze
   """
 
-  dims = list(F.grid)
-  body = F.value
-  
-  squeezed_dims = []
 
   if hard:
-    # irreversible squeeze
-    # In this case, the squeezed dims are not recorded for later inflation
-    for i,dim in enumerate(dims):
-      if body.shape[i] == 1:
-        dims.remove(dims[i])
-
+    new_grid,  = F.grid.squeeze()    
+    squeezed_grid = Gr()
   else:
-    # reversible squeeze
-    # In this case, the squeezed dims are ecorded for later inflation
-    for i,dim in enumerate(dims):
-      if body.shape[i] == 1:
-        squeezed_dims.append(dims[i])
-        dims.remove(dims[i])
-      # do this with pop
-   
-  body = np.squeeze(body)
-  return F.copy(value=body,grid = Gr(dims) , squeezed_dims =  Gr(squeezed_dims) )
+    new_grid, squeezed_grid = F.grid.squeeze()
+
+  body = np.squeeze(F.value)
+ 
+  return F.copy(value=body,grid = new_grid , squeezed_dims =  squeezed_grid )
 
 def unsqueeze(F ):
   """
@@ -4250,7 +4248,7 @@ def _read_data(var_cdf_ob, slices = None):
 
   return body
 
-def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squeeze_Field=False, slices=None):
+def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squeeze_Field=False, slices=None, slice_suffix='_sliced'):
   """
   Reads data corresponding to variable name varname from netcdf file and returns Field. 
 
@@ -4263,6 +4261,7 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
     ax_stack: (list of Ax) to use when reading
     squeeze_Field: (Boolean) if True, hard- squeeze the Field at this point of the reading process (fully removing the 1-dimensional dims). Generally not used.
     slices: (tuple of slice, Coord and Ax objects) slices to take. No slicing if None.
+    slice_suffix: (str) suffix to add to variable name in case of slicing
 
   Returns: 
     Field that was read. 
@@ -4299,9 +4298,9 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
 
     slices = interpret_slices(slices,grid )
     grid = grid.sliced(slices )
+    varname = affix(varname, slice_suffix)
 
-
-  # VARIABLE DATA READ FROM FILE 
+ # VARIABLE DATA READ FROM FILE 
   body = _read_data(var_cdf_ob, slices = slices)
 
   if hasattr(var_cdf_ob,'units'):
@@ -4333,6 +4332,8 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
     body = np.squeeze(body)
 
   file.close()
+
+  
 
   return Field(varname,body,grid=grid,units = units, direction = direction, long_name = long_name, metadata = metadata)
 

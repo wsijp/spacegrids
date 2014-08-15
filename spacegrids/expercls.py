@@ -293,7 +293,7 @@ class Exper(object):
 
 
       
-  def load(self,varnames, squeeze_field = True, ax=None, name_suffix='_cat', new_coord_name = 'gamma', new_coord= None,slices = None , *args, **kwargs):
+  def load(self,varnames, squeeze_field = True, ax=None, name_suffix='_cat', new_coord_name = 'gamma', new_coord= None,slices = None, slice_suffix = '_sliced' , *args, **kwargs):
     """
     Load a variable or list of variables contained in varnames into Exper. 
 
@@ -301,6 +301,8 @@ class Exper(object):
 
     if self.path is to a file (an Experiment file), the variable will be loaded from that file.
     if self.path is to a directory (an experiment dir), the variable will be loaded from Netcdf files inside that directory.
+
+    *args, **kwargs are passed on to the 'netcdf_file' function that handles opening of the file. 
 
     Args:
       varnames: (str or list) var name or list of the var names to load
@@ -310,12 +312,25 @@ class Exper(object):
       new_coord_name (str): passed on to the concatenate function
       new_coord (Coord): passed on to the concatenate function
       slices: (tuple of slice, Coord and Ax objects) slices to take. No slicing if None.     
+      slice_suffix: (str) suffix to add to variable name in case of slicing
+
 
     Returns:
       None
 
     Raises:
-      IOError: if path to Netcdf file not valid (very rare under automatic sg usage).
+      IOError: if path to Netcdf file not valid (rare under automatic sg usage).
+
+    Examples:
+
+    >>> P.load('O_temp',slices=(Z,0,X,50))
+    >>> E.show()
+    DPO
+    ----------
+    O_temp_sliced 
+    >>> TEMP = E['O_temp_sliced']
+    >>> TEMP.grid
+    (latitude)
     """  
 
 # --> this load is a method of Exper
@@ -361,7 +376,7 @@ class Exper(object):
 
           if varname in file.variables:
            
-            F.append(cdfread(filepath,varname,self.cstack,self.axes,slices =slices))
+            F.append(cdfread(filepath,varname,self.cstack,self.axes,slices =slices, slice_suffix = slice_suffix))
             fnames.append(fnm)
 
           file.close()
@@ -377,11 +392,12 @@ class Exper(object):
 
         new_field = concatenate(F,ax=ax, name_suffix=name_suffix, new_coord_name = new_coord_name, strings = fnames, new_coord= new_coord   )
 
+   
         # insert Field into experiment
         if squeeze_field:
-          self.insert(what = (varname, squeeze( new_field ) ) ) 
+          self.insert(what = (new_field.name, squeeze( new_field ) ) ) 
         else:
-          self.insert(what = (varname, new_field ) ) 
+          self.insert(what = (new_field.name, new_field ) ) 
 
     self.update_nbytes() 
 
@@ -393,6 +409,8 @@ class Exper(object):
     The "what" argument is a 2 tuple (pair) of name and value: (name, value). Value can be a Field or a single value. Name must be a string, but can be None in the case of a Field, where the Field name will then be used. For example what = ('temp',TEMP), where TEMP is a Field. If value is a single value (e.g. int or float), a name must be provided.
 
     Argument what can also be a list of (name,value) pairs, in which case the entire collection of pairs will be inserted.   
+
+    At the moment, 'insert' forces key van object name to be consistent. Might change in future. Also copies field object to do this.
 
     Args:
       what: (length 2 tuple or list thereof) name and value: (name, value).
@@ -410,6 +428,7 @@ class Exper(object):
 
     else:
 
+      # value here refers to the name, value pairs, not Field value
       name = what[0]
       value = what[1]
 

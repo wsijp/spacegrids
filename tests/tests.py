@@ -2503,6 +2503,44 @@ class TestCoordField(unittest.TestCase):
     self.assertEqual( len( (sg.unsqueeze(self.fixture['DPO']['O_temp']) ).squeezed_dims ) , 0   )
 
 
+  def test_Gr_squeeze_method(self):
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'
+
+
+    TEMP = self.fixture['DPO']['O_temp']
+    G = TEMP.grid
+
+    self.assertEqual( len(G.squeeze()[0] ) , 3  )
+
+    G = (TEMP[Y,50]).grid
+    self.assertEqual( len(G.squeeze()[0] ) , 2  )
+
+    G = (TEMP[Z,0,X,10]).grid
+    self.assertEqual( len(G.squeeze()[0] ) , 1  )
+
+
+  def test_squeeze_multiple_1dim(self):
+
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'
+
+    TEMP = self.fixture['DPO']['O_temp']
+
+
+    K=TEMP[Y,50]
+    self.assertEqual( (sg.squeeze(K)).shape , (19, 100)   )
+
+    K=TEMP[Z,0,X,10]
+    self.assertEqual( (sg.squeeze(K)).shape , (100,)   )
+
+
+
 class TestFieldBasic(unittest.TestCase):
 
   def setUp(self):
@@ -2708,7 +2746,10 @@ class TestGrid(unittest.TestCase):
 
     self.assertEqual(Igr[0].shape, (19, 100, 100))
 
+  def test_grid_empty_grid_equal(self):
 
+    self.assertEqual(sg.Gr() == sg.Gr(), True)
+    
 
   def test_grid_sliced_method(self):
 
