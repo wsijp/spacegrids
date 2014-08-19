@@ -443,6 +443,11 @@ sameindex method</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="spacegrids.abstract.Valued.get_value">
+<tt class="descname">get_value</tt><big>(</big><em>i</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Valued.get_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Valued.get_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="spacegrids.abstract.Valued.same">
 <tt class="descname">same</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Valued.same"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Valued.same" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests whether this Valued object contains identical name and value to argument object.</p>
@@ -452,6 +457,25 @@ sameindex method</p>
 <dd>other: (Valued) object to compare against.</dd>
 <dt>Returns: </dt>
 <dd>True/ False</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Valued.set_value">
+<tt class="descname">set_value</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Valued.set_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Valued.set_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Valued.slice">
+<tt class="descname">slice</tt><big>(</big><em>slice_obj=None</em>, <em>suffix='_sliced'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Valued.slice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Valued.slice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new sliced Valued object with sliced value.</p>
+<p>The slice argument must match the value dimensions, there are no checks.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>slice_obj: (slice objects or tuple of) to slice value with
+suffix: (str) suffix to use for sliced Valued object</dd>
+<dt>Returns:</dt>
+<dd>Valued object containing sliced value</dd>
 </dl>
 </dd></dl>
 
@@ -559,6 +583,7 @@ vars: (dictionary of name vs Field objects) contains the loaded Fields (e.g. a 3
 <dd><p>Insert Field in Field list (vars attribute), or into params att if argument is a number.</p>
 <p>The &#8220;what&#8221; argument is a 2 tuple (pair) of name and value: (name, value). Value can be a Field or a single value. Name must be a string, but can be None in the case of a Field, where the Field name will then be used. For example what = (&#8216;temp&#8217;,TEMP), where TEMP is a Field. If value is a single value (e.g. int or float), a name must be provided.</p>
 <p>Argument what can also be a list of (name,value) pairs, in which case the entire collection of pairs will be inserted.</p>
+<p>At the moment, &#8216;insert&#8217; forces key van object name to be consistent. Might change in future. Also copies field object to do this.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>what: (length 2 tuple or list thereof) name and value: (name, value).</dd>
@@ -575,11 +600,12 @@ vars: (dictionary of name vs Field objects) contains the loaded Fields (e.g. a 3
 
 <dl class="method">
 <dt id="spacegrids.expercls.Exper.load">
-<tt class="descname">load</tt><big>(</big><em>varnames</em>, <em>squeeze_field=True</em>, <em>ax=None</em>, <em>name_suffix='_cat'</em>, <em>new_coord_name='gamma'</em>, <em>new_coord=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/expercls.html#Exper.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.expercls.Exper.load" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">load</tt><big>(</big><em>varnames</em>, <em>squeeze_field=True</em>, <em>ax=None</em>, <em>name_suffix='_cat'</em>, <em>new_coord_name='gamma'</em>, <em>new_coord=None</em>, <em>slices=None</em>, <em>slice_suffix='_sliced'</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/expercls.html#Exper.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.expercls.Exper.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a variable or list of variables contained in varnames into Exper.</p>
 <p>Takes either a single string or a list of strings. If multiple files inside a directory contain the same variable, this method will attempt to concatenate them (e.g. in the case where there are different time slices).</p>
 <p>if self.path is to a file (an Experiment file), the variable will be loaded from that file.
 if self.path is to a directory (an experiment dir), the variable will be loaded from Netcdf files inside that directory.</p>
+<p><a href="#id4"><span class="problematic" id="id5">*</span></a>args, <a href="#id6"><span class="problematic" id="id7">**</span></a>kwargs are passed on to the &#8216;netcdf_file&#8217; function that handles opening of the file.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>varnames: (str or list) var name or list of the var names to load
@@ -587,12 +613,25 @@ squeeze_field (boolean):  Flag to squeeze Field on loading (default True)
 ax (Ax): passed on to the concatenate function                    
 name_suffix (str): passed on to the concatenate function
 new_coord_name (str): passed on to the concatenate function
-new_coord (Coord): passed on to the concatenate function</dd>
+new_coord (Coord): passed on to the concatenate function
+slices: (tuple of slice, Coord and Ax objects) slices to take. No slicing if None.     
+slice_suffix: (str) suffix to add to variable name in case of slicing</dd>
 <dt>Returns:</dt>
 <dd>None</dd>
 <dt>Raises:</dt>
-<dd>IOError: if path to Netcdf file not valid (very rare under automatic sg usage).</dd>
+<dd>IOError: if path to Netcdf file not valid (rare under automatic sg usage).</dd>
 </dl>
+<p>Examples:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">P</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s">&#39;O_temp&#39;</span><span class="p">,</span><span class="n">slices</span><span class="o">=</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="mi">50</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">E</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="go">DPO</span>
+<span class="go">----------</span>
+<span class="go">O_temp_sliced </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">TEMP</span> <span class="o">=</span> <span class="n">E</span><span class="p">[</span><span class="s">&#39;O_temp_sliced&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">TEMP</span><span class="o">.</span><span class="n">grid</span>
+<span class="go">(latitude)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -631,8 +670,9 @@ Examine which fields (Netcdf variables) are available of experiment object.</p>
 
 <dl class="method">
 <dt id="spacegrids.expercls.Exper.write">
-<tt class="descname">write</tt><big>(</big><em>path=None</em>, <em>name=None</em>, <em>history='Created from Spacegrids '</em>, <em>insert_dual=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/expercls.html#Exper.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.expercls.Exper.write" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">write</tt><big>(</big><em>path=None</em>, <em>name=None</em>, <em>history='Created from Spacegrids '</em>, <em>insert_dual=True</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/expercls.html#Exper.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.expercls.Exper.write" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write Exper to Netcdf file.</p>
+<p><a href="#id8"><span class="problematic" id="id9">*</span></a>args, <a href="#id10"><span class="problematic" id="id11">**</span></a>kwargs are passed on to netcdf io function (Dataset() ).</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>path: (str) path to the directory where the file will go (e.g. &#8216;data/&#8217; or &#8216;/home/me/&#8217;, default pwd).
@@ -1021,6 +1061,22 @@ same_index method</dd>
 </dd></dl>
 
 <dl class="method">
+<dt id="spacegrids.fieldcls.Coord.sliced">
+<tt class="descname">sliced</tt><big>(</big><em>slice_obj=None</em>, <em>suffix='_sliced'</em>, <em>slice_dual=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.sliced"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.sliced" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new sliced Coord and dual with sliced value.</p>
+<p>Also slices &#8216;strings&#8217; attribute if set.</p>
+<p>Sliced Coord object and possible dual are not registered with cstack. The sliced dual Coord can be accessed via the sliced Coord.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>slice_obj: (slice object) to slice value with
+suffix: (str) suffix to use for sliced Coord 
+slice_dual: (Boolean) determines whether dual Coord is sliced too</dd>
+<dt>Returns:</dt>
+<dd>Coord object containing sliced value, or self if slice(None,None,None)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="spacegrids.fieldcls.Coord.sort">
 <tt class="descname">sort</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.sort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.sort" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sorts Coord value. Passes arguments on to Numpy sort method.</p>
@@ -1202,10 +1258,16 @@ name_suffix: (str) suffix to use in new name.</dd>
 <dt>Args:</dt>
 <dd>colorbar: (Boolean) add colorbar if True
 index: (int) index value at which to slice if Field dim &gt; 2
-<a href="#id4"><span class="problematic" id="id5">**</span></a>kwargs: further kwargs to be passed on</dd>
+<a href="#id12"><span class="problematic" id="id13">**</span></a>kwargs: further kwargs to be passed on</dd>
 <dt>Returns:</dt>
 <dd>h, cb: handles to figure and colorbar</dd>
 </dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Field.get_value">
+<tt class="descname">get_value</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.get_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.get_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain value of Field.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1255,8 +1317,13 @@ crd: (Coord) coord to shift on</dd>
 </dd></dl>
 
 <dl class="method">
-<dt id="spacegrids.fieldcls.Field.slice">
-<tt class="descname">slice</tt><big>(</big><em>sl_coord=None</em>, <em>slice_obj=slice(1</em>, <em>None</em>, <em>None)</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.slice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.slice" title="Permalink to this definition">¶</a></dt>
+<dt id="spacegrids.fieldcls.Field.set_value">
+<tt class="descname">set_value</tt><big>(</big><em>k</em>, <em>v</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.set_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.set_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Field.slice_by">
+<tt class="descname">slice_by</tt><big>(</big><em>sl_coord=None</em>, <em>slice_obj=slice(1</em>, <em>None</em>, <em>None)</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.slice_by"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.slice_by" title="Permalink to this definition">¶</a></dt>
 <dd><p>Slice along Coord (e.g. xt) using slice_obj as slice, e.g. slice(1,None,None).</p>
 </dd></dl>
 
@@ -1353,7 +1420,10 @@ force_squeeze: (Boolean) do not call unsqueeze method if True</dd>
 <dt id="spacegrids.fieldcls.Gr">
 <em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">Gr</tt><big>(</big><em>name='scalar'</em>, <em>long_name=''</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt>, <a class="reference internal" href="#spacegrids.abstract.Membered" title="spacegrids.abstract.Membered"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.abstract.Membered</span></tt></a></p>
-<p>Represents Coord grids. Consists of a tuple of Coord objects, with additional Membered and other methods. Gr objects g1 and g2 are considered weaksame, g1.weaksame(g2) yields True, when the individual Coord elements are weaksame.</p>
+<p>The Gr (grid) class represents Coord grids. A Gr object consists of a tuple of Coord objects, with additional Membered and other methods.</p>
+<p>Gr object behave like tuples of Coord objects, and indexing is done as in tuples: if g = Gr((coord1,coord2)), then g[0] is coord1 etc.</p>
+<p>The multiplication methods of Coord and Gr objects are such that Gr objects can be built via multiplication as follows: coord1*coord2 yields Gr((coord1,coord2)) etc. For instance, depth*latitude*longitude represents a 3 dimensional grid, and is essentially a Coord tuple of length 3 with extra methods.</p>
+<p>Gr objects g1 and g2 are considered weaksame, g1.weaksame(g2) yields True, when the individual Coord elements are weaksame.</p>
 <dl class="method">
 <dt id="spacegrids.fieldcls.Gr.array_equal">
 <tt class="descname">array_equal</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.array_equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.array_equal" title="Permalink to this definition">¶</a></dt>
@@ -1445,7 +1515,7 @@ K.shape is (46, 110, 200)</p>
 <dt>Args:</dt>
 <dd>type: (str) desired output type. -&#8216;array&#8217; in arguments will return a list of arrays. -&#8216;Field&#8217; in arguments will return a list of fields.
 force: (Boolean) do not use cached value if True.</dd>
-<dt>Output: </dt>
+<dt>Returns: </dt>
 <dd>A list of arrays or fields of the dimension of the grid being called.</dd>
 </dl>
 <p>For example, a grid defined by (yt,xt) (equal to yt*xt) yields [YT,XT] where YT = yt(yt*xt) and XT = XT(yt*xt). We refer to XT as the inflated version of xt. Here, the Coord object has been called on the grid object: this yields an array defined on the argument grid and constant in all Coord axes other than the calling Coord. The array equals the value of the calling Coord object along that axis.</p>
@@ -1496,6 +1566,26 @@ Note that yt,xt appear in different order in self and other.</p>
 <dt id="spacegrids.fieldcls.Gr.shape">
 <tt class="descname">shape</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.shape" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines shape of grid by calculating Coord member lengths.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.sliced">
+<tt class="descname">sliced</tt><big>(</big><em>slices</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.sliced"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.sliced" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new sliced Gr object.</p>
+<p>Calls sliced methods on each Coord member using slice object arguments.</p>
+<p>Arguments can be of the form e.g. (slice(1,None,None),slice(1,None,None)slice(1,None,None)) or (X,slice(1,None,None)) etc.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>slices: (tuple or list of) Coord, Ax or slice objects.</dd>
+<dt>Returns:</dt>
+<dd>A Gr object with sliced Coord members</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Gr.squeeze">
+<tt class="descname">squeeze</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.squeeze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.squeeze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove Coord members of length 1 and return them as a Gr.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1787,8 +1877,8 @@ vol method</dd>
 
 <dl class="function">
 <dt id="spacegrids.fieldcls.cdfread">
-<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">cdfread</tt><big>(</big><em>filepath</em>, <em>varname</em>, <em>coord_stack=</em>, <span class="optional">[</span><span class="optional">]</span><em>ax_stack=</em>, <span class="optional">[</span><span class="optional">]</span><em>verbose=True</em>, <em>squeeze_Field=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#cdfread"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.cdfread" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads data corresponding to variable name varname from netcdf file.</p>
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">cdfread</tt><big>(</big><em>filepath</em>, <em>varname</em>, <em>coord_stack=</em>, <span class="optional">[</span><span class="optional">]</span><em>ax_stack=</em>, <span class="optional">[</span><span class="optional">]</span><em>verbose=True</em>, <em>squeeze_Field=False</em>, <em>slices=None</em>, <em>slice_suffix='_sliced'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#cdfread"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.cdfread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads data corresponding to variable name varname from netcdf file and returns Field.</p>
 <p>coord_stack is used to provide Field with grid object built from corresponding Coord objects according to information in netcdf.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -1796,7 +1886,9 @@ vol method</dd>
 varname: (str) variable name in Netcdf file
 coord_stack: (list of Coord) to use when reading
 ax_stack: (list of Ax) to use when reading
-squeeze_Field: (Boolean) if True, hard- squeeze the Field at this point of the reading process (fully removing the 1-dimensional dims).</dd>
+squeeze_Field: (Boolean) if True, hard- squeeze the Field at this point of the reading process (fully removing the 1-dimensional dims). Generally not used.
+slices: (tuple of slice, Coord and Ax objects) slices to take. No slicing if None.
+slice_suffix: (str) suffix to add to variable name in case of slicing</dd>
 <dt>Returns: </dt>
 <dd>Field that was read.</dd>
 </dl>
@@ -1931,6 +2023,19 @@ rstack: (list of Coord objects), the second Coord stack</dd>
 </dd></dl>
 
 <dl class="function">
+<dt id="spacegrids.fieldcls.interpret_slices">
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">interpret_slices</tt><big>(</big><em>L</em>, <em>grid</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#interpret_slices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.interpret_slices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interpret slice argument, e.g. TEMP(X,:,Y,:50) or TEMP(:,50:)</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>L: (list) of slice, Ax or Coord ojbects
+grid: (Gr) grid to slice on</dd>
+<dt>Returns:</dt>
+<dd>A list of standard slice objects that can be used to slice ndarrays or Netcdf vars</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="spacegrids.fieldcls.make_axes">
 <tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">make_axes</tt><big>(</big><em>cstack</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#make_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.make_axes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Replaces axis attribute of Coord objects if it is a string with newly created (non-repeating) corresponding axis objects.</p>
@@ -2061,7 +2166,7 @@ nan_val: (np.nan) value to indicate nan</dd>
 
 <dl class="class">
 <dt id="spacegrids.ops.If">
-<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">If</tt><big>(</big><em>Cond_Op</em>, <em>True_Op</em>, <em>Else_Op=&lt;spacegrids.ops.Identity object at 0xba0290c&gt;</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#If"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.If" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">If</tt><big>(</big><em>Cond_Op</em>, <em>True_Op</em>, <em>Else_Op=&lt;spacegrids.ops.Identity object at 0xab1550c&gt;</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#If"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.If" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
 <p>If Operator as in If then.</p>
 <p>The state of the system is defined by the Field(s) vF. Therefore, the condition can be internal to the call function and must be defined in terms of vF (e.g. &#8216;len(vF.grid) == 3&#8217;).</p>
@@ -2230,7 +2335,7 @@ num_yticks: (None or int) number of ticks on y-axis, or disabled
 greyshade: (str) shade of grey to use for land
 showland: (Boolean) show land (nan) is True
 grid: (None or Gr) grid to draw information from.
-<a href="#id6"><span class="problematic" id="id7">*</span></a>args,**kwargs: normal kw arguments that can be passed on to contour(f).</dd>
+<a href="#id14"><span class="problematic" id="id15">*</span></a>args,**kwargs: normal kw arguments that can be passed on to contour(f).</dd>
 </dl>
 </dd></dl>
 
@@ -2260,7 +2365,7 @@ num_yticks: (None or int) number of ticks on y-axis, or disabled
 greyshade: (str) shade of grey to use for land
 showland: (Boolean) show land (nan) is True
 grid: (None or Gr) grid to draw information from.
-<a href="#id8"><span class="problematic" id="id9">*</span></a>args,**kwargs: normal kw arguments that can be passed on to contour(f).</dd>
+<a href="#id16"><span class="problematic" id="id17">*</span></a>args,**kwargs: normal kw arguments that can be passed on to contour(f).</dd>
 </dl>
 </dd></dl>
 
@@ -2276,7 +2381,7 @@ minus_z: (Boolean) z-axis points downard if true
 xlbl, ylbl: (str) override Field labels if not &#8216;&#8217;
 grid: (None or Gr) replaces Field grid if not None
 start_zero: (Boolean) if True, x-axis starts at 0  
-<a href="#id10"><span class="problematic" id="id11">**</span></a>kwargs: additional args to pass to plot function.</dd>
+<a href="#id18"><span class="problematic" id="id19">**</span></a>kwargs: additional args to pass to plot function.</dd>
 </dl>
 </dd></dl>
 
@@ -2299,7 +2404,7 @@ yscale: (float) scale in y direction
 ax_units: (Boolean) display units on axes if True
 ax: (None or figure axis handle) set to plt.gca() if argument is None
 greyshade: (str) shade of grey to use for land
-<a href="#id12"><span class="problematic" id="id13">**</span></a><a href="#id14"><span class="problematic" id="id15">*</span></a>kwargs: normal kw arguments that can be passed on to quiver.</dd>
+<a href="#id20"><span class="problematic" id="id21">**</span></a><a href="#id22"><span class="problematic" id="id23">*</span></a>kwargs: normal kw arguments that can be passed on to quiver.</dd>
 </dl>
 </dd></dl>
 
@@ -2430,7 +2535,7 @@ varnames: (list of str) of variable name patterns to match against</dd>
 
 <dl class="method">
 <dt id="spacegrids.projectcls.Project.load">
-<tt class="descname">load</tt><big>(</big><em>varnames</em>, <em>descr=0</em>, <em>chk_loaded=False</em>, <em>ax=None</em>, <em>name_suffix='_cat'</em>, <em>new_coord_name='gamma'</em>, <em>new_coord=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project.load" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">load</tt><big>(</big><em>varnames</em>, <em>descr=0</em>, <em>chk_loaded=False</em>, <em>ax=None</em>, <em>name_suffix='_cat'</em>, <em>new_coord_name='gamma'</em>, <em>new_coord=None</em>, <em>slices=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load Field into Project from Netcdf files.</p>
 <p>Loads a variable (or list of variables) for all experiments belonging to the Project instance. E.g. P.load(&#8216;salinity&#8217;).</p>
 <p>Attempts to concatenate if the same variable name is found in multiple files.</p>
@@ -2908,7 +3013,7 @@ order:  (int) the order to which to round value (e.g. order=2 is 100)</dd>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>L: list of strings       
-name_filter: the wildcard glob pattern (e.g. &#8216;<a href="#id16"><span class="problematic" id="id17">*</span></a>hello&#8217;)</dd>
+name_filter: the wildcard glob pattern (e.g. &#8216;<a href="#id24"><span class="problematic" id="id25">*</span></a>hello&#8217;)</dd>
 <dt>Returns: </dt>
 <dd>A list of strings that match.</dd>
 </dl>

@@ -1907,7 +1907,10 @@ class Gr(tuple, Membered):
 
 
   def squeeze(self):
-    """Remove Coord members of length 1 and return them as a Gr.
+    """Remove Coord members of length 1 and return reduced Gr and removed Coord objects as a Gr.
+
+    Returns:
+      self/squeezed, squeezed for Gr object squeezed containing squeezed Coord objects. 
     """
     
     tosqueeze = self.__class__([crd for crd in self if (len(crd.value) == 1) ])
