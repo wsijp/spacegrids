@@ -26,7 +26,7 @@ class TestValuedClass(unittest.TestCase):
   def test_slice_method(self):
 
     K = sg.Valued('K',np.array([1.,2.,3.,4.]))
-    R=K.slice(slice(1,None,None))
+    R=K.sliced(slice(1,None,None))
 
     self.assertEqual( np.array_equal( R.value, np.array([ 2.,  3.,  4.]) ), True )    
 

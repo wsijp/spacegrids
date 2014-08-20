@@ -219,6 +219,38 @@ class Named(object):
      
     return None    
 
+  def json(self, types_allow = []):
+    """convert self to a json friendly object.
+
+    Usage: json.dumps(X.json())
+    """
+    types_basic = ['int','double','float','str']
+
+    return_dict = {'class':str(self.__class__)}
+
+    for k in self.__dict__:
+
+      ob_type = type(self.__dict__[k])
+      if ob_type not in types_basic:
+
+        if ob_type in types_allow:
+          # this is the nested case on which to call the method recursively
+
+          return_dict[k] = self.__dict__[k].json(types_allow= [t for t in types_allow if t != ob_type ] )
+
+        else:
+          if isinstance(self.__dict__[k] , np.ndarray ):
+            return_dict[k] = self.__dict__[k].tolist()
+          else:
+
+            return_dict[k] = self.__dict__[k].__repr__()
+
+
+
+    
+    return return_dict
+
+
 
 class Associative(Named):
   """
@@ -731,6 +763,40 @@ class Membered(Named):
 
 
 
+
+  def json(self, types_allow = []):
+    """convert self to a json friendly object.
+
+    Usage: json.dumps(X.json())
+    """
+    types_basic = ['int','double','float','str']
+
+
+    members = [member.json(types_allow=types_allow) for member in self]
+
+    return_dict = {'class':str(self.__class__),'members':members}
+
+    for k in self.__dict__:
+
+      ob_type = type(self.__dict__[k])
+      if ob_type not in types_basic:
+
+        if ob_type in types_allow:
+          # this is the nested case on which to call the method recursively
+
+          return_dict[k] = self.__dict__[k].json(types_allow= [t for t in types_allow if t != ob_type ] )
+
+        else:
+          if isinstance(self.__dict__[k] , np.ndarray ):
+            return_dict[k] = self.__dict__[k].tolist()
+          else:
+
+            return_dict[k] = self.__dict__[k].__repr__()
+
+
+    return return_dict
+
+
 class Valued(Named):
   """
   Base class for classes that contain a ndarray value attribute. 
@@ -782,7 +848,7 @@ class Valued(Named):
 
     return self.set_value(value)
 
-  def slice(self,slice_obj = None ,suffix = '_sliced'):
+  def sliced(self,slice_obj = None ,suffix = '_sliced'):
     """Create new sliced Valued object with sliced value.
 
     The slice argument must match the value dimensions, there are no checks.
