@@ -826,6 +826,139 @@ def affix(coord_name ,affix = '', kind = 'suffix'):
     raise Exception('Provide suffix or prefix for kind.')
 
 
+def eval_node(A,node):
+
+  return A[node[1],node[0]]
+
+def set_node(A,node, value = 2):
+
+  A[node[1],node[0]] = value
+
+def test_node(A, node, test_value = 0, fill_value = 2):
+
+  return (eval_node(A,node) != test_value) and (eval_node(A,node) != fill_value)
+
+def test_node_append(A, node,Q, test_value = 0, fill_value = 2):
+
+  if test_node(A,node, test_value, fill_value):
+    Q.append(node)
+
+def append_yneighbours(A,node,Q, test_value = 0, fill_value = 2):
+
+        n = move_north(node)
+        test_node_append(A, n,Q, test_value, fill_value)          
+        s = move_south(node)
+        test_node_append(A, s,Q, test_value, fill_value)      
+
+
+def move_west(node):
+
+  return (node[0],node[1]-1)
+
+def move_east(node):
+
+  return (node[0],node[1]+1)
+
+def move_north(node):
+
+  return (node[0]-1,node[1])
+
+def move_south(node):
+
+  return (node[0]+1,node[1])
+
+
+def embed_param(shape,x_cyclic,y_cyclic):
+
+  if x_cyclic:
+    slicex = slice(None)  
+  else:
+    shape[1] += 2 
+    slicex = slice(1,-1,None)  
+
+
+  if y_cyclic:
+    slicey = slice(None)  
+  else:
+    shape[0] += 2 
+    slicey = slice(1,-1,None)  
+
+  return shape, slicex, slicey
+
+def embed(mask,x_cyclic = False, y_cyclic = False):
+
+  shape = list(mask.shape)
+
+  shape, slicex, slicey = embed_param(shape,x_cyclic,y_cyclic)
+
+  new_mask = np.zeros(shape)
+
+  new_mask[slicey,slicex] = mask
+
+  return new_mask
+
+def de_embed(mask):
+  return mask[1:-1,1:-1]
+
+def slice_mask(mask,xmin=0,xmax=10000,ymin=0,ymax=10000):
+
+  slicex_min = slice(None,xmin,None)
+  slicex_max = slice(xmax,None,None)
+
+  slicey_min = slice(None,ymin,None)
+  slicey_max = slice(ymax,None,None)
+
+  mask[:,slicex_min] = 0
+  mask[:,slicex_max] = 0      
+
+  mask[slicey_min,:] = 0
+  mask[slicey_max,:] = 0      
+
+
+def fill(A, node = (0,0),boundary_value = -999., xmin=0,xmax=10000,ymin=0,ymax=10000,x_cyclic = False, y_cyclic = False):
+
+  shape = A.shape
+
+  xmin = max(0,xmin)
+  ymin = max(0,ymin)
+  xmax = min(shape[1],xmax)
+  ymax = min(shape[0],ymax)
+
+  mask = np.ones(A.shape,np.byte)
+  mask[A == boundary_value] = 0
+
+  slice_mask(mask,xmin,xmax,ymin,ymax)
+
+   
+  mask = embed(mask,x_cyclic, y_cyclic )
+
+  Q = []
+
+  if not test_node(mask,node):
+    return
+
+  Q.append(node)
+
+  while Q:
+    N = Q.pop(0)
+
+    if test_node(mask,N):
+      w = N
+      e = move_east(N)
+
+      while test_node(mask,w):
+        set_node(mask,w)
+        append_yneighbours(mask,w,Q)
+        w = move_west(w)        
+        
+      while test_node(mask,e):
+        set_node(mask,e)
+        append_yneighbours(mask,e,Q)   
+        e = move_east(e)        
+
+  return de_embed(mask)
+
+
 # ------------- general time series related functions ----------------
 
 

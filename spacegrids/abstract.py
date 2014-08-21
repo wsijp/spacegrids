@@ -226,8 +226,11 @@ class Named(object):
     """
     types_basic = ['int','double','float','str']
 
-    return_dict = {'class':str(self.__class__)}
+    
+    # class encoding doesn't work yet:
+    return_dict = {'class':str( type(self)  )}
 
+    
     for k in self.__dict__:
 
       ob_type = type(self.__dict__[k])
