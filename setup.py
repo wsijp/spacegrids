@@ -19,7 +19,7 @@ setup(name='spacegrids',
 # package_data = {
 # "spacegrids": ['README.rst']
 # },
-      long_description=read('README'),
+      long_description=read('README.rst'),
       url='https://github.com/willo12/spacegrids',
       license = "BSD",
 #      install_requires = ["numpy>=1.6","scipy>=0.10","matplotlib>=1.1"]

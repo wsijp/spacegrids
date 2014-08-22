@@ -1,4 +1,5 @@
 ### Overview
+[![Build Status](https://travis-ci.org/willo12/spacegrids.svg)](https://travis-ci.org/willo12/spacegrids)
 
 Spacegrid is a single python module containing classes to work with and organise data defined on grids (e.g. climate model and observational). It is a bit like "Numpy with grids". The goal is to provide convenient coordinate, grid and data (field) classes that link together, and have short and intuitive data manipulation expressions. In addition, a small framework for project data management is provided. The module provides informative error messages and warnings, and is documented here and extensively inside the python code. 
 
