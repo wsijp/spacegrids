@@ -69,7 +69,7 @@ class Project(object):
     return self.name
     
 
-  def __init__(self,path=home_path, expnames = ['*'], varnames = [],msk_grid = 'UVic2.8_t', name = None, nonick = False, descr = None, verbose = False):
+  def __init__(self,path=home_path, expnames = ['*'], varnames = [],msk_grid = '', name = None, nonick = False, descr = None, verbose = False):
 
     """
     Initialize Project object to query Netcdf experiment files belonging to project.
@@ -78,7 +78,7 @@ class Project(object):
       path: (str) path to the Project directory (e.g. /home/me/PROJECTS/test_project/). 
       expnames: (str or list of str) filters on experiment names to load
       varnames: (list of str) usually empty, variable list (better to do after init)
-      msk_grid: (str) grid to use for masks
+      msk_grid: (str) grid to use for masks. No masks loaded if ''. (example: 'UVic2.8_t')
       name: (str) project name. Filled using projname content (or dir name) if None.
       nonick: (Boolean) Switch whether to look for a projname text file inside the Project directory to obtain Project nickname. True/ False
       descr: (str) longer description of project.
