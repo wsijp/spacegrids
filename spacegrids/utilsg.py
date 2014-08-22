@@ -731,8 +731,8 @@ def parse_control_file(fname,rem_chars = ['\n','/']):
   Read and parse a UVic/ MOM2 - style control file to yield list(s) of (name, value) pairs.
 
   Args:
-       fname: full path to configuration file	
-       rem_chars: characters to ignore in file (defaults recommended)
+       fname: (str) full path to configuration file	
+       rem_chars: (list of str) characters to ignore in file (defaults recommended)
 
   Returns: 
        La, L. Here, La is list of (name, value) pairs of all parameters found in the control file, excluding names of parameter groups (generally preceded with & in file). If the same parameter name occurs more than once in the file, it is overwritten in the list (unique names are expected). L is a more detailed list. List of (parameter group name, list of (name, value) ) pairs, where the lists of (name, value) pairs belong to each parameter group name.
@@ -826,56 +826,75 @@ def affix(coord_name ,affix = '', kind = 'suffix'):
     raise Exception('Provide suffix or prefix for kind.')
 
 
-def eval_node(A,node):
+# ---------------- fill related functions ---------------------------
 
-  return A[node[1],node[0]]
+def _eval_node(A,node):
 
-def set_node(A,node, value = 2):
+  return A[node[0],node[1]]
 
-  A[node[1],node[0]] = value
+def _set_node(A,node, value = 1):
 
-def test_node(A, node, test_value = 0, fill_value = 2):
+  A[node[0],node[1]] = value
 
-  return (eval_node(A,node) != test_value) and (eval_node(A,node) != fill_value)
+def _test_node(A, node, test_value = 0, fill_value = 1):
 
-def test_node_append(A, node,Q, test_value = 0, fill_value = 2):
+  en = _eval_node(A,node)
 
-  if test_node(A,node, test_value, fill_value):
+  return ( en != test_value) and ( en != fill_value)
+
+def _test_node_append(A, node,Q, test_value = 0, fill_value = 1):
+
+  if _test_node(A,node, test_value, fill_value):
     Q.append(node)
-
-def append_yneighbours(A,node,Q, test_value = 0, fill_value = 2):
-
-        n = move_north(node)
-        test_node_append(A, n,Q, test_value, fill_value)          
-        s = move_south(node)
-        test_node_append(A, s,Q, test_value, fill_value)      
+    
 
 
 def move_west(node):
 
   return (node[0],node[1]-1)
 
-def move_east(node):
 
-  return (node[0],node[1]+1)
+def move_east_maker(cyclic = False, m = 10000):
 
-def move_north(node):
+  if cyclic:
 
-  return (node[0]-1,node[1])
+    def move_east(node):
+      return ( node[0], (node[1] + 1)%m  )
+
+  else:
+
+    def move_east(node):
+      return ( node[0], node[1] + 1  )
+
+  return move_east
+
+
+def move_north_maker(cyclic = False, m = 10000):
+
+    if cyclic:
+
+      def move_north(node):
+        return ( (node[0] + 1)%m,node[1] )
+   
+    else:
+
+      def move_north(node):
+        return (node[0] + 1,node[1] )
+
+    return move_north
 
 def move_south(node):
 
-  return (node[0]+1,node[1])
+  return (node[0] - 1,node[1] )
 
 
-def embed_param(shape,x_cyclic,y_cyclic):
+def _embed_param(shape,x_cyclic,y_cyclic):
 
   if x_cyclic:
     slicex = slice(None)  
   else:
     shape[1] += 2 
     slicex = slice(1,-1,None)  
-
 
   if y_cyclic:
     slicey = slice(None)  
@@ -885,22 +904,28 @@ def embed_param(shape,x_cyclic,y_cyclic):
 
   return shape, slicex, slicey
 
-def embed(mask,x_cyclic = False, y_cyclic = False):
+def _embed(mask,x_cyclic = False, y_cyclic = False):
 
   shape = list(mask.shape)
 
-  shape, slicex, slicey = embed_param(shape,x_cyclic,y_cyclic)
+  shape, slicex, slicey = _embed_param(shape,x_cyclic,y_cyclic)
 
-  new_mask = np.zeros(shape)
+  new_mask = np.zeros(shape,np.byte)
 
   new_mask[slicey,slicex] = mask
 
   return new_mask
 
-def de_embed(mask):
-  return mask[1:-1,1:-1]
+def _de_embed(mask,x_cyclic = False, y_cyclic = False):
 
-def slice_mask(mask,xmin=0,xmax=10000,ymin=0,ymax=10000):
+  shape = list(mask.shape)
+  shape, slicex, slicey = _embed_param(shape,x_cyclic,y_cyclic)
+
+  return mask[slicey,slicex]
+
+def _slice_mask(mask,xmin=0,xmax=10000,ymin=0,ymax=10000):
+  """Pick a rectangular subsection of the mask.
+  """
 
   slicex_min = slice(None,xmin,None)
   slicex_max = slice(xmax,None,None)
@@ -915,7 +940,27 @@ def slice_mask(mask,xmin=0,xmax=10000,ymin=0,ymax=10000):
   mask[slicey_max,:] = 0      
 
 
-def fill(A, node = (0,0),boundary_value = -999., xmin=0,xmax=10000,ymin=0,ymax=10000,x_cyclic = False, y_cyclic = False):
+def floodfill(A, node = (0,0),boundary_value = np.nan, xmin=0,xmax=10000,ymin=0,ymax=10000,x_cyclic = False, y_cyclic = False, mask_val = 2):
+  """
+  Fill array (e.g. ocean) from node up to boundary defined by boundary_value (e.g. land) using floodfill.
+
+  Creates mask to fill array (e.g. ocean) in area contained within boundary_value (e.g. land), containing node.
+
+  Args:
+    A: (ndarray) 2 dimensional array to use fill on
+    node: (2 tuple of int) coordinates of starting point: (y,x) values.
+    boundary_value: (float or nan) value of the boundary of the filled domain
+    xmin: (int) set mask to boundary value up to this x-index
+    xmax: (int) set mask to boundary value from this x-index
+    ymin: (int) set mask to boundary value up to this y-index
+    ymax: (int) set mask to boundary value from this y-index
+    x_cyclic: (Boolean) indicates whether x-domain cyclic if True
+    y_cyclic: (Boolean) indicates whether y-domain cyclic if True
+    mask_val: (int) value of the masked out region: nodes outside fill in mask
+
+  Returns:
+    2 dimension ndarray int mask of filled values
+  """
 
   shape = A.shape
 
@@ -924,39 +969,54 @@ def fill(A, node = (0,0),boundary_value = -999., xmin=0,xmax=10000,ymin=0,ymax=1
   xmax = min(shape[1],xmax)
   ymax = min(shape[0],ymax)
 
-  mask = np.ones(A.shape,np.byte)
-  mask[A == boundary_value] = 0
+  mask = mask_val*np.ones(A.shape,np.byte)
 
-  slice_mask(mask,xmin,xmax,ymin,ymax)
+  if np.isnan(boundary_value):
+    mask[np.isnan(A)] = 0
+  else:
+    mask[A == boundary_value] = 0
 
+  _slice_mask(mask,xmin,xmax,ymin,ymax)
    
-  mask = embed(mask,x_cyclic, y_cyclic )
+  mask = _embed(mask,x_cyclic, y_cyclic )
+
+  # Create these functions depending on cyclicity (re-entrance) for speed:
+  move_east = move_east_maker(x_cyclic,shape[1])
+  move_north = move_north_maker(y_cyclic,shape[0])
 
   Q = []
 
-  if not test_node(mask,node):
-    return
+  if not _test_node(mask,node):
+
+    warnings.warn('node selected inside boundary value or fill value area. Returning non-filled mask')
+    return _de_embed(mask,x_cyclic = x_cyclic, y_cyclic = y_cyclic)
 
   Q.append(node)
 
   while Q:
     N = Q.pop(0)
 
-    if test_node(mask,N):
+    if _test_node(mask,N):
       w = N
       e = move_east(N)
 
-      while test_node(mask,w):
-        set_node(mask,w)
-        append_yneighbours(mask,w,Q)
+      while _test_node(mask,w):
+        _set_node(mask,w)
+        n = move_north(w)
+        _test_node_append(mask, n,Q)          
+        s = move_south(w)
+        _test_node_append(mask, s,Q)      
         w = move_west(w)        
         
-      while test_node(mask,e):
-        set_node(mask,e)
-        append_yneighbours(mask,e,Q)   
+      while _test_node(mask,e):
+        _set_node(mask,e)
+        n = move_north(e)
+        _test_node_append(mask, n,Q)          
+        s = move_south(e)
+        _test_node_append(mask, s,Q)      
         e = move_east(e)        
 
-  return de_embed(mask)
+  return _de_embed(mask,x_cyclic = x_cyclic, y_cyclic = y_cyclic)
 
 
 # ------------- general time series related functions ----------------

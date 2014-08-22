@@ -2566,8 +2566,6 @@ class Field(Valued):
   NOTE: multiplication works a bit different from addition at the moment. Addition will go ahead even when coords in the grids are differently named (or have other non-value attributes differ) as long as the value (the coord points) are the same: then the (left and right) coords are considered equal. Multiplication treats them as different coords in this case.
   """
 
-  global ID
-
   def __repr__(self):
     return self.name
 
@@ -3301,7 +3299,124 @@ class Field(Valued):
     return (self.dV()*self).sum(grid)/(self.dV()).sum(grid)
 
   
+  def floodfill(self, node = (0,0),boundary_value = np.nan, xmin=0,xmax=10000,ymin=0,ymax=10000):
+    """Fill array (e.g. ocean) from node up to boundary defined by boundary_value (e.g. land) using floodfill.
 
+    Creates mask Field to fill array (e.g. ocean) in area contained within boundary_value (e.g. land), containing node.
+
+    At the moment only to be used on 2 dimensional Fields.
+
+    The node argument can be in hybrid, e.g. (X,10,Y,4), or normal, e.g. (10,4), notation.
+
+    Args:
+      node: (2 tuple of int or Ax/ Coord vs int) coordinates of starting point
+      boundary_value: (float or nan) value of the boundary of the filled domain
+      xmin: (int) set mask to boundary value up to this x-index
+      xmax: (int) set mask to boundary value from this x-index
+      ymin: (int) set mask to boundary value up to this y-index
+      ymax: (int) set mask to boundary value from this y-index
+
+    Returns:
+      Field containing 2 dimension ndarray int mask of filled values
+    """
+
+
+    # convert to a coord tuple, in case Coord elements are given.
+    node = interpret_slices(node, self.grid, as_int = True, others = 0)
+
+    x_cyclic = False
+    y_cyclic = False
+
+    # find cyclic Coord
+    test = [type(g) is XCoord for g in self.grid]
+    if True in test:
+      i = test.index(True)
+      cyclic_coord = test[i]
+
+      if i == 0:
+        y_cyclic = True
+      elif i == 1:
+        x_cyclic = True
+
+    mask = floodfill(A = self.value, node = node,boundary_value = boundary_value, xmin=xmin,xmax=xmax,ymin=ymin,ymax=ymax,x_cyclic = x_cyclic, y_cyclic = y_cyclic)
+
+    return Field(name = 'mask', value = mask, grid = self.grid)
+
+
+
+
+
+  def maskout(self, node = (0,0),boundary_value = np.nan, msk_val = np.nan, xmin=0,xmax=10000,ymin=0,ymax=10000, isurface=0, mask_filter=1):
+    """Mask out area outside boundary using floodfill method.
+
+    Creates Field with all values outside the boundary containing the node point filled with msk_val.
+
+    The node argument can be in hybrid, e.g. (X,10,Y,4), or normal, e.g. (10,4), notation. The hybrid notation is required for Field dimension > 2.
+
+    Args:
+      node: (2 tuple of int or Ax/ Coord vs int) coordinates of starting point
+      boundary_value: (float or nan) value of the boundary of the filled domain
+      msk_val: (float or nan) value to assign to all points outside boundary
+      xmin: (int) set mask to boundary value up to this x-index
+      xmax: (int) set mask to boundary value from this x-index
+      ymin: (int) set mask to boundary value up to this y-index
+      ymax: (int) set mask to boundary value from this y-index
+      isurface: (int) slice of surface (usually 0, but -1 in some cases)
+      mask_filter: (int) value to keep in mask from floodfill (keep default)
+
+
+    Returns:
+      Field with array nodes that are outside boundary set to msk_val
+
+    Raises:
+      ValueError for Fields of dimension less than 2
+    """
+
+    if self.value.ndim == 2:    
+      # straightforward case of 2 dimensional Field
+
+      mask = self.floodfill(node = node,boundary_value = boundary_value, xmin=xmin,xmax=xmax,ymin=ymin,ymax=ymax)
+
+      new_value = copy.deepcopy(self.value)
+      new_value[mask.value != mask_filter] = msk_val
+ 
+      return self.copy(name = affix(self.name,'_mask') , value = new_value  )
+
+    elif self.value.ndim > 2: 
+      # more involved case of >2 dimensional Field
+      # expecting node in hybrid (X,10,Y,5) type notation
+      # this will be used to find out intended orientation
+
+      # surface is usually [X, Y]
+      surface = [n for n in node if type(n) is Ax]
+
+      slices = [slice(None) for g in self.grid] 
+
+     # set non-surface directions to slice 0. e.g. Z, T
+      for i,coord in enumerate(self.grid):    
+        if self.grid[i].axis not in surface:
+          slices[i] = isurface
+
+      sliced_self = squeeze(self[tuple(slices)])
+
+      mask = sliced_self.floodfill(node = node,boundary_value = boundary_value, xmin=xmin,xmax=xmax,ymin=ymin,ymax=ymax)
+
+ #     mask.value.astype(np.float)
+#      mask.value[mask.value != mask_filter] = 0
+
+      mask = mask.regrid(self.grid)
+
+
+      new_value = copy.deepcopy(self.value)
+      new_value[mask.value != mask_filter] = msk_val
+ 
+      return self.copy(name = affix(self.name,'_mask') , value = new_value  )
+
+    else:
+      raise ValueError('Provide Field of dimension at least 2.')
+
+
+    
 
 
   def slice_by(self, sl_coord = None,slice_obj = slice(1,None,None)):
@@ -3359,7 +3474,7 @@ class Field(Valued):
         e = self.grid[0]
 
       # Slice at index along guessed Coord
-      h = contourf(self[e, index])
+      h = contourf(squeeze(self[e, index]))
       if colorbar:
         cb = plt.colorbar()
       cb.set_label(self.units)
@@ -4478,15 +4593,33 @@ def _int2slice(value):
     return value
 
 
-def interpret_slices(L, grid):
-  """Interpret slice argument, e.g. TEMP(X,:,Y,:50) or TEMP(:,50:)
+def interpret_slices(L, grid , others = slice(None, None, None), as_int = False):
+  """Interpret slice argument passed from __getitem__ 
+
+  For example passed from TEMP[X,:,Y,:50] or TEMP[:,50:]
+
+  Case 1: Coord or Ax objects are given. E.g. TEMP[X,:,Y,:50]. Not all Coords in the grid need to be given.
+
+  Case 2: No Coord/ Ax objects are given. In this case, a normal Numpy slice argument is expected, and all Coords indices need to be specified.
 
   Args:
-    L: (list) of slice, Ax or Coord ojbects
+    L: (list or tuple) of slice, Ax or Coord ojbects or ints to interpret
     grid: (Gr) grid to slice on
+    others: (slice) slice object to fill into non-given Coords in Case 1  
+    as_int: (Boolean) slices of length 1 are represented as integer if True
 
   Returns:
     A list of standard slice objects that can be used to slice ndarrays or Netcdf vars
+
+  Raises:
+    ValueError, RuntimeError
+  
+  Examples:
+
+  >>> sg.interpret_slices((X,1,Y,10),latitude*longitude)
+  (slice(10, 11, None), slice(1, 2, None))
+  >>> sg.interpret_slices((X,1,Y,10),latitude*longitude,as_int = True)
+  (10, 1)
   """
 
   if isinstance(L,tuple) or isinstance(L,list):
@@ -4510,8 +4643,11 @@ def interpret_slices(L, grid):
         else:
           crds.append(slice_coord) 
 
-      elif isinstance(i,int):  
-        slices.append(slice(i,i+1,None))
+      elif isinstance(i,int):
+        if as_int:
+          slices.append(i)
+        else:  
+          slices.append(slice(i,i+1,None))
       elif isinstance(i,slice):
         slices.append(i)
       else:
@@ -4530,7 +4666,7 @@ def interpret_slices(L, grid):
           # The task is now to slice the Field value appropriately and to create the associated Coord objects.
 
 
-      all_slices = [slice(None, None, None) for member in grid]
+      all_slices = [others for member in grid]
 
       for it in zip(crds,slices):
       

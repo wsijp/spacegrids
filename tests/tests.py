@@ -2836,13 +2836,22 @@ class TestGrid(unittest.TestCase):
    # This time, we are going to a new grid that is incompatible, leading to a None result.
  
     gr1 = depth*latitude*longitude
+    gr2 = latitude*longitude
  
+
     slNone = slice(None, None, None)
 
     self.assertEqual(sg.interpret_slices((longitude,10),gr1) == (slNone, slNone, slice(10,11,None) )  , True )
 
 
     self.assertEqual(sg.interpret_slices((X,10),gr1) == (slNone, slNone, slice(10,11,None) )  , True )
+
+    self.assertEqual(sg.interpret_slices((longitude,10),gr1, others = slice(1,None,None)) == (slice(1,None,None), slice(1,None,None), slice(10,11,None) )  , True )
+
+
+    self.assertEqual(sg.interpret_slices((X,1,Y,10),latitude*longitude) == (slice(10, 11, None), slice(1, 2, None)) , True )
+
+    self.assertEqual(sg.interpret_slices((X,1,Y,10),latitude*longitude, as_int = True) == (10, 1) , True )
 
 #    self.assertEqual(sg.interpret_slices(10 , slNone, 10   )
 
