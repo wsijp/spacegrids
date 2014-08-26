@@ -780,8 +780,8 @@
 <span class="sd">  Read and parse a UVic/ MOM2 - style control file to yield list(s) of (name, value) pairs.</span>
 
 <span class="sd">  Args:</span>
-<span class="sd">       fname: full path to configuration file	</span>
-<span class="sd">       rem_chars: characters to ignore in file (defaults recommended)</span>
+<span class="sd">       fname: (str) full path to configuration file	</span>
+<span class="sd">       rem_chars: (list of str) characters to ignore in file (defaults recommended)</span>
 
 <span class="sd">  Returns: </span>
 <span class="sd">       La, L. Here, La is list of (name, value) pairs of all parameters found in the control file, excluding names of parameter groups (generally preceded with &amp; in file). If the same parameter name occurs more than once in the file, it is overwritten in the list (unique names are expected). L is a more detailed list. List of (parameter group name, list of (name, value) ) pairs, where the lists of (name, value) pairs belong to each parameter group name.</span>
@@ -873,6 +873,199 @@
     <span class="k">return</span> <span class="n">affix</span> <span class="o">+</span> <span class="n">coord_name</span> 
   <span class="k">else</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Provide suffix or prefix for kind.&#39;</span><span class="p">)</span>
+
+
+<span class="c"># ---------------- fill related functions ---------------------------</span>
+</div>
+<span class="k">def</span> <span class="nf">_eval_node</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">node</span><span class="p">):</span>
+
+  <span class="k">return</span> <span class="n">A</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">node</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+
+<span class="k">def</span> <span class="nf">_set_node</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">node</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+
+  <span class="n">A</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">node</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">value</span>
+
+<span class="k">def</span> <span class="nf">_test_node</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">test_value</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">fill_value</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+
+  <span class="n">en</span> <span class="o">=</span> <span class="n">_eval_node</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">node</span><span class="p">)</span>
+
+  <span class="k">return</span> <span class="p">(</span> <span class="n">en</span> <span class="o">!=</span> <span class="n">test_value</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span> <span class="n">en</span> <span class="o">!=</span> <span class="n">fill_value</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_test_node_append</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span><span class="n">Q</span><span class="p">,</span> <span class="n">test_value</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">fill_value</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+
+  <span class="k">if</span> <span class="n">_test_node</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">node</span><span class="p">,</span> <span class="n">test_value</span><span class="p">,</span> <span class="n">fill_value</span><span class="p">):</span>
+    <span class="n">Q</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+    
+
+
+<div class="viewcode-block" id="move_west"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.move_west">[docs]</a><span class="k">def</span> <span class="nf">move_west</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+
+  <span class="k">return</span> <span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">node</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="move_east_maker"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.move_east_maker">[docs]</a><span class="k">def</span> <span class="nf">move_east_maker</span><span class="p">(</span><span class="n">cyclic</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">):</span>
+
+  <span class="k">if</span> <span class="n">cyclic</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">move_east</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+      <span class="k">return</span> <span class="p">(</span> <span class="n">node</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="n">m</span>  <span class="p">)</span>
+
+  <span class="k">else</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">move_east</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+      <span class="k">return</span> <span class="p">(</span> <span class="n">node</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">node</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>  <span class="p">)</span>
+
+  <span class="k">return</span> <span class="n">move_east</span>
+
+</div>
+<div class="viewcode-block" id="move_north_maker"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.move_north_maker">[docs]</a><span class="k">def</span> <span class="nf">move_north_maker</span><span class="p">(</span><span class="n">cyclic</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">cyclic</span><span class="p">:</span>
+
+      <span class="k">def</span> <span class="nf">move_north</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span> <span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="n">m</span><span class="p">,</span><span class="n">node</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">)</span>
+   
+    <span class="k">else</span><span class="p">:</span>
+
+      <span class="k">def</span> <span class="nf">move_north</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span><span class="n">node</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">move_north</span>
+</div>
+<div class="viewcode-block" id="move_south"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.move_south">[docs]</a><span class="k">def</span> <span class="nf">move_south</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+
+  <span class="k">return</span> <span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span><span class="n">node</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">)</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_embed_param</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="n">x_cyclic</span><span class="p">,</span><span class="n">y_cyclic</span><span class="p">):</span>
+
+  <span class="k">if</span> <span class="n">x_cyclic</span><span class="p">:</span>
+    <span class="n">slicex</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>  
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">2</span> 
+    <span class="n">slicex</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="bp">None</span><span class="p">)</span>  
+
+  <span class="k">if</span> <span class="n">y_cyclic</span><span class="p">:</span>
+    <span class="n">slicey</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>  
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">2</span> 
+    <span class="n">slicey</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="bp">None</span><span class="p">)</span>  
+
+  <span class="k">return</span> <span class="n">shape</span><span class="p">,</span> <span class="n">slicex</span><span class="p">,</span> <span class="n">slicey</span>
+
+<span class="k">def</span> <span class="nf">_embed</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span><span class="n">x_cyclic</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">y_cyclic</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+
+  <span class="n">shape</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+  <span class="n">shape</span><span class="p">,</span> <span class="n">slicex</span><span class="p">,</span> <span class="n">slicey</span> <span class="o">=</span> <span class="n">_embed_param</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="n">x_cyclic</span><span class="p">,</span><span class="n">y_cyclic</span><span class="p">)</span>
+
+  <span class="n">new_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">byte</span><span class="p">)</span>
+
+  <span class="n">new_mask</span><span class="p">[</span><span class="n">slicey</span><span class="p">,</span><span class="n">slicex</span><span class="p">]</span> <span class="o">=</span> <span class="n">mask</span>
+
+  <span class="k">return</span> <span class="n">new_mask</span>
+
+<span class="k">def</span> <span class="nf">_de_embed</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span><span class="n">x_cyclic</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">y_cyclic</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+
+  <span class="n">shape</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+  <span class="n">shape</span><span class="p">,</span> <span class="n">slicex</span><span class="p">,</span> <span class="n">slicey</span> <span class="o">=</span> <span class="n">_embed_param</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="n">x_cyclic</span><span class="p">,</span><span class="n">y_cyclic</span><span class="p">)</span>
+
+  <span class="k">return</span> <span class="n">mask</span><span class="p">[</span><span class="n">slicey</span><span class="p">,</span><span class="n">slicex</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">_slice_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span><span class="n">xmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">xmax</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">ymin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ymax</span><span class="o">=</span><span class="mi">10000</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Pick a rectangular subsection of the mask.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="n">slicex_min</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span><span class="n">xmin</span><span class="p">,</span><span class="bp">None</span><span class="p">)</span>
+  <span class="n">slicex_max</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">xmax</span><span class="p">,</span><span class="bp">None</span><span class="p">,</span><span class="bp">None</span><span class="p">)</span>
+
+  <span class="n">slicey_min</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span><span class="n">ymin</span><span class="p">,</span><span class="bp">None</span><span class="p">)</span>
+  <span class="n">slicey_max</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">ymax</span><span class="p">,</span><span class="bp">None</span><span class="p">,</span><span class="bp">None</span><span class="p">)</span>
+
+  <span class="n">mask</span><span class="p">[:,</span><span class="n">slicex_min</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="n">mask</span><span class="p">[:,</span><span class="n">slicex_max</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>      
+
+  <span class="n">mask</span><span class="p">[</span><span class="n">slicey_min</span><span class="p">,:]</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="n">mask</span><span class="p">[</span><span class="n">slicey_max</span><span class="p">,:]</span> <span class="o">=</span> <span class="mi">0</span>      
+
+
+<div class="viewcode-block" id="floodfill"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.utilsg.floodfill">[docs]</a><span class="k">def</span> <span class="nf">floodfill</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">node</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span><span class="n">boundary_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">xmax</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">ymin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ymax</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">x_cyclic</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">y_cyclic</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">mask_val</span> <span class="o">=</span> <span class="mi">2</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Fill array (e.g. ocean) from node up to boundary defined by boundary_value (e.g. land) using floodfill.</span>
+
+<span class="sd">  Creates mask to fill array (e.g. ocean) in area contained within boundary_value (e.g. land), containing node.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    A: (ndarray) 2 dimensional array to use fill on</span>
+<span class="sd">    node: (2 tuple of int) coordinates of starting point: (y,x) values.</span>
+<span class="sd">    boundary_value: (float or nan) value of the boundary of the filled domain</span>
+<span class="sd">    xmin: (int) set mask to boundary value up to this x-index</span>
+<span class="sd">    xmax: (int) set mask to boundary value from this x-index</span>
+<span class="sd">    ymin: (int) set mask to boundary value up to this y-index</span>
+<span class="sd">    ymax: (int) set mask to boundary value from this y-index</span>
+<span class="sd">    x_cyclic: (Boolean) indicates whether x-domain cyclic if True</span>
+<span class="sd">    y_cyclic: (Boolean) indicates whether y-domain cyclic if True</span>
+<span class="sd">    mask_val: (int) value of the masked out region: nodes outside fill in mask</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    2 dimension ndarray int mask of filled values</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="n">shape</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>
+
+  <span class="n">xmin</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">xmin</span><span class="p">)</span>
+  <span class="n">ymin</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ymin</span><span class="p">)</span>
+  <span class="n">xmax</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">xmax</span><span class="p">)</span>
+  <span class="n">ymax</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">ymax</span><span class="p">)</span>
+
+  <span class="n">mask</span> <span class="o">=</span> <span class="n">mask_val</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">byte</span><span class="p">)</span>
+
+  <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">boundary_value</span><span class="p">):</span>
+    <span class="n">mask</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">A</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">mask</span><span class="p">[</span><span class="n">A</span> <span class="o">==</span> <span class="n">boundary_value</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+  <span class="n">_slice_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span><span class="n">xmin</span><span class="p">,</span><span class="n">xmax</span><span class="p">,</span><span class="n">ymin</span><span class="p">,</span><span class="n">ymax</span><span class="p">)</span>
+   
+  <span class="n">mask</span> <span class="o">=</span> <span class="n">_embed</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span><span class="n">x_cyclic</span><span class="p">,</span> <span class="n">y_cyclic</span> <span class="p">)</span>
+
+  <span class="c"># Create these functions depending on cyclicity (re-entrance) for speed:</span>
+  <span class="n">move_east</span> <span class="o">=</span> <span class="n">move_east_maker</span><span class="p">(</span><span class="n">x_cyclic</span><span class="p">,</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+  <span class="n">move_north</span> <span class="o">=</span> <span class="n">move_north_maker</span><span class="p">(</span><span class="n">y_cyclic</span><span class="p">,</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+  <span class="n">Q</span> <span class="o">=</span> <span class="p">[]</span>
+
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">_test_node</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span><span class="n">node</span><span class="p">):</span>
+
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;node selected inside boundary value or fill value area. Returning non-filled mask&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_de_embed</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span><span class="n">x_cyclic</span> <span class="o">=</span> <span class="n">x_cyclic</span><span class="p">,</span> <span class="n">y_cyclic</span> <span class="o">=</span> <span class="n">y_cyclic</span><span class="p">)</span>
+
+  <span class="n">Q</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+  <span class="k">while</span> <span class="n">Q</span><span class="p">:</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">Q</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">_test_node</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span><span class="n">N</span><span class="p">):</span>
+      <span class="n">w</span> <span class="o">=</span> <span class="n">N</span>
+      <span class="n">e</span> <span class="o">=</span> <span class="n">move_east</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+
+      <span class="k">while</span> <span class="n">_test_node</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span><span class="n">w</span><span class="p">):</span>
+        <span class="n">_set_node</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span><span class="n">w</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">move_north</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+        <span class="n">_test_node_append</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span><span class="n">Q</span><span class="p">)</span>          
+        <span class="n">s</span> <span class="o">=</span> <span class="n">move_south</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+        <span class="n">_test_node_append</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span><span class="n">Q</span><span class="p">)</span>      
+        <span class="n">w</span> <span class="o">=</span> <span class="n">move_west</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>        
+        
+      <span class="k">while</span> <span class="n">_test_node</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span><span class="n">e</span><span class="p">):</span>
+        <span class="n">_set_node</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">move_north</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">_test_node_append</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span><span class="n">Q</span><span class="p">)</span>          
+        <span class="n">s</span> <span class="o">=</span> <span class="n">move_south</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">_test_node_append</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span><span class="n">Q</span><span class="p">)</span>      
+        <span class="n">e</span> <span class="o">=</span> <span class="n">move_east</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>        
+
+  <span class="k">return</span> <span class="n">_de_embed</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span><span class="n">x_cyclic</span> <span class="o">=</span> <span class="n">x_cyclic</span><span class="p">,</span> <span class="n">y_cyclic</span> <span class="o">=</span> <span class="n">y_cyclic</span><span class="p">)</span>
 
 
 <span class="c"># ------------- general time series related functions ----------------</span>

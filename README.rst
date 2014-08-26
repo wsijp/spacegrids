@@ -1,7 +1,7 @@
 Spacegrids
 ==========
 
-Python Spacegrids will solve your problem of having to customize your Python scripts for every new data analysis project by providing an object data model of Netcdf data that ensures consistency between the data and their grid under common operations (and so avoiding common pitfalls related to axis interpretation), and much more. It is a write less do more library for everyday use to enhance productivity.
+Spacegrids is an open source library providing a Numpy array with grids, labelled axes and associated grid-related mathematical methods such as regridding and integration. Spacegrids provides an object data model of Netcdf data that ensures consistency between a Numpy data array and its grid under common operations (and so avoiding common pitfalls related to axis interpretation), and much more. It is a write less do more library for everyday use.
 
 The Field, Gr (grid) and Coord objects make everyday use easy:
 

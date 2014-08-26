@@ -268,6 +268,13 @@ eq_in method of Coord</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="spacegrids.abstract.Membered.json">
+<tt class="descname">json</tt><big>(</big><em>types_allow=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Membered.json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Membered.json" title="Permalink to this definition">¶</a></dt>
+<dd><p>convert self to a json friendly object.</p>
+<p>Usage: json.dumps(X.json())</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="spacegrids.abstract.Membered.perm">
 <tt class="descname">perm</tt><big>(</big><em>other</em>, <em>verbose=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Membered.perm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Membered.perm" title="Permalink to this definition">¶</a></dt>
 <dd><p>yields permutation of axes going from self to other.</p>
@@ -350,6 +357,13 @@ This is a stricter test than Membered equivalence testing via gr1.is_equiv(gr2),
 <dd>a copy of the Directional object.</dd>
 </dl>
 <p>Copy methods in sg work as follows: when no value is selected for an argument, a copy of the self attribute will be used. Otherwise, the <a href="#id2"><span class="problematic" id="id3">**</span></a>kwargs argument value will be used.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.abstract.Named.json">
+<tt class="descname">json</tt><big>(</big><em>types_allow=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Named.json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Named.json" title="Permalink to this definition">¶</a></dt>
+<dd><p>convert self to a json friendly object.</p>
+<p>Usage: json.dumps(X.json())</p>
 </dd></dl>
 
 <dl class="method">
@@ -466,8 +480,8 @@ sameindex method</p>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="spacegrids.abstract.Valued.slice">
-<tt class="descname">slice</tt><big>(</big><em>slice_obj=None</em>, <em>suffix='_sliced'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Valued.slice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Valued.slice" title="Permalink to this definition">¶</a></dt>
+<dt id="spacegrids.abstract.Valued.sliced">
+<tt class="descname">sliced</tt><big>(</big><em>slice_obj=None</em>, <em>suffix='_sliced'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/abstract.html#Valued.sliced"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.abstract.Valued.sliced" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create new sliced Valued object with sliced value.</p>
 <p>The slice argument must match the value dimensions, there are no checks.</p>
 <dl class="docutils">
@@ -1265,9 +1279,53 @@ index: (int) index value at which to slice if Field dim &gt; 2
 </dd></dl>
 
 <dl class="method">
+<dt id="spacegrids.fieldcls.Field.floodfill">
+<tt class="descname">floodfill</tt><big>(</big><em>node=(0</em>, <em>0)</em>, <em>boundary_value=nan</em>, <em>xmin=0</em>, <em>xmax=10000</em>, <em>ymin=0</em>, <em>ymax=10000</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.floodfill"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.floodfill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill array (e.g. ocean) from node up to boundary defined by boundary_value (e.g. land) using floodfill.</p>
+<p>Creates mask Field to fill array (e.g. ocean) in area contained within boundary_value (e.g. land), containing node.</p>
+<p>At the moment only to be used on 2 dimensional Fields.</p>
+<p>The node argument can be in hybrid, e.g. (X,10,Y,4), or normal, e.g. (10,4), notation.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>node: (2 tuple of int or Ax/ Coord vs int) coordinates of starting point
+boundary_value: (float or nan) value of the boundary of the filled domain
+xmin: (int) set mask to boundary value up to this x-index
+xmax: (int) set mask to boundary value from this x-index
+ymin: (int) set mask to boundary value up to this y-index
+ymax: (int) set mask to boundary value from this y-index</dd>
+<dt>Returns:</dt>
+<dd>Field containing 2 dimension ndarray int mask of filled values</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="spacegrids.fieldcls.Field.get_value">
 <tt class="descname">get_value</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.get_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.get_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Obtain value of Field.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Field.maskout">
+<tt class="descname">maskout</tt><big>(</big><em>node=(0</em>, <em>0)</em>, <em>boundary_value=nan</em>, <em>msk_val=nan</em>, <em>xmin=0</em>, <em>xmax=10000</em>, <em>ymin=0</em>, <em>ymax=10000</em>, <em>isurface=0</em>, <em>mask_filter=1</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.maskout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.maskout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mask out area outside boundary using floodfill method.</p>
+<p>Creates Field with all values outside the boundary containing the node point filled with msk_val.</p>
+<p>The node argument can be in hybrid, e.g. (X,10,Y,4), or normal, e.g. (10,4), notation. The hybrid notation is required for Field dimension &gt; 2.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>node: (2 tuple of int or Ax/ Coord vs int) coordinates of starting point
+boundary_value: (float or nan) value of the boundary of the filled domain
+msk_val: (float or nan) value to assign to all points outside boundary
+xmin: (int) set mask to boundary value up to this x-index
+xmax: (int) set mask to boundary value from this x-index
+ymin: (int) set mask to boundary value up to this y-index
+ymax: (int) set mask to boundary value from this y-index
+isurface: (int) slice of surface (usually 0, but -1 in some cases)
+mask_filter: (int) value to keep in mask from floodfill (keep default)</dd>
+<dt>Returns:</dt>
+<dd>Field with array nodes that are outside boundary set to msk_val</dd>
+<dt>Raises:</dt>
+<dd>ValueError for Fields of dimension less than 2</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1585,7 +1643,11 @@ Note that yt,xt appear in different order in self and other.</p>
 <dl class="method">
 <dt id="spacegrids.fieldcls.Gr.squeeze">
 <tt class="descname">squeeze</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.squeeze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.squeeze" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remove Coord members of length 1 and return them as a Gr.</p>
+<dd><p>Remove Coord members of length 1 and return reduced Gr and removed Coord objects as a Gr.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>self/squeezed, squeezed for Gr object squeezed containing squeezed Coord objects.</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -2024,15 +2086,29 @@ rstack: (list of Coord objects), the second Coord stack</dd>
 
 <dl class="function">
 <dt id="spacegrids.fieldcls.interpret_slices">
-<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">interpret_slices</tt><big>(</big><em>L</em>, <em>grid</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#interpret_slices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.interpret_slices" title="Permalink to this definition">¶</a></dt>
-<dd><p>Interpret slice argument, e.g. TEMP(X,:,Y,:50) or TEMP(:,50:)</p>
+<tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">interpret_slices</tt><big>(</big><em>L</em>, <em>grid</em>, <em>others=slice(None</em>, <em>None</em>, <em>None)</em>, <em>as_int=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#interpret_slices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.interpret_slices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interpret slice argument passed from __getitem__</p>
+<p>For example passed from TEMP[X,:,Y,:50] or TEMP[:,50:]</p>
+<p>Case 1: Coord or Ax objects are given. E.g. TEMP[X,:,Y,:50]. Not all Coords in the grid need to be given.</p>
+<p>Case 2: No Coord/ Ax objects are given. In this case, a normal Numpy slice argument is expected, and all Coords indices need to be specified.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>L: (list) of slice, Ax or Coord ojbects
-grid: (Gr) grid to slice on</dd>
+<dd>L: (list or tuple) of slice, Ax or Coord ojbects or ints to interpret
+grid: (Gr) grid to slice on
+others: (slice) slice object to fill into non-given Coords in Case 1  
+as_int: (Boolean) slices of length 1 are represented as integer if True</dd>
 <dt>Returns:</dt>
 <dd>A list of standard slice objects that can be used to slice ndarrays or Netcdf vars</dd>
+<dt>Raises:</dt>
+<dd>ValueError, RuntimeError</dd>
 </dl>
+<p>Examples:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">sg</span><span class="o">.</span><span class="n">interpret_slices</span><span class="p">((</span><span class="n">X</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span><span class="n">latitude</span><span class="o">*</span><span class="n">longitude</span><span class="p">)</span>
+<span class="go">(slice(10, 11, None), slice(1, 2, None))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sg</span><span class="o">.</span><span class="n">interpret_slices</span><span class="p">((</span><span class="n">X</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span><span class="n">latitude</span><span class="o">*</span><span class="n">longitude</span><span class="p">,</span><span class="n">as_int</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+<span class="go">(10, 1)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="function">
@@ -2166,7 +2242,7 @@ nan_val: (np.nan) value to indicate nan</dd>
 
 <dl class="class">
 <dt id="spacegrids.ops.If">
-<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">If</tt><big>(</big><em>Cond_Op</em>, <em>True_Op</em>, <em>Else_Op=&lt;spacegrids.ops.Identity object at 0xab1550c&gt;</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#If"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.If" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">If</tt><big>(</big><em>Cond_Op</em>, <em>True_Op</em>, <em>Else_Op=&lt;spacegrids.ops.Identity object at 0xb84e24c&gt;</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#If"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.If" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
 <p>If Operator as in If then.</p>
 <p>The state of the system is defined by the Field(s) vF. Therefore, the condition can be internal to the call function and must be defined in terms of vF (e.g. &#8216;len(vF.grid) == 3&#8217;).</p>
@@ -2436,7 +2512,7 @@ greyshade: (str) shade of grey to use for land
 </dl>
 <dl class="class">
 <dt id="spacegrids.projectcls.Project">
-<em class="property">class </em><tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">Project</tt><big>(</big><em>path='/home/wim', expnames=['*'], varnames=[], msk_grid='UVic2.8_t', name=None, nonick=False, descr=None, verbose=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">spacegrids.projectcls.</tt><tt class="descname">Project</tt><big>(</big><em>path='/home/wim', expnames=['*'], varnames=[], msk_grid='', name=None, nonick=False, descr=None, verbose=False</em><big>)</big><a class="reference internal" href="_modules/spacegrids/projectcls.html#Project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.projectcls.Project" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Represents experiment data organized in project directories.</p>
 <p>Data directory tree:</p>
@@ -2852,6 +2928,28 @@ right: a tuple (or list)</dd>
 </dd></dl>
 
 <dl class="function">
+<dt id="spacegrids.utilsg.floodfill">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">floodfill</tt><big>(</big><em>A</em>, <em>node=(0</em>, <em>0)</em>, <em>boundary_value=nan</em>, <em>xmin=0</em>, <em>xmax=10000</em>, <em>ymin=0</em>, <em>ymax=10000</em>, <em>x_cyclic=False</em>, <em>y_cyclic=False</em>, <em>mask_val=2</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#floodfill"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.floodfill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill array (e.g. ocean) from node up to boundary defined by boundary_value (e.g. land) using floodfill.</p>
+<p>Creates mask to fill array (e.g. ocean) in area contained within boundary_value (e.g. land), containing node.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>A: (ndarray) 2 dimensional array to use fill on
+node: (2 tuple of int) coordinates of starting point: (y,x) values.
+boundary_value: (float or nan) value of the boundary of the filled domain
+xmin: (int) set mask to boundary value up to this x-index
+xmax: (int) set mask to boundary value from this x-index
+ymin: (int) set mask to boundary value up to this y-index
+ymax: (int) set mask to boundary value from this y-index
+x_cyclic: (Boolean) indicates whether x-domain cyclic if True
+y_cyclic: (Boolean) indicates whether y-domain cyclic if True
+mask_val: (int) value of the masked out region: nodes outside fill in mask</dd>
+<dt>Returns:</dt>
+<dd>2 dimension ndarray int mask of filled values</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="spacegrids.utilsg.fromcsv">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">fromcsv</tt><big>(</big><em>raw_string</em>, <em>row_header=0</em>, <em>col_dates=0</em>, <em>data_start_row=1</em>, <em>data_start_col=1</em>, <em>hor_desc_col=None</em>, <em>separator='</em>, <em>'</em>, <em>row_delin='\n'</em>, <em>nanval=-999999</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#fromcsv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.fromcsv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert csv string to list of lists of floats T, list of header strings H and (optional) list pf dates D.</p>
@@ -2926,6 +3024,26 @@ sort: flag. sort called on result if True.</dd>
 </dd></dl>
 
 <dl class="function">
+<dt id="spacegrids.utilsg.move_east_maker">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">move_east_maker</tt><big>(</big><em>cyclic=False</em>, <em>m=10000</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#move_east_maker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.move_east_maker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.move_north_maker">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">move_north_maker</tt><big>(</big><em>cyclic=False</em>, <em>m=10000</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#move_north_maker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.move_north_maker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.move_south">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">move_south</tt><big>(</big><em>node</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#move_south"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.move_south" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="spacegrids.utilsg.move_west">
+<tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">move_west</tt><big>(</big><em>node</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#move_west"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.move_west" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="spacegrids.utilsg.order_mag">
 <tt class="descclassname">spacegrids.utilsg.</tt><tt class="descname">order_mag</tt><big>(</big><em>val</em><big>)</big><a class="reference internal" href="_modules/spacegrids/utilsg.html#order_mag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.utilsg.order_mag" title="Permalink to this definition">¶</a></dt>
 <dd><blockquote>
@@ -2946,8 +3064,8 @@ sort: flag. sort called on result if True.</dd>
 <dd><p>Read and parse a UVic/ MOM2 - style control file to yield list(s) of (name, value) pairs.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>fname: full path to configuration file   
-rem_chars: characters to ignore in file (defaults recommended)</dd>
+<dd>fname: (str) full path to configuration file     
+rem_chars: (list of str) characters to ignore in file (defaults recommended)</dd>
 <dt>Returns: </dt>
 <dd>La, L. Here, La is list of (name, value) pairs of all parameters found in the control file, excluding names of parameter groups (generally preceded with &amp; in file). If the same parameter name occurs more than once in the file, it is overwritten in the list (unique names are expected). L is a more detailed list. List of (parameter group name, list of (name, value) ) pairs, where the lists of (name, value) pairs belong to each parameter group name.</dd>
 </dl>

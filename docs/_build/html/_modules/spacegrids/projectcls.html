@@ -118,7 +118,7 @@
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
     
 
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">path</span><span class="o">=</span><span class="n">home_path</span><span class="p">,</span> <span class="n">expnames</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;*&#39;</span><span class="p">],</span> <span class="n">varnames</span> <span class="o">=</span> <span class="p">[],</span><span class="n">msk_grid</span> <span class="o">=</span> <span class="s">&#39;UVic2.8_t&#39;</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">nonick</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">descr</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">path</span><span class="o">=</span><span class="n">home_path</span><span class="p">,</span> <span class="n">expnames</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;*&#39;</span><span class="p">],</span> <span class="n">varnames</span> <span class="o">=</span> <span class="p">[],</span><span class="n">msk_grid</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">nonick</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">descr</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Initialize Project object to query Netcdf experiment files belonging to project.</span>
@@ -127,7 +127,7 @@
 <span class="sd">      path: (str) path to the Project directory (e.g. /home/me/PROJECTS/test_project/). </span>
 <span class="sd">      expnames: (str or list of str) filters on experiment names to load</span>
 <span class="sd">      varnames: (list of str) usually empty, variable list (better to do after init)</span>
-<span class="sd">      msk_grid: (str) grid to use for masks</span>
+<span class="sd">      msk_grid: (str) grid to use for masks. No masks loaded if &#39;&#39;. (example: &#39;UVic2.8_t&#39;)</span>
 <span class="sd">      name: (str) project name. Filled using projname content (or dir name) if None.</span>
 <span class="sd">      nonick: (Boolean) Switch whether to look for a projname text file inside the Project directory to obtain Project nickname. True/ False</span>
 <span class="sd">      descr: (str) longer description of project.</span>

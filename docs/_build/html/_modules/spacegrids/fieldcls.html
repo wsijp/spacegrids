@@ -1956,7 +1956,10 @@
 
 </div>
 <div class="viewcode-block" id="Gr.squeeze"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Gr.squeeze">[docs]</a>  <span class="k">def</span> <span class="nf">squeeze</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Remove Coord members of length 1 and return them as a Gr.</span>
+    <span class="sd">&quot;&quot;&quot;Remove Coord members of length 1 and return reduced Gr and removed Coord objects as a Gr.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      self/squeezed, squeezed for Gr object squeezed containing squeezed Coord objects. </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="n">tosqueeze</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">([</span><span class="n">crd</span> <span class="k">for</span> <span class="n">crd</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">crd</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">])</span>
@@ -2611,8 +2614,6 @@
 
 <span class="sd">  NOTE: multiplication works a bit different from addition at the moment. Addition will go ahead even when coords in the grids are differently named (or have other non-value attributes differ) as long as the value (the coord points) are the same: then the (left and right) coords are considered equal. Multiplication treats them as different coords in this case.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
-
-  <span class="k">global</span> <span class="n">ID</span>
 
   <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
@@ -3346,8 +3347,125 @@
 
     <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dV</span><span class="p">()</span><span class="o">*</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dV</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
 
-  
+  </div>
+<div class="viewcode-block" id="Field.floodfill"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Field.floodfill">[docs]</a>  <span class="k">def</span> <span class="nf">floodfill</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span><span class="n">boundary_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">xmax</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">ymin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ymax</span><span class="o">=</span><span class="mi">10000</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Fill array (e.g. ocean) from node up to boundary defined by boundary_value (e.g. land) using floodfill.</span>
 
+<span class="sd">    Creates mask Field to fill array (e.g. ocean) in area contained within boundary_value (e.g. land), containing node.</span>
+
+<span class="sd">    At the moment only to be used on 2 dimensional Fields.</span>
+
+<span class="sd">    The node argument can be in hybrid, e.g. (X,10,Y,4), or normal, e.g. (10,4), notation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      node: (2 tuple of int or Ax/ Coord vs int) coordinates of starting point</span>
+<span class="sd">      boundary_value: (float or nan) value of the boundary of the filled domain</span>
+<span class="sd">      xmin: (int) set mask to boundary value up to this x-index</span>
+<span class="sd">      xmax: (int) set mask to boundary value from this x-index</span>
+<span class="sd">      ymin: (int) set mask to boundary value up to this y-index</span>
+<span class="sd">      ymax: (int) set mask to boundary value from this y-index</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      Field containing 2 dimension ndarray int mask of filled values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="c"># convert to a coord tuple, in case Coord elements are given.</span>
+    <span class="n">node</span> <span class="o">=</span> <span class="n">interpret_slices</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">as_int</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">others</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">x_cyclic</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">y_cyclic</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="c"># find cyclic Coord</span>
+    <span class="n">test</span> <span class="o">=</span> <span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">g</span><span class="p">)</span> <span class="ow">is</span> <span class="n">XCoord</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">]</span>
+    <span class="k">if</span> <span class="bp">True</span> <span class="ow">in</span> <span class="n">test</span><span class="p">:</span>
+      <span class="n">i</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+      <span class="n">cyclic_coord</span> <span class="o">=</span> <span class="n">test</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+      <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">y_cyclic</span> <span class="o">=</span> <span class="bp">True</span>
+      <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">x_cyclic</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">floodfill</span><span class="p">(</span><span class="n">A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="p">,</span><span class="n">boundary_value</span> <span class="o">=</span> <span class="n">boundary_value</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="n">xmin</span><span class="p">,</span><span class="n">xmax</span><span class="o">=</span><span class="n">xmax</span><span class="p">,</span><span class="n">ymin</span><span class="o">=</span><span class="n">ymin</span><span class="p">,</span><span class="n">ymax</span><span class="o">=</span><span class="n">ymax</span><span class="p">,</span><span class="n">x_cyclic</span> <span class="o">=</span> <span class="n">x_cyclic</span><span class="p">,</span> <span class="n">y_cyclic</span> <span class="o">=</span> <span class="n">y_cyclic</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Field</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;mask&#39;</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">mask</span><span class="p">,</span> <span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span>
+
+
+
+
+</div>
+<div class="viewcode-block" id="Field.maskout"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Field.maskout">[docs]</a>  <span class="k">def</span> <span class="nf">maskout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span><span class="n">boundary_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">msk_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">xmax</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">ymin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ymax</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">isurface</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">mask_filter</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Mask out area outside boundary using floodfill method.</span>
+
+<span class="sd">    Creates Field with all values outside the boundary containing the node point filled with msk_val.</span>
+
+<span class="sd">    The node argument can be in hybrid, e.g. (X,10,Y,4), or normal, e.g. (10,4), notation. The hybrid notation is required for Field dimension &gt; 2.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      node: (2 tuple of int or Ax/ Coord vs int) coordinates of starting point</span>
+<span class="sd">      boundary_value: (float or nan) value of the boundary of the filled domain</span>
+<span class="sd">      msk_val: (float or nan) value to assign to all points outside boundary</span>
+<span class="sd">      xmin: (int) set mask to boundary value up to this x-index</span>
+<span class="sd">      xmax: (int) set mask to boundary value from this x-index</span>
+<span class="sd">      ymin: (int) set mask to boundary value up to this y-index</span>
+<span class="sd">      ymax: (int) set mask to boundary value from this y-index</span>
+<span class="sd">      isurface: (int) slice of surface (usually 0, but -1 in some cases)</span>
+<span class="sd">      mask_filter: (int) value to keep in mask from floodfill (keep default)</span>
+
+
+<span class="sd">    Returns:</span>
+<span class="sd">      Field with array nodes that are outside boundary set to msk_val</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError for Fields of dimension less than 2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>    
+      <span class="c"># straightforward case of 2 dimensional Field</span>
+
+      <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">floodfill</span><span class="p">(</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="p">,</span><span class="n">boundary_value</span> <span class="o">=</span> <span class="n">boundary_value</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="n">xmin</span><span class="p">,</span><span class="n">xmax</span><span class="o">=</span><span class="n">xmax</span><span class="p">,</span><span class="n">ymin</span><span class="o">=</span><span class="n">ymin</span><span class="p">,</span><span class="n">ymax</span><span class="o">=</span><span class="n">ymax</span><span class="p">)</span>
+
+      <span class="n">new_value</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+      <span class="n">new_value</span><span class="p">[</span><span class="n">mask</span><span class="o">.</span><span class="n">value</span> <span class="o">!=</span> <span class="n">mask_filter</span><span class="p">]</span> <span class="o">=</span> <span class="n">msk_val</span>
+ 
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">affix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span><span class="s">&#39;_mask&#39;</span><span class="p">)</span> <span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">new_value</span>  <span class="p">)</span>
+
+    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span> 
+      <span class="c"># more involved case of &gt;2 dimensional Field</span>
+      <span class="c"># expecting node in hybrid (X,10,Y,5) type notation</span>
+      <span class="c"># this will be used to find out intended orientation</span>
+
+      <span class="c"># surface is usually [X, Y]</span>
+      <span class="n">surface</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">node</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Ax</span><span class="p">]</span>
+
+      <span class="n">slices</span> <span class="o">=</span> <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">]</span> 
+
+     <span class="c"># set non-surface directions to slice 0. e.g. Z, T</span>
+      <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">coord</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">):</span>    
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">surface</span><span class="p">:</span>
+          <span class="n">slices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">isurface</span>
+
+      <span class="n">sliced_self</span> <span class="o">=</span> <span class="n">squeeze</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">slices</span><span class="p">)])</span>
+
+      <span class="n">mask</span> <span class="o">=</span> <span class="n">sliced_self</span><span class="o">.</span><span class="n">floodfill</span><span class="p">(</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="p">,</span><span class="n">boundary_value</span> <span class="o">=</span> <span class="n">boundary_value</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="n">xmin</span><span class="p">,</span><span class="n">xmax</span><span class="o">=</span><span class="n">xmax</span><span class="p">,</span><span class="n">ymin</span><span class="o">=</span><span class="n">ymin</span><span class="p">,</span><span class="n">ymax</span><span class="o">=</span><span class="n">ymax</span><span class="p">)</span>
+
+ <span class="c">#     mask.value.astype(np.float)</span>
+<span class="c">#      mask.value[mask.value != mask_filter] = 0</span>
+
+      <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">regrid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span>
+
+
+      <span class="n">new_value</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+      <span class="n">new_value</span><span class="p">[</span><span class="n">mask</span><span class="o">.</span><span class="n">value</span> <span class="o">!=</span> <span class="n">mask_filter</span><span class="p">]</span> <span class="o">=</span> <span class="n">msk_val</span>
+ 
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">affix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span><span class="s">&#39;_mask&#39;</span><span class="p">)</span> <span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">new_value</span>  <span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Provide Field of dimension at least 2.&#39;</span><span class="p">)</span>
+
+
+    
 
 </div>
 <div class="viewcode-block" id="Field.slice_by"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Field.slice_by">[docs]</a>  <span class="k">def</span> <span class="nf">slice_by</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sl_coord</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span><span class="n">slice_obj</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="bp">None</span><span class="p">,</span><span class="bp">None</span><span class="p">)):</span>
@@ -3405,7 +3523,7 @@
         <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
       <span class="c"># Slice at index along guessed Coord</span>
-      <span class="n">h</span> <span class="o">=</span> <span class="n">contourf</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">e</span><span class="p">,</span> <span class="n">index</span><span class="p">])</span>
+      <span class="n">h</span> <span class="o">=</span> <span class="n">contourf</span><span class="p">(</span><span class="n">squeeze</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">e</span><span class="p">,</span> <span class="n">index</span><span class="p">]))</span>
       <span class="k">if</span> <span class="n">colorbar</span><span class="p">:</span>
         <span class="n">cb</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
       <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
@@ -4524,15 +4642,33 @@
     <span class="k">return</span> <span class="n">value</span>
 
 
-<div class="viewcode-block" id="interpret_slices"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.interpret_slices">[docs]</a><span class="k">def</span> <span class="nf">interpret_slices</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">grid</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Interpret slice argument, e.g. TEMP(X,:,Y,:50) or TEMP(:,50:)</span>
+<div class="viewcode-block" id="interpret_slices"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.interpret_slices">[docs]</a><span class="k">def</span> <span class="nf">interpret_slices</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">grid</span> <span class="p">,</span> <span class="n">others</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">as_int</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Interpret slice argument passed from __getitem__ </span>
+
+<span class="sd">  For example passed from TEMP[X,:,Y,:50] or TEMP[:,50:]</span>
+
+<span class="sd">  Case 1: Coord or Ax objects are given. E.g. TEMP[X,:,Y,:50]. Not all Coords in the grid need to be given.</span>
+
+<span class="sd">  Case 2: No Coord/ Ax objects are given. In this case, a normal Numpy slice argument is expected, and all Coords indices need to be specified.</span>
 
 <span class="sd">  Args:</span>
-<span class="sd">    L: (list) of slice, Ax or Coord ojbects</span>
+<span class="sd">    L: (list or tuple) of slice, Ax or Coord ojbects or ints to interpret</span>
 <span class="sd">    grid: (Gr) grid to slice on</span>
+<span class="sd">    others: (slice) slice object to fill into non-given Coords in Case 1  </span>
+<span class="sd">    as_int: (Boolean) slices of length 1 are represented as integer if True</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    A list of standard slice objects that can be used to slice ndarrays or Netcdf vars</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    ValueError, RuntimeError</span>
+<span class="sd">  </span>
+<span class="sd">  Examples:</span>
+
+<span class="sd">  &gt;&gt;&gt; sg.interpret_slices((X,1,Y,10),latitude*longitude)</span>
+<span class="sd">  (slice(10, 11, None), slice(1, 2, None))</span>
+<span class="sd">  &gt;&gt;&gt; sg.interpret_slices((X,1,Y,10),latitude*longitude,as_int = True)</span>
+<span class="sd">  (10, 1)</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="nb">tuple</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="nb">list</span><span class="p">):</span>
@@ -4556,8 +4692,11 @@
         <span class="k">else</span><span class="p">:</span>
           <span class="n">crds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">slice_coord</span><span class="p">)</span> 
 
-      <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="nb">int</span><span class="p">):</span>  
-        <span class="n">slices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="bp">None</span><span class="p">))</span>
+      <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="nb">int</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">as_int</span><span class="p">:</span>
+          <span class="n">slices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  
+          <span class="n">slices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="bp">None</span><span class="p">))</span>
       <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="nb">slice</span><span class="p">):</span>
         <span class="n">slices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
       <span class="k">else</span><span class="p">:</span>
@@ -4576,7 +4715,7 @@
           <span class="c"># The task is now to slice the Field value appropriately and to create the associated Coord objects.</span>
 
 
-      <span class="n">all_slices</span> <span class="o">=</span> <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">grid</span><span class="p">]</span>
+      <span class="n">all_slices</span> <span class="o">=</span> <span class="p">[</span><span class="n">others</span> <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">grid</span><span class="p">]</span>
 
       <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">crds</span><span class="p">,</span><span class="n">slices</span><span class="p">):</span>
       
