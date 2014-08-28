@@ -1407,6 +1407,22 @@ crd: (Coord) coord to shift on</dd>
 </dd></dl>
 
 <dl class="method">
+<dt id="spacegrids.fieldcls.Field.transpose">
+<tt class="descname">transpose</tt><big>(</big><em>grid=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.transpose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.transpose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Field with view of value array with axes transposed.</p>
+<p>Calls Numpy transpose on value.</p>
+<p>For a 1-D Field, this has no effect. For a 2-D Field, this is the usual matrix transpose on value and the 2 Gr members switched. For an n-D Field, if an argument grid is given, the Field is regridded to that grid using the regrid method. If axes are not provided and a.shape = (i[0],i[1], ... , i[n-1]), then a.transpose().shape = (i[n-1],i[n-2], ... ,i[1],i[0]), and the grid members are reversed accordingly.</p>
+<p>See the Numpy .transpose method.</p>
+<p>Note that grid-data consistency is forced in spacegrids, and so no method exists to transpose without affecting the grid.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>grid: (Gr) optional. The grid to which to transpose</dd>
+<dt>Returns:</dt>
+<dd>Field containing transposed value and re-arranged grid.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="spacegrids.fieldcls.Field.vcumsum">
 <tt class="descname">vcumsum</tt><big>(</big><em>coord</em>, <em>upward=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.vcumsum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.vcumsum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply vcumsum method of coord on Field.</p>
@@ -2242,7 +2258,7 @@ nan_val: (np.nan) value to indicate nan</dd>
 
 <dl class="class">
 <dt id="spacegrids.ops.If">
-<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">If</tt><big>(</big><em>Cond_Op</em>, <em>True_Op</em>, <em>Else_Op=&lt;spacegrids.ops.Identity object at 0xb84e24c&gt;</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#If"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.If" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">If</tt><big>(</big><em>Cond_Op</em>, <em>True_Op</em>, <em>Else_Op=&lt;spacegrids.ops.Identity object at 0xac65eec&gt;</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#If"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.If" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
 <p>If Operator as in If then.</p>
 <p>The state of the system is defined by the Field(s) vF. Therefore, the condition can be internal to the call function and must be defined in terms of vF (e.g. &#8216;len(vF.grid) == 3&#8217;).</p>

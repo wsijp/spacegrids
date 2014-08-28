@@ -3052,13 +3052,46 @@
 
 </div>
   <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">grid</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s">&#39;linear&#39;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Shorthand for regrid method.</span>
+    <span class="sd">&quot;&quot;&quot;Shorthand for regrid method.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">regrid</span><span class="p">(</span><span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">method</span><span class="p">)</span>
 
 
+<div class="viewcode-block" id="Field.transpose"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Field.transpose">[docs]</a>  <span class="k">def</span> <span class="nf">transpose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">grid</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns Field with view of value array with axes transposed.</span>
+
+<span class="sd">    Calls Numpy transpose on value.</span>
+
+<span class="sd">    For a 1-D Field, this has no effect. For a 2-D Field, this is the usual matrix transpose on value and the 2 Gr members switched. For an n-D Field, if an argument grid is given, the Field is regridded to that grid using the regrid method. If axes are not provided and a.shape = (i[0],i[1], ... , i[n-1]), then a.transpose().shape = (i[n-1],i[n-2], ... ,i[1],i[0]), and the grid members are reversed accordingly.</span>
+
+<span class="sd">    See the Numpy .transpose method.</span>
+
+<span class="sd">    Note that grid-data consistency is forced in spacegrids, and so no method exists to transpose without affecting the grid.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      grid: (Gr) optional. The grid to which to transpose</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      Field containing transposed value and re-arranged grid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">grid</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span> <span class="p">,</span> <span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span> <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">regrid</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+
+<span class="c">#  def T(self):</span>
+<span class="c">#    &quot;&quot;&quot;Same as self.transpose(), except that self is returned if the dimension of self &lt; 2.</span>
+
+<span class="c">#    See Numpy .T method.&quot;&quot;&quot;</span>
+
+<span class="c">#    if self.value.ndim &lt; 2:</span>
+<span class="c">#      return self</span>
+<span class="c">#    else:</span>
+<span class="c">#      return self.transpose()</span>
+
+</div>
 <div class="viewcode-block" id="Field.regrid"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Field.regrid">[docs]</a>  <span class="k">def</span> <span class="nf">regrid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">grid</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s">&#39;linear&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Regrid (interpolate) Field (self) to grid.</span>
@@ -3072,9 +3105,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <span class="c"># this method is very important. </span>
-<span class="c"># If Field T is naturally defined on grid yt*xt, then T(zt*yt*xt) yields a Field with value a 3D array b such that b[k,:,:] = T(yt*xt) for all possible k.</span>
+<span class="c"># If Field F is naturally defined on grid yt*xt, then F(zt*yt*xt) yields a Field with value a 3D array b such that b[k,:,:] = F(yt*xt) for all possible k.</span>
 
-    <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">method</span><span class="p">))(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">regrid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">method</span><span class="p">))(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="nb">list</span><span class="p">):</span>
 <span class="c"># in this case the grid argument is a subspace of self.grid so that the grid of the elements is self.grid/grid due to the way self.grid(grid) has been constructed (see call method for grid objects).</span>
