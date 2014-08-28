@@ -2476,6 +2476,54 @@ class TestCoordField(unittest.TestCase):
     self.assertAlmostEqual( self.fixture['DPO']['O_temp']/ (X*Y*Z) ,  3.9464440090035104 , places =2)
 
 
+
+  def test_avg_temp_masked_value(self):
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'
+
+    # Choose node inside the Atlantic. This will call the floodfill functions on the Atlantic, creating a mask used to block out the rest of the ocean using maskout, and so allow computation of the Average Atlantic temperature.
+
+    self.assertAlmostEqual( self.fixture['DPO']['O_temp'][Y,33:].maskout( node = (X,85,Y,30) )/ (X*Y*Z) ,  4.788920703061341 , places =2)
+
+
+
+  def test_field_transpose_method(self):
+
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'
+
+    # test the reverse method on grids first, before we use it:
+    self.assertEqual( (latitude*longitude).reverse() == longitude*latitude , True )
+
+    TEMP = self.fixture['DPO']['O_temp']
+    SAT = self.fixture['DPO']['A_sat']    
+
+    TEMP_t = TEMP.transpose()
+    self.assertEqual(TEMP_t.grid, TEMP.grid.reverse() )
+
+    # need to get rid of the nans to use np.array_equal
+    val1 = TEMP_t.value
+    val1[np.isnan(val1)] = -999.
+
+    val2 = TEMP.value.transpose()
+    val2[np.isnan(val2)] = -999.
+
+    self.assertEqual(np.array_equal(TEMP_t.value, TEMP.value.transpose() ), True  )
+
+    new_grid = latitude*depth*longitude
+    val1 = TEMP.transpose(new_grid).value
+    val1[np.isnan(val1)] = -999.
+
+    val2 = TEMP.regrid(new_grid).value
+    val2[np.isnan(val2)] = -999.
+
+    self.assertEqual(np.array_equal(val1 , val2  ), True  )
+
   def test_avg_temp_value_after_regrid(self):
 
     for c in self.fixture['DPO'].axes:

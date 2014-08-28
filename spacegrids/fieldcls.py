@@ -3003,11 +3003,44 @@ class Field(Valued):
 
 
   def __call__(self,grid, method = 'linear'):
-    """
-    Shorthand for regrid method.
+    """Shorthand for regrid method.
     """
 
     return self.regrid(grid = grid, method = method)
+
+
+  def transpose(self,grid = None):
+    """Returns Field with view of value array with axes transposed.
+
+    Calls Numpy transpose on value.
+
+    For a 1-D Field, this has no effect. For a 2-D Field, this is the usual matrix transpose on value and the 2 Gr members switched. For an n-D Field, if an argument grid is given, the Field is regridded to that grid using the regrid method. If axes are not provided and a.shape = (i[0],i[1], ... , i[n-1]), then a.transpose().shape = (i[n-1],i[n-2], ... ,i[1],i[0]), and the grid members are reversed accordingly.
+
+    See the Numpy .transpose method.
+
+    Note that grid-data consistency is forced in spacegrids, and so no method exists to transpose without affecting the grid.
+
+    Args:
+      grid: (Gr) optional. The grid to which to transpose
+
+    Returns:
+      Field containing transposed value and re-arranged grid.
+    """
+
+    if grid is None:
+      return self.copy(value = self.value.transpose() , grid = self.grid.reverse() )
+    else:
+      return self.regrid(grid)
+
+#  def T(self):
+#    """Same as self.transpose(), except that self is returned if the dimension of self < 2.
+
+#    See Numpy .T method."""
+
+#    if self.value.ndim < 2:
+#      return self
+#    else:
+#      return self.transpose()
 
 
   def regrid(self,grid, method = 'linear'):
@@ -3023,9 +3056,9 @@ class Field(Valued):
     """
 
 # this method is very important. 
-# If Field T is naturally defined on grid yt*xt, then T(zt*yt*xt) yields a Field with value a 3D array b such that b[k,:,:] = T(yt*xt) for all possible k.
+# If Field F is naturally defined on grid yt*xt, then F(zt*yt*xt) yields a Field with value a 3D array b such that b[k,:,:] = F(yt*xt) for all possible k.
 
-    value = (self.grid(grid, method = method))(self.value)
+    value = (self.grid.regrid(grid, method = method))(self.value)
 
     if isinstance(value,list):
 # in this case the grid argument is a subspace of self.grid so that the grid of the elements is self.grid/grid due to the way self.grid(grid) has been constructed (see call method for grid objects).
