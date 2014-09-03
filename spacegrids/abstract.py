@@ -224,32 +224,25 @@ class Named(object):
 
     Usage: json.dumps(X.json())
     """
-    types_basic = ['int','double','float','str']
-
     
     # class encoding doesn't work yet:
     return_dict = {'class':str( type(self)  )}
 
-    
     for k in self.__dict__:
 
       ob_type = type(self.__dict__[k])
-      if ob_type not in types_basic:
 
-        if ob_type in types_allow:
-          # this is the nested case on which to call the method recursively
+      if ob_type in types_allow:
+        # this is the nested case on which to call the method recursively
 
-          return_dict[k] = self.__dict__[k].json(types_allow= [t for t in types_allow if t != ob_type ] )
+        return_dict[k] = self.__dict__[k].json(types_allow= [t for t in types_allow if t != ob_type ] )
 
+      else:
+        if isinstance(self.__dict__[k] , np.ndarray ):
+          return_dict[k] = self.__dict__[k].tolist()
         else:
-          if isinstance(self.__dict__[k] , np.ndarray ):
-            return_dict[k] = self.__dict__[k].tolist()
-          else:
 
-            return_dict[k] = self.__dict__[k].__repr__()
-
-
-
+          return_dict[k] = self.__dict__[k].__repr__()
     
     return return_dict
 
@@ -772,32 +765,10 @@ class Membered(Named):
 
     Usage: json.dumps(X.json())
     """
-    types_basic = ['int','double','float','str']
-
 
     members = [member.json(types_allow=types_allow) for member in self]
 
-    return_dict = {'class':str(self.__class__),'members':members}
-
-    for k in self.__dict__:
-
-      ob_type = type(self.__dict__[k])
-      if ob_type not in types_basic:
-
-        if ob_type in types_allow:
-          # this is the nested case on which to call the method recursively
-
-          return_dict[k] = self.__dict__[k].json(types_allow= [t for t in types_allow if t != ob_type ] )
-
-        else:
-          if isinstance(self.__dict__[k] , np.ndarray ):
-            return_dict[k] = self.__dict__[k].tolist()
-          else:
-
-            return_dict[k] = self.__dict__[k].__repr__()
-
-
-    return return_dict
+    return_members
 
 
 class Valued(Named):

@@ -294,6 +294,7 @@ def _scale_prep_deco(func):
     if ylabel:
       plt.ylabel(ylbl) 
 
+    # here auto_cont is used for the x and y scales, so not for contours
     if num_xticks:
       conts = [e for e in auto_cont(X_scaled[0],X_scaled[-1],num_xticks) if e > cset.ax.get_xlim()[0] and e < cset.ax.get_xlim()[1]   ]
    

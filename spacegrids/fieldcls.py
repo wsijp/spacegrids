@@ -2429,7 +2429,7 @@ class Gr(tuple, Membered):
 
   def mean(self,F):
     """
-    Determines mean of Field argument F weighted with grid cell width, returning Field.
+    Returns mean of Field argument F weighted with grid cell width, taken over grid self.
 
     Uses vsum
     """
@@ -3318,7 +3318,10 @@ class Field(Valued):
 
   def mean(self,grid = None):
     """
-    Calculate grid cell volumes-weighted mean.
+    Returns grid cell volumes-weighted mean. 
+
+    The grid can be proper grid or an AxGr (grid of Ax objects). For example, to calculate a zonal mean of Field F, do F.mean(X) where X is the zonal Ax. (Note that X**2 is strictly speaking a better argument, instead of X, as it is a proper 1D Ax grid.) If F is 3 dimensional, to take a 1D vertical profile, do F.mean(X*Y).
+    (type sg.overview() for help on bringing Ax objects into namespace under names X,Y,...).
 
     Calls sum method with grid argument and dV method.
 
@@ -3328,6 +3331,9 @@ class Field(Valued):
     Returns:
       Lower dim Field if grid subgrid of self.grid or float if equal.
     """
+
+    if isinstance(grid,Ax) or isinstance(grid,Coord):
+      grid = grid**2
 
     return (self.dV()*self).sum(grid)/(self.dV()).sum(grid)
 
