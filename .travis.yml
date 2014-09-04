@@ -1,0 +1,34 @@
+# Configuration file for travis-ci.org
+#
+# Travis is a continuous integration service that connects to Github &
+# automatically runs tests when commits are made. To use this on your own
+# branches register at https://travis-ci.org & enable builds for your
+# spacegrids branch.
+#
+# If tests fail you will get an email message as well as a message on any pull
+# requests.
+
+language: python
+
+# Python versions to test
+python:
+    - 2.7
+
+# Install anaconda for quicker dependency installs
+before_install:
+    - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+    - bash miniconda.sh -b
+    - export PATH=/home/travis/miniconda/bin:$PATH
+    - conda update --yes conda
+
+# Install dependencies & test data
+install:
+    - mkdir -p $HOME/PROJECTS/my_project
+    - wget http://web.science.unsw.edu.au/~wsijp/code/examples.tar.gz -O - | tar xz -C $HOME/PROJECTS/my_project --strip-components=1
+    - conda install --yes python=$TRAVIS_PYTHON_VERSION pip numpy scipy matplotlib
+    - pip install .
+    - pip freeze
+
+# Run tests
+script: 
+    - python tests/tests.py
