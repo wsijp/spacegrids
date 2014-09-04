@@ -799,8 +799,8 @@ def overview():
   RP.echoln("# *** Some examples ***   ")
   RP.echoln("TEMP = P['some_experiment']['temperature']   ")
   RP.echoln("U = P['some_experiment']['u']   ")
-  RP.echoln("TEMP_sliced = TEMP[Y,:50]     ")
-  RP.echoln("m_TEMP = TEMP_sliced/(X*Y)   ")
+  RP.echoln("TEMP_sliced = TEMP[Y,:50] # slice. Note Y axis object    ")
+  RP.echoln("m_TEMP = TEMP_sliced/(X*Y) # zonal mean  ")
   RP.echoln("TEMP_regridded = TEMP(U.grid)	   ")
   RP.echoln("   ")
 

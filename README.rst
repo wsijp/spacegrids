@@ -9,14 +9,14 @@ The Field, Gr (grid) and Coord objects make everyday use easy:
     >>> D = sg.info(nonick = True)  
     >>> P = sgPproject(D['my_project'] , nonick = True)  
     >>> P.load(['temperature','u'])  
-    >>> # obtain the axes under their names T,X,Y,Z in namespace:
+    >>> # obtain the axes objects under their names T,X,Y,Z: 
     >>> for c in P['some_experiment'].axes:
-    >>>   exec c.name + ' = c'	
+    >>>   exec c.name + ' = c'	# now we can refer to X,Y
     >>> TEMP = P['some_experiment']['temperature'] 
     >>> U = P['some_experiment']['u'] # zonal velocity
-    >>> TEMP_sliced = TEMP[Y,:50] # slice in Y-direction
-    >>> m_TEMP = TEMP_sliced/(X*Y) # take zonal mean
-    >>> TEMP_regridded = TEMP.regrid(U.gr)  # U on different grid
+    >>> TEMP_sliced = TEMP[Y,:50] # slice. Note Y axis object
+    >>> m_TEMP = TEMP_sliced/(X*Y) # take hor. mean
+    >>> TEMP_regridded = TEMP.regrid(U.gr)  # U grid differs
  
 
 Features
