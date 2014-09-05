@@ -3284,7 +3284,8 @@ class Field(Valued):
 
 # --> method belongs to Field.
   def dV(self):
-    """ Returns Field of same dimension containing ndarray of grid cell volumes, with field nan values (often representing land) set to nan.
+    """ 
+    Returns Field of same dimension containing ndarray of grid cell volumes, with field nan values (often representing land) set to nan.
     """
 
     return self.ones()*self.grid.vol()
@@ -3304,7 +3305,8 @@ class Field(Valued):
     return (self.dV()).sum(grid)
     
   def vsum(self,grid = None):
-    """ Compute grid cell volume-weighted sum of Field.
+    """ 
+    Compute grid cell volume weighted sum of Field.
 
     Calls sum. Method sum uses masked arrays. See sum.
 
@@ -3318,7 +3320,7 @@ class Field(Valued):
 
   def mean(self,grid = None):
     """
-    Returns grid cell volumes-weighted mean. 
+    Returns grid cell volumes weighted mean (average). 
 
     The grid can be proper grid or an AxGr (grid of Ax objects). For example, to calculate a zonal mean of Field F, do F.mean(X) where X is the zonal Ax. (Note that X**2 is strictly speaking a better argument, instead of X, as it is a proper 1D Ax grid.) If F is 3 dimensional, to take a 1D vertical profile, do F.mean(X*Y).
     (type sg.overview() for help on bringing Ax objects into namespace under names X,Y,...).
@@ -3329,17 +3331,24 @@ class Field(Valued):
       grid: (Gr) to calculate means over.
 
     Returns:
-      Lower dim Field if grid subgrid of self.grid or float if equal.
+      Field of grid cell volume weighted mean. Lower dim Field if grid subgrid of self.grid or float if equal.
     """
 
     if isinstance(grid,Ax) or isinstance(grid,Coord):
       grid = grid**2
 
-    return (self.dV()*self).sum(grid)/(self.dV()).sum(grid)
+    ret_field = (self.dV()*self).sum(grid)/(self.dV()).sum(grid)
 
-  
+    ret_field.name = self.name
+    ret_field.long_name = 'zonal mean '+self.long_name    
+    ret_field.units = self.units
+
+
+    return ret_field  
+
   def floodfill(self, node = (0,0),boundary_value = np.nan, xmin=0,xmax=10000,ymin=0,ymax=10000):
-    """Fill array (e.g. ocean) from node up to boundary defined by boundary_value (e.g. land) using floodfill.
+    """
+    Fill array (e.g. ocean) from node up to boundary defined by boundary_value (e.g. land) using floodfill.
 
     Creates mask Field to fill array (e.g. ocean) in area contained within boundary_value (e.g. land), containing node.
 
@@ -3386,7 +3395,8 @@ class Field(Valued):
 
 
   def maskout(self, node = (0,0),boundary_value = np.nan, msk_val = np.nan, xmin=0,xmax=10000,ymin=0,ymax=10000, isurface=0, mask_filter=1):
-    """Mask out area outside boundary using floodfill method.
+    """
+    Mask out area outside boundary using floodfill method.
 
     Creates Field with all values outside the boundary containing the node point filled with msk_val.
 
@@ -3478,7 +3488,8 @@ class Field(Valued):
       return self.value[L]
 
   def draw(self, colorbar = True,index = 0,**kwargs):
-    """ Quick plot of this Field using the most obvious layout etc.
+    """ 
+    Quick plot of this Field using the most obvious layout etc.
 
     Args:
       colorbar: (Boolean) add colorbar if True
@@ -3674,7 +3685,8 @@ class VField(tuple, Membered):
 
 
   def innersum(self):
-    """Return sum of all members
+    """
+    Return sum of all members
     """
     return reduce(lambda x,y: x+y, self)
 
@@ -3689,7 +3701,8 @@ class VField(tuple, Membered):
 
 
   def draw(self, **kwargs):
-    """ Quick and easy plotting of this object. Only 2D VFields.
+    """ 
+    Quick and easy plotting of this object. Only 2D VFields.
     """
     if len(self.direction()) == 2:
       if len(self[0].grid) == 2:
