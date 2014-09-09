@@ -552,7 +552,7 @@ class Coord(Directional, Valued):
     
     A shorthand for grid (Gr object) construction is via multiplication of Coord objects. If two Coord objects coord1 and coord2 are not equivalent (generally when they point in different directions, e.g. X and Y), their product is a shorthand for the creation of a 2D grid coord1*coord2 = Gr((coord1, coord2)). If coord1 and coord2 are equivalent (point in the same direction), coord1*coord2 yields Gr((coord1,)). By induction, products containing n elements yield Gr objects of dimension <=n. See class documentation.
 
-    In case the right multiplicant (argument) is a (V)Field, the product yields the zonal integral of that (V)Field.
+    In case the right multiplicant (argument) is a (V)Field, the product yields the  integral along the Coord of that (V)Field.
 
     Args:
       other: (Coord, Ax, Gr or (V)Field)
@@ -560,7 +560,7 @@ class Coord(Directional, Valued):
     Returns
       Gr if argument Coord/ Gr 
       None, Coord if argument Ax (so that Ax multiplication commutes)
-      (V)Field if argument field (zonal integral)
+      (V)Field if argument field (integral)
 
     Raises: TypeError    
     """
