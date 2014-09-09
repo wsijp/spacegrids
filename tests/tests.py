@@ -2749,6 +2749,16 @@ class TestVectorField(unittest.TestCase):
 
     self.assertEqual(np.array_equal(R1,R2) ,True )
 
+    # test whether methods work on members
+    Ucs = U.vsum_weighted( )
+
+    UVcs = UV.vsum_weighted( )
+
+    R1 = Ucs
+    R2 = UVcs[0]
+ 
+    self.assertEqual(R1,R2)
+
 
     Ucs = U.vsum( )
 
@@ -2758,6 +2768,7 @@ class TestVectorField(unittest.TestCase):
     R2 = UVcs[0]
  
     self.assertEqual(R1,R2)
+
 
 
 
@@ -3116,10 +3127,67 @@ class TestGrid(unittest.TestCase):
     for c in self.fixture['DPO'].cstack:
       exec c.name + ' = c'   
 
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'   
+
+
     gr1 = depth*latitude
 
-    # should have the shape of longitude**2
+    # should have the shape of longitude**2. Construct trivial field of ones over grid.
     self.assertAlmostEqual( gr1.vsum(gr1.ones() )  , 121672626836.47124 , places =2 )
+
+    # Field vsum calls grid vsum, hence they must be equal
+    self.assertAlmostEqual(gr1.ones().vsum(gr1)  ,  gr1.vsum(gr1.ones()), places =3 )
+
+    # vsum_weighted must yield the same as vsum over the entire grid (but not subgrid)
+    self.assertAlmostEqual(gr1.ones().vsum_weighted(gr1)  ,  gr1.vsum(gr1.ones()), places =3 )
+
+
+    # test vsum for subgrids
+    self.assertEqual(  np.array_equal(gr1.ones().vsum(latitude**2).value  ,  (latitude**2).vsum(gr1.ones()).value) , True )
+
+    # single coord argument same as grid with that single coord
+    self.assertEqual(  np.array_equal(gr1.ones().vsum(latitude).value  ,  (latitude**2).vsum(gr1.ones()).value) , True )
+
+    # should be able to call vsum method on Ax objects
+    self.assertEqual(  np.array_equal(gr1.ones().vsum(latitude).value  ,  Y.vsum(gr1.ones()).value) , True )
+
+
+
+  def test_gr_method_vcumsum(self):
+    """
+    Test vsum method of gr class
+    """
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'   
+
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'   
+
+
+    gr1 = depth*latitude
+
+    # these methods are equivalent
+    self.assertEqual(  np.array_equal(gr1.ones().vcumsum(latitude).value  ,  latitude.vcumsum(gr1.ones()).value) , True )
+
+    # should be able to call vsum method on Ax objects
+    self.assertEqual(  np.array_equal(gr1.ones().vcumsum(latitude).value  ,  Y.vcumsum(gr1.ones()).value) , True )
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   def test_gr_method__find_args_coord(self):

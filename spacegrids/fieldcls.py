@@ -951,11 +951,10 @@ class Coord(Directional, Valued):
       # need to flip back:
       return self.flip(F.copy(value = result_array))
 
-
+# --> belongs to Coord 
 
   def vsum(self,F):
     """
-    Method of Coord .
     Sums Field along self Coord, weighted with grid cell width (using self.d(), called by self.vol(F.grid)). Note: due to possible dependence of one Coord on the other, only use mean method of grid. There is no mean method for Coord objects.
 
     Method of Coord  that sums Field F along self Coord direction, weighted with the grid cell width. Calls sum method. See sum method.
@@ -974,15 +973,17 @@ class Coord(Directional, Valued):
 
     return self.sum(F*(self.vol(F.grid)))     
 
-
+# --> belongs to Coord 
 
   def vcumsum(self,F,upward =True):
     """
-    Compute cumulative sum, weighted with grid cell width, of input Field F along axis of F corresponding to this Coord object.
+    Compute cumulative sum, weighted with grid cell width, of input Field F along axis of F.grid that corresponds to this Coord object.
 
      If argument upward is set to true, summing takes place with increasing array index. If it is set to False, summing takes place with decreasing array index starting at index -1. Values of nan are set to 0, and therefore not counted. Calls cumsum method. See cumsum.  For grids with grid cell width depending on coordinates, use corresponding Gr methods.     
 
     Calculation is self.cumsum(F*(self.vol(F.grid)) )   
+
+    This method is safe! It takes coordinate-dependent grid cell width into account: it is taken care of by Coord.vol (overriden in curvelinear coordinates).
 
     Args:
       F: (Field) Field to sum
@@ -1129,12 +1130,12 @@ class Coord(Directional, Valued):
 
     return ret_Field
 
-
+# --> belongs to  Coord
   def vol(self, gr):
     """
     Generalized volume method related to .d() method: self.d() if self in gr, None otherwise.
 
-    Determines widths of cells along self Coord. grid argument acts as filter: aborts if self not in grid. The grid argument becomes much more critical in some derived classes (e.g. XCoord), where auxhiliary coordinates are picked from Gr and need to be present.
+    Determines widths of cells along self Coord. grid argument acts as filter: aborts if self not in grid. The grid argument becomes much more critical in some derived classes modelling curvelinear coordinates (e.g. XCoord), where grid cell widths depend on auxhiliary coordinates are picked from Gr (the grid context) and need to be present. Such a grid context needs to be provided in these derived cases, hence the gr argument, as otherwise the Coord points in the additional direction are not known.
 
     See .d() method.
  
@@ -1152,6 +1153,8 @@ class Coord(Directional, Valued):
       delta_dist method
       der method
       dist method 
+
+    Note: this method is overriden in the XCoord class!! This is to account for grid cell width depending on other Coords.
     """
 
     if self not in gr:
@@ -1388,7 +1391,7 @@ class XCoord(Coord):
     """
     Generalized volume method related to d method of XCoord: yields self.d(y_coord) if self and a y-coord y_coord in gr, None otherwise.
 
-    Determines widths (1D "volumes") of cells along self Coord. grid argument acts as filter: aborts if self not in grid. The grid argument is more critical in derived classes (e.g. x_coord), where auxhiliary coordinates are picked from Gr and need to be present.
+    Determines widths (1D "volumes") of cells along self Coord. grid argument acts as filter: aborts if self not in grid. The grid argument is critical in this derived class, where auxhiliary coordinates are picked from Gr and need to be present. Here, the Gr argument gr provides the context for additional Coord selection.
 
     Overrides vol method of Coord.
 
@@ -1502,15 +1505,34 @@ class Ax(Directional):
 
   def vcumsum(self,other, upward=True):
     """
-    Calls the Coord cumsum method by picking the right Coord from other.grid.
+    Calls the Coord vcumsum method by picking the right Coord from other.grid.
 
     Fails if Ax not in other.grid Ax objects.
+
+    This method is safe! It takes coordinate-dependent grid cell width into account: it is taken care of by Coord.vol (overriden in curvelinear coordinates).
 
     See Coord.cumsum
     """
 
     # The product picks the Coord. e.g. X*(xt, yt) is xt 
     return (self*other.grid).vcumsum(other, upward=upward)
+
+
+
+  def vsum(self,other):
+    """
+    Calls the Coord vsum method by picking the right Coord from other.grid.
+
+    Fails if Ax not in other.grid Ax objects.
+
+    This method is safe! It takes coordinate-dependent grid cell width into account: it is taken care of by Coord.vol (overriden in curvelinear coordinates).
+
+    See Coord.vsum
+    """
+
+    # The product picks the Coord. e.g. X*(xt, yt) is xt 
+    return (self*other.grid).vsum(other)
+
 
 # --> belongs to Ax    
 
@@ -2303,11 +2325,29 @@ class Gr(tuple, Membered):
 
     At the moment, xu*zt*xt*yt = (xu,zt,yt,) whereas xu*(zt*xt*yt) = (zt,xu,yt,)
 
-    Multiplication can take other arguments than just grids. If a Field is provided as right multiplicant, the Field is summed over the left multiplicant grid, weighted with grid cell widths (the equivalence of integration over the grid space). If the right multiplicant is a Coord object, it is converted to a single-element grid (Gr) object before multiplication. 
+    Multiplication can take other arguments than just grids. If a Field is provided as right multiplicant, the Field is summed over the left multiplicant grid, weighted with grid cell widths (the equivalence of integration over the grid space). So (longitude*latitude)*F is (longitude*latitude).vsum(F)
 
+    If the right multiplicant is a Coord object, it is converted to a single-element grid (Gr) object before multiplication. 
+
+    Args:
+      other: (ndarray,(V)Field,Coord,Ax,AxGr,Gr) right multiplication
+
+    Returns:
+      Field; other is ndarray: with value other and grid self
+      Field (or float); other is Field: calls self.vsum on other 
+      Gr; other Coord, Gr, AxGr, 
+      Coord; other Ax
 
     Raises:
       Exception, TypeError.
+
+    Examples:
+    >>> (longitude*latitude)*depth
+    (longitude, latitude, depth)
+    >>> (longitude*latitude)*Z  # no corresponding element
+
+    >>> (longitude*latitude)*X # picks the corresponding element
+    longitude
     """
 
     if type(other) == np.ndarray:
@@ -2387,6 +2427,7 @@ class Gr(tuple, Membered):
     """
     return Field(name = 'ones', value = np.ones(self.shape() ) ,grid = self )
 
+# --> belongs to Gr
 
   def vsum(self, F):
     """
@@ -2402,7 +2443,9 @@ class Gr(tuple, Membered):
     The returned Field has grid made up of remaining Coord objects or a float. E.g. if F.grid == ('zt','yt','xt'), (xt*yt).vsum(F) yields a Field defined on grid ('zt',).
 
     
-    Note that when Coord elements with direction attribute 'X' and 'Y' both appear in the Gr object, vsum will check whether the 'X' Coord appears after the 'Y' Coord. If so, they will be interchanged when performing the calculation as otherwise no y-coord is available when the x grid cell width is required. This is a small detail.
+    Note that when Coord elements with direction attribute 'X' and 'Y' both appear in the Gr object, vsum will check whether the 'X' Coord appears after the 'Y' Coord. If so, they will be interchanged when performing the calculation as otherwise no y-coord is available when the x grid cell width is required. This is a detail related to the coding.
+
+    Note 2: Calculation done inside this method, calling vsum on Coord members.
     """
 
 
@@ -2422,7 +2465,6 @@ class Gr(tuple, Membered):
         del tmp
       
         return reduce(lambda x,y: y.vsum(x), [new_gr[0].vsum(F)] + new_gr[1:] )
-
 
     # Apply Coord vsum method of Coord objects in self to Field argument F, from left to right:
     return reduce(lambda x,y: y.vsum(x), [self[0].vsum(F)] + list(self[1:]) )
@@ -3218,9 +3260,19 @@ class Field(Valued):
 
   def vcumsum(self,coord, upward=True):
     """
-    Apply vcumsum method of coord on Field.
+    Apply vcumsum method of Coord (or Ax) argument coord on Field.
+
+    Despite the name, the coord argument can be an Ax object for convenience.
+
+    This method is safe! It takes coordinate-dependent grid cell width into account: it is taken care of by Coord.vol (overriden in curvelinear coordinates).
 
     See Coord.vcumsum
+
+    Args:
+      coord: (Coord or Ax) Coord or Ax along which to take vcumsum. 
+
+    Returns:
+      Field of same dimension as self, with vcumsum taken.
     """
 
     return coord.vcumsum(self,upward=upward) 
@@ -3303,18 +3355,36 @@ class Field(Valued):
       float: the total volume.
     """
     return (self.dV()).sum(grid)
+
+
+  def vsum(self,grid=None):
+    """
+    Calls grid.vsum on self, or self.grid.vsum if grid arg is None.
+
+    See Gr.vsum. 
+    """
+
+    if grid is None:
+      grid = self.grid
+
+    return grid.vsum(self)
+
     
-  def vsum(self,grid = None):
+  def vsum_weighted(self,grid = None):
     """ 
     Compute grid cell volume weighted sum of Field.
 
     Calls sum. Method sum uses masked arrays. See sum.
+
+    Returns same value as grid.vsum(self) if grid=field.grid, even though that method uses its own calculation. However, if grid is of smaller dimensionality than the Field F, say grid is latitude*longitude while F.grid is latitude*longitude*depth, then F.vsum_weighted(grid) is weighted with the vertical extent of the grid cells, whereas grid.vsum(F) is not.
 
     Args:
       grid: (Gr) grid to sum over.  None means the entire Field grid.
 
     Returns:
       Field containing values summed over grid of smaller dimension, or float if grid is self.grid.
+
+    Note: Actual calculation done inside this method, as (self.dV()*self).sum(grid). 
     """
     return (self.dV()*self).sum(grid)
 
@@ -3678,9 +3748,13 @@ class VField(tuple, Membered):
     pass
 
   @method2members
-  def vsum(self,coord):
+  def vsum_weighted(self,coord):
     pass
 
+
+  @method2members
+  def vsum(self,coord):
+    pass
 
 
 

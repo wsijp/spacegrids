@@ -382,7 +382,7 @@ class Prim(Operator):
   def __call__(self,vF):
     """Call vF.vcumsum on self.Xi.
     """
-    return vF.vcumsum(self.Xi)
+    return vF.vcumsum(self.ax)
 
 
 class FieldMul(Operator):
