@@ -2474,9 +2474,18 @@ class Gr(tuple, Membered):
     Returns mean of Field argument F weighted with grid cell width, taken over grid self.
 
     Uses vsum
+
+    Note: this method uses its own computation, as does Field.mean.
     """
 
-    return self.vsum(F)/self.vsum(F.ones())
+    ret_field = self.vsum(F)/self.vsum(F.ones())
+
+    if isinstance(ret_field,Field):
+      ret_field.name = F.name
+      ret_field.long_name = 'zonal mean ' + F.long_name    
+      ret_field.units = F.units
+
+    return ret_field  
 
 # --> belongs to Gr 
 
@@ -3388,6 +3397,8 @@ class Field(Valued):
     """
     return (self.dV()*self).sum(grid)
 
+
+# --> method belongs to Field.
   def mean(self,grid = None):
     """
     Returns grid cell volumes weighted mean (average). 
@@ -3402,6 +3413,8 @@ class Field(Valued):
 
     Returns:
       Field of grid cell volume weighted mean. Lower dim Field if grid subgrid of self.grid or float if equal.
+
+    Note: this method uses its own computation, as does Gr.mean.
     """
 
     if isinstance(grid,Ax) or isinstance(grid,Coord):
@@ -3410,9 +3423,8 @@ class Field(Valued):
     ret_field = (self.dV()*self).sum(grid)/(self.dV()).sum(grid)
 
     ret_field.name = self.name
-    ret_field.long_name = 'zonal mean '+self.long_name    
+    ret_field.long_name = 'zonal mean ' + self.long_name    
     ret_field.units = self.units
-
 
     return ret_field  
 

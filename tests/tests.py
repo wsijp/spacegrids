@@ -2488,6 +2488,28 @@ class TestCoordField(unittest.TestCase):
 
 
 
+
+
+  def test_field_and_grid_mean_method(self):
+
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'
+
+    TEMP = self.fixture['DPO']['O_temp']
+    gr = latitude*longitude
+
+    A = TEMP.mean(gr)
+    B = gr.mean(TEMP)
+
+    self.assertAlmostEqual( (A.value-B.value).sum() , 0.,7 )
+
+
+
+
   def test_field_transpose_method(self):
 
 

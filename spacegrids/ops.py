@@ -351,7 +351,7 @@ class Mean(Operator):
 
 
     if isinstance(vF,Field):
-      return vF/self.ax
+      return vF.mean(self.ax)
     elif isinstance(vF,VField):
       return VField([self*e for e in vF])
     else:
