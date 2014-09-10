@@ -2482,7 +2482,7 @@ class Gr(tuple, Membered):
 
     if isinstance(ret_field,Field):
       ret_field.name = F.name
-      ret_field.long_name = 'zonal mean ' + F.long_name    
+      ret_field.long_name = 'mean ' + F.long_name    
       ret_field.units = F.units
 
     return ret_field  
