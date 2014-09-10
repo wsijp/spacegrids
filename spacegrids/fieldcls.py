@@ -3866,7 +3866,7 @@ def concatenate(fields, ax=None, name_suffix='_cat', new_coord_name = 'gamma', n
   >>> SAT = P['DPO']['A_sat']
   >>> SAT1 = SAT[Y,:50]
   >>> SAT2 = SAT[Y,50:]
-  >>> W = sg.Ax('W') # Create test Coord to concatenate along.
+  >>> W = sg.Ax('W') # Create test Ax axis to concatenate along.
   >>> SAT_combined = sg.concatenate([SAT1,SAT2 ], ax = W )
   >>> SAT_combined.shape
   (2,50,100)
@@ -3880,7 +3880,7 @@ def concatenate(fields, ax=None, name_suffix='_cat', new_coord_name = 'gamma', n
   >>> SAT = P['DPO']['A_sat']
   >>> SAT1 = SAT[Y,:50]
   >>> SAT2 = SAT[Y,50:]
-  >>> W = sg.Ax('W') # Create test Coord to concatenate along.
+  >>> W = sg.Ax('W') # Create test Ax axis to concatenate along, and Coord:
   >>> w = sg.Coord('w' , axis = W, direction = 'W', value = np.array([0,1]))
   >>> SAT_combined = sg.concatenate([SAT1,SAT2 ], new_coord = w )
   >>> SAT_combined.shape

@@ -502,6 +502,65 @@ class Exper(object):
     return variables
 
 
+
+  def available_long(self):
+    """
+    Obtain list of all available Netcdf variable names (strings) for this Exper.
+   
+    Args:
+      No args.
+
+    Returns:
+      List of strings of variable names in experiment Netcdf file(s).
+
+    Raises:
+      IOError: when Netcdf file cannot be opened.
+
+    Called by ls method.
+
+    See also:
+      ls method.
+    """
+  
+    if os.path.isfile(self.path):
+        # this Exper object corresponds to a file (not directory).
+      paths = [self.path]
+
+    else:            
+        # this Exper object corresponds to a directory (not file).
+        paths = []
+        for root, dirs, files in os.walk(top = self.path):
+          for fname in files:
+            if fname.split('.')[-1] in ['nc','cdf']:
+              paths.append(os.path.join(root,fname))
+
+           
+# Try to find netcdf var in any of the found files, and then read into Field object.
+
+    variables = copy.deepcopy({})
+    for filepath in paths:
+      try:
+        f = netcdf_file(filepath,'r')
+      except IOError:
+        print 'Cannot open',filepath
+      else:
+        for var_in_cdf in f.variables.keys():
+         
+          if not var_in_cdf in variables:
+
+            variables[var_in_cdf] = f.variables[var_in_cdf].long_name
+
+        f.close()
+    return variables
+
+
+
+
+
+
+
+
+
   def ls(self, width = 20):
     """
     Show list of all available Netcdf variable names (strings) for this Exper to screen.
