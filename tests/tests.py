@@ -2508,7 +2508,38 @@ class TestCoordField(unittest.TestCase):
     self.assertAlmostEqual( (A.value-B.value).sum() , 0.,7 )
 
 
+  def test_field_and_grid_mean_method(self):
 
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'
+
+    TEMP = self.fixture['DPO']['O_temp']
+    gr = latitude*longitude
+
+    with self.assertRaises( ValueError):
+      TEMP[gr] 
+
+ 
+  def test_field_regrid_method(self):
+
+
+    for c in self.fixture['DPO'].axes:
+      exec c.name + ' = c'
+
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'
+
+    TEMP = self.fixture['DPO']['O_temp']
+    # this takes slices orthogonal to the argument grid (depth**2) and returns them as a list
+    L=TEMP.regrid(depth**2)
+
+
+    self.assertEqual(len(L ), 19 )
+    self.assertEqual(isinstance(L, list),True )
 
   def test_field_transpose_method(self):
 

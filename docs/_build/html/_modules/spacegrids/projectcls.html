@@ -848,8 +848,8 @@
   <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;# *** Some examples ***   &quot;</span><span class="p">)</span>
   <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;TEMP = P[&#39;some_experiment&#39;][&#39;temperature&#39;]   &quot;</span><span class="p">)</span>
   <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;U = P[&#39;some_experiment&#39;][&#39;u&#39;]   &quot;</span><span class="p">)</span>
-  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;TEMP_sliced = TEMP[Y,:50]     &quot;</span><span class="p">)</span>
-  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;m_TEMP = TEMP_sliced/(X*Y)   &quot;</span><span class="p">)</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;TEMP_sliced = TEMP[Y,:50] # slice. Note Y axis object    &quot;</span><span class="p">)</span>
+  <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;m_TEMP = TEMP_sliced/(X*Y) # zonal mean  &quot;</span><span class="p">)</span>
   <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;TEMP_regridded = TEMP(U.grid)	   &quot;</span><span class="p">)</span>
   <span class="n">RP</span><span class="o">.</span><span class="n">echoln</span><span class="p">(</span><span class="s">&quot;   &quot;</span><span class="p">)</span>
 

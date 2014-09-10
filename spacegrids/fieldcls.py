@@ -1766,20 +1766,20 @@ class Gr(tuple, Membered):
 
 
 
-  def __eq__(self,other):
-    """
-    Define "==" as array_equal of members and having equal length.
-    """
+#  def __eq__(self,other):
+#    """
+#    Define "==" as array_equal of members and having equal length.
+#    """
 
-    if len(self) == len(other):
-      if len(self) == 0:
+#    if len(self) == len(other):
+#      if len(self) == 0:
         # empty grids are always equal (reduce will not work)
-        return True
-      else:
-        return reduce(lambda x,y: x and y, [ np.array_equal(e.value, other[i].value) for i,e in enumerate(self)  ] )
+#        return True
+#      else:
+#        return reduce(lambda x,y: x and y, [ np.array_equal(e.value, other[i].value) for i,e in enumerate(self)  ] )
 
-    else:
-      return False
+#    else:
+#      return False
 
   def __call__(self,other, method = 'linear'):
     """
@@ -4814,7 +4814,7 @@ def interpret_slices(L, grid , others = slice(None, None, None), as_int = False)
 
     else:
      # case where len(crds) != len(slices). Leads to error
-     raise ValueError('Field slice error in Field %s arg %s: use slice objects only or pairs of Coord objects and slice objects.' % (self,L)  )         
+     raise ValueError('Slice error arg %s: use slice objects only or pairs of Coord objects and slice objects.' % str(L)  )         
 
   else:
   # Trivial case where argument is not a tuple. e.g. it is 'slice(10,None,None)' or '10'

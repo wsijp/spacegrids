@@ -778,9 +778,19 @@ long_name: (str) longer description (e.g. for display or in Netcdf)</dd>
 <dl class="method">
 <dt id="spacegrids.fieldcls.Ax.vcumsum">
 <tt class="descname">vcumsum</tt><big>(</big><em>other</em>, <em>upward=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Ax.vcumsum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Ax.vcumsum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calls the Coord cumsum method by picking the right Coord from other.grid.</p>
+<dd><p>Calls the Coord vcumsum method by picking the right Coord from other.grid.</p>
 <p>Fails if Ax not in other.grid Ax objects.</p>
+<p>This method is safe! It takes coordinate-dependent grid cell width into account: it is taken care of by Coord.vol (overriden in curvelinear coordinates).</p>
 <p>See Coord.cumsum</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Ax.vsum">
+<tt class="descname">vsum</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Ax.vsum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Ax.vsum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls the Coord vsum method by picking the right Coord from other.grid.</p>
+<p>Fails if Ax not in other.grid Ax objects.</p>
+<p>This method is safe! It takes coordinate-dependent grid cell width into account: it is taken care of by Coord.vol (overriden in curvelinear coordinates).</p>
+<p>See Coord.vsum</p>
 </dd></dl>
 
 </dd></dl>
@@ -1134,10 +1144,11 @@ land_nan: (Boolean)</dd>
 <dl class="method">
 <dt id="spacegrids.fieldcls.Coord.vcumsum">
 <tt class="descname">vcumsum</tt><big>(</big><em>F</em>, <em>upward=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.vcumsum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.vcumsum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute cumulative sum, weighted with grid cell width, of input Field F along axis of F corresponding to this Coord object.</p>
+<dd><p>Compute cumulative sum, weighted with grid cell width, of input Field F along axis of F.grid that corresponds to this Coord object.</p>
 <blockquote>
 <div>If argument upward is set to true, summing takes place with increasing array index. If it is set to False, summing takes place with decreasing array index starting at index -1. Values of nan are set to 0, and therefore not counted. Calls cumsum method. See cumsum.  For grids with grid cell width depending on coordinates, use corresponding Gr methods.</div></blockquote>
 <p>Calculation is self.cumsum(F*(self.vol(F.grid)) )</p>
+<p>This method is safe! It takes coordinate-dependent grid cell width into account: it is taken care of by Coord.vol (overriden in curvelinear coordinates).</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>F: (Field) Field to sum
@@ -1154,7 +1165,7 @@ land_nan: (Boolean) flag to set land to nan in the resulting array</dd>
 <dt id="spacegrids.fieldcls.Coord.vol">
 <tt class="descname">vol</tt><big>(</big><em>gr</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.vol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.vol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generalized volume method related to .d() method: self.d() if self in gr, None otherwise.</p>
-<p>Determines widths of cells along self Coord. grid argument acts as filter: aborts if self not in grid. The grid argument becomes much more critical in some derived classes (e.g. XCoord), where auxhiliary coordinates are picked from Gr and need to be present.</p>
+<p>Determines widths of cells along self Coord. grid argument acts as filter: aborts if self not in grid. The grid argument becomes much more critical in some derived classes modelling curvelinear coordinates (e.g. XCoord), where grid cell widths depend on auxhiliary coordinates are picked from Gr (the grid context) and need to be present. Such a grid context needs to be provided in these derived cases, hence the gr argument, as otherwise the Coord points in the additional direction are not known.</p>
 <p>See .d() method.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -1169,13 +1180,13 @@ delta_dist method
 der method
 dist method</dd>
 </dl>
+<p>Note: this method is overriden in the XCoord class!! This is to account for grid cell width depending on other Coords.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="spacegrids.fieldcls.Coord.vsum">
 <tt class="descname">vsum</tt><big>(</big><em>F</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord.vsum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord.vsum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method of Coord .
-Sums Field along self Coord, weighted with grid cell width (using self.d(), called by self.vol(F.grid)). Note: due to possible dependence of one Coord on the other, only use mean method of grid. There is no mean method for Coord objects.</p>
+<dd><p>Sums Field along self Coord, weighted with grid cell width (using self.d(), called by self.vol(F.grid)). Note: due to possible dependence of one Coord on the other, only use mean method of grid. There is no mean method for Coord objects.</p>
 <p>Method of Coord  that sums Field F along self Coord direction, weighted with the grid cell width. Calls sum method. See sum method.</p>
 <p>Calculation is self.sum(F*(self.vol(F.grid))). For grids with grid cell width depending on coordinates, use corresponding Gr methods.</p>
 <dl class="docutils">
@@ -1331,14 +1342,17 @@ mask_filter: (int) value to keep in mask from floodfill (keep default)</dd>
 <dl class="method">
 <dt id="spacegrids.fieldcls.Field.mean">
 <tt class="descname">mean</tt><big>(</big><em>grid=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.mean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.mean" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate grid cell volumes-weighted mean.</p>
+<dd><p>Returns grid cell volumes weighted mean (average).</p>
+<p>The grid can be proper grid or an AxGr (grid of Ax objects). For example, to calculate a zonal mean of Field F, do F.mean(X) where X is the zonal Ax. (Note that X**2 is strictly speaking a better argument, instead of X, as it is a proper 1D Ax grid.) If F is 3 dimensional, to take a 1D vertical profile, do F.mean(X*Y).
+(type sg.overview() for help on bringing Ax objects into namespace under names X,Y,...).</p>
 <p>Calls sum method with grid argument and dV method.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>grid: (Gr) to calculate means over.</dd>
 <dt>Returns:</dt>
-<dd>Lower dim Field if grid subgrid of self.grid or float if equal.</dd>
+<dd>Field of grid cell volume weighted mean. Lower dim Field if grid subgrid of self.grid or float if equal.</dd>
 </dl>
+<p>Note: this method uses its own computation, as does Gr.mean.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1425,8 +1439,16 @@ crd: (Coord) coord to shift on</dd>
 <dl class="method">
 <dt id="spacegrids.fieldcls.Field.vcumsum">
 <tt class="descname">vcumsum</tt><big>(</big><em>coord</em>, <em>upward=True</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.vcumsum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.vcumsum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Apply vcumsum method of coord on Field.</p>
+<dd><p>Apply vcumsum method of Coord (or Ax) argument coord on Field.</p>
+<p>Despite the name, the coord argument can be an Ax object for convenience.</p>
+<p>This method is safe! It takes coordinate-dependent grid cell width into account: it is taken care of by Coord.vol (overriden in curvelinear coordinates).</p>
 <p>See Coord.vcumsum</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>coord: (Coord or Ax) Coord or Ax along which to take vcumsum.</dd>
+<dt>Returns:</dt>
+<dd>Field of same dimension as self, with vcumsum taken.</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1445,14 +1467,23 @@ crd: (Coord) coord to shift on</dd>
 <dl class="method">
 <dt id="spacegrids.fieldcls.Field.vsum">
 <tt class="descname">vsum</tt><big>(</big><em>grid=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.vsum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.vsum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute grid cell volume-weighted sum of Field.</p>
+<dd><p>Calls grid.vsum on self, or self.grid.vsum if grid arg is None.</p>
+<p>See Gr.vsum.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.Field.vsum_weighted">
+<tt class="descname">vsum_weighted</tt><big>(</big><em>grid=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Field.vsum_weighted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Field.vsum_weighted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute grid cell volume weighted sum of Field.</p>
 <p>Calls sum. Method sum uses masked arrays. See sum.</p>
+<p>Returns same value as grid.vsum(self) if grid=field.grid, even though that method uses its own calculation. However, if grid is of smaller dimensionality than the Field F, say grid is latitude*longitude while F.grid is latitude*longitude*depth, then F.vsum_weighted(grid) is weighted with the vertical extent of the grid cells, whereas grid.vsum(F) is not.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>grid: (Gr) grid to sum over.  None means the entire Field grid.</dd>
 <dt>Returns:</dt>
 <dd>Field containing values summed over grid of smaller dimension, or float if grid is self.grid.</dd>
 </dl>
+<p>Note: Actual calculation done inside this method, as (self.dV()*self).sum(grid).</p>
 </dd></dl>
 
 <dl class="method">
@@ -1598,8 +1629,9 @@ force: (Boolean) do not use cached value if True.</dd>
 <dl class="method">
 <dt id="spacegrids.fieldcls.Gr.mean">
 <tt class="descname">mean</tt><big>(</big><em>F</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Gr.mean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Gr.mean" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines mean of Field argument F weighted with grid cell width, returning Field.</p>
+<dd><p>Returns mean of Field argument F weighted with grid cell width, taken over grid self.</p>
 <p>Uses vsum</p>
+<p>Note: this method uses its own computation, as does Field.mean.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1710,7 +1742,8 @@ other: (Gr) another larger grid containing self (self members are subset of othe
 <dd>Smaller dimensional Field, or float if result dim 0, containing the result.</dd>
 </dl>
 <p>The returned Field has grid made up of remaining Coord objects or a float. E.g. if F.grid == (&#8216;zt&#8217;,&#8217;yt&#8217;,&#8217;xt&#8217;), (xt*yt).vsum(F) yields a Field defined on grid (&#8216;zt&#8217;,).</p>
-<p>Note that when Coord elements with direction attribute &#8216;X&#8217; and &#8216;Y&#8217; both appear in the Gr object, vsum will check whether the &#8216;X&#8217; Coord appears after the &#8216;Y&#8217; Coord. If so, they will be interchanged when performing the calculation as otherwise no y-coord is available when the x grid cell width is required. This is a small detail.</p>
+<p>Note that when Coord elements with direction attribute &#8216;X&#8217; and &#8216;Y&#8217; both appear in the Gr object, vsum will check whether the &#8216;X&#8217; Coord appears after the &#8216;Y&#8217; Coord. If so, they will be interchanged when performing the calculation as otherwise no y-coord is available when the x grid cell width is required. This is a detail related to the coding.</p>
+<p>Note 2: Calculation done inside this method, calling vsum on Coord members.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1752,6 +1785,11 @@ other: (Gr) another larger grid containing self (self members are subset of othe
 <dl class="method">
 <dt id="spacegrids.fieldcls.VField.vsum">
 <tt class="descname">vsum</tt><big>(</big><em>caller</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#VField.vsum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.VField.vsum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="spacegrids.fieldcls.VField.vsum_weighted">
+<tt class="descname">vsum_weighted</tt><big>(</big><em>caller</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#VField.vsum_weighted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.VField.vsum_weighted" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1901,7 +1939,7 @@ vol method</dd>
 <tt class="descname">vol</tt><big>(</big><em>gr</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#XCoord.vol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.XCoord.vol" title="Permalink to this definition">¶</a></dt>
 <dd><blockquote>
 <div><p>Generalized volume method related to d method of XCoord: yields self.d(y_coord) if self and a y-coord y_coord in gr, None otherwise.</p>
-<p>Determines widths (1D &#8220;volumes&#8221;) of cells along self Coord. grid argument acts as filter: aborts if self not in grid. The grid argument is more critical in derived classes (e.g. x_coord), where auxhiliary coordinates are picked from Gr and need to be present.</p>
+<p>Determines widths (1D &#8220;volumes&#8221;) of cells along self Coord. grid argument acts as filter: aborts if self not in grid. The grid argument is critical in this derived class, where auxhiliary coordinates are picked from Gr and need to be present. Here, the Gr argument gr provides the context for additional Coord selection.</p>
 <p>Overrides vol method of Coord.</p>
 <p>Picks auxiliary coordinate (as when x-widths depend on y) from grid argument gr (y grid is chosen on the same grid as x-coord) depending on what inspect module finds in d method interface</p>
 </div></blockquote>
@@ -2258,7 +2296,7 @@ nan_val: (np.nan) value to indicate nan</dd>
 
 <dl class="class">
 <dt id="spacegrids.ops.If">
-<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">If</tt><big>(</big><em>Cond_Op</em>, <em>True_Op</em>, <em>Else_Op=&lt;spacegrids.ops.Identity object at 0xac65eec&gt;</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#If"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.If" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">If</tt><big>(</big><em>Cond_Op</em>, <em>True_Op</em>, <em>Else_Op=&lt;spacegrids.ops.Identity object at 0xb37c96c&gt;</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#If"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.If" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
 <p>If Operator as in If then.</p>
 <p>The state of the system is defined by the Field(s) vF. Therefore, the condition can be internal to the call function and must be defined in terms of vF (e.g. &#8216;len(vF.grid) == 3&#8217;).</p>

@@ -343,6 +343,7 @@
     <span class="k">if</span> <span class="n">ylabel</span><span class="p">:</span>
       <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylbl</span><span class="p">)</span> 
 
+    <span class="c"># here auto_cont is used for the x and y scales, so not for contours</span>
     <span class="k">if</span> <span class="n">num_xticks</span><span class="p">:</span>
       <span class="n">conts</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">auto_cont</span><span class="p">(</span><span class="n">X_scaled</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">X_scaled</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">num_xticks</span><span class="p">)</span> <span class="k">if</span> <span class="n">e</span> <span class="o">&gt;</span> <span class="n">cset</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">e</span> <span class="o">&lt;</span> <span class="n">cset</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>   <span class="p">]</span>
    

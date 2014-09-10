@@ -601,7 +601,7 @@
 <span class="sd">    </span>
 <span class="sd">    A shorthand for grid (Gr object) construction is via multiplication of Coord objects. If two Coord objects coord1 and coord2 are not equivalent (generally when they point in different directions, e.g. X and Y), their product is a shorthand for the creation of a 2D grid coord1*coord2 = Gr((coord1, coord2)). If coord1 and coord2 are equivalent (point in the same direction), coord1*coord2 yields Gr((coord1,)). By induction, products containing n elements yield Gr objects of dimension &lt;=n. See class documentation.</span>
 
-<span class="sd">    In case the right multiplicant (argument) is a (V)Field, the product yields the zonal integral of that (V)Field.</span>
+<span class="sd">    In case the right multiplicant (argument) is a (V)Field, the product yields the  integral along the Coord of that (V)Field.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      other: (Coord, Ax, Gr or (V)Field)</span>
@@ -609,7 +609,7 @@
 <span class="sd">    Returns</span>
 <span class="sd">      Gr if argument Coord/ Gr </span>
 <span class="sd">      None, Coord if argument Ax (so that Ax multiplication commutes)</span>
-<span class="sd">      (V)Field if argument field (zonal integral)</span>
+<span class="sd">      (V)Field if argument field (integral)</span>
 
 <span class="sd">    Raises: TypeError    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1000,11 +1000,10 @@
       <span class="c"># need to flip back:</span>
       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="n">result_array</span><span class="p">))</span>
 
-
+<span class="c"># --&gt; belongs to Coord </span>
 </div>
 <div class="viewcode-block" id="Coord.vsum"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Coord.vsum">[docs]</a>  <span class="k">def</span> <span class="nf">vsum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">F</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Method of Coord .</span>
 <span class="sd">    Sums Field along self Coord, weighted with grid cell width (using self.d(), called by self.vol(F.grid)). Note: due to possible dependence of one Coord on the other, only use mean method of grid. There is no mean method for Coord objects.</span>
 
 <span class="sd">    Method of Coord  that sums Field F along self Coord direction, weighted with the grid cell width. Calls sum method. See sum method.</span>
@@ -1023,15 +1022,17 @@
 
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">F</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vol</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">grid</span><span class="p">)))</span>     
 
-
+<span class="c"># --&gt; belongs to Coord </span>
 </div>
 <div class="viewcode-block" id="Coord.vcumsum"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Coord.vcumsum">[docs]</a>  <span class="k">def</span> <span class="nf">vcumsum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">F</span><span class="p">,</span><span class="n">upward</span> <span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute cumulative sum, weighted with grid cell width, of input Field F along axis of F corresponding to this Coord object.</span>
+<span class="sd">    Compute cumulative sum, weighted with grid cell width, of input Field F along axis of F.grid that corresponds to this Coord object.</span>
 
 <span class="sd">     If argument upward is set to true, summing takes place with increasing array index. If it is set to False, summing takes place with decreasing array index starting at index -1. Values of nan are set to 0, and therefore not counted. Calls cumsum method. See cumsum.  For grids with grid cell width depending on coordinates, use corresponding Gr methods.     </span>
 
 <span class="sd">    Calculation is self.cumsum(F*(self.vol(F.grid)) )   </span>
+
+<span class="sd">    This method is safe! It takes coordinate-dependent grid cell width into account: it is taken care of by Coord.vol (overriden in curvelinear coordinates).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      F: (Field) Field to sum</span>
@@ -1178,12 +1179,12 @@
 
     <span class="k">return</span> <span class="n">ret_Field</span>
 
-</div>
+<span class="c"># --&gt; belongs to  Coord</span></div>
 <div class="viewcode-block" id="Coord.vol"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Coord.vol">[docs]</a>  <span class="k">def</span> <span class="nf">vol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generalized volume method related to .d() method: self.d() if self in gr, None otherwise.</span>
 
-<span class="sd">    Determines widths of cells along self Coord. grid argument acts as filter: aborts if self not in grid. The grid argument becomes much more critical in some derived classes (e.g. XCoord), where auxhiliary coordinates are picked from Gr and need to be present.</span>
+<span class="sd">    Determines widths of cells along self Coord. grid argument acts as filter: aborts if self not in grid. The grid argument becomes much more critical in some derived classes modelling curvelinear coordinates (e.g. XCoord), where grid cell widths depend on auxhiliary coordinates are picked from Gr (the grid context) and need to be present. Such a grid context needs to be provided in these derived cases, hence the gr argument, as otherwise the Coord points in the additional direction are not known.</span>
 
 <span class="sd">    See .d() method.</span>
 <span class="sd"> </span>
@@ -1201,6 +1202,8 @@
 <span class="sd">      delta_dist method</span>
 <span class="sd">      der method</span>
 <span class="sd">      dist method </span>
+
+<span class="sd">    Note: this method is overriden in the XCoord class!! This is to account for grid cell width depending on other Coords.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="bp">self</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gr</span><span class="p">:</span>
@@ -1437,7 +1440,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generalized volume method related to d method of XCoord: yields self.d(y_coord) if self and a y-coord y_coord in gr, None otherwise.</span>
 
-<span class="sd">    Determines widths (1D &quot;volumes&quot;) of cells along self Coord. grid argument acts as filter: aborts if self not in grid. The grid argument is more critical in derived classes (e.g. x_coord), where auxhiliary coordinates are picked from Gr and need to be present.</span>
+<span class="sd">    Determines widths (1D &quot;volumes&quot;) of cells along self Coord. grid argument acts as filter: aborts if self not in grid. The grid argument is critical in this derived class, where auxhiliary coordinates are picked from Gr and need to be present. Here, the Gr argument gr provides the context for additional Coord selection.</span>
 
 <span class="sd">    Overrides vol method of Coord.</span>
 
@@ -1551,15 +1554,34 @@
 
 <div class="viewcode-block" id="Ax.vcumsum"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Ax.vcumsum">[docs]</a>  <span class="k">def</span> <span class="nf">vcumsum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">,</span> <span class="n">upward</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calls the Coord cumsum method by picking the right Coord from other.grid.</span>
+<span class="sd">    Calls the Coord vcumsum method by picking the right Coord from other.grid.</span>
 
 <span class="sd">    Fails if Ax not in other.grid Ax objects.</span>
+
+<span class="sd">    This method is safe! It takes coordinate-dependent grid cell width into account: it is taken care of by Coord.vol (overriden in curvelinear coordinates).</span>
 
 <span class="sd">    See Coord.cumsum</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c"># The product picks the Coord. e.g. X*(xt, yt) is xt </span>
     <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">*</span><span class="n">other</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span><span class="o">.</span><span class="n">vcumsum</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">upward</span><span class="o">=</span><span class="n">upward</span><span class="p">)</span>
+
+
+</div>
+<div class="viewcode-block" id="Ax.vsum"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Ax.vsum">[docs]</a>  <span class="k">def</span> <span class="nf">vsum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calls the Coord vsum method by picking the right Coord from other.grid.</span>
+
+<span class="sd">    Fails if Ax not in other.grid Ax objects.</span>
+
+<span class="sd">    This method is safe! It takes coordinate-dependent grid cell width into account: it is taken care of by Coord.vol (overriden in curvelinear coordinates).</span>
+
+<span class="sd">    See Coord.vsum</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># The product picks the Coord. e.g. X*(xt, yt) is xt </span>
+    <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">*</span><span class="n">other</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span><span class="o">.</span><span class="n">vsum</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
 
 <span class="c"># --&gt; belongs to Ax    </span>
 
@@ -2352,11 +2374,29 @@
 
 <span class="sd">    At the moment, xu*zt*xt*yt = (xu,zt,yt,) whereas xu*(zt*xt*yt) = (zt,xu,yt,)</span>
 
-<span class="sd">    Multiplication can take other arguments than just grids. If a Field is provided as right multiplicant, the Field is summed over the left multiplicant grid, weighted with grid cell widths (the equivalence of integration over the grid space). If the right multiplicant is a Coord object, it is converted to a single-element grid (Gr) object before multiplication. </span>
+<span class="sd">    Multiplication can take other arguments than just grids. If a Field is provided as right multiplicant, the Field is summed over the left multiplicant grid, weighted with grid cell widths (the equivalence of integration over the grid space). So (longitude*latitude)*F is (longitude*latitude).vsum(F)</span>
 
+<span class="sd">    If the right multiplicant is a Coord object, it is converted to a single-element grid (Gr) object before multiplication. </span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      other: (ndarray,(V)Field,Coord,Ax,AxGr,Gr) right multiplication</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      Field; other is ndarray: with value other and grid self</span>
+<span class="sd">      Field (or float); other is Field: calls self.vsum on other </span>
+<span class="sd">      Gr; other Coord, Gr, AxGr, </span>
+<span class="sd">      Coord; other Ax</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">      Exception, TypeError.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">    &gt;&gt;&gt; (longitude*latitude)*depth</span>
+<span class="sd">    (longitude, latitude, depth)</span>
+<span class="sd">    &gt;&gt;&gt; (longitude*latitude)*Z  # no corresponding element</span>
+
+<span class="sd">    &gt;&gt;&gt; (longitude*latitude)*X # picks the corresponding element</span>
+<span class="sd">    longitude</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -2436,6 +2476,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Field</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;ones&#39;</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span> <span class="p">)</span> <span class="p">,</span><span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span> <span class="p">)</span>
 
+<span class="c"># --&gt; belongs to Gr</span>
 </div>
 <div class="viewcode-block" id="Gr.vsum"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Gr.vsum">[docs]</a>  <span class="k">def</span> <span class="nf">vsum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -2451,7 +2492,9 @@
 <span class="sd">    The returned Field has grid made up of remaining Coord objects or a float. E.g. if F.grid == (&#39;zt&#39;,&#39;yt&#39;,&#39;xt&#39;), (xt*yt).vsum(F) yields a Field defined on grid (&#39;zt&#39;,).</span>
 
 <span class="sd">    </span>
-<span class="sd">    Note that when Coord elements with direction attribute &#39;X&#39; and &#39;Y&#39; both appear in the Gr object, vsum will check whether the &#39;X&#39; Coord appears after the &#39;Y&#39; Coord. If so, they will be interchanged when performing the calculation as otherwise no y-coord is available when the x grid cell width is required. This is a small detail.</span>
+<span class="sd">    Note that when Coord elements with direction attribute &#39;X&#39; and &#39;Y&#39; both appear in the Gr object, vsum will check whether the &#39;X&#39; Coord appears after the &#39;Y&#39; Coord. If so, they will be interchanged when performing the calculation as otherwise no y-coord is available when the x grid cell width is required. This is a detail related to the coding.</span>
+
+<span class="sd">    Note 2: Calculation done inside this method, calling vsum on Coord members.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 
@@ -2472,18 +2515,26 @@
       
         <span class="k">return</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">y</span><span class="o">.</span><span class="n">vsum</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="p">[</span><span class="n">new_gr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">vsum</span><span class="p">(</span><span class="n">F</span><span class="p">)]</span> <span class="o">+</span> <span class="n">new_gr</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="p">)</span>
 
-
     <span class="c"># Apply Coord vsum method of Coord objects in self to Field argument F, from left to right:</span>
     <span class="k">return</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">y</span><span class="o">.</span><span class="n">vsum</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="p">[</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">vsum</span><span class="p">(</span><span class="n">F</span><span class="p">)]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Gr.mean"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Gr.mean">[docs]</a>  <span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">F</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Determines mean of Field argument F weighted with grid cell width, returning Field.</span>
+<span class="sd">    Returns mean of Field argument F weighted with grid cell width, taken over grid self.</span>
 
 <span class="sd">    Uses vsum</span>
+
+<span class="sd">    Note: this method uses its own computation, as does Field.mean.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vsum</span><span class="p">(</span><span class="n">F</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">vsum</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">ones</span><span class="p">())</span>
+    <span class="n">ret_field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vsum</span><span class="p">(</span><span class="n">F</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">vsum</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">ones</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ret_field</span><span class="p">,</span><span class="n">Field</span><span class="p">):</span>
+      <span class="n">ret_field</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">name</span>
+      <span class="n">ret_field</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;zonal mean &#39;</span> <span class="o">+</span> <span class="n">F</span><span class="o">.</span><span class="n">long_name</span>    
+      <span class="n">ret_field</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">units</span>
+
+    <span class="k">return</span> <span class="n">ret_field</span>  
 
 <span class="c"># --&gt; belongs to Gr </span>
 
@@ -3267,9 +3318,19 @@
 
 <div class="viewcode-block" id="Field.vcumsum"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Field.vcumsum">[docs]</a>  <span class="k">def</span> <span class="nf">vcumsum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">coord</span><span class="p">,</span> <span class="n">upward</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Apply vcumsum method of coord on Field.</span>
+<span class="sd">    Apply vcumsum method of Coord (or Ax) argument coord on Field.</span>
+
+<span class="sd">    Despite the name, the coord argument can be an Ax object for convenience.</span>
+
+<span class="sd">    This method is safe! It takes coordinate-dependent grid cell width into account: it is taken care of by Coord.vol (overriden in curvelinear coordinates).</span>
 
 <span class="sd">    See Coord.vcumsum</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      coord: (Coord or Ax) Coord or Ax along which to take vcumsum. </span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      Field of same dimension as self, with vcumsum taken.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">return</span> <span class="n">coord</span><span class="o">.</span><span class="n">vcumsum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">upward</span><span class="o">=</span><span class="n">upward</span><span class="p">)</span> 
@@ -3333,7 +3394,8 @@
 
 <span class="c"># --&gt; method belongs to Field.</span></div>
 <div class="viewcode-block" id="Field.dV"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Field.dV">[docs]</a>  <span class="k">def</span> <span class="nf">dV</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Returns Field of same dimension containing ndarray of grid cell volumes, with field nan values (often representing land) set to nan.</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Returns Field of same dimension containing ndarray of grid cell volumes, with field nan values (often representing land) set to nan.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ones</span><span class="p">()</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">vol</span><span class="p">()</span>
@@ -3351,23 +3413,47 @@
 <span class="sd">      float: the total volume.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dV</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Field.vsum"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Field.vsum">[docs]</a>  <span class="k">def</span> <span class="nf">vsum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">grid</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calls grid.vsum on self, or self.grid.vsum if grid arg is None.</span>
+
+<span class="sd">    See Gr.vsum. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">grid</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span>
+
+    <span class="k">return</span> <span class="n">grid</span><span class="o">.</span><span class="n">vsum</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
     </div>
-<div class="viewcode-block" id="Field.vsum"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Field.vsum">[docs]</a>  <span class="k">def</span> <span class="nf">vsum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">grid</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Compute grid cell volume-weighted sum of Field.</span>
+<div class="viewcode-block" id="Field.vsum_weighted"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Field.vsum_weighted">[docs]</a>  <span class="k">def</span> <span class="nf">vsum_weighted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">grid</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Compute grid cell volume weighted sum of Field.</span>
 
 <span class="sd">    Calls sum. Method sum uses masked arrays. See sum.</span>
+
+<span class="sd">    Returns same value as grid.vsum(self) if grid=field.grid, even though that method uses its own calculation. However, if grid is of smaller dimensionality than the Field F, say grid is latitude*longitude while F.grid is latitude*longitude*depth, then F.vsum_weighted(grid) is weighted with the vertical extent of the grid cells, whereas grid.vsum(F) is not.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      grid: (Gr) grid to sum over.  None means the entire Field grid.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      Field containing values summed over grid of smaller dimension, or float if grid is self.grid.</span>
+
+<span class="sd">    Note: Actual calculation done inside this method, as (self.dV()*self).sum(grid). </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dV</span><span class="p">()</span><span class="o">*</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
-</div>
+
+
+<span class="c"># --&gt; method belongs to Field.</span></div>
 <div class="viewcode-block" id="Field.mean"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Field.mean">[docs]</a>  <span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">grid</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calculate grid cell volumes-weighted mean.</span>
+<span class="sd">    Returns grid cell volumes weighted mean (average). </span>
+
+<span class="sd">    The grid can be proper grid or an AxGr (grid of Ax objects). For example, to calculate a zonal mean of Field F, do F.mean(X) where X is the zonal Ax. (Note that X**2 is strictly speaking a better argument, instead of X, as it is a proper 1D Ax grid.) If F is 3 dimensional, to take a 1D vertical profile, do F.mean(X*Y).</span>
+<span class="sd">    (type sg.overview() for help on bringing Ax objects into namespace under names X,Y,...).</span>
 
 <span class="sd">    Calls sum method with grid argument and dV method.</span>
 
@@ -3375,14 +3461,25 @@
 <span class="sd">      grid: (Gr) to calculate means over.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">      Lower dim Field if grid subgrid of self.grid or float if equal.</span>
+<span class="sd">      Field of grid cell volume weighted mean. Lower dim Field if grid subgrid of self.grid or float if equal.</span>
+
+<span class="sd">    Note: this method uses its own computation, as does Gr.mean.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dV</span><span class="p">()</span><span class="o">*</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dV</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="n">Ax</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="n">Coord</span><span class="p">):</span>
+      <span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span><span class="o">**</span><span class="mi">2</span>
 
-  </div>
+    <span class="n">ret_field</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dV</span><span class="p">()</span><span class="o">*</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dV</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+
+    <span class="n">ret_field</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">ret_field</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;zonal mean &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">long_name</span>    
+    <span class="n">ret_field</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span>
+
+    <span class="k">return</span> <span class="n">ret_field</span>  
+</div>
 <div class="viewcode-block" id="Field.floodfill"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Field.floodfill">[docs]</a>  <span class="k">def</span> <span class="nf">floodfill</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span><span class="n">boundary_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">xmax</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">ymin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ymax</span><span class="o">=</span><span class="mi">10000</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Fill array (e.g. ocean) from node up to boundary defined by boundary_value (e.g. land) using floodfill.</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fill array (e.g. ocean) from node up to boundary defined by boundary_value (e.g. land) using floodfill.</span>
 
 <span class="sd">    Creates mask Field to fill array (e.g. ocean) in area contained within boundary_value (e.g. land), containing node.</span>
 
@@ -3429,7 +3526,8 @@
 
 </div>
 <div class="viewcode-block" id="Field.maskout"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Field.maskout">[docs]</a>  <span class="k">def</span> <span class="nf">maskout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span><span class="n">boundary_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">msk_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">xmax</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">ymin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ymax</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">isurface</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">mask_filter</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Mask out area outside boundary using floodfill method.</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mask out area outside boundary using floodfill method.</span>
 
 <span class="sd">    Creates Field with all values outside the boundary containing the node point filled with msk_val.</span>
 
@@ -3521,7 +3619,8 @@
       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="n">L</span><span class="p">]</span>
 </div>
 <div class="viewcode-block" id="Field.draw"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.Field.draw">[docs]</a>  <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colorbar</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span><span class="n">index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Quick plot of this Field using the most obvious layout etc.</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Quick plot of this Field using the most obvious layout etc.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      colorbar: (Boolean) add colorbar if True</span>
@@ -3710,14 +3809,19 @@
     <span class="k">pass</span>
 </div>
   <span class="nd">@method2members</span>
+<div class="viewcode-block" id="VField.vsum_weighted"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.VField.vsum_weighted">[docs]</a>  <span class="k">def</span> <span class="nf">vsum_weighted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">coord</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+</div>
+  <span class="nd">@method2members</span>
 <div class="viewcode-block" id="VField.vsum"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.VField.vsum">[docs]</a>  <span class="k">def</span> <span class="nf">vsum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">coord</span><span class="p">):</span>
     <span class="k">pass</span>
 
 
-
 </div>
 <div class="viewcode-block" id="VField.innersum"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.VField.innersum">[docs]</a>  <span class="k">def</span> <span class="nf">innersum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Return sum of all members</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return sum of all members</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">+</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
 
@@ -3732,7 +3836,8 @@
 
 </div>
 <div class="viewcode-block" id="VField.draw"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.fieldcls.VField.draw">[docs]</a>  <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Quick and easy plotting of this object. Only 2D VFields.</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Quick and easy plotting of this object. Only 2D VFields.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="p">())</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
       <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>

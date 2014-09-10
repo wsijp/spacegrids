@@ -400,7 +400,7 @@
 
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vF</span><span class="p">,</span><span class="n">Field</span><span class="p">):</span>
-      <span class="k">return</span> <span class="n">vF</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span>
+      <span class="k">return</span> <span class="n">vF</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vF</span><span class="p">,</span><span class="n">VField</span><span class="p">):</span>
       <span class="k">return</span> <span class="n">VField</span><span class="p">([</span><span class="bp">self</span><span class="o">*</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">vF</span><span class="p">])</span>
     <span class="k">else</span><span class="p">:</span>
@@ -431,7 +431,7 @@
   <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">vF</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Call vF.vcumsum on self.Xi.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">vF</span><span class="o">.</span><span class="n">vcumsum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Xi</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">vF</span><span class="o">.</span><span class="n">vcumsum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="FieldMul"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.ops.FieldMul">[docs]</a><span class="k">class</span> <span class="nc">FieldMul</span><span class="p">(</span><span class="n">Operator</span><span class="p">):</span>
