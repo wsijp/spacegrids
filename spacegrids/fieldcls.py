@@ -3115,7 +3115,7 @@ class Field(Valued):
 # in this case the grid argument is a subspace of self.grid so that the grid of the elements is self.grid/grid due to the way self.grid(grid) has been constructed (see call method for grid objects).
       result = []
       for i,e in enumerate(value):
-        result.append(Field(name = 'slice_'+str(grid.reverse() )+'_'+str(i) ,value = e, grid =self.grid/grid))
+        result.append(self.copy(name = 'slice_'+str(grid.reverse() )+'_'+str(i) ,value = e, grid =self.grid/grid))
       return result
      
     else:
