@@ -350,8 +350,9 @@ class Mean(Operator):
     """
 
 
+    # we need to use / method instead of vF.mean for now, as vF.mean calls the vol method that can't deal with artificial non-spatial type Coord objects (e.g. 'experiment axis').
     if isinstance(vF,Field):
-      return vF.mean(self.ax)
+      return vF/(self.ax)
     elif isinstance(vF,VField):
       return VField([self*e for e in vF])
     else:
