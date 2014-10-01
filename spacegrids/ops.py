@@ -365,7 +365,7 @@ class Mean(Operator):
     if isinstance(other,Mean):
       return Mean(self.ax*other.ax)
     else:
-      return self(other)
+      return Mul(self,other)
 
 class Prim(Operator):
   """Take primitive (antiderivative) of (V)Field along axis.
