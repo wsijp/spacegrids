@@ -2937,13 +2937,13 @@ class Field(Valued):
 
           if self.strict_v:
             if self.direction == other.direction:
-              return Field(name=self.name, value = L+R,grid = self.grid, units = self.units, direction = self.direction)
+              return Field(name=self.name,long_name=self.long_name, value = L+R,grid = self.grid, units = self.units, direction = self.direction)
             else: 
               return self*other
 
           else:
 
-            return Field(name=self.name, value = L+R,grid = self.grid, units = self.units, direction = self.direction)
+            return Field(name=self.name,long_name=self.long_name, value = L+R,grid = self.grid, units = self.units, direction = self.direction)
         else:
           raise Exception('Field grid error in %s + %s with Field %s: Field grids must be equal. Try F + G(F.grid).' % (self,other,self) )
           
@@ -2954,7 +2954,7 @@ class Field(Valued):
     elif isinstance(other,int):
       return self+float(other)
     elif isinstance(other,float):
-      return Field(name = self.name,value = self.value + other,grid = self.grid, units = self.units, direction = self.direction)
+      return Field(name = self.name,long_name=self.long_name,value = self.value + other,grid = self.grid, units = self.units, direction = self.direction)
 
     else:
         raise Exception('Field type error %s + %s with Field %s: right factor must be Field, int or float.' % (self,other,self) )
@@ -2978,13 +2978,13 @@ class Field(Valued):
 
 # should these Field creation statements be replaced with self.copy?
 
-              return Field(name=self.name, value = L - R,grid = self.grid, units = self.units, direction = self.direction)
+              return Field(name=self.name,long_name=self.long_name, value = L - R,grid = self.grid, units = self.units, direction = self.direction)
             else: 
               return self*other
 
           else:
 
-            return Field(name=self.name, value = L - R,grid = self.grid, units = self.units, direction = self.direction)
+            return Field(name=self.name,long_name=self.long_name, value = L - R,grid = self.grid, units = self.units, direction = self.direction)
 
 
         else:
@@ -2997,7 +2997,7 @@ class Field(Valued):
     elif isinstance(other,int):
       return self - float(other)
     elif isinstance(other,float):
-      return Field(name = self.name,value = self.value - other,grid = self.grid, units = self.units, direction = self.direction)
+      return Field(name = self.name,long_name=self.long_name,value = self.value - other,grid = self.grid, units = self.units, direction = self.direction)
 
     else:
         raise Exception('Field type error in %s - %s with Field %s: right factor must be Field, int or float.' % (self,other,self)  )
