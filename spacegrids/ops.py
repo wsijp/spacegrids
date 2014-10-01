@@ -428,6 +428,8 @@ class Sum(Operator):
 class Slice(Operator):
   """Slice Operator storing tuple of Coord vs slice object pairs to slice (V)Field arguments with on __call__.
 
+  Example of slice: (X,10,Y,5)
+
   Attributes:
     tup: (tuple of Coord vs slice objects) to slice Field with
   """
@@ -455,9 +457,9 @@ class Slice(Operator):
    """
 
    if isinstance(vF,Field):
-     return vF[self.tup]
+     return squeeze(vF[self.tup])
    elif isinstance(vF,VField):
-     return VField([e[self.tup] for e in vF])
+     return VField([squeeze(e[self.tup]) for e in vF])
    else:
 
       raise TypeError('Error in Slice %s, argument must be Field or VField ' % vF)
@@ -471,6 +473,69 @@ class Identity(Operator):
     """Return argument as is.
     """
     return vF
+
+
+
+
+
+
+class PickBasin(Operator):
+  """Slice Operator storing tuple of Coord vs slice object pairs to slice (V)Field arguments with on __call__.
+
+  Example of slice: (X,10,Y,5)
+
+  Attributes:
+    tup: (tuple of Coord vs slice objects) to slice Field with
+  """
+
+  def __init__(self,node,south_index=33):
+    """ Initialize basin pick Operator. Picks basin using floodfill
+    
+    Args:
+      node: x,y coords of point inside basin in form (X,85,Y,30)
+      south_index: take everything north of this index
+    """
+
+    self.node = node
+    self.south_index = south_index
+
+  def __call__(self, vF):
+   """ Slice (V)Field argument with self.tup attribute.
+
+   Args:
+     vF: (Field or VField)
+   
+   Returns:
+     Sliced (V)Field
+
+   Raises:
+     TypeError
+   """
+
+   if isinstance(vF,Field):
+     return vF[self.node[2],self.south_index:].maskout(node=self.node)
+
+   elif isinstance(vF,VField):
+     return
+#     return VField([squeeze(e[self.tup]) for e in vF])
+   else:
+
+      raise TypeError('Error in Slice %s, argument must be Field or VField ' % vF)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # define an instance of the identity:
 nop = Identity();
