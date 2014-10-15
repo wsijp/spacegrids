@@ -3150,7 +3150,10 @@ class Field(Valued):
     elif isinstance(other,float):
 
       if (other is not None) and (self.units is not None):
-        new_units = '%0.1e'%other+self.units
+        if other == 1.0:
+          new_units = self.units
+        else:
+          new_units = '%0.1e '%other+self.units
       else:
         new_units = ''
       return self.copy(value = self.value*other,units = new_units)
