@@ -46,9 +46,11 @@ Install spacegrids simply by running (on command line):
 
     pip install spacegrids
 
-On Mac, pip can be installed via "sudo easy_install pip". On Ubuntu/ Debian, install dependencies via package manager if pip install fails:
+Dependencies: numpy, scipy, matplotlib (NetCDF4 optional). On Ubuntu/ Debian, install dependencies via package manager if pip install fails:
 
     apt-get install python-{tk,numpy,matplotlib,scipy}
+
+On Mac, pip can be installed via "sudo easy_install pip". 
 
 
 Contribute
