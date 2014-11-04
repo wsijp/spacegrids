@@ -686,12 +686,12 @@ class Try(Operator):
 
     return result
 
-sia_temp=sg.ops.StrInAttr('temperature')
-sia_K=sg.ops.StrInAttr('K','units')
+sia_temp = StrInAttr('temperature')
+sia_K = StrInAttr('K','units')
 
-kelvin2c = sg.ops.LinScale(1.,sg.zero_kelvin,'C')
+kelvin2c = LinScale(1.,zero_kelvin,'C')
 
-kelvin2c = sg.ops.If(sia_K*sia_temp,kelvin2c)
+kelvin2c = If(sia_K*sia_temp,kelvin2c)
 
 
 
