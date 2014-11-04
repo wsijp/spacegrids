@@ -219,6 +219,56 @@ class SetDirection(Operator):
      return F.copy(direction = self.ax)
 
 
+class LinScale(Operator):
+  """Operator class to apply a 1D linear transformation to each element of a Field.
+
+  Example:
+
+  kelvin2c = ops.LinScale(1.,zero_kelvin,'C'); to convert Kelvin to C
+ 
+  """  
+
+  def __init__(self,a,b,units='?'):
+    """Initialize slope a and additive constant b.
+    """
+    self.a = a
+    self.b = b
+    self.units = units
+    return 
+
+  def __call__(self,F):
+     """ Apply linear transformation a*F.value+b
+     """
+     return F.copy(value = F.value*self.a + self.b, units=self.units)
+
+
+class StrInAttr(Operator):
+  """Operator class to check whether a string is in an attribute of a call argument field.
+
+  Example:
+
+  CheckTemp = StrInAttr('temperature','long_name')
+ 
+  """  
+
+  def __init__(self,string,attr='long_name'):
+    """Initialize attribute attr to be searched using string. 
+    """
+    self.string = string
+    self.attr = attr
+    return 
+
+  def __call__(self,F):
+     """ search attr using call argument string
+     """
+     
+     if hasattr(F,self.attr) and (self.string in getattr(F,self.attr)):
+       return F
+     else:
+       return None
+
+     
+
 class Innprod(Operator):
   """
   Inner product on two (V)Fields. 
@@ -561,7 +611,7 @@ class If(Operator):
   def __call__(self,vF):
    """Perform if-then depending on (V)Field argument.
 
-   If Cond_Op applied to vF yields a different result (from vF), apply True_Op. Apply Else_Op otherwise.
+   If Cond_Op applied to vF yields the same result (as vF), apply True_Op. Apply Else_Op otherwise.
 
    Raises: TypeError
    """
@@ -569,7 +619,7 @@ class If(Operator):
      
      result = self.Cond_Op(vF)
 
-     if result != vF:
+     if result == vF:
        return self.True_Op(vF)
      else:
        return self.Else_Op(vF)
@@ -635,6 +685,15 @@ class Try(Operator):
       result = vF
 
     return result
+
+sia_temp=sg.ops.StrInAttr('temperature')
+sia_K=sg.ops.StrInAttr('K','units')
+
+kelvin2c = sg.ops.LinScale(1.,sg.zero_kelvin,'C')
+
+kelvin2c = sg.ops.If(sia_K*sia_temp,kelvin2c)
+
+
 
 # define an instance of Innprod:
 dot = Innprod()

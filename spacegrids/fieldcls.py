@@ -2979,9 +2979,9 @@ class Field(Valued):
           if self.strict_v:
             if self.direction == other.direction:
 
-# should these Field creation statements be replaced with self.copy?
 
-              return self.copy(value = L - R)
+
+              return self.copy(value = L - R,long_name = self.long_name + ' difference')
 
             else: 
               return self*other
