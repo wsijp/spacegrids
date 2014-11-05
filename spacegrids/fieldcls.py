@@ -3153,7 +3153,8 @@ class Field(Valued):
         if other == 1.0:
           new_units = self.units
         else:
-          new_units = '%0.1e '%other+self.units
+          if other != 1.:
+            new_units = '%0.1e '%other+self.units
       else:
         new_units = ''
       return self.copy(value = self.value*other,units = new_units)
@@ -3835,13 +3836,13 @@ def concatenate(fields, ax=None, name_suffix='_cat', new_coord_name = 'gamma', n
 
   concatenate((a1,a2,...),ax=None)
        
-  The Field value ndarrays must have the same shape, except in the direction of concatenation if present in the grid.
-  Default behaviour (CASE A0) when ax = None picks the concatenation direction as the first direction with unequal Coord point values (indicating pieces of a dimension). For instance, SAT1.shape is (50,100) and SAT2.shape is (50,100) would concatenate to shape (100,100) by concatenating along index 0. 
+  The Field value ndarrays (a1.value, a2.value etc.) must have the same shape, except in the direction of concatenation if that direction is present in the grid (i.e. if the fields are defined on a grid where one of the Coord elements points in that direction).
+  Default behaviour (CASE A0) is when ax = None: then, the concatenate function picks the concatenation direction as the first direction with unequal Coord values (indicating pieces of a dimension). For instance, SAT1.shape is (50,100) and SAT2.shape is (50,100), and index 0 Coord has different values for each, would concatenate to shape (100,100) by concatenating along index 0. 
 
-  If ax is already in grid directions (in Field.grid.axis(), CASE A1 ), and Field grids have equal Coord member in that direction, as per Field.cat method, the last Field is returned: don't use this.
-
-  A new Coord is created (CASE A2) if new_coord argument is None and if none of the grid members axis point in the direction of the ax argument (e.g. X,Y vs Z). Then, "new_coord_name" is used. 
-  The above behaviour is overridden if the "new_coord" argument is given (CASE B). This is a Coord object that will be used to construct one Field from the fields list argument. The list elements become slices (at single Coord values) and the new_coord values are the corresponding coordinates.
+CASES A, for ax not None. In the trivial case where argument ax is already in grid directions (in Field.grid.axis(), CASE A1), and the Field grids (a1.grid, a2.grid etc.) all have equal Coord member in that direction, the last Field is returned: don't use this, as there is no point in using concatenate here. (As per Field.cat method.)
+Alternatively, if ax is not in grid directions, a new Coord object is created by the concatenate function, with default name "gamma" (CASE A2). For this, the new_coord argument needs to be None (its default), see CASE B.( if none of the grid member Coord objects' axis point in the direction of the ax argument (e.g. X,Y in the grid, vs Z for ax). The default Coord name can be changed by setting the  new_coord_name argument. The strings argument allows string names to be set for the points in the new Coord. This is useful for instance when the new Coord represents experiments.
+  
+CASE B. The above behaviour is overridden if the "new_coord" argument (not None) is provided (CASE B). This is a Coord object that will be used to construct a new Field from the fields list argument. The list elements become slices (at single Coord values) and the new_coord values are the corresponding coordinates.
 
   Args:
     fields: (container of Field objects, e.g. list) Field objects to concat.
