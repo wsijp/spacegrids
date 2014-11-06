@@ -3273,7 +3273,12 @@ class Field(Valued):
     # This multiplication inflates the values of self and other (arrays) onto the common grid. 
     # In case the grids contain Coord elements that are equivalent but not equal, grid multiplication dictates that common_gr will contain the elements of the left multiplicant (i.e. again a precedence for the left multiplicant). This implies that the right Field will then be interpolated on the left latice
 
-      return Field(name = new_name ,value = (self.grid(common_gr)(self.value))/(other.grid(common_gr)(other.value)),grid = common_gr, direction = self.direction,units=self.units+'/'+other.units)
+      if (self.units is not None) and (other.units is not None):
+        new_units = self.units+'/'+other.units
+      else:
+        new_units = '?'
+
+      return Field(name = new_name ,value = (self.grid(common_gr)(self.value))/(other.grid(common_gr)(other.value)),grid = common_gr, direction = self.direction,units=new_units)
 
 
     else:

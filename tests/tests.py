@@ -2475,7 +2475,14 @@ class TestCoordField(unittest.TestCase):
 
     self.assertAlmostEqual( self.fixture['DPO']['O_temp']/ (X*Y*Z) ,  3.9464440090035104 , places =2)
 
+  def test_field_derivative_units(self):
 
+    for c in self.fixture['DPO'].cstack:
+      exec c.name + ' = c'
+
+    TEMP = self.fixture['DPO']['O_temp']
+
+    self.assertEqual(latitude.der(TEMP).units,u'C/m')
 
   def test_avg_temp_masked_value(self):
 
