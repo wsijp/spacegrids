@@ -1815,20 +1815,20 @@
 
 
 
-  <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Define &quot;==&quot; as array_equal of members and having equal length.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="c">#  def __eq__(self,other):</span>
+<span class="c">#    &quot;&quot;&quot;</span>
+<span class="c">#    Define &quot;==&quot; as array_equal of members and having equal length.</span>
+<span class="c">#    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
-      <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<span class="c">#    if len(self) == len(other):</span>
+<span class="c">#      if len(self) == 0:</span>
         <span class="c"># empty grids are always equal (reduce will not work)</span>
-        <span class="k">return</span> <span class="bp">True</span>
-      <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="ow">and</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">other</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>  <span class="p">]</span> <span class="p">)</span>
+<span class="c">#        return True</span>
+<span class="c">#      else:</span>
+<span class="c">#        return reduce(lambda x,y: x and y, [ np.array_equal(e.value, other[i].value) for i,e in enumerate(self)  ] )</span>
 
-    <span class="k">else</span><span class="p">:</span>
-      <span class="k">return</span> <span class="bp">False</span>
+<span class="c">#    else:</span>
+<span class="c">#      return False</span>
 
   <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s">&#39;linear&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -2531,7 +2531,7 @@
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ret_field</span><span class="p">,</span><span class="n">Field</span><span class="p">):</span>
       <span class="n">ret_field</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">name</span>
-      <span class="n">ret_field</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;zonal mean &#39;</span> <span class="o">+</span> <span class="n">F</span><span class="o">.</span><span class="n">long_name</span>    
+      <span class="n">ret_field</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s">&#39;mean &#39;</span> <span class="o">+</span> <span class="n">F</span><span class="o">.</span><span class="n">long_name</span>    
       <span class="n">ret_field</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">units</span>
 
     <span class="k">return</span> <span class="n">ret_field</span>  
@@ -2986,13 +2986,15 @@
 
           <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strict_v</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">direction</span><span class="p">:</span>
-              <span class="k">return</span> <span class="n">Field</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">L</span><span class="o">+</span><span class="n">R</span><span class="p">,</span><span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">,</span> <span class="n">direction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span>
+              <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="n">L</span><span class="o">+</span><span class="n">R</span><span class="p">)</span>
+
             <span class="k">else</span><span class="p">:</span> 
               <span class="k">return</span> <span class="bp">self</span><span class="o">*</span><span class="n">other</span>
 
           <span class="k">else</span><span class="p">:</span>
 
-            <span class="k">return</span> <span class="n">Field</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">L</span><span class="o">+</span><span class="n">R</span><span class="p">,</span><span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">,</span> <span class="n">direction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="n">L</span><span class="o">+</span><span class="n">R</span><span class="p">)</span>
+
         <span class="k">else</span><span class="p">:</span>
           <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Field grid error in </span><span class="si">%s</span><span class="s"> + </span><span class="si">%s</span><span class="s"> with Field </span><span class="si">%s</span><span class="s">: Field grids must be equal. Try F + G(F.grid).&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span> <span class="p">)</span>
           
@@ -3003,7 +3005,8 @@
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span><span class="nb">int</span><span class="p">):</span>
       <span class="k">return</span> <span class="bp">self</span><span class="o">+</span><span class="nb">float</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span><span class="nb">float</span><span class="p">):</span>
-      <span class="k">return</span> <span class="n">Field</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">other</span><span class="p">,</span><span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">,</span> <span class="n">direction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">other</span><span class="p">)</span>
+
 
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Field type error </span><span class="si">%s</span><span class="s"> + </span><span class="si">%s</span><span class="s"> with Field </span><span class="si">%s</span><span class="s">: right factor must be Field, int or float.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span> <span class="p">)</span>
@@ -3025,16 +3028,16 @@
           <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strict_v</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">direction</span><span class="p">:</span>
 
-<span class="c"># should these Field creation statements be replaced with self.copy?</span>
 
-              <span class="k">return</span> <span class="n">Field</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">L</span> <span class="o">-</span> <span class="n">R</span><span class="p">,</span><span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">,</span> <span class="n">direction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span>
+
+              <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="n">L</span> <span class="o">-</span> <span class="n">R</span><span class="p">,</span><span class="n">long_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">long_name</span> <span class="o">+</span> <span class="s">&#39; difference&#39;</span><span class="p">)</span>
+
             <span class="k">else</span><span class="p">:</span> 
               <span class="k">return</span> <span class="bp">self</span><span class="o">*</span><span class="n">other</span>
 
           <span class="k">else</span><span class="p">:</span>
 
-            <span class="k">return</span> <span class="n">Field</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">L</span> <span class="o">-</span> <span class="n">R</span><span class="p">,</span><span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">,</span> <span class="n">direction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span>
-
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="n">L</span> <span class="o">-</span> <span class="n">R</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
           <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Field grid error in </span><span class="si">%s</span><span class="s">-</span><span class="si">%s</span><span class="s"> with Field </span><span class="si">%s</span><span class="s">: grids must be equal. Try F - G(F.grid) or F(G.grid) - G.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span> <span class="p">)</span>
@@ -3046,7 +3049,8 @@
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span><span class="nb">int</span><span class="p">):</span>
       <span class="k">return</span> <span class="bp">self</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span><span class="nb">float</span><span class="p">):</span>
-      <span class="k">return</span> <span class="n">Field</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">other</span><span class="p">,</span><span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">,</span> <span class="n">direction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">other</span><span class="p">)</span>
+
 
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&#39;Field type error in </span><span class="si">%s</span><span class="s"> - </span><span class="si">%s</span><span class="s"> with Field </span><span class="si">%s</span><span class="s">: right factor must be Field, int or float.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span>  <span class="p">)</span>
@@ -3164,7 +3168,7 @@
 <span class="c"># in this case the grid argument is a subspace of self.grid so that the grid of the elements is self.grid/grid due to the way self.grid(grid) has been constructed (see call method for grid objects).</span>
       <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
       <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Field</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;slice_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span> <span class="p">)</span><span class="o">+</span><span class="s">&#39;_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="p">,</span><span class="n">value</span> <span class="o">=</span> <span class="n">e</span><span class="p">,</span> <span class="n">grid</span> <span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">/</span><span class="n">grid</span><span class="p">))</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;slice_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span> <span class="p">)</span><span class="o">+</span><span class="s">&#39;_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="p">,</span><span class="n">value</span> <span class="o">=</span> <span class="n">e</span><span class="p">,</span> <span class="n">grid</span> <span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">/</span><span class="n">grid</span><span class="p">))</span>
       <span class="k">return</span> <span class="n">result</span>
      
     <span class="k">else</span><span class="p">:</span>
@@ -3193,7 +3197,16 @@
       <span class="k">return</span> <span class="bp">self</span><span class="o">*</span><span class="nb">float</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
     
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span><span class="nb">float</span><span class="p">):</span>
-      <span class="k">return</span> <span class="n">Field</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="p">,</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">*</span><span class="n">other</span><span class="p">,</span><span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="p">,</span><span class="n">direction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="n">other</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">other</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
+          <span class="n">new_units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="k">if</span> <span class="n">other</span> <span class="o">!=</span> <span class="mf">1.</span><span class="p">:</span>
+            <span class="n">new_units</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%0.1e</span><span class="s"> &#39;</span><span class="o">%</span><span class="n">other</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">new_units</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="o">*</span><span class="n">other</span><span class="p">,</span><span class="n">units</span> <span class="o">=</span> <span class="n">new_units</span><span class="p">)</span>
 
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span><span class="n">Gr</span><span class="p">):</span>
       <span class="c"># fields commute with Gr objects</span>
@@ -3872,13 +3885,13 @@
 
 <span class="sd">  concatenate((a1,a2,...),ax=None)</span>
 <span class="sd">       </span>
-<span class="sd">  The Field value ndarrays must have the same shape, except in the direction of concatenation if present in the grid.</span>
-<span class="sd">  Default behaviour (CASE A0) when ax = None picks the concatenation direction as the first direction with unequal Coord point values (indicating pieces of a dimension). For instance, SAT1.shape is (50,100) and SAT2.shape is (50,100) would concatenate to shape (100,100) by concatenating along index 0. </span>
+<span class="sd">  The Field value ndarrays (a1.value, a2.value etc.) must have the same shape, except in the direction of concatenation if that direction is present in the grid (i.e. if the fields are defined on a grid where one of the Coord elements points in that direction).</span>
+<span class="sd">  Default behaviour (CASE A0) is when ax = None: then, the concatenate function picks the concatenation direction as the first direction with unequal Coord values (indicating pieces of a dimension). For instance, SAT1.shape is (50,100) and SAT2.shape is (50,100), and index 0 Coord has different values for each, would concatenate to shape (100,100) by concatenating along index 0. </span>
 
-<span class="sd">  If ax is already in grid directions (in Field.grid.axis(), CASE A1 ), and Field grids have equal Coord member in that direction, as per Field.cat method, the last Field is returned: don&#39;t use this.</span>
-
-<span class="sd">  A new Coord is created (CASE A2) if new_coord argument is None and if none of the grid members axis point in the direction of the ax argument (e.g. X,Y vs Z). Then, &quot;new_coord_name&quot; is used. </span>
-<span class="sd">  The above behaviour is overridden if the &quot;new_coord&quot; argument is given (CASE B). This is a Coord object that will be used to construct one Field from the fields list argument. The list elements become slices (at single Coord values) and the new_coord values are the corresponding coordinates.</span>
+<span class="sd">CASES A, for ax not None. In the trivial case where argument ax is already in grid directions (in Field.grid.axis(), CASE A1), and the Field grids (a1.grid, a2.grid etc.) all have equal Coord member in that direction, the last Field is returned: don&#39;t use this, as there is no point in using concatenate here. (As per Field.cat method.)</span>
+<span class="sd">Alternatively, if ax is not in grid directions, a new Coord object is created by the concatenate function, with default name &quot;gamma&quot; (CASE A2). For this, the new_coord argument needs to be None (its default), see CASE B.( if none of the grid member Coord objects&#39; axis point in the direction of the ax argument (e.g. X,Y in the grid, vs Z for ax). The default Coord name can be changed by setting the  new_coord_name argument. The strings argument allows string names to be set for the points in the new Coord. This is useful for instance when the new Coord represents experiments.</span>
+<span class="sd">  </span>
+<span class="sd">CASE B. The above behaviour is overridden if the &quot;new_coord&quot; argument (not None) is provided (CASE B). This is a Coord object that will be used to construct a new Field from the fields list argument. The list elements become slices (at single Coord values) and the new_coord values are the corresponding coordinates.</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">    fields: (container of Field objects, e.g. list) Field objects to concat.</span>
@@ -3915,7 +3928,7 @@
 <span class="sd">  &gt;&gt;&gt; SAT = P[&#39;DPO&#39;][&#39;A_sat&#39;]</span>
 <span class="sd">  &gt;&gt;&gt; SAT1 = SAT[Y,:50]</span>
 <span class="sd">  &gt;&gt;&gt; SAT2 = SAT[Y,50:]</span>
-<span class="sd">  &gt;&gt;&gt; W = sg.Ax(&#39;W&#39;) # Create test Coord to concatenate along.</span>
+<span class="sd">  &gt;&gt;&gt; W = sg.Ax(&#39;W&#39;) # Create test Ax axis to concatenate along.</span>
 <span class="sd">  &gt;&gt;&gt; SAT_combined = sg.concatenate([SAT1,SAT2 ], ax = W )</span>
 <span class="sd">  &gt;&gt;&gt; SAT_combined.shape</span>
 <span class="sd">  (2,50,100)</span>
@@ -3929,7 +3942,7 @@
 <span class="sd">  &gt;&gt;&gt; SAT = P[&#39;DPO&#39;][&#39;A_sat&#39;]</span>
 <span class="sd">  &gt;&gt;&gt; SAT1 = SAT[Y,:50]</span>
 <span class="sd">  &gt;&gt;&gt; SAT2 = SAT[Y,50:]</span>
-<span class="sd">  &gt;&gt;&gt; W = sg.Ax(&#39;W&#39;) # Create test Coord to concatenate along.</span>
+<span class="sd">  &gt;&gt;&gt; W = sg.Ax(&#39;W&#39;) # Create test Ax axis to concatenate along, and Coord:</span>
 <span class="sd">  &gt;&gt;&gt; w = sg.Coord(&#39;w&#39; , axis = W, direction = &#39;W&#39;, value = np.array([0,1]))</span>
 <span class="sd">  &gt;&gt;&gt; SAT_combined = sg.concatenate([SAT1,SAT2 ], new_coord = w )</span>
 <span class="sd">  &gt;&gt;&gt; SAT_combined.shape</span>
@@ -4863,7 +4876,7 @@
 
     <span class="k">else</span><span class="p">:</span>
      <span class="c"># case where len(crds) != len(slices). Leads to error</span>
-     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Field slice error in Field </span><span class="si">%s</span><span class="s"> arg </span><span class="si">%s</span><span class="s">: use slice objects only or pairs of Coord objects and slice objects.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">L</span><span class="p">)</span>  <span class="p">)</span>         
+     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Slice error arg </span><span class="si">%s</span><span class="s">: use slice objects only or pairs of Coord objects and slice objects.&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>  <span class="p">)</span>         
 
   <span class="k">else</span><span class="p">:</span>
   <span class="c"># Trivial case where argument is not a tuple. e.g. it is &#39;slice(10,None,None)&#39; or &#39;10&#39;</span>

@@ -564,6 +564,25 @@ vars: (dictionary of name vs Field objects) contains the loaded Fields (e.g. a 3
 </dd></dl>
 
 <dl class="method">
+<dt id="spacegrids.expercls.Exper.available_long">
+<tt class="descname">available_long</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/spacegrids/expercls.html#Exper.available_long"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.expercls.Exper.available_long" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain list of all available Netcdf variable names (strings) for this Exper.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>No args.</dd>
+<dt>Returns:</dt>
+<dd>List of strings of variable names in experiment Netcdf file(s).</dd>
+<dt>Raises:</dt>
+<dd>IOError: when Netcdf file cannot be opened.</dd>
+</dl>
+<p>Called by ls method.</p>
+<dl class="docutils">
+<dt>See also:</dt>
+<dd>ls method.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="spacegrids.expercls.Exper.delvar">
 <tt class="descname">delvar</tt><big>(</big><em>varnames</em>, <em>msg=''</em><big>)</big><a class="reference internal" href="_modules/spacegrids/expercls.html#Exper.delvar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.expercls.Exper.delvar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Delete items from the vars Field dict attribute of Exper using del.</p>
@@ -2028,14 +2047,17 @@ file_extensions: (list of str) containing patterns to match Netcdf files</dd>
 <dl class="function">
 <dt id="spacegrids.fieldcls.concatenate">
 <tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">concatenate</tt><big>(</big><em>fields</em>, <em>ax=None</em>, <em>name_suffix='_cat'</em>, <em>new_coord_name='gamma'</em>, <em>new_coord=None</em>, <em>strings=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#concatenate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.concatenate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Joins a sequence of Field objects together.</p>
+<dd><blockquote>
+<div><p>Joins a sequence of Field objects together.</p>
 <p>concatenate((a1,a2,...),ax=None)</p>
-<p>The Field value ndarrays must have the same shape, except in the direction of concatenation if present in the grid.
-Default behaviour (CASE A0) when ax = None picks the concatenation direction as the first direction with unequal Coord point values (indicating pieces of a dimension). For instance, SAT1.shape is (50,100) and SAT2.shape is (50,100) would concatenate to shape (100,100) by concatenating along index 0.</p>
-<p>If ax is already in grid directions (in Field.grid.axis(), CASE A1 ), and Field grids have equal Coord member in that direction, as per Field.cat method, the last Field is returned: don&#8217;t use this.</p>
-<p>A new Coord is created (CASE A2) if new_coord argument is None and if none of the grid members axis point in the direction of the ax argument (e.g. X,Y vs Z). Then, &#8220;new_coord_name&#8221; is used. 
-The above behaviour is overridden if the &#8220;new_coord&#8221; argument is given (CASE B). This is a Coord object that will be used to construct one Field from the fields list argument. The list elements become slices (at single Coord values) and the new_coord values are the corresponding coordinates.</p>
-<dl class="docutils">
+<p>The Field value ndarrays (a1.value, a2.value etc.) must have the same shape, except in the direction of concatenation if that direction is present in the grid (i.e. if the fields are defined on a grid where one of the Coord elements points in that direction).
+Default behaviour (CASE A0) is when ax = None: then, the concatenate function picks the concatenation direction as the first direction with unequal Coord values (indicating pieces of a dimension). For instance, SAT1.shape is (50,100) and SAT2.shape is (50,100), and index 0 Coord has different values for each, would concatenate to shape (100,100) by concatenating along index 0.</p>
+</div></blockquote>
+<p>CASES A, for ax not None. In the trivial case where argument ax is already in grid directions (in Field.grid.axis(), CASE A1), and the Field grids (a1.grid, a2.grid etc.) all have equal Coord member in that direction, the last Field is returned: don&#8217;t use this, as there is no point in using concatenate here. (As per Field.cat method.)
+Alternatively, if ax is not in grid directions, a new Coord object is created by the concatenate function, with default name &#8220;gamma&#8221; (CASE A2). For this, the new_coord argument needs to be None (its default), see CASE B.( if none of the grid member Coord objects&#8217; axis point in the direction of the ax argument (e.g. X,Y in the grid, vs Z for ax). The default Coord name can be changed by setting the  new_coord_name argument. The strings argument allows string names to be set for the points in the new Coord. This is useful for instance when the new Coord represents experiments.</p>
+<p>CASE B. The above behaviour is overridden if the &#8220;new_coord&#8221; argument (not None) is provided (CASE B). This is a Coord object that will be used to construct a new Field from the fields list argument. The list elements become slices (at single Coord values) and the new_coord values are the corresponding coordinates.</p>
+<blockquote>
+<div><dl class="docutils">
 <dt>Args:</dt>
 <dd>fields: (container of Field objects, e.g. list) Field objects to concat.
 ax: (Gr) axis along which to concatenate, optional.
@@ -2067,7 +2089,7 @@ strings: (container of strings) used as strings argument in Coord creation with 
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">SAT</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="s">&#39;DPO&#39;</span><span class="p">][</span><span class="s">&#39;A_sat&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">SAT1</span> <span class="o">=</span> <span class="n">SAT</span><span class="p">[</span><span class="n">Y</span><span class="p">,:</span><span class="mi">50</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">SAT2</span> <span class="o">=</span> <span class="n">SAT</span><span class="p">[</span><span class="n">Y</span><span class="p">,</span><span class="mi">50</span><span class="p">:]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">W</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Ax</span><span class="p">(</span><span class="s">&#39;W&#39;</span><span class="p">)</span> <span class="c"># Create test Coord to concatenate along.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">W</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Ax</span><span class="p">(</span><span class="s">&#39;W&#39;</span><span class="p">)</span> <span class="c"># Create test Ax axis to concatenate along.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">SAT_combined</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">SAT1</span><span class="p">,</span><span class="n">SAT2</span> <span class="p">],</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">W</span> <span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">SAT_combined</span><span class="o">.</span><span class="n">shape</span>
 <span class="go">(2,50,100)</span>
@@ -2081,7 +2103,7 @@ strings: (container of strings) used as strings argument in Coord creation with 
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">SAT</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="s">&#39;DPO&#39;</span><span class="p">][</span><span class="s">&#39;A_sat&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">SAT1</span> <span class="o">=</span> <span class="n">SAT</span><span class="p">[</span><span class="n">Y</span><span class="p">,:</span><span class="mi">50</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">SAT2</span> <span class="o">=</span> <span class="n">SAT</span><span class="p">[</span><span class="n">Y</span><span class="p">,</span><span class="mi">50</span><span class="p">:]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">W</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Ax</span><span class="p">(</span><span class="s">&#39;W&#39;</span><span class="p">)</span> <span class="c"># Create test Coord to concatenate along.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">W</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Ax</span><span class="p">(</span><span class="s">&#39;W&#39;</span><span class="p">)</span> <span class="c"># Create test Ax axis to concatenate along, and Coord:</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">w</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">Coord</span><span class="p">(</span><span class="s">&#39;w&#39;</span> <span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="n">W</span><span class="p">,</span> <span class="n">direction</span> <span class="o">=</span> <span class="s">&#39;W&#39;</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">SAT_combined</span> <span class="o">=</span> <span class="n">sg</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">SAT1</span><span class="p">,</span><span class="n">SAT2</span> <span class="p">],</span> <span class="n">new_coord</span> <span class="o">=</span> <span class="n">w</span> <span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">SAT_combined</span><span class="o">.</span><span class="n">shape</span>
@@ -2092,6 +2114,7 @@ strings: (container of strings) used as strings argument in Coord creation with 
 <span class="go">array([0, 1])</span>
 </pre></div>
 </div>
+</div></blockquote>
 </dd></dl>
 
 <dl class="function">
@@ -2296,7 +2319,7 @@ nan_val: (np.nan) value to indicate nan</dd>
 
 <dl class="class">
 <dt id="spacegrids.ops.If">
-<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">If</tt><big>(</big><em>Cond_Op</em>, <em>True_Op</em>, <em>Else_Op=&lt;spacegrids.ops.Identity object at 0xb37c96c&gt;</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#If"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.If" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">If</tt><big>(</big><em>Cond_Op</em>, <em>True_Op</em>, <em>Else_Op=&lt;spacegrids.ops.Identity object at 0xa6e91ec&gt;</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#If"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.If" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
 <p>If Operator as in If then.</p>
 <p>The state of the system is defined by the Field(s) vF. Therefore, the condition can be internal to the call function and must be defined in terms of vF (e.g. &#8216;len(vF.grid) == 3&#8217;).</p>
@@ -2331,6 +2354,15 @@ nan_val: (np.nan) value to indicate nan</dd>
 </dd></dl>
 
 <dl class="class">
+<dt id="spacegrids.ops.LinScale">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">LinScale</tt><big>(</big><em>a</em>, <em>b</em>, <em>units='?'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#LinScale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.LinScale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
+<p>Operator class to apply a 1D linear transformation to each element of a Field.</p>
+<p>Example:</p>
+<p>kelvin2c = ops.LinScale(1.,zero_kelvin,&#8217;C&#8217;); to convert Kelvin to C</p>
+</dd></dl>
+
+<dl class="class">
 <dt id="spacegrids.ops.Mean">
 <em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">Mean</tt><big>(</big><em>Xi</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#Mean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.Mean" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
@@ -2361,6 +2393,18 @@ nan_val: (np.nan) value to indicate nan</dd>
 </dd></dl>
 
 <dl class="class">
+<dt id="spacegrids.ops.PickBasin">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">PickBasin</tt><big>(</big><em>node</em>, <em>south_index=33</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#PickBasin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.PickBasin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
+<p>Slice Operator storing tuple of Coord vs slice object pairs to slice (V)Field arguments with on __call__.</p>
+<p>Example of slice: (X,10,Y,5)</p>
+<dl class="docutils">
+<dt>Attributes:</dt>
+<dd>tup: (tuple of Coord vs slice objects) to slice Field with</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
 <dt id="spacegrids.ops.Prim">
 <em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">Prim</tt><big>(</big><em>Xi</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#Prim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.Prim" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
@@ -2380,10 +2424,20 @@ nan_val: (np.nan) value to indicate nan</dd>
 <em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">Slice</tt><big>(</big><em>tup</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#Slice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.Slice" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
 <p>Slice Operator storing tuple of Coord vs slice object pairs to slice (V)Field arguments with on __call__.</p>
+<p>Example of slice: (X,10,Y,5)</p>
 <dl class="docutils">
 <dt>Attributes:</dt>
 <dd>tup: (tuple of Coord vs slice objects) to slice Field with</dd>
 </dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacegrids.ops.StrInAttr">
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">StrInAttr</tt><big>(</big><em>string</em>, <em>attr='long_name'</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#StrInAttr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.StrInAttr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
+<p>Operator class to check whether a string is in an attribute of a call argument field.</p>
+<p>Example:</p>
+<p>CheckTemp = StrInAttr(&#8216;temperature&#8217;,&#8217;long_name&#8217;)</p>
 </dd></dl>
 
 <dl class="class">

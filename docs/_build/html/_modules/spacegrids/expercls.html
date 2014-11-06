@@ -550,6 +550,65 @@
         <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">variables</span>
 
+
+</div>
+<div class="viewcode-block" id="Exper.available_long"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.available_long">[docs]</a>  <span class="k">def</span> <span class="nf">available_long</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Obtain list of all available Netcdf variable names (strings) for this Exper.</span>
+<span class="sd">   </span>
+<span class="sd">    Args:</span>
+<span class="sd">      No args.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      List of strings of variable names in experiment Netcdf file(s).</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      IOError: when Netcdf file cannot be opened.</span>
+
+<span class="sd">    Called by ls method.</span>
+
+<span class="sd">    See also:</span>
+<span class="sd">      ls method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+  
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
+        <span class="c"># this Exper object corresponds to a file (not directory).</span>
+      <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">]</span>
+
+    <span class="k">else</span><span class="p">:</span>            
+        <span class="c"># this Exper object corresponds to a directory (not file).</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">top</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
+          <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">fname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;nc&#39;</span><span class="p">,</span><span class="s">&#39;cdf&#39;</span><span class="p">]:</span>
+              <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">fname</span><span class="p">))</span>
+
+           
+<span class="c"># Try to find netcdf var in any of the found files, and then read into Field object.</span>
+
+    <span class="n">variables</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">({})</span>
+    <span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+      <span class="k">try</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">netcdf_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">)</span>
+      <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&#39;Cannot open&#39;</span><span class="p">,</span><span class="n">filepath</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">var_in_cdf</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+         
+          <span class="k">if</span> <span class="ow">not</span> <span class="n">var_in_cdf</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+
+            <span class="n">variables</span><span class="p">[</span><span class="n">var_in_cdf</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var_in_cdf</span><span class="p">]</span><span class="o">.</span><span class="n">long_name</span>
+
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">variables</span>
+
+
+
+
+
+
+
+
 </div>
 <div class="viewcode-block" id="Exper.ls"><a class="viewcode-back" href="../../spacegrids.html#spacegrids.expercls.Exper.ls">[docs]</a>  <span class="k">def</span> <span class="nf">ls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">20</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>

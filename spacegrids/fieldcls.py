@@ -1018,7 +1018,7 @@ class Coord(Directional, Valued):
       vol method      
     """
 
-    return Field(name='distance_'+self.name,value = fact*self.value,grid = (self**2), units = self.units) 
+    return Field(name='distance_'+self.name,value = fact*self.value,grid = (self**2), units = 'm') # hard coded m to be replaced in future 
 
 
   def der(self, F):
@@ -1046,8 +1046,8 @@ class Coord(Directional, Valued):
     """
 
     if self in F.grid:
-      dF = self.trans(F)
-      ds = self.trans(self.dist())
+      dF = self.trans(F) # transformed field: shifted by 1 index
+      ds = self.trans(self.dist()) # Field containing distances from 0 along self
 
       return dF/ds
 
@@ -1307,12 +1307,13 @@ class XCoord(Coord):
 
   def dist(self, y_coord, fact = R):
     """
-    Distance (signed) along XCoord (self) in only one direction (increasing index) from a fixed point.
+    Distance (signed) along XCoord (self) in the direction of increasing index and from a fixed point.
 
     The fixed point is usually 0 longitude, but depends on the Coord.
 
     Overrides dist method of Coord class. Assumes self.value to be an array of longitudinal polar coord values in degrees.
 
+    For now, it is assumed fact is in meters. This affects the units assigned to the result. In future, a class will represent constants, such as the Earth's radius R, with value and units attributes.
 
     Args:
       y_coord: (YCoord) latitudinal Coord (usually component in grid context).
@@ -1331,7 +1332,7 @@ class XCoord(Coord):
 
     crdvals = self.value
     
-    return Field(name='distance_'+self.name,value = np.array([ fact*np.cos(np.radians(y))*crdvals for y in y_coord  ])*np.pi/180.,grid = y_coord*self, units = self.units) 
+    return Field(name='distance_'+self.name,value = np.array([ fact*np.cos(np.radians(y))*crdvals for y in y_coord  ])*np.pi/180.,grid = y_coord*self, units = 'm') # m units to be replaced in future 
 
 
 
@@ -1478,7 +1479,7 @@ class YCoord(Coord):
     """
 
 
-    return Field(name='distance_'+self.name,value = fact*self.value*np.pi/180.,grid = (self**2), units = self.units) 
+    return Field(name='distance_'+self.name,value = fact*self.value*np.pi/180.,grid = (self**2), units = 'm') 
 
 
 
@@ -3272,7 +3273,7 @@ class Field(Valued):
     # This multiplication inflates the values of self and other (arrays) onto the common grid. 
     # In case the grids contain Coord elements that are equivalent but not equal, grid multiplication dictates that common_gr will contain the elements of the left multiplicant (i.e. again a precedence for the left multiplicant). This implies that the right Field will then be interpolated on the left latice
 
-      return Field(name = new_name ,value = (self.grid(common_gr)(self.value))/(other.grid(common_gr)(other.value)),grid = common_gr, direction = self.direction)
+      return Field(name = new_name ,value = (self.grid(common_gr)(self.value))/(other.grid(common_gr)(other.value)),grid = common_gr, direction = self.direction,units=self.units+'/'+other.units)
 
 
     else:
