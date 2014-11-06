@@ -1049,8 +1049,10 @@ class Coord(Directional, Valued):
       dF = self.trans(F) # transformed field: shifted by 1 index
       ds = self.trans(self.dist()) # Field containing distances from 0 along self
 
-      return dF/ds
+      return_field = dF/ds
 
+      return_field.long_name = self.long_name+'-derivative of ' + F.long_name
+      return return_field
     else:
 
       raise  ValueError("Field argument grid does not contain Coord %s."%self.name)
