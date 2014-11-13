@@ -1916,9 +1916,10 @@ vol method</dd>
 <dl class="method">
 <dt id="spacegrids.fieldcls.XCoord.dist">
 <tt class="descname">dist</tt><big>(</big><em>y_coord</em>, <em>fact=6370000.0</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#XCoord.dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.XCoord.dist" title="Permalink to this definition">¶</a></dt>
-<dd><p>Distance (signed) along XCoord (self) in only one direction (increasing index) from a fixed point.</p>
+<dd><p>Distance (signed) along XCoord (self) in the direction of increasing index and from a fixed point.</p>
 <p>The fixed point is usually 0 longitude, but depends on the Coord.</p>
 <p>Overrides dist method of Coord class. Assumes self.value to be an array of longitudinal polar coord values in degrees.</p>
+<p>For now, it is assumed fact is in meters. This affects the units assigned to the result. In future, a class will represent constants, such as the Earth&#8217;s radius R, with value and units attributes.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>y_coord: (YCoord) latitudinal Coord (usually component in grid context).
@@ -2319,7 +2320,7 @@ nan_val: (np.nan) value to indicate nan</dd>
 
 <dl class="class">
 <dt id="spacegrids.ops.If">
-<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">If</tt><big>(</big><em>Cond_Op</em>, <em>True_Op</em>, <em>Else_Op=&lt;spacegrids.ops.Identity object at 0xa6e91ec&gt;</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#If"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.If" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">If</tt><big>(</big><em>Cond_Op</em>, <em>True_Op</em>, <em>Else_Op=&lt;spacegrids.ops.Identity object at 0xb711aec&gt;</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#If"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.If" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
 <p>If Operator as in If then.</p>
 <p>The state of the system is defined by the Field(s) vF. Therefore, the condition can be internal to the call function and must be defined in terms of vF (e.g. &#8216;len(vF.grid) == 3&#8217;).</p>

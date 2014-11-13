@@ -45,6 +45,7 @@ There is lots of documentation, both in the source code and elsewhere. Other doc
 
 - `a practical tutorial <http://nbviewer.ipython.org/github/willo12/spacegrids/blob/master/Spacegrids.ipynb>`_ 
 - `a more advanced tutorial <http://nbviewer.ipython.org/github/willo12/spacegrids/blob/master/advanced.ipynb>`_ 
+- `interactive plots based on Spacegrids <http://willospace.pythonanywhere.com>`_ 
 
 
 Installation
