@@ -1,20 +1,20 @@
 #encoding:utf-8
 
-"""Field and Gr objects represent data defined on grids and reflecting Netcdf data: Coord, Gr, Ax, AxGr and Field.
+"""The main classes used in Spacegrids are Field, Gr and Coord. They represent data defined on grids and reflect Netcdf data. Similar classes are Ax and AxGr.
 
-Gr (grid) objects are constructed from Coord (coordinate) objects as tuples and Membered methods. Similarly, AxGr (axis grid) objects are constructed from Ax (axis, e.g. X or Y) objects. Field objects contain a grid (a Gr object) attribute and a ndarray value attribute of data defined on that grid. Vfield objects (vector fields) are tuples of Field objects with Membered methods.
+Gr (grid) objects are constructed from Coord (coordinate) objects as tuples, and inherit methods related to the tuple members from the Membered class. Similarly, AxGr (axis grid) objects are constructed as tuples with methods from Ax (axis, e.g. X or Y) objects. Field objects contain a grid attribute (a Gr object) and a ndarray value attribute of data defined on that grid (e.g. spatially distributed temperature measurements). Vfield objects (vector fields) are tuples of Field objects with inherited Membered methods.
 
 The fieldcls module contains the following classes:
 
 Coord
 -----
 
-Represents distrete coordinate collection in a direction (e.g. 10m depth, 20m depth,...). Corresponds to dimension variable in Netcdf.
+Represents distrete coordinate collection in a direction (e.g. 'depth' may contain the points 10m depth, 20m depth,...). Corresponds to a dimension variable in Netcdf.
 
 Gr
 --
 
-Represents Coord grids. Consists of a tuple of Coord objects, with additional Membered and other methods.
+Represents Coord grids. Consists of a tuple of Coord objects, with additional inherited Membered and other methods.
 
 Ax
 --
@@ -24,12 +24,12 @@ Axis. Represents direction: e.g. the longitudinal direction, X, or the vertical,
 AxGr
 ----
 
-Same as Gr, but containing Ax objects instead of Coord. Difference is mainly in the multiplication methods.
+Same as Gr, but containing Ax objects instead of Coord as members. The difference is mainly in the multiplication methods.
 
 Field
 -----
 
-Represents a dataset defined on a grid.
+Represents a dataset defined on a grid. Contains a grid attribute that is a Gr object, the grid on which the data is defined. This allows correct behaviour under Field operations such as multiplication.
 
 """
 
@@ -100,14 +100,14 @@ def _field2cumsum(func):
 
 class Coord(Directional, Valued):
   """
-  Represents distrete coordinate collection in a direction (e.g. 10m depth, 20m depth,...). Corresponds to dimension variable in Netcdf.
+  Represents distrete coordinate collection in a direction (e.g. a 'depth' Coord that contains points 10m depth, 20m depth,...). Corresponds to a dimension variable in Netcdf.
 
-  Coord objects are defined by a name, value (generally a numpy array) and units. The value of a Coord is a 1D ndarray containing the locations of data points. Coord is the basic building block of Gr (grid) objects.
+  Coord objects have a name, value (generally a numpy array) and units. The value of a Coord is a 1D ndarray containing location points (e.g. 50 degrees north). Coord is the basic building block of Gr (grid) objects.
   Examples of Coord objects are xt or yt, corresponding to the tracer grid cells in the x and y directions. Coord objects have a corresponding dual. For xt it is xt_edges and vice versa. The dual generally contains the edges of the grid cells. If no dual argument is given, the Coord object is its own dual.
 
   Coord objects c1 and c2 are considered weakly the same, c1.weaksame(c2) yields True, when the name, value (numpy array) and units attributes are equal.
 
-  Being a container of Coord objects, the Gr object (grid) is closely related to Coord. A shorthand for Gr construction is via multiplication of Coord objects. If two Coord objects coord1 and coord2 are not equivalent (generally when they point in different directions, e.g. X and Y), their product is a shorthand for the creation of a 2D grid coord1*coord2 = Gr((coord1, coord2)). By induction, products containing n elements yield Gr objects of dimension <=n. See class documentation.
+  Being a container of Coord objects and composed from them into a multidimensional construct, the Gr object (grid) is closely related to Coord. A shorthand for Gr construction is via multiplication of Coord objects. If two Coord objects coord1 and coord2 are not equivalent (generally when they point in different directions, e.g. X and Y), their product is a shorthand for the creation of a 2D grid coord1*coord2 = Gr((coord1, coord2)). By induction, products containing n elements yield Gr objects of dimension <=n. See class documentation.
 
   An abstract equivalence relationship is inherited from the Directional classs where two objects are equivalent when they have the same 'associative' attribute (pointing to an Associative object). This relationship is generally used to indicate whether two Directional objects have the same direction (e.g. X,Y), but could represent other relationships depending on the user.
 

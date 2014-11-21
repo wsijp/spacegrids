@@ -753,16 +753,16 @@ file_extensions: (str) file extensions to look for in path (default .cdf and .nc
 </div>
 <div class="section" id="module-spacegrids.fieldcls">
 <span id="fieldcls-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">fieldcls</span></tt> Module<a class="headerlink" href="#module-spacegrids.fieldcls" title="Permalink to this headline">¶</a></h2>
-<p>Field and Gr objects represent data defined on grids and reflecting Netcdf data: Coord, Gr, Ax, AxGr and Field.</p>
-<p>Gr (grid) objects are constructed from Coord (coordinate) objects as tuples and Membered methods. Similarly, AxGr (axis grid) objects are constructed from Ax (axis, e.g. X or Y) objects. Field objects contain a grid (a Gr object) attribute and a ndarray value attribute of data defined on that grid. Vfield objects (vector fields) are tuples of Field objects with Membered methods.</p>
+<p>The main classes used in Spacegrids are Field, Gr and Coord. They represent data defined on grids and reflect Netcdf data. Similar classes are Ax and AxGr.</p>
+<p>Gr (grid) objects are constructed from Coord (coordinate) objects as tuples, and inherit methods related to the tuple members from the Membered class. Similarly, AxGr (axis grid) objects are constructed as tuples with methods from Ax (axis, e.g. X or Y) objects. Field objects contain a grid attribute (a Gr object) and a ndarray value attribute of data defined on that grid (e.g. spatially distributed temperature measurements). Vfield objects (vector fields) are tuples of Field objects with inherited Membered methods.</p>
 <p>The fieldcls module contains the following classes:</p>
 <div class="section" id="coord">
 <h3>Coord<a class="headerlink" href="#coord" title="Permalink to this headline">¶</a></h3>
-<p>Represents distrete coordinate collection in a direction (e.g. 10m depth, 20m depth,...). Corresponds to dimension variable in Netcdf.</p>
+<p>Represents distrete coordinate collection in a direction (e.g. &#8216;depth&#8217; may contain the points 10m depth, 20m depth,...). Corresponds to a dimension variable in Netcdf.</p>
 </div>
 <div class="section" id="gr">
 <h3>Gr<a class="headerlink" href="#gr" title="Permalink to this headline">¶</a></h3>
-<p>Represents Coord grids. Consists of a tuple of Coord objects, with additional Membered and other methods.</p>
+<p>Represents Coord grids. Consists of a tuple of Coord objects, with additional inherited Membered and other methods.</p>
 </div>
 <div class="section" id="ax">
 <h3>Ax<a class="headerlink" href="#ax" title="Permalink to this headline">¶</a></h3>
@@ -770,11 +770,11 @@ file_extensions: (str) file extensions to look for in path (default .cdf and .nc
 </div>
 <div class="section" id="axgr">
 <h3>AxGr<a class="headerlink" href="#axgr" title="Permalink to this headline">¶</a></h3>
-<p>Same as Gr, but containing Ax objects instead of Coord. Difference is mainly in the multiplication methods.</p>
+<p>Same as Gr, but containing Ax objects instead of Coord as members. The difference is mainly in the multiplication methods.</p>
 </div>
 <div class="section" id="field">
 <h3>Field<a class="headerlink" href="#field" title="Permalink to this headline">¶</a></h3>
-<p>Represents a dataset defined on a grid.</p>
+<p>Represents a dataset defined on a grid. Contains a grid attribute that is a Gr object, the grid on which the data is defined. This allows correct behaviour under Field operations such as multiplication.</p>
 <dl class="class">
 <dt id="spacegrids.fieldcls.Ax">
 <em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">Ax</tt><big>(</big><em>name='scalar'</em>, <em>direction='scalar'</em>, <em>long_name=''</em>, <em>associative=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Ax"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Ax" title="Permalink to this definition">¶</a></dt>
@@ -827,11 +827,11 @@ long_name: (str) longer description (e.g. for display or in Netcdf)</dd>
 <dt id="spacegrids.fieldcls.Coord">
 <em class="property">class </em><tt class="descclassname">spacegrids.fieldcls.</tt><tt class="descname">Coord</tt><big>(</big><em>name='scalar'</em>, <em>value=array([0])</em>, <em>dual=None</em>, <em>axis='?'</em>, <em>direction='scalar'</em>, <em>units=None</em>, <em>long_name='?'</em>, <em>metadata={}</em>, <em>strings=None</em>, <em>associative=None</em><big>)</big><a class="reference internal" href="_modules/spacegrids/fieldcls.html#Coord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.fieldcls.Coord" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#spacegrids.abstract.Directional" title="spacegrids.abstract.Directional"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.abstract.Directional</span></tt></a>, <a class="reference internal" href="#spacegrids.abstract.Valued" title="spacegrids.abstract.Valued"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.abstract.Valued</span></tt></a></p>
-<p>Represents distrete coordinate collection in a direction (e.g. 10m depth, 20m depth,...). Corresponds to dimension variable in Netcdf.</p>
-<p>Coord objects are defined by a name, value (generally a numpy array) and units. The value of a Coord is a 1D ndarray containing the locations of data points. Coord is the basic building block of Gr (grid) objects.
+<p>Represents distrete coordinate collection in a direction (e.g. a &#8216;depth&#8217; Coord that contains points 10m depth, 20m depth,...). Corresponds to a dimension variable in Netcdf.</p>
+<p>Coord objects have a name, value (generally a numpy array) and units. The value of a Coord is a 1D ndarray containing location points (e.g. 50 degrees north). Coord is the basic building block of Gr (grid) objects.
 Examples of Coord objects are xt or yt, corresponding to the tracer grid cells in the x and y directions. Coord objects have a corresponding dual. For xt it is xt_edges and vice versa. The dual generally contains the edges of the grid cells. If no dual argument is given, the Coord object is its own dual.</p>
 <p>Coord objects c1 and c2 are considered weakly the same, c1.weaksame(c2) yields True, when the name, value (numpy array) and units attributes are equal.</p>
-<p>Being a container of Coord objects, the Gr object (grid) is closely related to Coord. A shorthand for Gr construction is via multiplication of Coord objects. If two Coord objects coord1 and coord2 are not equivalent (generally when they point in different directions, e.g. X and Y), their product is a shorthand for the creation of a 2D grid coord1*coord2 = Gr((coord1, coord2)). By induction, products containing n elements yield Gr objects of dimension &lt;=n. See class documentation.</p>
+<p>Being a container of Coord objects and composed from them into a multidimensional construct, the Gr object (grid) is closely related to Coord. A shorthand for Gr construction is via multiplication of Coord objects. If two Coord objects coord1 and coord2 are not equivalent (generally when they point in different directions, e.g. X and Y), their product is a shorthand for the creation of a 2D grid coord1*coord2 = Gr((coord1, coord2)). By induction, products containing n elements yield Gr objects of dimension &lt;=n. See class documentation.</p>
 <p>An abstract equivalence relationship is inherited from the Directional classs where two objects are equivalent when they have the same &#8216;associative&#8217; attribute (pointing to an Associative object). This relationship is generally used to indicate whether two Directional objects have the same direction (e.g. X,Y), but could represent other relationships depending on the user.</p>
 <p>The Coord class contains methods related to distances, with the following dependencies. dist is fundamental. delta_dist depends on dist. der depends on dist. d depends on dual Coord and delta_dist. vol depends on d.</p>
 <dl class="docutils">
@@ -2320,7 +2320,7 @@ nan_val: (np.nan) value to indicate nan</dd>
 
 <dl class="class">
 <dt id="spacegrids.ops.If">
-<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">If</tt><big>(</big><em>Cond_Op</em>, <em>True_Op</em>, <em>Else_Op=&lt;spacegrids.ops.Identity object at 0xb711aec&gt;</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#If"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.If" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">spacegrids.ops.</tt><tt class="descname">If</tt><big>(</big><em>Cond_Op</em>, <em>True_Op</em>, <em>Else_Op=&lt;spacegrids.ops.Identity object at 0xb1671ec&gt;</em><big>)</big><a class="reference internal" href="_modules/spacegrids/ops.html#If"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spacegrids.ops.If" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#spacegrids.ops.Operator" title="spacegrids.ops.Operator"><tt class="xref py py-class docutils literal"><span class="pre">spacegrids.ops.Operator</span></tt></a></p>
 <p>If Operator as in If then.</p>
 <p>The state of the system is defined by the Field(s) vF. Therefore, the condition can be internal to the call function and must be defined in terms of vF (e.g. &#8216;len(vF.grid) == 3&#8217;).</p>

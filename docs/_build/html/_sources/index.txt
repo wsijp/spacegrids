@@ -10,6 +10,8 @@ Spacegrids data analysis documentation
 
 Spacegrids is an open source library providing a Numpy array with grids, labelled axes and associated grid-related mathematical methods such as regridding and integration. Spacegrids provides an object data model of Netcdf data that ensures consistency between a Numpy data array and its grid under common operations (and so avoiding common pitfalls related to axis interpretation), and much more. It is a write less do more library for everyday use.
 
+Check out these `interactive Netcdf data-driven plots <http://willospace.pythonanywhere.com>`_ based on Spacegrids.
+
 
 The Field, Gr (grid) and Coord objects make everyday use easy:
 
@@ -45,7 +47,7 @@ There is lots of documentation, both in the source code and elsewhere. Other doc
 
 - `a practical tutorial <http://nbviewer.ipython.org/github/willo12/spacegrids/blob/master/Spacegrids.ipynb>`_ 
 - `a more advanced tutorial <http://nbviewer.ipython.org/github/willo12/spacegrids/blob/master/advanced.ipynb>`_ 
-- `interactive plots based on Spacegrids <http://willospace.pythonanywhere.com>`_ 
+- `interactive Netcdf data plots <http://willospace.pythonanywhere.com>`_ based on Spacegrids
 
 
 Installation
