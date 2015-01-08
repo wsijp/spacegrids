@@ -826,6 +826,16 @@ def affix(coord_name ,affix = '', kind = 'suffix'):
     raise Exception('Provide suffix or prefix for kind.')
 
 
+def gaussian(x, mu, sig):
+    return np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.) ) )
+
+
+# -----------------------------
+
+
+
+
+
 # ---------------- fill related functions ---------------------------
 
 def _eval_node(A,node):
