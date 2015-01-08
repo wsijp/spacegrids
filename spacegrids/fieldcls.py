@@ -539,7 +539,30 @@ class Coord(Directional, Valued):
     else:   
       return
 
+  def gaussian(self,mu,sig):
+    """
+    Compute Gaussiangaussian(x, mu, sig): function with avg mu and sigma sig on Coord domain.
 
+    Args:
+      mu: (int or float). index of mu of 
+
+    Raises: Value, TypeError
+    """
+    
+    if isinstance (mu,int):
+      if 0<=mu<len(self):
+        value = gaussian(self.value, mu, sig)
+        return Field('gaussian',value=value,grid=self**2,units = 'nondim', direction = 'scalar', long_name = 'Gaussian')
+
+
+      else:
+        raise ValueError('Int Gaussian argument %s must be in Coord value.' % mu )
+        return
+    elif isinstance(mu,float):
+      pass
+    else:
+      raise TypeError('Gaussian mu argument %s must be int or float' % mu )
+      return      
 
 
 # ----- multiplication related ---------      
@@ -1218,7 +1241,7 @@ class XCoord(Coord):
     """
     XCoord method that shifts the coordinates and value of a field by a number of indices. 
 
-    Overides Coord coord_shift method. Here, mask is False, so that the array elements are (1D) rotated: this is the simple way in which this method differs from its Coord counterpart.
+    Overides Coord coord_shift method. Here, mask is False, so that the array elements are (1D) rotated (in keeping with a re-entrant coordinate): this is the simple way in which this method differs from its parent Coord counterpart.
 
     Note that because this method overrides, the trans method also behaves differently because it calls coord_shift, even though the trans method itself is not overriden! 
 

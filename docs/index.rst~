@@ -12,13 +12,6 @@ Contents:
 --------
 
 .. toctree::
-
-.. toctree::
-    :maxdepth: 2
-
-    introduction.rst
-
-.. toctree::
    :maxdepth: 4
 
    spacegrids

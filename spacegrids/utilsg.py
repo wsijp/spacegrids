@@ -825,6 +825,28 @@ def affix(coord_name ,affix = '', kind = 'suffix'):
   else:
     raise Exception('Provide suffix or prefix for kind.')
 
+# -----------------------------
+
+def gaussian(x, mu, sig):
+    return np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.) ) )
+
+def max(F):
+
+  return np.max(F.value)
+
+
+def min(F):
+
+  return np.min(F.value)
+
+def nanmax(F):
+
+  return np.nanmax(F.value)
+
+def nanmin(F):
+
+  return np.nanmin(F.value)
+
 
 # ---------------- fill related functions ---------------------------
 
