@@ -940,9 +940,9 @@ def _slice_mask(mask,xmin=0,xmax=10000,ymin=0,ymax=10000):
   mask[slicey_max,:] = 0      
 
 
-def floodfill(A, node = (0,0),boundary_value = np.nan, xmin=0,xmax=10000,ymin=0,ymax=10000,x_cyclic = False, y_cyclic = False, mask_val = 2):
+def floodfill(A, node = (0,0),boundary_value = np.nan, xmin=0,xmax=-1,ymin=0,ymax=-1,x_cyclic = False, y_cyclic = False, mask_val = 2):
   """
-  Fill array (e.g. ocean) from node up to boundary defined by boundary_value (e.g. land) using floodfill.
+  Function to fill array (e.g. ocean) from node up to boundary defined by boundary_value (e.g. land) using floodfill.
 
   Creates mask to fill array (e.g. ocean) in area contained within boundary_value (e.g. land), containing node.
 
@@ -951,9 +951,9 @@ def floodfill(A, node = (0,0),boundary_value = np.nan, xmin=0,xmax=10000,ymin=0,
     node: (2 tuple of int) coordinates of starting point: (y,x) values.
     boundary_value: (float or nan) value of the boundary of the filled domain
     xmin: (int) set mask to boundary value up to this x-index
-    xmax: (int) set mask to boundary value from this x-index
+    xmax: (int) set mask to boundary value from this x-index. -1 indicates non-bounded
     ymin: (int) set mask to boundary value up to this y-index
-    ymax: (int) set mask to boundary value from this y-index
+    ymax: (int) set mask to boundary value from this y-index.  -1 indicates non-bounded
     x_cyclic: (Boolean) indicates whether x-domain cyclic if True
     y_cyclic: (Boolean) indicates whether y-domain cyclic if True
     mask_val: (int) value of the masked out region: nodes outside fill in mask
@@ -964,10 +964,18 @@ def floodfill(A, node = (0,0),boundary_value = np.nan, xmin=0,xmax=10000,ymin=0,
 
   shape = A.shape
 
+  if xmax==-1:
+    xmax = shape[1]
+  else:
+    xmax = min(shape[1],xmax)
+
+  if ymax==-1:
+    ymax = shape[0]
+  else:
+    ymax = min(shape[0],ymax)
+
   xmin = max(0,xmin)
   ymin = max(0,ymin)
-  xmax = min(shape[1],xmax)
-  ymax = min(shape[0],ymax)
 
   mask = mask_val*np.ones(A.shape,np.byte)
 

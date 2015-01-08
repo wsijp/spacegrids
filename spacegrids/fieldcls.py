@@ -4096,7 +4096,10 @@ def roll(F,shift=1,coord=None,axis=None,mask=False,keepgrid = False, nan_val = n
   return Fr
 
 def ones(grid):
-  """Returns a Field with value np.ones(grid.shape) and grid attribute grid.
+  """Function with arg grid (Gr), and returns a Field with value np.ones(grid.shape) and grid attribute grid.
+
+  See also:
+    Ones method of Field.
 
   No nans.
   """
