@@ -539,9 +539,29 @@ class Coord(Directional, Valued):
     else:   
       return
 
+  def sin(self,xstart=0.,period=2*np.pi):
+    """Compute sin function on Coord with x=0 at index i_start and period "period".
+    """
+
+  #  periods = (self.value[-1] - self.value[0])/period
+
+    value = np.sin(  (self.value - xstart)*2*np.pi/period   )
+    return Field('sine',value=value,grid=self**2,units = 'nondim', long_name = 'Sine')    
+
+  def cos(self,xstart=0.,period=2*np.pi):
+    """Compute sin function on Coord with x=0 at index i_start and period "period".
+    """
+
+  #  periods = (self.value[-1] - self.value[0])/period
+
+    value = np.cos(  (self.value - xstart)*2*np.pi/period   )
+    return Field('cos',value=value,grid=self**2,units = 'nondim', long_name = 'Cosine')  
+
+
+
   def gaussian(self,i_mu,sig, mask = None):
     """
-    Compute Gaussian gaussian(x, i_mu, sig): function with avg mu and sigma sig on Coord domain.
+    Compute Field containing gaussian(x, i_mu, sig): function with avg mu and sigma sig on Coord domain.
 
     Args:
       i_mu: (int or float). index of mu 
@@ -570,6 +590,11 @@ class Coord(Directional, Valued):
       raise TypeError('Gaussian i_mu argument %s must be int or float' % i_mu )
       return      
 
+  def gauss_glue(self,F1,F2,i_mu,sig=6, mask = None):
+
+    gauss = self.gaussian(i_mu,sig=sig,mask=mask)
+
+    return gauss*F2 + F1 - F1*gauss
 
 
 
@@ -1154,7 +1179,9 @@ class Coord(Directional, Valued):
 
     # calculate distances between adjacent points in dual:
     ret_Field = self.dual.delta_dist()
-    if self != self.dual:
+    if not (np.array_equal(self.value, self.dual.value ) ):
+   
+
       # for non-self dual Coord objects: truncate to achieve equal length to self:
       ret_Field.value = ret_Field.value[1:]
 
@@ -1413,7 +1440,9 @@ class XCoord(Coord):
 
 
     ret_Field = self.dual.delta_dist(y_coord)
-    ret_Field.value = ret_Field.value[:,1:] # truncate field value
+    if not (np.array_equal(self.value, self.dual.value ) ):
+      ret_Field.value = ret_Field.value[:,1:] # truncate field value
+
     ret_Field.grid = y_coord*self
     ret_Field.shape = ret_Field.grid.shape() # we have truncated the field value, so recalc
 
