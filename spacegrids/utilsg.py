@@ -827,25 +827,64 @@ def affix(coord_name ,affix = '', kind = 'suffix'):
 
 # -----------------------------
 
-def gaussian(x, mu, sig):
-    return np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.) ) )
+def gaussian(x, mu, sig, mask = None):
+    """Gaussian ndarray defined on ndarray x, with avg mu and sigma sig.
 
-def max(F):
+    Args:
+      x: domain values
+      mu: (int or float). index of mu 
+      sig: (float) sigma
+      mask: (None or string) values below/ above mu will be set to 1 if 'left'/'right' selected
 
+    Returns:
+      Field with gaussian defined on self Coord
+
+    """
+    result = np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.) ) )
+
+    if mask == 'left':
+      result[x<mu]=1.
+    elif mask == 'right':
+      result[x>mu]=1.
+
+    return result
+
+def sgmax(F):
+  """Take np.max of field argument F value F.value
+  """
   return np.max(F.value)
 
 
-def min(F):
-
+def sgmin(F):
+  """Take np.min of field argument F value F.value
+  """
   return np.min(F.value)
 
-def nanmax(F):
-
+def sgnanmax(F):
+  """Take np.nanmax of field argument F value F.value
+  """
   return np.nanmax(F.value)
 
-def nanmin(F):
-
+def sgnanmin(F):
+  """Take np.nanmin of field argument F value F.value
+  """
   return np.nanmin(F.value)
+
+def nanargmax(a):
+    idx = np.argmax(a, axis=None)
+    multi_idx = np.unravel_index(idx, a.shape)
+    if np.isnan(a[multi_idx]):
+        nan_count = np.sum(np.isnan(a))
+        # In numpy < 1.8 use idx = np.argsort(a, axis=None)[-nan_count-1]
+        idx = np.argpartition(a, -nan_count-1, axis=None)[-nan_count-1]
+        multi_idx = np.unravel_index(idx, a.shape)
+    return multi_idx
+
+def nanargmin(a):
+    return nanargmax(-a)
+
+
+
 
 
 # ---------------- fill related functions ---------------------------

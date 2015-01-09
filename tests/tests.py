@@ -83,6 +83,69 @@ class Test_project_helpers(unittest.TestCase):
     self.assertEqual(sg.isexpdir(os.path.join(D['my_project'], 'DPO')),  ['time_mean.nc'] ) 
 
 
+class TestMathOnCoords(unittest.TestCase):
+
+  def setUp(self):
+
+    print 'Setting up %s'%type(self).__name__
+
+    
+
+    # Coords ---    
+    coord1 = sg.fieldcls.Coord(name = 'test1',direction ='X',axis='X',value =np.linspace(-10.,10.,100) , metadata = {'hi':5} )
+
+    self.fixture = coord1
+
+  def tearDown(self):
+    print 'Tearing down %s'%type(self).__name__
+    del self.fixture
+
+
+
+  def test_coord_gaussian_method(self):
+    """Test gaussian method of Coord.
+    """
+    coord1 = self.fixture
+
+    W=coord1.gaussian(30,1)
+
+    self.assertEqual(round(np.max(W.value),5), 1.)
+    self.assertEqual(round(np.min(W.value),5), 0.)
+
+  def test_sgmax_sgmin_function(self):
+    """Test sgmax and sgmin function.
+    """
+    coord1 = self.fixture
+
+    W=coord1.gaussian(30,1)
+
+    self.assertEqual(round(sg.sgmax(W),5), 1.)
+    self.assertEqual(round(sg.sgmin(W),5), 0.)
+
+  def test_sgnanmax_sgnanmin_function(self):
+    """Test sgnanmax and sgnanmin function.
+    """
+    coord1 = self.fixture
+
+    W=coord1.gaussian(30,1)
+
+    W[50] = np.nan
+
+    self.assertEqual(round(sg.sgnanmax(W),5), 1.)
+    self.assertEqual(round(sg.sgnanmin(W),5), 0.)
+
+  def test_nanargmax_nanargmin_function(self):
+    """Test nanargmax and nanargmin function.
+    """
+    coord1 = self.fixture
+
+    W=coord1.gaussian(30,1)
+
+    W[50] = np.nan
+
+    self.assertEqual(sg.nanargmax(W.value), (30,))
+    self.assertEqual(sg.nanargmin(W.value), (99,))  
+
 class TestCoordsOnTheirOwn(unittest.TestCase):
 
   def setUp(self):
@@ -762,12 +825,124 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     coord1 = cstack1[0]
     coord2 = cstack1[1]
-     
-    K = coord1(coord1*coord2) 
-    R = coord1.coord_shift(K,1)
 
-    self.assertEqual( np.isnan( R.value[0,:] ).all() , True  )
+    # going to create 2D field K by regridding coord1, and then apply method to K to obtain R
+    # cast coord1 to Field defined on test grid coord1*coord2      
+    K = coord1.cast(coord1*coord2) 
+    R = coord1.coord_shift(K,1)  # and apply method to it to obtain Field R
+
+    # test whether newly exposed area (1D strip) is filled with the default fill value, nan
+    self.assertEqual( np.isnan( R.value[0,:] ).all() , True  ) 
+    # test whether R is constant in coord2 direction
     self.assertEqual( np.array_equal( R.value[1,:],  np.array([1.,1.,1.,1.]) ), True  )
+
+    # The default value of keepgrid is False, leading to replacement of the first Coord, named 'test1_rolled', in the grid:
+    self.assertEqual(R.grid[0].name == 'test1_rolled' , True  )
+    self.assertEqual( np.array_equal( R.grid[0].value,  np.array([3.,1.,2.]) ), True  )
+
+    # 
+
+  def test_coord_shift_method_keepgrid_arg(self):
+    """
+    Test Coord coord_shift method with keepgrid arg True
+
+    Need to check the nan's that show up as numbers in the exposed area.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+
+    # going to create 2D field K by regridding coord1, and then apply method to K to obtain R
+    # cast coord1 to Field defined on test grid coord1*coord2      
+    K = coord1.cast(coord1*coord2) 
+    R = coord1.coord_shift(K,1,keepgrid=True)  # and apply method to it to obtain Field R
+
+    # test whether newly exposed area (1D strip) is filled with the default fill value, nan
+    self.assertEqual( np.isnan( R.value[0,:] ).all() , True  ) 
+    # test whether R is constant in coord2 direction
+    self.assertEqual( np.array_equal( R.value[1,:],  np.array([1.,1.,1.,1.]) ), True  )
+
+    # The default value of keepgrid is False, leading to replacement of the first Coord, named 'test1_rolled', in the grid:
+    self.assertEqual(R.grid[0].name == 'test1' , True  )
+    self.assertEqual( np.array_equal( R.grid[0].value,  np.array([1.,2.,3.]) ), True  )
+
+
+  def test_coord_shift_method_nan_val_arg(self):
+    """
+    Test Coord coord_shift method with nan_val arg set to 10
+
+    Need to check the nan's that show up as numbers in the exposed area.
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+
+    # going to create 2D field K by regridding coord1, and then apply method to K to obtain R
+    # cast coord1 to Field defined on test grid coord1*coord2      
+    K = coord1.cast(coord1*coord2) 
+    R = coord1.coord_shift(K,1,nan_val = 10.)  # and apply method to it to obtain Field R
+
+    # test whether newly exposed area (1D strip) is filled with the default fill value, nan
+    self.assertEqual( ( R.value[0,:] ==10. ).all() , True  ) 
+    # test whether R is constant in coord2 direction
+    self.assertEqual( np.array_equal( R.value[1,:],  np.array([1.,1.,1.,1.]) ), True  )
+
+    # The default value of keepgrid is False, leading to replacement of the first Coord, named 'test1_rolled', in the grid:
+    self.assertEqual(R.grid[0].name == 'test1_rolled' , True  )
+    self.assertEqual( np.array_equal( R.grid[0].value,  np.array([3.,1.,2.]) ), True  )
+
+
+  def test_directed_field_addition_X_X(self):
+    """
+    Test adding two fields of various directions
+
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+
+    # going to create 2D field K by regridding coord1.  
+    K = coord1.cast(coord1*coord2) 
+#    R = coord1.coord_shift(K,1,keepgrid=True)  # and apply method to it to obtain Field R
+
+    M = K.copy(direction='X')
+    L = K.copy(direction='X')
+
+    self.assertEqual( np.sum( (M + L).value ), 48.0  ) 
+    self.assertEqual( np.sum( (M - L).value ), 0.0  ) 
+
+
+
+  def test_directed_field_addition_scalar_X(self):
+    """
+    Test adding two fields of various directions
+
+    """
+
+    cstack1 = self.fixture[0]
+
+    coord1 = cstack1[0]
+    coord2 = cstack1[1]
+
+    # going to create 2D field K by regridding coord1.  
+    K = coord1.cast(coord1*coord2) 
+#    R = coord1.coord_shift(K,1,keepgrid=True)  # and apply method to it to obtain Field R
+
+    M = K.copy(direction='scalar')
+    L = K.copy(direction='X')
+
+    self.assertEqual( np.sum( (M + L).value ), 48.0  ) 
+    self.assertEqual( np.sum( (M - L).value ), 0.0  ) 
+
+    self.assertEqual( np.sum( (L + M).value ), 48.0  ) 
+    self.assertEqual( np.sum( (-(L - M)).value ), 0.0  ) 
+
 
   def test_trans_method(self):
     """
@@ -778,9 +953,10 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
     coord1 = cstack1[0]
     coord2 = cstack1[1]
-     
-    K = coord1(coord1*coord2) 
-    R = coord1.trans(K)
+
+    # cast coord1 to Field defined on test grid coord1*coord2      
+    K = coord1.cast(coord1*coord2) 
+    R = coord1.trans(K) # and apply trans to it
 
     self.assertEqual( np.array_equal( R.value[1,:],  np.array([1.,1.,1.,1.]) ), True  )
     self.assertEqual( np.array_equal( R.value[2,:],  np.array([1.,1.,1.,1.]) ), True  )

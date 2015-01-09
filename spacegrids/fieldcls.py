@@ -539,30 +539,38 @@ class Coord(Directional, Valued):
     else:   
       return
 
-  def gaussian(self,mu,sig):
+  def gaussian(self,i_mu,sig, mask = None):
     """
-    Compute Gaussiangaussian(x, mu, sig): function with avg mu and sigma sig on Coord domain.
+    Compute Gaussian gaussian(x, i_mu, sig): function with avg mu and sigma sig on Coord domain.
 
     Args:
-      mu: (int or float). index of mu of 
+      i_mu: (int or float). index of mu 
+      sig: (float) sigma
+      mask: (None or string) values below/ above mu will be set to 1 if 'left'/'right' selected
+
+    Returns:
+      Field with gaussian defined on self Coord
 
     Raises: Value, TypeError
     """
     
-    if isinstance (mu,int):
-      if 0<=mu<len(self):
-        value = gaussian(self.value, mu, sig)
-        return Field('gaussian',value=value,grid=self**2,units = 'nondim', direction = 'scalar', long_name = 'Gaussian')
+    if isinstance (i_mu,int):
+      if 0<=i_mu<len(self):
+        value = gaussian(self.value, self[i_mu], sig,mask=mask)
+        return Field('gaussian',value=value,grid=self**2,units = 'nondim', long_name = 'Gaussian')
 
 
       else:
-        raise ValueError('Int Gaussian argument %s must be in Coord value.' % mu )
+        raise ValueError('Int Gaussian argument i_mu %s must be in Coord value.' % i_mu )
         return
-    elif isinstance(mu,float):
-      pass
+    elif isinstance(i_mu,float):
+      raise TypeError('Gaussian argument i_mu %s must be int.' % i_mu )
+      return
     else:
-      raise TypeError('Gaussian mu argument %s must be int or float' % mu )
+      raise TypeError('Gaussian i_mu argument %s must be int or float' % i_mu )
       return      
+
+
 
 
 # ----- multiplication related ---------      
@@ -788,6 +796,7 @@ class Coord(Directional, Valued):
       F: (Field) field to shift
       shift: (int) magnitude (corresponding to array index) of shift
       keepgrid: (Boolean, default False) grid not updated if True
+      nan_val: (nan or number) value to put into newly exposed part after shift
 
     Returns:
       The shifted Field.
@@ -2944,6 +2953,19 @@ class Field(Valued):
     """
     return roll(self, shift = shift,coord = crd)
 
+
+  def nanargmax(self):
+    """Calculate the nanargmax of Field value using nanargmax function in utilsg.
+    """
+    return nanargmax(self.value)
+
+  def nanargmin(self):
+    """Calculate the nanargmin of Field value using nanargmin function in utilsg.
+    """
+    return nanargmin(self.value)
+
+
+
   def __add__(self,other):
     """
     Field addition F + G. 
@@ -2962,7 +2984,7 @@ class Field(Valued):
             warnings.warn('grids contain same data points but different other attributes (e.g. name). Proceeding.')
 
           if self.strict_v:
-            if self.direction == other.direction:
+            if (self.direction == 'scalar') or (other.direction == 'scalar') or (self.direction == other.direction) or (self.direction.name == 'scalar') or (other.direction.name == 'scalar'):
               return self.copy(value = L+R)
 
             else: 
@@ -3003,14 +3025,14 @@ class Field(Valued):
             warnings.warn('grids contain same data points but different other attributes (e.g. name). Proceeding.')
 
           if self.strict_v:
-            if self.direction == other.direction:
+            if (self.direction == 'scalar') or (other.direction == 'scalar') or (self.direction == other.direction) or (self.direction.name == 'scalar') or (other.direction.name == 'scalar'):
 
 
 
               return self.copy(value = L - R,long_name = self.long_name + ' difference')
 
             else: 
-              return self*other
+              return self*(-other)
 
           else:
 
