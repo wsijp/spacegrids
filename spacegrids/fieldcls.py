@@ -594,7 +594,7 @@ class Coord(Directional, Valued):
 
     gauss = self.gaussian(i_mu,sig=sig,mask=mask)
 
-    return gauss*F2 + F1 - F1*gauss
+    return F2*gauss + F1 - F1*gauss
 
 
 
@@ -662,7 +662,7 @@ class Coord(Directional, Valued):
     """
     return self.copy(name = self.name + '_zero'  , value = self.value - self.value[0])
  
-  def _cdf_insert(self,file_handle, miss_default = 9.96921e+36):
+  def cdf_insert(self,file_handle, miss_default = 9.96921e+36):
     """
     Netcdf insert method of Coord 
     Inserts Coord as variable into Netcdf file.
@@ -746,7 +746,7 @@ class Coord(Directional, Valued):
       print 'Cannot write ', name
     else:
 
-      file_handle = self._cdf_insert(file_handle)
+      file_handle = self.cdf_insert(file_handle)
 
       file_handle.history = history + '%s'%str(datetime.datetime.now())
  
@@ -1116,7 +1116,7 @@ class Coord(Directional, Valued):
 
 
 # belongs to  Coord  
-  def delta_dist(self, fact = 1.):
+  def delta_dist(self, fact = 1.,nonan=False):
     """
     Method to calculate the distance between adjacent elements of Coord.
     Appropriate to vertical direction.
@@ -1147,12 +1147,19 @@ class Coord(Directional, Valued):
     array([ nan,   1.,   1.])
     """
        
-    return self.trans(self.dist())*fact
+    return_field = self.trans(self.dist())*fact
+
+    # hack to avoid nan distances at the start:
+    if nonan and np.isnan(return_field.value[0]) and (len(return_field.value)>1):
+      return_field.value[0] = return_field.value[1]       
+
+    return return_field
+
 
 # --> belongs to  Coord
   def d(self):
     """
-    Calculates width of grid cell in direction of Coord (self) using the dual of self (e.g. zt_edges). 
+    Calculates width of grid cell in direction of Coord (self, e.g. zt) using the dual of self (e.g. zt_edges). 
 
     Yields grid cell widths. Can be used to compute volumes.
 
@@ -1178,11 +1185,13 @@ class Coord(Directional, Valued):
     """
 
     # calculate distances between adjacent points in dual:
-    ret_Field = self.dual.delta_dist()
-    if not (np.array_equal(self.value, self.dual.value ) ):
-   
+    ret_Field = self.dual.delta_dist(nonan=True)
+#    if not ( (self == self.dual) or np.array_equal(self.value, self.dual.value ) ):
 
-      # for non-self dual Coord objects: truncate to achieve equal length to self:
+    if not ( (self == self.dual) or (len(self.value) ==  len(self.dual.value) ) ):
+   
+      # for non-self dual Coord objects: truncate to achieve equal length to self.
+      # this is because the dual is generally 1 longer than self. Hence the 
       ret_Field.value = ret_Field.value[1:]
 
     # update these attributes, as the original copy was based on self.dual:
@@ -1295,7 +1304,7 @@ class XCoord(Coord):
     return roll(F,shift = shift,coord = self, mask = False, keepgrid = keepgrid)
 
 
-  def delta_dist(self,y_coord,fact = R):
+  def delta_dist(self,y_coord,fact = R,nonan=False):
     """
     Computes distances between adjacent spherical longitudinal coordinate points of XCoord (self) taking into account latitudinal positions.
 
@@ -1321,7 +1330,10 @@ class XCoord(Coord):
     crdvals -= self.value
 
     val = np.array([ -fact*np.cos(np.radians(y))*(np.pi/180.)*crdvals for y in y_coord  ])
-   
+ 
+    if nonan and np.isnan(val[0]) and (len(val)>1):
+      val[0] = val[1]       
+  
     return Field(name='delta_'+self.name,value = val,grid = y_coord*self, units = self.units) 
 
 
@@ -2586,7 +2598,7 @@ class Gr(tuple, Membered):
     
   def vol(self):
     """
-    Determines volumes (areas/ lengths) of grid members, returns Field.
+    Determines volumes (areas/ lengths) of grid elements, returns Field.
 
     Calls Coord member d method. 
 
@@ -2595,11 +2607,11 @@ class Gr(tuple, Membered):
     """
     # Depends on the use of {x,y,z}_coord convention in arguments to d() method of classes derived from Coord  (e.g. XCoord takes y_coord argument).
 
+    # coord_types is used in _find_args_coord method to identify arguments to d method. The keys correspond to d method argument names. No time coordinate included, as grids thought te be unchanging in time.
     coord_types = {'x_coord':XCoord,'y_coord':YCoord,'z_coord':Coord}
 
     # obtain arguments to Coord.d method from the grid (self) context:
     C = self._find_args_coord(coord_types)
-
    
     # Use splat operator * to pass coords list on as argument
     # cycle through coords, the list of Coord elements required as arguments for each Coord, 
@@ -2608,7 +2620,7 @@ class Gr(tuple, Membered):
   
   def _find_args_coord(self,coord_types, method_name = 'd'):
     """
-    Find arguments to feed method (default d) for each Coord member.
+    Find arguments to feed to specified method (default d) for each Coord member.
 
     Needed to determine what other Coord objects to feed the overriden Coord.d method. For example, xt.d(F,yt) as opposed to zt.d(). Uses inspect on method. Used by der and vol.
 
@@ -2638,7 +2650,7 @@ class Gr(tuple, Membered):
         if isinstance(r,coord_types[i]):
           coord_store[i] = r
 
-    L = []
+    L = [] # list of lists of Coord arguments to be returned
     for r in self:
       # get the Coord-derived objects that need to be passed to each d method of Coord (e.g. xt.d(yt))
       exec 'method = r.' + method_name
@@ -2748,7 +2760,7 @@ class Field(Valued):
       return False
 
 
-  def _cdf_insert(self,file_handle, insert_dual = True, force_squeeze = False, miss_default = 9.96921e+36):
+  def cdf_insert(self,file_handle, insert_dual = True, force_squeeze = False, miss_default = 9.96921e+36):
     """
     Inserts Field into Netcdf file on disk.
 
@@ -2764,15 +2776,15 @@ class Field(Valued):
 
     # handle the squeeze dimensions
     if not force_squeeze and len(self.squeezed_dims) > 0:
-      return unsqueeze(self)._cdf_insert(file_handle = file_handle, insert_dual = insert_dual)    
+      return unsqueeze(self).cdf_insert(file_handle = file_handle, insert_dual = insert_dual)    
 
     # insert the coords in own grid
     for crd in self.grid:
       if not crd.name in file_handle.variables:
-        crd._cdf_insert(file_handle)
+        crd.cdf_insert(file_handle)
     
         if insert_dual and (crd.dual != crd) and (not crd.dual.name in file_handle.variables):
-          crd.dual._cdf_insert(file_handle)         
+          crd.dual.cdf_insert(file_handle)         
 
     # This could bloat memory. Redo in a new way.
     value = copy.deepcopy(self.value)
@@ -2807,11 +2819,9 @@ class Field(Valued):
   def write(self, path = None, name = None , history = 'Created from Spacegrids ' , insert_dual = True, force_squeeze = False ):
 
     """
-    Write method of Field .
-
     Creates Netcdf file and writes Field to it, along with its Coord objects.
 
-    Fields are unsqueezed before saving, along Coord objects of single length to be saved as well (override with force_squeeze = True).
+    Fields are unsqueezed before saving along Coord objects of single length. These single length Coord objects are saved as well (override with force_squeeze = True): e.g. a time stamp is saved as a coordinate of length 1.
 
     If path and name are not specified, the file will be located in the working directory.
     If only name is specified, the file will be in the wd under that name
@@ -2836,8 +2846,7 @@ class Field(Valued):
     if not path is None:
       name = os.path.join( path , name ) 
    
-    
-
+   
     print 'Writing Field to file %s'%name
     try:
       file_handle = netcdf_file(name , 'w')
@@ -2845,7 +2854,7 @@ class Field(Valued):
       print 'Cannot write ', name
     else:
 
-      file_handle = self._cdf_insert(file_handle, insert_dual = insert_dual , force_squeeze = force_squeeze)
+      file_handle = self.cdf_insert(file_handle, insert_dual = insert_dual , force_squeeze = force_squeeze)
 
       file_handle.history = history + '%s'%str(datetime.datetime.now())
  
@@ -3316,8 +3325,10 @@ class Field(Valued):
   def __div__(self,other):
     """
     Divides two Fields. 
+
+    If other is a Gr (grid), returns other.mean(self). If other is Coord, other is converted to Gr via other**2.
  
-    See __mult__
+    See also __mult__
     """
     if isinstance(other,int):
       return self/float(other)
@@ -3450,7 +3461,7 @@ class Field(Valued):
     """
     Compute total volume (area/ length) of non-nan grid cells. 
 
-    Uses sum method, see sum.
+    Uses sum method, see sum. 
 
     Args:
       grid: (Gr) to use in sum method.  None means the entire Field grid.
@@ -3458,6 +3469,7 @@ class Field(Valued):
     Returns:
       float: the total volume.
     """
+    
     return (self.dV()).sum(grid)
 
 
@@ -3513,7 +3525,7 @@ class Field(Valued):
     """
 
     if isinstance(grid,Ax) or isinstance(grid,Coord):
-      grid = grid**2
+      grid = grid**2 # obtain related grid
 
     ret_field = (self.dV()*self).sum(grid)/(self.dV()).sum(grid)
 
@@ -4092,7 +4104,7 @@ def nugget(path = None, name = None,fields = [] , history = 'Created from Spaceg
 
       for fld in fields:
 
-        file_handle = fld._cdf_insert(file_handle)
+        file_handle = fld.cdf_insert(file_handle)
 
       file_handle.history = history + '%s'%str(datetime.datetime.now())
  
@@ -4246,6 +4258,10 @@ def find_set_dual(cstack, force = None):
         return cstack
 
   # create grid, and therefore tuple, of all axis objects associated with Coord objects in list cstack.
+
+  if (len(cstack) == 0):
+    return cstack
+
   axes_available = reduce(lambda x,y: x*y, [c.axis for c in cstack])
 
 

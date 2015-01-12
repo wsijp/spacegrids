@@ -119,7 +119,10 @@ class Exper(object):
 # The variables associated with this experiment. It is a dictionary of name vs struct    
     self.vars = copy.deepcopy(vars)
 
-    self.nbytes = reduce( lambda x,y: x + y, [e.nbytes for e in cstack]  )
+    if (len(cstack) > 0):
+      self.nbytes = reduce( lambda x,y: x + y, [e.nbytes for e in cstack]  )
+    else:
+      self.nbytes=0
     
 
   def __setitem__(self,varname, arr):
@@ -596,7 +599,11 @@ class Exper(object):
      """Recalculate and update memory usage of this Exper.
      """
 
-     coord_bytes = reduce( lambda x,y: x + y, [e.nbytes for e in self.cstack]  )
+     if len(self.cstack) >0:
+       coord_bytes = reduce( lambda x,y: x + y, [e.nbytes for e in self.cstack]  )
+     else:
+       coord_bytes = 0
+
      if len(self.vars) > 0:
        field_bytes = reduce( lambda x,y: x + y, [e.nbytes for e in self.vars.values()]  )    
      else:

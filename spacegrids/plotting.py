@@ -430,7 +430,7 @@ def plot(fld0 = None,fld1=None, minus_z=True,xlbl='',ylbl='', grid = None,start_
 
 
      if grid is None:
-       crd = fld0.grid[0]
+       crd = (squeeze(fld0)).grid[0]
      else:
        crd = grid[0]
 
@@ -442,21 +442,21 @@ def plot(fld0 = None,fld1=None, minus_z=True,xlbl='',ylbl='', grid = None,start_
        # z-axis points downard
        if hasattr(crd,'axis'):
          if crd.axis.name == 'Z':
-           xax = fld0
+           xax = squeeze(fld0)
            yax = -crd
          else:
            xax = crd
-           yax = fld0
+           yax = squeeze(fld0)
        else:
          xax = crd
-         yax = fld0
+         yax = squeeze(fld0)
      else:
        xax = crd
-       yax = fld0
+       yax = squeeze(fld0)
             
    else:
-     xax = fld0
-     yax = fld1
+     xax = squeeze(fld0)
+     yax = squeeze(fld1)
 
    if not(xlbl == 'No'):
      if xlbl == '':
