@@ -2866,10 +2866,10 @@ class Field(Valued):
     """
     Concatenate with another Field along specified axis. 
 
-    If ax is None, concatenation takes place along the first encountered common axis with non-equal values.
-    Grids must be orient along same axes and in same axis order.
+    If ax is not specified (None), concatenation takes place along the first encountered common axis with non-equal values.
+    Grids must be oriented along same axes and in same axis order.
 
-    Concatenation along direction with same Coord values for both fields leads to the right (other) Field being returned (don't use this).
+    Concatenation along direction with same Coord values for both fields leads to the right (other) Field being returned (don't use this). For instance, multiple Netcdf files in the same experiment directory with fields defined on the same grid leads to this.
 
     Args:
       other: (Field) to concatenate with
@@ -2895,8 +2895,18 @@ class Field(Valued):
 
 
     if ax is None:
-      
-      i_ax = (self.grid.array_equal(other.grid)).index(False)
+
+      # test whether grids contain equal component coordinates and store True/ False results in list
+      equal_test = self.grid.array_equal(other.grid)
+      if False in equal_test:
+        # if we find an axis along which the coords are not equal:
+        i_ax = equal_test.index(False)
+      else:
+        # if all axes have the same coord values, concatenate along the coord with the fewest points
+        # this leads to a collapse of the fields along that coord, so not recommended.
+        i_ax = self.shape.index(min(self.shape))
+        warnings.warn('Concatenating along identical coords for %s: collapsing fields!'%self.name)
+
       ax = self_axis[i_ax]
     
     cat_coord_self = ax*self.grid
