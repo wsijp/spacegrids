@@ -3539,9 +3539,10 @@ class Field(Valued):
 
     ret_field = (self.dV()*self).sum(grid)/(self.dV()).sum(grid)
 
-    ret_field.name = self.name
-    ret_field.long_name = 'zonal mean ' + self.long_name    
-    ret_field.units = self.units
+    if isinstance(ret_field, Field):
+      ret_field.name = self.name
+      ret_field.long_name = 'zonal mean ' + self.long_name    
+      ret_field.units = self.units
 
     return ret_field  
 
@@ -4272,7 +4273,7 @@ def find_set_dual(cstack, force = None):
   if (len(cstack) == 0):
     return cstack
 
-  axes_available = reduce(lambda x,y: x*y, [c.axis for c in cstack])
+  axes_available = cstack[0].axis*reduce(lambda x,y: x*y, [c.axis for c in cstack])
 
 
   for a in axes_available:
