@@ -4220,6 +4220,21 @@ def finer_field(F,factor =5.):
 # ------------- some Coord related functions ----------------------
 
 
+def standard_grid(shape):
+  """
+  Returns grid with shape and coords arange(s) for s in shape.
+
+  To be used when no Field grid is available.
+  """
+
+  x=[]
+  for i,s in enumerate(shape):
+    x.append( Coord( name = 'x'+str(i),value = np.arange(s), axis = Ax('X'+str(i)), direction = 'X'+str(i)    ) )
+
+  return Gr(tuple(x))
+
+
+
 
 # used in function cdfsniff
 cdf_axes = {'X':XCoord,'Y':YCoord,'Z':Coord,'T':Coord,'scalar':Coord}
@@ -4662,19 +4677,20 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
 
   dims = list(var_cdf_ob.dimensions) 
 
- 
   grid = []
 
   for dim in dims:
-    dim_val = file.variables[dim][:]
+    if dim in file.variables:
+      dim_val = file.variables[dim][:]
    
-    for crd in coord_stack:
+      for crd in coord_stack:
    
-      if (dim == _dimname(crd) ) and np.array_equal(dim_val , crd.value):
+        if (dim == _dimname(crd) ) and np.array_equal(dim_val , crd.value):
      
-        grid.append(crd)
+          grid.append(crd)
   
-  grid=Gr(tuple(grid))          
+  grid=Gr(tuple(grid))
+          
   if slices is not None:
 
     slices = interpret_slices(slices,grid )
@@ -4683,6 +4699,12 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
 
  # VARIABLE DATA READ FROM FILE 
   body = _read_data(var_cdf_ob, slices = slices)
+
+  if grid.shape() != body.shape:
+    warnings.warn('Grid shape different from array shape. Assigning standard grid.')
+
+    grid = standard_grid(body.shape)
+
 
   if hasattr(var_cdf_ob,'units'):
     units = var_cdf_ob.units

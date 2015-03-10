@@ -37,6 +37,7 @@ elif cdf_lib == 'scientificio':
 else:
   from scipy.io import netcdf         
   cdf_lib_used = 'scipyio'
+  print 'Using scipyio'
 import os
 
 from fieldcls import *
