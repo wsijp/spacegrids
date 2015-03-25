@@ -4145,6 +4145,9 @@ def roll(F,shift=1,coord=None,axis=None,mask=False,keepgrid = False, nan_val = n
     Rolled Field.
   """
 
+  if shift==0:
+    return F
+
   if isinstance(coord,Ax):
     coord = coord*F.grid
 

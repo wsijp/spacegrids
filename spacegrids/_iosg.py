@@ -15,6 +15,8 @@ warnings.formatwarning = warning_on_one_line
 
 # fallback is always scipy.io: least dependencies
 
+# cdf_lib set in _config.py and determines which library to use
+
 if cdf_lib =='netcdf4':  
   try:
     from netCDF4 import Dataset
