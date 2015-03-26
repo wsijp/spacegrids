@@ -1001,11 +1001,12 @@ def _slice_mask(mask,xmin=0,xmax=10000,ymin=0,ymax=10000):
   mask[slicey_max,:] = 0      
 
 
-def floodfill(A, node = (0,0),boundary_value = np.nan, xmin=0,xmax=-1,ymin=0,ymax=-1,x_cyclic = False, y_cyclic = False, mask_val = 2):
+def floodfill(A, node = (0,0),boundary_value = np.nan, xmin=0,xmax=-1,ymin=0,ymax=-1,x_cyclic = False, y_cyclic = False, mask_val = 2,max_count=None):
   """
   Function to fill array (e.g. ocean) from node up to boundary defined by boundary_value (e.g. land) using floodfill.
 
   Creates mask to fill array (e.g. ocean) in area contained within boundary_value (e.g. land), containing node.
+  A value of 1 in the mask indicates the filled area.
 
   Args:
     A: (ndarray) 2 dimensional array to use fill on
@@ -1062,22 +1063,28 @@ def floodfill(A, node = (0,0),boundary_value = np.nan, xmin=0,xmax=-1,ymin=0,yma
 
   Q.append(node)
 
-  while Q:
+  count=0
+
+  print 'yes'
+
+  while Q and count<max_count:
     N = Q.pop(0)
 
     if _test_node(mask,N):
       w = N
       e = move_east(N)
 
-      while _test_node(mask,w):
+      while _test_node(mask,w) and count<max_count:
+        count +=1
         _set_node(mask,w)
         n = move_north(w)
         _test_node_append(mask, n,Q)          
         s = move_south(w)
         _test_node_append(mask, s,Q)      
         w = move_west(w)        
-        
-      while _test_node(mask,e):
+
+      while _test_node(mask,e) and count<max_count:
+        count +=1
         _set_node(mask,e)
         n = move_north(e)
         _test_node_append(mask, n,Q)          
@@ -1085,8 +1092,11 @@ def floodfill(A, node = (0,0),boundary_value = np.nan, xmin=0,xmax=-1,ymin=0,yma
         _test_node_append(mask, s,Q)      
         e = move_east(e)        
 
-  return _de_embed(mask,x_cyclic = x_cyclic, y_cyclic = y_cyclic)
-
+  if max_count is None:
+    print 'yoyoyo'
+    return _de_embed(mask,x_cyclic = x_cyclic, y_cyclic = y_cyclic)
+  else:
+    return (_de_embed(mask,x_cyclic = x_cyclic, y_cyclic = y_cyclic),count)
 
 # ------------- general time series related functions ----------------
 
