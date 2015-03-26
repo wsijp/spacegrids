@@ -1067,15 +1067,18 @@ def floodfill(A, node = (0,0),boundary_value = np.nan, xmin=0,xmax=-1,ymin=0,yma
 
   print 'yes'
 
-  while Q and count<max_count:
+  while Q:
     N = Q.pop(0)
+    count+=1
+    if (max_count is not None) and count >= max_count:
+      break      
 
     if _test_node(mask,N):
       w = N
       e = move_east(N)
 
-      while _test_node(mask,w) and count<max_count:
-        count +=1
+      while _test_node(mask,w):
+       
         _set_node(mask,w)
         n = move_north(w)
         _test_node_append(mask, n,Q)          
@@ -1083,8 +1086,8 @@ def floodfill(A, node = (0,0),boundary_value = np.nan, xmin=0,xmax=-1,ymin=0,yma
         _test_node_append(mask, s,Q)      
         w = move_west(w)        
 
-      while _test_node(mask,e) and count<max_count:
-        count +=1
+      while _test_node(mask,e):
+        
         _set_node(mask,e)
         n = move_north(e)
         _test_node_append(mask, n,Q)          
@@ -1093,7 +1096,7 @@ def floodfill(A, node = (0,0),boundary_value = np.nan, xmin=0,xmax=-1,ymin=0,yma
         e = move_east(e)        
 
   if max_count is None:
-    print 'yoyoyo'
+    
     return _de_embed(mask,x_cyclic = x_cyclic, y_cyclic = y_cyclic)
   else:
     return (_de_embed(mask,x_cyclic = x_cyclic, y_cyclic = y_cyclic),count)
