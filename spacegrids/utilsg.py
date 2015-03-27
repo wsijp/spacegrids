@@ -1059,13 +1059,15 @@ def floodfill(A, node = (0,0),boundary_value = np.nan, xmin=0,xmax=-1,ymin=0,yma
   if not _test_node(mask,node):
 
     warnings.warn('node selected inside boundary value or fill value area. Returning non-filled mask')
-    return _de_embed(mask,x_cyclic = x_cyclic, y_cyclic = y_cyclic)
+
+    if max_count is None:
+      return _de_embed(mask,x_cyclic = x_cyclic, y_cyclic = y_cyclic)
+    else:
+      return _de_embed(mask,x_cyclic = x_cyclic, y_cyclic = y_cyclic),0
 
   Q.append(node)
 
   count=0
-
-  print 'yes'
 
   while Q:
     N = Q.pop(0)
@@ -1099,7 +1101,7 @@ def floodfill(A, node = (0,0),boundary_value = np.nan, xmin=0,xmax=-1,ymin=0,yma
     
     return _de_embed(mask,x_cyclic = x_cyclic, y_cyclic = y_cyclic)
   else:
-    return (_de_embed(mask,x_cyclic = x_cyclic, y_cyclic = y_cyclic),count)
+    return _de_embed(mask,x_cyclic = x_cyclic, y_cyclic = y_cyclic),count
 
 # ------------- general time series related functions ----------------
 
