@@ -803,6 +803,9 @@ def overview():
   RP.echoln("m_TEMP = TEMP_sliced/(X*Y) # zonal mean  ")
   RP.echoln("TEMP_regridded = TEMP(U.grid)	   ")
   RP.echoln("   ")
+  RP.echoln("Use deepcopy with caution!!! (use Field.copy method instead)")
+  RP.echoln("   ")
+
 
   print RP.value
 
