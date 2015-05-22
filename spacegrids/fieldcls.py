@@ -705,6 +705,9 @@ class Coord(Directional, Valued):
 
     var_cdf = file_handle.createVariable(self.name, value.dtype.char, (self.name,)   )
 
+    setattr(var_cdf,'fill_value',miss_val)
+    setattr(var_cdf,'missing_value',miss_val)
+
     if hasattr(self,'axis'):
       if hasattr(self.axis,'name'):
         setattr(var_cdf,'axis',self.axis.name)
@@ -2821,6 +2824,10 @@ class Field(Valued):
     # Create the actual variable corresponding to Field.value
     var_cdf = file_handle.createVariable(self.name, value.dtype.char, tuple( [crd.name for crd in self.grid] )   )
     var_cdf[:] = value
+
+    setattr(var_cdf,'fill_value',miss_val)
+    setattr(var_cdf,'missing_value',miss_val)
+
 
     if hasattr(self,'units'):
       if self.units is not None:
