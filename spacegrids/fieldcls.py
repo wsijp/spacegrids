@@ -275,10 +275,13 @@ class Coord(Directional, Valued):
  
 
     if associative is None:
-      self.associative = Associative(self.name+'_assoc')
+      if  hasattr(axis, 'associative'):
+        self.associative = axis.associative # coord belongs to group of axis arg
+      else:
+        self.associative = Associative(self.name+'_assoc')   # create new associative group
     else:
       if hasattr(associative, 'associative'):
-        self.associative = associative.associative
+        self.associative = associative.associative # coord belongs to group of associative arg
       else:
         raise ValueError('provide object with associative attribute for associative.')
 
@@ -4919,7 +4922,7 @@ def interpret_slices(L, grid , others = slice(None, None, None), as_int = False)
     for i in L:
       if isinstance(i,Coord):
         if i not in grid:
-          raise ValueError('Slice Coord argument %s not in Field %s grid %s.'%(i,self,self.grid))
+          raise ValueError('Slice Coord argument %s not in grid %s.'%(i,grid))
 
         crds.append(i)
 
@@ -4927,7 +4930,7 @@ def interpret_slices(L, grid , others = slice(None, None, None), as_int = False)
        
         slice_coord = i*grid
         if slice_coord is None:
-          raise ValueError('Slice axis argument %s not in Field %s grid %s.' % (i,self,self.grid))
+          raise ValueError('Slice axis argument %s not in grid %s.' % (i,grid))
         else:
           crds.append(slice_coord) 
 

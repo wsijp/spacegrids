@@ -5,6 +5,11 @@ Data required for these tests is the example project my_project mentioned in the
 
 """
 
+# tests to do:
+# mTAUX[X,0] should yield ValueError:  Slice axis argument X not in grid (time, yu)
+# when mTAUX.grid is (time, yu)
+
+
 import inspect
 import copy
 import unittest
@@ -716,6 +721,28 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     coord1.make_equiv(coord2)
   
     self.assertEqual(coord1.eq_in(coord2*coord3),  coord2  )
+
+  def test_coord_from_scratch_equiv_to_axis(self):
+    """
+    Test whether newly created Coord objects are equivalent to their axis
+    """
+
+    s = (123, 16, 16) # shape
+
+    X = sg.Ax('X')
+    Y = sg.Ax('Y')
+    T = sg.Ax('T')
+
+    c0 = sg.Coord(name='time',value=np.arange(s[0]),axis=T,direction='T')
+    c1 = sg.Coord(name='y',value=np.arange(s[1]),axis=Y,direction='Y')
+    c2 = sg.Coord(name='x',value=np.arange(s[2]),axis=X,direction='X')
+
+    F = sg.Field(name='data',value=np.ones(s),grid = c0*c1*c2)
+
+    G = F/X  # this will fail if c0 not equiv to T etc. So testing whether automatically c0 equiv to T
+
+    self.assertEqual(G.shape,(123, 16))
+    
 
 
   def test_pow_method(self):
