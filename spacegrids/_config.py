@@ -61,9 +61,9 @@ month_len=(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
 # keywords by which coordinate spatial/ time direction (e.g. x-direction) can be identified/ guessed from description (long_name attribute) in netcdf file.
 # strings starting with ! indicate keywords that should NOT appear in the descriptions. These denied keywords have precedence over the allowed keywords.
+# string starting with ? must match precisely.
 
-
-coord_dir_names = {'x_dir_names' : ['eastward','Eastward','zonal','Zonal','longitude','Longitude'], 'y_dir_names' : ['northward','Northward','meridional','Meridional','latitude','Latitude'], 'z_dir_names' : ['upward','Upward','vertical','Vertical','depth','Depth','pressure','!surface','level','Level'], 't_dir_names' : ['T','time','Time','year','Year']}
+coord_dir_names = {'x_dir_names' : ['eastward','Eastward','zonal','Zonal','longitude','Longitude','?X'], 'y_dir_names' : ['northward','Northward','meridional','Meridional','latitude','Latitude','?Y'], 'z_dir_names' : ['upward','Upward','vertical','Vertical','depth','Depth','pressure','!surface','level','Level','?Z'], 't_dir_names' : ['?T','time','Time','year','Year']}
 
 edge_names = ['edges','bounds']
 

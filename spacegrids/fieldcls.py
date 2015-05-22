@@ -703,11 +703,21 @@ class Coord(Directional, Valued):
 
     file_handle.createDimension(self.name,len(self))
 
-
     var_cdf = file_handle.createVariable(self.name, value.dtype.char, (self.name,)   )
-    
+
+    if hasattr(self,'axis'):
+      if hasattr(self.axis,'name'):
+        setattr(var_cdf,'axis',self.axis.name)
+      elif isinstance(self.axis,str) or isinstance(self.axis,unicode):
+        setattr(var_cdf,'axis',self.axis)  
+
+    if hasattr(self,'units'):
+      if self.units is not None:
+        setattr(var_cdf,'units',self.units)
+ 
     for k in self.metadata:
       setattr(var_cdf,k, self.metadata[k]) 
+
 
     var_cdf[:] = value
 
@@ -2812,6 +2822,9 @@ class Field(Valued):
     var_cdf = file_handle.createVariable(self.name, value.dtype.char, tuple( [crd.name for crd in self.grid] )   )
     var_cdf[:] = value
 
+    if hasattr(self,'units'):
+      if self.units is not None:
+        setattr(var_cdf,'units',self.units)
 
     for k in self.metadata:
       setattr(var_cdf,k, self.metadata[k]) 
@@ -4573,13 +4586,20 @@ def _guess_helper(desc, guess_names, true_val = None, false_val = None):
     deny = reduce(lambda x,y: x| y , denied_found)
   else:
     deny = False
+
+  precise_found = [e[1:] == desc for e in guess_names if e[0] =='?']
+  if precise_found:
+    precise = reduce(lambda x,y: x| y , precise_found)
+  else:
+    precise = False
+
   allowed_found = [e in desc for e in guess_names if e[0] !='!']
   if allowed_found:
     allow = reduce(lambda x,y: x| y , allowed_found)
   else:
     allow = False
 
-  if not(deny) and allow:  
+  if not(deny) and (allow or precise):  
     return true_val
   else:
     return false_val
@@ -4588,6 +4608,8 @@ def guess_direction(cdf_var,  name_atts = ['long_name','standard_name'], x_dir_n
 
   """
   Helper function for cdfread to guess, based on keywords in the netcdf data descriptions, whether a Field is a (space-) vector Field component and in what direction it points. 
+
+  Tests whether keyword is in attribute. If first character is ! it means "not in" and if it is ?, it means the string must match precisely.
 
   The directional_names argument is a list of keywords that might show up in a description that indicates a vector component: e.g. the word velocity. If this list is empty, the function will not search for those keywords (less restrictive). The name_atts argument indicates the possible name of a descriptive attribute in a netcdf file. The {x,y,z}_dir_names correspond to keywords indicating that particular direction (x,y,z).
   """
@@ -4612,7 +4634,7 @@ def guess_direction(cdf_var,  name_atts = ['long_name','standard_name'], x_dir_n
         for XX in try_dict:
 
           try_dir = _guess_helper(desc, try_dict[XX], true_val = XX)
-        
+
           if try_dir:
             return try_dir
        

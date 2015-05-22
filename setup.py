@@ -12,10 +12,12 @@ def read(fname):
 setup(name='spacegrids',
       version='1.8',
       author='Willem Sijp',
-      author_email='w.sijp@unsw.edu.au',
+      author_email='wim.sijp@gmail.com',
       description='numpy array with grids and associated operations',
+      download_url="https://github.com/willo12/spacegrids/tarball/1.8",
       keywords=('climate data','grid data','data on grids','spatial grids', 'Netcdf data analysis', 'climate analysis scripts',"interpreting meta data Netcdf","geophysics tools"),
       packages = find_packages(exclude="tests"),
+      classifiers = [],
 # package_data = {
 # "spacegrids": ['README.rst']
 # },
