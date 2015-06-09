@@ -2309,13 +2309,46 @@ class TestGr(unittest.TestCase):
 
     self.assertEqual(A,[ [ycoord1] , []  ] )
 
+  def test__values_Gr_method(self):
+    """
+    Test values method of Gr class.
+    """
+
+
+    y_step=30;
+
+    xcoord1 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
+    ycoord1 = sg.fieldcls.YCoord(name = 'testy',direction ='Y',value =np.arange(-90.,90.+y_step,y_step) )
+
+    grid = ycoord1*xcoord1
+
+    V=grid.values()
+    self.assertEqual(np.array_equal(V[0],grid[0].value),True)
+
+
+
+  def test__meshgrid_Gr_method(self):
+    """
+    Test meshgrid method of Gr class.
+    """
+
+
+    y_step=30;
+
+    xcoord1 = sg.fieldcls.XCoord(name = 'testx',direction ='X',value =np.arange(0.,360.,90.) )
+    ycoord1 = sg.fieldcls.YCoord(name = 'testy',direction ='Y',value =np.arange(-90.,90.+y_step,y_step) )
+
+    grid = ycoord1*xcoord1
+
+    Y,X=grid.meshgrid()
+    self.assertEqual(Y.shape,(4,7))
 
 
 
 
   def test__call_on_members_Gr_method(self):
     """
-    Test Coord _find_args_coord method.
+    Test call_on_members method of Gr class.
     """
 
 
@@ -2327,7 +2360,7 @@ class TestGr(unittest.TestCase):
 
     grid = ycoord1*xcoord1
 
-    R= grid.call_on_members('__neg__')
+    R= grid.call_on_members('__neg__') # make values negative as via -1 multiplication
 
     # This must be a 2D Field:
     self.assertEqual(R.shape(), (7,4))

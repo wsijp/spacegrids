@@ -2019,6 +2019,15 @@ class Gr(tuple, Membered):
      
     return
 
+  def values(self):
+    """Returns a list of values of each coordinate in grid.
+    """
+    return [i.value for i in self]
+
+  def meshgrid(self):
+    """Returns a Numpy meshgrid of the grid coordinate values.
+    """
+    return np.meshgrid(*self.values())
 
   def squeeze(self):
     """Remove Coord members of length 1 and return reduced Gr and removed Coord objects as a Gr.
