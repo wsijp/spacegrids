@@ -83,7 +83,10 @@ def _prep_axes(fld, minus_z=True,xl=None,yl=None,xscale = 1.,yscale = 1.,ax_unit
     grid = fld.grid
 
 
-  X, Y, x_name, y_name = grid[1], grid[0],grid[1].name, grid[0].name
+  if (len(grid) > 1):
+    X, Y, x_name, y_name = grid[1], grid[0],grid[1].name, grid[0].name
+  else:
+    raise ValueError('Grid dimension error for grid %s. Provide grid of dimension > 1.'%grid)
 
 
   if minus_z:
