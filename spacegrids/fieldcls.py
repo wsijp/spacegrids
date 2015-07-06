@@ -3761,6 +3761,9 @@ class Field(Valued):
         cb = plt.colorbar()
       cb.set_label(self.units)
 
+    else:
+      warnings.warn('Argument of wrong dimension, no plot.')
+      return -1,-1
     
     return h, cb
 
