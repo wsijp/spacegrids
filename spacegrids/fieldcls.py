@@ -3384,7 +3384,7 @@ class Field(Valued):
       return self/(other*self.grid)
  
     elif isinstance(other,Coord):
-#      print 'Warning: (benign) converting right multiplicant to Gr from Coord object.'
+#      print 'Warning (benign): converting right multiplicant to Gr from Coord object.'
       return self/(other**2)
 
     elif isinstance(other,Field):
