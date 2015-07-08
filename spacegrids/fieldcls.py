@@ -58,6 +58,8 @@ from abstract import *
 
 warnings.formatwarning = warning_on_one_line
 
+# to be thought about more later:
+scalar_ax = True # steer behaviour of directions under Field multiplication: only X*Y where X and Y are different non-scalar directions do no collapse to scalar (but yield vectorfield)
 
 # ---- decorators ------
 
@@ -3319,10 +3321,16 @@ class Field(Valued):
           new_name = other.name
         else:
           new_name = self.name +'_times_'+other.name
- 
-        new_direction = self.direction*other.direction
-        if isinstance(new_direction,AxGr):
-          new_direction = new_direction[0]
+
+        if scalar_ax is True:
+          # scalar*X, X*scalar and X*X collapse to scalar
+          new_direction = ID()
+        else: 
+          new_direction = self.direction*other.direction
+          if isinstance(new_direction,AxGr):
+            new_direction = new_direction[0]
+
+
 
         return Field(name = new_name ,value = self.grid(common_gr)(self.value)*other.grid(common_gr)(other.value),grid = common_gr, units = self.units + other.units, direction = new_direction)
 
