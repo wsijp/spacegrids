@@ -476,7 +476,7 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
 
   def test_coord_neg_other_dual(self):
     """
-    Test __neg__ method of Coord. 
+    Test __neg__ method of Coord on value for dual. 
     """
 
     cstack1 = self.fixture[0]
@@ -490,7 +490,20 @@ class TestCoordsOnTheirOwn(unittest.TestCase):
     self.assertEqual( np.array_equal(minus_coord2.dual.value, -coord2.dual.value), True )
 
 
+  def test_coord_neg_value_is_neg(self):
+    """
+    Test __neg__ method of Coord for Coord object itself on value. 
+    """
 
+    cstack1 = self.fixture[0]
+    coord2 = cstack1[1]
+    coord3 = cstack1[2]
+ 
+    # coord1 and coord2 have non-self duals:
+
+    minus_coord2 = -coord2
+
+    self.assertEqual( np.array_equal(minus_coord2.value, -coord2.value), True )
 
 
   def test_same_method_yields_same(self):
