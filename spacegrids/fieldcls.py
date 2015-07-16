@@ -3121,8 +3121,15 @@ class Field(Valued):
             return self.copy(value = L - R)
 
         else:
-          raise Exception('Field grid error in %s-%s with Field %s: grids must be equal. Try F - G(F.grid) or F(G.grid) - G.' % (self,other,self) )
-          
+
+         if ( self.grid.is_equiv(other.grid) and self.grid.array_equal(other.grid) ):
+           # ignoring units for now
+           return self.copy(value = L - R)
+  
+         else:
+           raise Exception('Field grid error in %s-%s with Field %s: grids must be equal. Try F - G(F.grid) or F(G.grid) - G.' % (self,other,self) )
+
+
       else:  
         raise Exception('Field shape error in %s-%s with Field %s: shapes must match. Try F - G(F.grid) or F(G.grid) - G.' % (self,other,self)  )
       

@@ -2920,6 +2920,22 @@ class TestFieldBasic(unittest.TestCase):
 
     self.assertEqual( SAT_sliced.shape ,  (1,100)  )
 
+  def test_slice_gridequiv_can_i_add(self):
+
+    SAT1 = self.fixture['DPO']['A_sat']
+    SAT2 = self.fixture['DPC']['A_sat']
+
+    for c in self.fixture['DPO'].axes: # get the axes into the namespace
+      exec c.name + ' = c'       
+
+    SAT1_sliced = SAT1[Y,10:]
+    SAT2_sliced = SAT2[Y,10:]
+
+    dSAT = SAT1_sliced - SAT2_sliced
+
+    self.assertEqual( dSAT.shape ,  (90,100)  )
+
+
   def test_slice_everything(self):
     """ Slicing with : should yield the value attribute, an ndarray
     """
