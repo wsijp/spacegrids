@@ -4763,7 +4763,8 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
   body = _read_data(var_cdf_ob, slices = slices)
 
   if grid.shape() != body.shape:
-    warnings.warn('Grid shape different from array shape. Assigning standard grid.')
+    
+    warnings.warn('Grid shape %s different from array shape %s. Assigning standard grid.'%(grid.shape(),body.shape))
 
     grid = standard_grid(body.shape)
 
