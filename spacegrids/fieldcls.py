@@ -4764,7 +4764,7 @@ def cdfread(filepath,varname,coord_stack=[], ax_stack = [], verbose = True,squee
 
   if grid.shape() != body.shape:
     
-    warnings.warn('Grid shape %s different from array shape %s. Assigning standard grid.'%(grid.shape(),body.shape))
+    warnings.warn('Reading cdf var %s. No match Grid shape %s and array shape %s. Assigning standard grid.'%(varname,grid.shape(),body.shape))
 
     grid = standard_grid(body.shape)
 
