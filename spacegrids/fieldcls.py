@@ -4184,8 +4184,8 @@ def roll(F,shift=1,coord=None,axis=None,mask=False,keepgrid = False, nan_val = n
 
   Args:
     F: (Field) to roll
-    shift: (int) to roll by
-    coord: (Coord) to roll along (e.g. latitude)
+    shift: (int) integer value to roll by
+    coord: (Coord) coordinate to roll along (e.g. latitude) Also takes Ax (axis) argument (recommended)
     axis: (int) indicates np.array index to roll by: generally not set.
     mask: (Boolean) if True, handle exposed areas that need to be set to nan
     keepgrid: (Boolean) if True, keep the original Field grid (replaced with shifted by default)  
@@ -4193,6 +4193,10 @@ def roll(F,shift=1,coord=None,axis=None,mask=False,keepgrid = False, nan_val = n
 
   Returns:
     Rolled Field.
+ 
+  Raises:
+    Exception when argument coord is a Coord and is not in the grid of the Field argument F. Note that this can be the case when the coord argument is only parallel (e.g. equivalent) to a coord in the grid, a hard error to spot. It is advised to an use axis (Ax) object argument for coord.
+
   """
 
   if shift==0:
