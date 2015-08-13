@@ -4197,6 +4197,7 @@ def roll(F,shift=1,coord=None,axis=None,mask=False,keepgrid = False, nan_val = n
   Raises:
     Exception when argument coord is a Coord and is not in the grid of the Field argument F. Note that this can be the case when the coord argument is only parallel (e.g. equivalent) to a coord in the grid, a hard error to spot. It is advised to an use axis (Ax) object argument for coord.
 
+    Exception when keepgrid argument is not Boolean
   """
 
   if shift==0:
@@ -4211,7 +4212,7 @@ def roll(F,shift=1,coord=None,axis=None,mask=False,keepgrid = False, nan_val = n
       axis = F.grid.index(coord)
     else:
       
-      raise Exception('Coord %s not in Field %s grid'%(coord,F))
+      raise Exception('Coord %s not in Field %s grid. Ax type argument recommended instead.'%(coord,F))
       return 
 
 # avoid deepcopy for fields
