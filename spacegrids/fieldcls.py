@@ -4206,7 +4206,8 @@ def roll(F,shift=1,coord=None,axis=None,mask=False,keepgrid = False, nan_val = n
       
       axis = F.grid.index(coord)
     else:
-      print 'coord not in Field grid'
+      
+      raise Exception('Coord %s not in Field %s grid'%(coord,F))
       return 
 
 # avoid deepcopy for fields
