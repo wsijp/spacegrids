@@ -3346,7 +3346,7 @@ class Field(Valued):
           if self.grid.weaksame(other.grid):
 
             # If multiplicants are defined on grids that have the same values but are different objects, a duplicate grid is discovered and housekeeping is done. Duplicate grids commonly arise from earlier slicing.
-            print 'Duplicate grids. FYI: replacing right gr.'
+            print 'Duplicate valued grids: assigning grid of left Field %s to right Field %s.'%(self.name,other.name)
             del other.grid
             other.grid = self.grid
           else:
