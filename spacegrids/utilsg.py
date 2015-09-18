@@ -1106,6 +1106,40 @@ def floodfill(A, node = (0,0),boundary_value = np.nan, xmin=0,xmax=-1,ymin=0,yma
 # ------------- general time series related functions ----------------
 
 
+def dlmread(filepath, datatype='float'):
+  """
+  Read space-deliminated data from text file. Similar to Matlab dlmread.
+  """
+
+  str_data = []
+  data = []
+
+#  print filepath
+
+  fobj = open(filepath,'r')
+  str_data = fobj.readlines()
+  fobj.close()
+
+
+  if datatype == 'float':
+    length = 0
+    for eachline in str_data:
+      for elem in eachline.split():
+        data.append(float(elem))  
+        length=length+1
+  elif datatype == 'int':
+    length = 0
+    for eachline in str_data:
+      for elem in eachline.split():
+        data.append(int(elem))  
+        length=length+1
+
+  width = len(eachline.split())
+  data = np.array(data).reshape(np.floor(length/ width),width)
+  
+  return data
+
+
 def _str_html_row(row, cell_tag='td'):
   """
   Helper function to construct a HTML table row from a list of string values.
