@@ -107,7 +107,7 @@ class Coord(Directional, Valued):
   Coord objects have a name, value (generally a numpy array) and units. The value of a Coord is a 1D ndarray containing location points (e.g. 50 degrees north). Coord is the basic building block of Gr (grid) objects.
   Examples of Coord objects are xt or yt, corresponding to the tracer grid cells in the x and y directions. Coord objects have a corresponding dual. For xt it is xt_edges and vice versa. The dual generally contains the edges of the grid cells. If no dual argument is given, the Coord object is its own dual.
 
-  Coord objects c1 and c2 are considered weakly the same, c1.weaksame(c2) yields True, when the name, value (numpy array) and units attributes are equal.
+  Coord objects c1 and c2 are considered weakly the same, where c1.weaksame(c2) yields True, when the name, value (numpy array) and units attributes are equal.
 
   Being a container of Coord objects and composed from them into a multidimensional construct, the Gr object (grid) is closely related to Coord. A shorthand for Gr construction is via multiplication of Coord objects. If two Coord objects coord1 and coord2 are not equivalent (generally when they point in different directions, e.g. X and Y), their product is a shorthand for the creation of a 2D grid coord1*coord2 = Gr((coord1, coord2)). By induction, products containing n elements yield Gr objects of dimension <=n. See class documentation.
 
@@ -1849,31 +1849,21 @@ class AxGr(tuple, Membered):
 class Gr(tuple, Membered):
 
   """
-  The Gr (grid) class represents Coord grids. A Gr object consists of a tuple of Coord objects, with additional Membered and other methods. 
-  
-  Gr object behave like tuples of Coord objects, and indexing is done as in tuples: if g = Gr((coord1,coord2)), then g[0] is coord1 etc.
+  The Gr (grid) class represents coordinate grids as tuples of Coord objects. 
 
-  The multiplication methods of Coord and Gr objects are such that Gr objects can be built via multiplication as follows: coord1*coord2 yields Gr((coord1,coord2)) etc. For instance, depth*latitude*longitude represents a 3 dimensional grid, and is essentially a Coord tuple of length 3 with extra methods.
+  A Gr object consists of a tuple of Coord objects, with additional methods inherited from the Membered class, and methods defined here. Grids provide discrete coordinate systems to Field objects (which have a grid attribute pointing to a Gr object). 
 
-  Gr objects g1 and g2 are considered weaksame, g1.weaksame(g2) yields True, when the individual Coord elements are weaksame.
+  g = Gr((c0,c1,c2)) creates a Gr object g from a tuple, say (c0,c1,c2), of Coord objects, say c0, c1, c2. Indexing is done as in tuples: g[0] is c0 etc.
+
+  Gr objects can be built via multiplication as follows: c1*c2 yields Gr((c1,c2)), a subspace of the above Gr object c0*c1*c2. For instance, depth*latitude*longitude represents a 3 dimensional grid, and is essentially a Coord tuple of length 3 with extra methods.
+
+  The Gr class provides compact methods for instance for regridding, integration and taking derivatives of Fields, and the calculation of volumes.
+
+  Grid arithmetic: multiplication and division of Gr objects yields new Gr objects, as described in the documentation for __div__ and __mul__.
+
+  Gr objects g1 and g2 are considered weaksame (where g1.weaksame(g2) yields True) when the individual Coord elements are weaksame (see weaksame for Coord).
   """
 
-
-
-#  def __eq__(self,other):
-#    """
-#    Define "==" as array_equal of members and having equal length.
-#    """
-
-#    if len(self) == len(other):
-#      if len(self) == 0:
-        # empty grids are always equal (reduce will not work)
-#        return True
-#      else:
-#        return reduce(lambda x,y: x and y, [ np.array_equal(e.value, other[i].value) for i,e in enumerate(self)  ] )
-
-#    else:
-#      return False
 
   def __call__(self,other, method = 'linear'):
     """
@@ -2242,8 +2232,6 @@ class Gr(tuple, Membered):
     return L
 
 
-
-
   def inflate(self, type = 'array', force = False):
     """
     Broadcast members onto (self) grid using their cast method and return list of results.
@@ -2401,9 +2389,21 @@ class Gr(tuple, Membered):
 
   def __div__(self,other):
     """
-    Division of grids. E.g. xt*yt*zt/yt = xt*zt
+    Grid arithmetics: removes multiplicative terms from Gr. E.g. (xt*yt*zt)/yt = xt*zt
 
+    Dividing a Gr g = x_0*x_1*...*x_n by a Gr y_0*...*y_m, where m<= n and y_i.isequiv(x_ki) for some 0<=ki<=n and 0<=i<=m, removes the Coord objects x_k1, x_k2, ... ,x_km from the product x_0*x_1*...*x_n. Division by Coord objects that are not in the grid yields no change, for instance: xt*yt/zt yields xt*yt.
 
+    Division by X_0*X_1*..*X_n where the X_i are Ax (axis) objects accomplishes the same thing. Division by single Coord or Ax objects is the same as division by the corresponding 1-element Gr or AxGr objects.
+
+    Examples:
+    >>>  yu.is_equiv(yt) # yu points in the same direction as yt
+    True
+    >>> (xt*yt*zt*time)/(yu*zt) 
+    (xt, time)
+
+    Args:
+      other: (Gr, Coord or Ax) Gr element(s) to remove (up to equivalence)
+ 
     Returns:
       Resulting Gr object 
     """
@@ -2424,7 +2424,7 @@ class Gr(tuple, Membered):
 
   def __mul__(self,other):
     """
-    Multiplication of grids.
+    Grid arithmetic: construct super-grid containing multiplicant grids. If argument is a Field, a weighted sum of the Field value over the calling Gr is performed.
 
     At the moment, xu*zt*xt*yt = (xu,zt,yt,) whereas xu*(zt*xt*yt) = (zt,xu,yt,)
 
