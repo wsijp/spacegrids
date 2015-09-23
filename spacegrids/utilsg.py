@@ -1108,9 +1108,11 @@ def floodfill(A, node = (0,0),boundary_value = np.nan, xmin=0,xmax=-1,ymin=0,yma
 
 def dlmread(filepath, datatype='float'):
   """
-  Read space-deliminated data from text file. Similar to Matlab dlmread.
-  """
+  Read space delimited data. Select 'float' or 'int' for datatype.
 
+  datatype indicates which datatype to expect: int or float. Any other value for this datatype argument will be interpreted as expecting string datatype in file.
+
+  """
   str_data = []
   data = []
 
@@ -1119,7 +1121,6 @@ def dlmread(filepath, datatype='float'):
   fobj = open(filepath,'r')
   str_data = fobj.readlines()
   fobj.close()
-
 
   if datatype == 'float':
     length = 0
@@ -1133,11 +1134,18 @@ def dlmread(filepath, datatype='float'):
       for elem in eachline.split():
         data.append(int(elem))  
         length=length+1
+  else:
+    length = 0
+    for eachline in str_data:
+      for elem in eachline.split():
+        data.append(elem)  
+        length=length+1
 
   width = len(eachline.split())
   data = np.array(data).reshape(np.floor(length/ width),width)
   
   return data
+
 
 
 def _str_html_row(row, cell_tag='td'):
