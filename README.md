@@ -64,7 +64,7 @@ By default, this expects a directory `PROJECTS` in `$HOME`, but this can be chan
 Now that we know what projects are available, start a project `P` corresponding to a project named 'test'. This name comes from the `projname` file placed inside the project directory (see above):
 
 ```python
-P = sg.project(D['test']) 	# create project using path. Collects coords etc.
+P = sg.Project(D['test']) 	# create project using path. Collects coords etc.
 ```
 
 We could have used the full path to the project directory, but this is more convenient. Project creation also takes an optional argument "expnames" that can be used to only load from a subset of experiments within the project directory on disk. The "expnames" argument allows globbing via wildcards and other symbols, allowing functionality that is familiar from working with the filesystem. For instance, if the project directory "test" contains additional experiments "SD_BL", "glacial01" and "glacial02", where we are only interested in "flx_BL" and "SD_BL", `P = sg.project(D['test'], expnames = '*_BL')` will only load those experiments. 
@@ -112,7 +112,7 @@ D = sg.info()
 # SG will look through all the subdirectories of that path that contain netcdf files to create experiment objects. (If you put a directory masks in your project path, it will load the masks inside that directory as well.)
 # note that D['something'] in the following is a path.
 
-P = sg.project(D['my_project'],expnames = 'DP*')
+P = sg.Project(D['my_project'],expnames = 'DP*')
 
 # Give the experiment objects convenient names E, E2:
 
@@ -225,7 +225,7 @@ D = sg.info()
 # SG will look through all the subdirectories of that path that contain netcdf files to create experiment objects. (If you put a directory masks in your project path, it will load the masks inside that directory as well.)
 # note that D['something'] in the following is a path.
 
-P = sg.project(D['my_project'],expnames = 'DP*')
+P = sg.Project(D['my_project'],expnames = 'DP*')
 
 
 # Give the experiment objects convenient names E, E2:
@@ -328,7 +328,7 @@ D = sg.info()
 # SG will look through all the subdirectories of that path that contain netcdf files to create experiment objects. (If you put a directory masks in your project path, it will load the masks inside that directory as well.)
 # note that D['something'] in the following is a path.
 
-P = sg.project(D['my_project'],expnames = 'DP*')
+P = sg.Project(D['my_project'],expnames = 'DP*')
 
 
 # bring axes into namespace. e.g. X,Y,Z. The experiment objects will contain a list of axes in their axes attribute.
