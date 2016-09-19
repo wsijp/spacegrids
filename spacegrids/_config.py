@@ -63,10 +63,10 @@ month_len=(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 # strings starting with ! indicate keywords that should NOT appear in the descriptions. These denied keywords have precedence over the allowed keywords.
 # string starting with ? must match precisely.
 
-coord_dir_names = {'x_dir_names' : ['eastward','Eastward','zonal','Zonal','longitude','Longitude','?X','x','e','E'],
-    'y_dir_names' : ['northward','Northward','meridional','Meridional','latitude','Latitude','?Y','y','N','n'], 
-    'z_dir_names' : ['upward','Upward','vertical','Vertical','depth','Depth','pressure','!surface','level','Level','?Z','z','elev'],
-    't_dir_names' : ['?T','time','Time','year','Year','t']}
+coord_dir_names = {'x_dir_names' : ['eastward','zonal','longitude','?x','?e','?lon'],
+    'y_dir_names' : ['northward','meridional','latitude','?y','?n','?lat'], 
+    'z_dir_names' : ['upward','vertical','depth','pressure','!surface','level','?z','elev'],
+    't_dir_names' : ['time','year','?t']}
 
 edge_names = ['edges','bounds']
 

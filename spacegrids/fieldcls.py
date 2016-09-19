@@ -4621,19 +4621,22 @@ def _guess_helper(desc, guess_names, true_val = None, false_val = None):
   Helper function for guess_direction
   """
 
-  denied_found = [e[1:] in desc for e in guess_names if e[0] =='!']
+  guess_names_lower = [e.lower() for e in guess_names]
+  desc_lower = desc.lower()
+
+  denied_found = [e[1:] in desc_lower for e in guess_names_lower if e[0] =='!']
   if denied_found:
     deny = reduce(lambda x,y: x| y , denied_found)
   else:
     deny = False
 
-  precise_found = [e[1:] == desc for e in guess_names if e[0] =='?']
+  precise_found = [e[1:] == desc_lower for e in guess_names_lower if e[0] =='?']
   if precise_found:
     precise = reduce(lambda x,y: x| y , precise_found)
   else:
     precise = False
 
-  allowed_found = [e in desc for e in guess_names if e[0] !='!']
+  allowed_found = [e in desc_lower for e in guess_names_lower if e[0] not in ['!','?']]
   if allowed_found:
     allow = reduce(lambda x,y: x| y , allowed_found)
   else:
