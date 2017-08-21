@@ -1,7 +1,7 @@
 ### Overview
 [![Build Status](https://travis-ci.org/willo12/spacegrids.svg)](https://travis-ci.org/willo12/spacegrids)
 
-Spacegrid is a single python module containing classes to work with and organise data defined on grids (e.g. climate model and observational). It is a bit like "Numpy with grids". The goal is to provide convenient coordinate, grid and data (field) classes that link together, and have short and intuitive data manipulation expressions. In addition, a small framework for project data management is provided. The module provides informative error messages and warnings, and is documented here and extensively inside the python code. 
+Spacegrids organises data defined on grids. The goal is to provide convenient coordinate, grid and data (field) classes, providing intuitive data manipulation expressions. In addition, there is a small framework for data management. The module is documented here and extensively inside the python code. 
 
 Installs from pypi with ```pip install spacegrids``` (see https://pypi.python.org/pypi/spacegrids/)
 
@@ -21,13 +21,13 @@ The module consists only of the single file sg.py that can be downloaded from th
 *  **project**  - project. Represents a project directory. 
 
 
-A dataset is stored in an object, called a "field", that references the grid on which the data is defined, also an object. Data vs grid consistency is ensured at the time of the creation of the field object, and this integrity is maintained throughout  with each grid-related operation on the data, avoiding errors relating to the interpretation of array indices. The aim is to achieve grid operations in a logical intuitive way and with minimal notational effort, with succinct expressions such as F/X denoting zonal averaging. Functionality falls in two main categories: 
+A dataset is stored in a Field object, that references the grid object on which the data is defined. Data vs grid consistency is ensured at the time of the creation of the Field object, and this integrity is maintained throughout  with each grid-related operation on the data, avoiding errors relating to the interpretation of array indices. Functionality falls in two main categories: 
 
 1. Object manipulation. This is the main category, and can involve the construction of grid objects from coord objects and or other grid objects, or grid related operations on a field F such as integration and differentiation or interpolation of a field F via the expression F(new_grid) etc.
 
 2. File IO related. Collections of datesets (read from Netcdf) is organized in units named "experiments", and is interpreted and converted into SG objects (fields, grids etc) based on information read from the Netcdf file (not the user). These objects are then arranged in memory within a project structure that reflects a subset of the data directory structure on disk and is easy to reference.
 
-SG also contains wrappers for some of the standard Matplotlib plotting functions that take fields as argument. This can be advantageous as fields contain more information than a regular numpy array, for instance axis labels (that are displayed from within the SG wrappers) and whether the field is defined on a lat-lon grid or whether z should point downward in the plot. Finally, operators such as grad and curl acting on vector fields can be defined in a natural way.
+Spacegrids also contains wrappers for some of the standard Matplotlib plotting functions that take fields as argument. This can be advantageous as fields contain more information than a regular numpy array, for instance axis labels (that are displayed from within the SG wrappers) and whether the field is defined on a lat-lon grid or whether z should point downward in the plot. Finally, operators such as grad and curl acting on vector fields can be defined in a natural way.
 
 ### Getting started and data organization on disk
 
