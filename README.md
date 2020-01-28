@@ -468,7 +468,7 @@ A vector field object is a collection of directional fields (derived from tuples
 
 ### Operators
 
-The Operator class allows the definition of operators that generally act on and yield (v)fields. E.g. div and curl operators, etc. Ideas for useful operators are shown below. Operators, say `K1` and `K2`, can be multiplied before they are applied. E.g. if `K = K1*K2`, no evaluation has occurred yet, and evaluation yields: `K*F = K1(K2(F))`. So `K2` acts on `F` first, then `K1` acts on the resulting field. the curl of a 2D vectorfield `U*V` would then be `curl*(U*V)`. If `U*V` is defined on 3D space, the `curl` operator acts on each z-level.
+The Operator class allows the definition of operators that generally act on and yield (v) fields. E.g. div and curl operators, etc. Ideas for useful operators are shown below. Operators, say `K1` and `K2`, can be multiplied before they are applied. E.g. if `K = K1*K2`, no evaluation has occurred yet, and evaluation yields: `K*F = K1(K2(F))`. So `K2` acts on `F` first, then `K1` acts on the resulting field. the curl of a 2D vectorfield `U*V` would then be `curl*(U*V)`. If `U*V` is defined on 3D space, the `curl` operator acts on each z-level.
 
 
 
