@@ -7,7 +7,7 @@ Installs from pypi with ```pip install spacegrids``` (see https://pypi.python.or
 
 For now, to satisfy dependencies, install on Ubuntu/ Debian:
 
-```apt-get install python-{tk,numpy,matplotlib,scipy} ```
+```sudo apt-get install python-{tk,numpy,matplotlib,scipy} ```
 
 The module consists only of the single file sg.py that can be downloaded from this Github page. The main classes are:
 
