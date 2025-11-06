@@ -1,3 +1,10 @@
+> **Project status: Archived / Legacy**
+>
+> This code was written for Python 2.7.
+> It is not maintained and is kept online for historical/reference purposes.  
+> For modern workflows, prefer xarray + xESMF.
+
+
 ### Overview
 [![Build Status](https://travis-ci.org/willo12/spacegrids.svg)](https://travis-ci.org/willo12/spacegrids)
 
